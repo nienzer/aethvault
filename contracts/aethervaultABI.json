@@ -1,0 +1,58 @@
+export const AetherVaultABI = [
+  {
+    "inputs": [
+      { "internalType": "address", "name": "initialLiquidityPool", "type": "address" },
+      { "internalType": "address", "name": "stakingRewardsWallet", "type": "address" },
+      { "internalType": "address", "name": "initialSaleWallet", "type": "address" },
+      { "internalType": "address", "name": "teamWallet", "type": "address" },
+      { "internalType": "address", "name": "treasuryWallet", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "_title", "type": "string" },
+      { "internalType": "string", "name": "_encryptedMessage", "type": "string" },
+      { "internalType": "uint256", "name": "_timeParam", "type": "uint256" },
+      { "internalType": "uint256", "name": "_cost", "type": "uint256" },
+      { "internalType": "uint256", "name": "_burnPart", "type": "uint256" },
+      { "internalType": "address", "name": "_heirAddress", "type": "address" }
+    ],
+    "name": "sealCapsule",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }
+    ],
+    "name": "pingAlive",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }
+    ],
+    "name": "isCapsuleReady",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
