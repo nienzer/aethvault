@@ -1,0 +1,16 @@
+name = "aethervaul"
+main = ".open-next/worker.js"
+compatibility_date = "2026-07-29"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[kv_namespaces]]
+binding = "NEXT_INC_CACHE_KV"
+id = "3b20e13ab38a42c79fa966221a8d3e7a"
+
+[vars]
+NEXT_PUBLIC_APP_URL = "https://aethervaul.pages.dev"
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID = "project_id_anda_di_sini"
