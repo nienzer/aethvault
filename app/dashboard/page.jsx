@@ -205,7 +205,7 @@ const TIER_INDEX_TO_LABEL = {
 // terhubung (mis. saat user pertama kali membuka halaman). Untuk produksi
 // sebaiknya ganti ke provider RPC dedicated (Alchemy/Infura/QuickNode)
 // supaya tidak bergantung pada rate-limit endpoint publik.
-const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology"; // RPC publik Amoy testnet — TODO: ganti ke provider dedicated (Alchemy/Infura) sebelum mainnet
+const READ_ONLY_RPC_URL = "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM"; // RPC publik Amoy testnet — TODO: ganti ke provider dedicated (Alchemy/Infura) sebelum mainnet
 
 // Nilai fallback HANYA dipakai selagi tierConfigs on-chain belum berhasil
 // dimuat (mis. RPC lambat/gagal). Begitu fetch on-chain sukses, nilai ini
@@ -440,10 +440,17 @@ export default function DashboardPage() {
         contract.getHeirCapsules(userAddress),
       ]);
 
-      const allIds = [
-        ...ownedIds.map((id) => ({ id, asHeir: false })),
-        ...heirIds.map((id) => ({ id, asHeir: true })),
-      ];
+      // FIX: Deduplikasi — jika user adalah owner sekaligus heir kapsul yang sama,
+      // jangan tampilkan dua kali. Priority: owner (asHeir: false) lebih utama.
+      const allIdsMap = new Map();
+      ownedIds.forEach((id) => allIdsMap.set(id.toString(), { id, asHeir: false }));
+      heirIds.forEach((id) => {
+        const key = id.toString();
+        if (!allIdsMap.has(key)) {
+          allIdsMap.set(key, { id, asHeir: true });
+        }
+      });
+      const allIds = Array.from(allIdsMap.values());
 
       const results = await Promise.all(
         allIds.map(async ({ id, asHeir }) => {
@@ -502,16 +509,20 @@ export default function DashboardPage() {
   // CapsuleSealed/Revealed/LegacyClaimed/PingRecorded dari vault, dan
   // Staked/Withdrawn/RewardClaimed dari staking — jadi selalu akurat, tahan
   // refresh, tahan ganti perangkat, sinkron ke event log sungguhan.
-  const fetchOnChainHistory = useCallback(async (provider, userAddress) => {
+  const fetchOnChainHistory = useCallback(async (userAddress) => {
     setIsLoadingHistory(true);
     try {
+      // FIX: Gunakan JsonRpcProvider read-only, BUKAN BrowserProvider wallet.
+      // Wallet provider sering membatasi/reject eth_getLogs. JsonRpcProvider
+      // lebih stabil untuk query event history.
+      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
 
       const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
-        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress)),
-        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress)),
-        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress)),
-        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress)),
+        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), 0, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), 0, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), 0, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), 0, "latest"),
       ]);
 
       let stakingLogs = { staked: [], withdrawn: [], claimed: [] };
@@ -519,30 +530,15 @@ export default function DashboardPage() {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
           const [staked, withdrawn, claimed] = await Promise.all([
-            stakingContract.queryFilter(stakingContract.filters.Staked(userAddress)),
-            stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress)),
-            stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress)),
+            stakingContract.queryFilter(stakingContract.filters.Staked(userAddress), 0, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress), 0, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress), 0, "latest"),
           ]);
           stakingLogs = { staked, withdrawn, claimed };
         } catch (stakeErr) {
           console.log("Gagal memuat riwayat staking (kontrak mungkin belum siap):", stakeErr);
         }
       }
-
-      // Cache timestamp per blockNumber supaya blok yang sama tidak
-      // di-fetch berulang kali kalau ada beberapa event di blok yang sama.
-      const blockTimeCache = new Map();
-      const getBlockTime = async (log) => {
-        if (!blockTimeCache.has(log.blockNumber)) {
-          const block = await log.getBlock();
-          blockTimeCache.set(log.blockNumber, block.timestamp);
-        }
-        return blockTimeCache.get(log.blockNumber);
-      };
-
-      const formatDate = (unixSeconds) => new Date(unixSeconds * 1000).toLocaleString('id-ID', {
-        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-      });
 
       const allLogs = [
         ...sealedEvents.map((e) => ({ e, kind: 'sealed' })),
@@ -554,8 +550,24 @@ export default function DashboardPage() {
         ...stakingLogs.claimed.map((e) => ({ e, kind: 'rewardClaimed' })),
       ];
 
-      const built = await Promise.all(allLogs.map(async ({ e, kind }) => {
-        const timestamp = await getBlockTime(e);
+      // FIX: Pre-fetch semua block unik untuk hindari race condition & redundant request.
+      // Ethers v6 Log tidak punya method .getBlock() — harus pakai provider.getBlock().
+      const uniqueBlockNumbers = [...new Set(allLogs.map(({ e }) => e.blockNumber))];
+      const blockTimeCache = new Map();
+      await Promise.all(
+        uniqueBlockNumbers.map(async (blockNumber) => {
+          const block = await provider.getBlock(blockNumber);
+          blockTimeCache.set(blockNumber, block.timestamp);
+        })
+      );
+
+      const formatDate = (unixSeconds) => new Date(unixSeconds * 1000).toLocaleString('id-ID', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+      });
+
+      // Timestamp sudah di-cache — tidak perlu Promise.all lagi.
+      const built = allLogs.map(({ e, kind }) => {
+        const timestamp = blockTimeCache.get(e.blockNumber);
         const date = formatDate(timestamp);
         const base = { id: `${kind}-${e.transactionHash}-${e.index ?? e.logIndex}`, date, timestamp, txHash: e.transactionHash };
 
@@ -580,7 +592,7 @@ export default function DashboardPage() {
           default:
             return null;
         }
-      }));
+      });
 
       setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
 
@@ -595,10 +607,11 @@ export default function DashboardPage() {
       setBurnedTotal(totalBurn);
     } catch (err) {
       console.error("Gagal memuat riwayat on-chain:", err);
+      showToast(`Gagal memuat riwayat: ${extractErrorMessage(err)}`, 'error');
     } finally {
       setIsLoadingHistory(false);
     }
-  }, [onChainTierConfig]);
+  }, [onChainTierConfig, showToast, extractErrorMessage]);
 
   useEffect(() => {
     const fetchWalletData = async () => {
@@ -651,7 +664,7 @@ export default function DashboardPage() {
           }
 
           await fetchCapsulesFromChain(provider, address, privateKeyForTitles);
-          await fetchOnChainHistory(provider, address);
+          await fetchOnChainHistory(address);
         } catch (err) {
           console.error("Gagal membaca data wallet", err);
         }
@@ -800,6 +813,7 @@ export default function DashboardPage() {
 
   const handleConfirmArweaveUpload = async () => {
     if (!stagedUpload) return;
+    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
     setIsUploading(true);
     try {
       // Tag "App-Name: AetherVault" SENGAJA DIHAPUS. Irys/Arweave secara
@@ -880,8 +894,15 @@ export default function DashboardPage() {
 
     const selectedTierData = tiers[tier];
 
-    if (message.length > selectedTierData.maxLength) {
-      return showToast(`Pesan terlalu panjang! Maksimal ${selectedTierData.maxLength} karakter.`, 'error');
+    // FIX: Cek byte length (bukan character length) untuk akurasi batas kontrak.
+    // Emoji/CJK bisa 3-4 byte per karakter — message.length JS salah hitung.
+    const messageByteLength = new TextEncoder().encode(message).length;
+    if (messageByteLength > selectedTierData.maxLength) {
+      return showToast(`Pesan terlalu panjang! Maksimal ${selectedTierData.maxLength} byte (≈${selectedTierData.maxLength} karakter Latin). Pesan Anda: ${messageByteLength} byte.`, 'error');
+    }
+
+    if (aethBalance < selectedTierData.cost) {
+      return showToast(`Saldo AETH tidak mencukupi. Dibutuhkan ${selectedTierData.cost} AETH, Anda punya ${aethBalance.toFixed(4)} AETH.`, 'error');
     }
 
     if (tier === 'legacy' && !ethers.isAddress(heirAddress)) {
@@ -950,7 +971,7 @@ export default function DashboardPage() {
       // FIX (Riwayat/Statistik): baca ulang dari event log on-chain, bukan
       // push manual ke state sementara — supaya tetap benar setelah
       // refresh/logout, dan angka totalBurn selalu dari tierConfigs asli.
-      await fetchOnChainHistory(provider, address);
+      await fetchOnChainHistory(address);
 
     } catch (err) {
       console.error(err);
@@ -1025,7 +1046,7 @@ export default function DashboardPage() {
 
       const provider = new ethers.BrowserProvider(walletProvider);
       await fetchCapsulesFromChain(provider, address, privateKey);
-      await fetchOnChainHistory(provider, address);
+      await fetchOnChainHistory(address);
     } catch (err) {
       console.error(err);
       const msg = extractErrorMessage(err);
@@ -1064,7 +1085,7 @@ export default function DashboardPage() {
 
       const provider = new ethers.BrowserProvider(walletProvider);
       await fetchCapsulesFromChain(provider, address, myKeyPairRef.current?.privateKey ?? null);
-      await fetchOnChainHistory(provider, address);
+      await fetchOnChainHistory(address);
     } catch (err) {
       console.error(err);
       showToast(`Gagal melaporkan status aktif: ${extractErrorMessage(err)}`, 'error');
@@ -1153,7 +1174,7 @@ export default function DashboardPage() {
       showToast(`Berhasil melakukan Staking ${amount} AETH secara On-Chain!`, "success");
 
       const refreshProvider = new ethers.BrowserProvider(walletProvider);
-      await fetchOnChainHistory(refreshProvider, address);
+      await fetchOnChainHistory(address);
 
     } catch (err) {
       console.error(err);
@@ -1196,7 +1217,7 @@ export default function DashboardPage() {
       showToast(`Berhasil menarik ${amount} AETH dari staking.`, "success");
 
       const refreshProvider1 = new ethers.BrowserProvider(walletProvider);
-      await fetchOnChainHistory(refreshProvider1, address);
+      await fetchOnChainHistory(address);
 
     } catch (err) {
       console.error(err);
@@ -1209,6 +1230,7 @@ export default function DashboardPage() {
   const handleClaimReward = async () => {
     if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
     if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
+    if (pendingReward <= 0) return showToast("Tidak ada reward yang tersedia untuk diklaim.", "error");
 
     showToast("Memproses klaim reward dari blockchain...", "info");
 
@@ -1228,7 +1250,7 @@ export default function DashboardPage() {
       setPendingReward(0);
 
       const refreshProvider2 = new ethers.BrowserProvider(walletProvider);
-      await fetchOnChainHistory(refreshProvider2, address);
+      await fetchOnChainHistory(address);
 
     } catch (err) {
       console.error(err);
