@@ -1,7 +1,7 @@
 "use client";
 // 1. IMPORT HOOKS WALLETCONNECT SECARA LENGKAP
 import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect } from '@web3modal/ethers/react';
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Landmark, Cpu, Coins, Settings, UserX, AlertTriangle, UploadCloud, FileImage, X, CheckCircle2, ArrowUpRight, Menu, KeyRound, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
@@ -59,6 +59,13 @@ const AetherVaultABI = [
   { "inputs": [{ "internalType": "address", "name": "_heir", "type": "address" }], "name": "getHeirCapsules", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" },
   { "inputs": [], "name": "getCapsuleCount", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
 
+  { "inputs": [{ "internalType": "enum AetherVault.Tier", "name": "", "type": "uint8" }], "name": "tierConfigs", "outputs": [
+      { "internalType": "uint256", "name": "cost", "type": "uint256" },
+      { "internalType": "uint256", "name": "burnPart", "type": "uint256" },
+      { "internalType": "uint256", "name": "maxDuration", "type": "uint256" },
+      { "internalType": "uint256", "name": "maxMessageLength", "type": "uint256" }
+    ], "stateMutability": "view", "type": "function" },
+
   { "anonymous": false, "inputs": [
       { "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" },
       { "indexed": true, "internalType": "address", "name": "owner", "type": "address" },
@@ -72,7 +79,12 @@ const AetherVaultABI = [
   { "anonymous": false, "inputs": [
       { "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" },
       { "indexed": true, "internalType": "address", "name": "heir", "type": "address" }
-    ], "name": "LegacyClaimed", "type": "event" }
+    ], "name": "LegacyClaimed", "type": "event" },
+  { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "owner", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+    ], "name": "PingRecorded", "type": "event" }
 ];
 
 // ==========================================
@@ -86,7 +98,6 @@ const StakingABI = [
   { "inputs": [{ "internalType": "address", "name": "_user", "type": "address" }], "name": "calculateReward", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [], "name": "rewardRate", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [], "name": "availableRewardPool", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-
   { "anonymous": false, "inputs": [
       { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
       { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
@@ -101,11 +112,8 @@ const StakingABI = [
     ], "name": "RewardClaimed", "type": "event" }
 ];
 
-// ==========================================
-// ALAMAT SMART CONTRACT
-// ==========================================
-const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; 
-const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; 
+const CONTRACT_ADDRESS = "0x718b453206A950Eee77832F1cBfE63320A90d70f"; 
+const STAKING_CONTRACT_ADDRESS = "0x30C7Be9E02e2717676B583dEED79F2fBD2493aCc"; 
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
@@ -113,54 +121,15 @@ const IS_CONTRACT_ADDRESS_CONFIGURED =
 const IS_STAKING_ADDRESS_CONFIGURED =
   STAKING_CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
 
-// ==========================================
-// MODE: TESTNET (Polygon Amoy)
-// ==========================================
-const TARGET_CHAIN_ID = 80002;
+const TARGET_CHAIN_ID = 137;
 const TARGET_CHAIN_ID_HEX = "0x" + TARGET_CHAIN_ID.toString(16);
-const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
-
+const TARGET_CHAIN_NAME = "Polygon Mainnet";
 const CIPHERTEXT_OVERHEAD_FACTOR = 2.5;
 
-const TIER_ENUM_MAP = {
-  basic: 0,
-  premium: 1, 
-  eternal: 2,
-  legacy: 3,
-};
+const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
+const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
-const TIER_INDEX_TO_LABEL = {
-  0: 'Basic',
-  1: 'VIP',
-  2: 'Eternal',
-  3: 'Legacy',
-};
-
-const TIER_INDEX_TO_KEY = {
-  0: 'basic',
-  1: 'premium',
-  2: 'eternal',
-  3: 'legacy',
-};
-
-// ==========================================
-// DAFTAR RPC OTOMATIS (Akan dicoba satu per satu jika ada yang mati)
-// ==========================================
-const RPC_LIST = [
-  "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM", // 1. Utama (Paling Kuat) - Ganti tulisan ini!
-  "https://rpc-amoy.polygon.technology",                            // 2. Cadangan 
-  "https://polygon-amoy-bor-rpc.publicnode.com",                    // 3. Cadangan
-  "https://rpc.amoy.polygon.gateway.fm"                             // 4. Cadangan
-];
-
-// FUNGSI PINTAR: Membuat Provider yang otomatis berpindah jika error
-const getAutomaticProvider = () => {
-  const providers = RPC_LIST.map(url => new ethers.JsonRpcProvider(url));
-  return new ethers.FallbackProvider(providers);
-};
-
-const TRANSACTION_HISTORY_FROM_BLOCK = 43345845;
-
+const READ_ONLY_RPC_URL = "https://polygon-mainnet.g.alchemy.com/v2/alch_EJ4vIEBOFNz5ybhl8CbuD"; 
 const TIER_FALLBACK_CONFIG = {
   basic: { cost: 10, burn: 2, maxLength: 250, maxYears: 1 },
   premium: { cost: 50, burn: 10, maxLength: 1000, maxYears: 5 },
@@ -181,15 +150,14 @@ export default function DashboardPage() {
   const isWrongNetwork = isConnected && chainId !== undefined && Number(chainId) !== TARGET_CHAIN_ID;
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const [nativeBalance, setNativeBalance] = useState('0.0000');
   const [aethBalance, setAethBalance] = useState(0);
+  const [burnedTotal, setBurnedTotal] = useState(0);
   const [activeTab, setActiveTab] = useState('create');
 
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [unlockDate, setUnlockDate] = useState('');
-  const [unlockTime, setUnlockTime] = useState('12:00');
   const [tier, setTier] = useState('premium');
   const [inactivityYears, setInactivityYears] = useState('5');
   const [heirAddress, setHeirAddress] = useState('');
@@ -199,6 +167,8 @@ export default function DashboardPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedCid, setUploadedCid] = useState('');
   const [pendingFileCipherRef, setPendingFileCipherRef] = useState(null);
+  const [stagedUpload, setStagedUpload] = useState(null); 
+  const [isPreparingUpload, setIsPreparingUpload] = useState(false);
 
   const [stakeInput, setStakeInput] = useState('');
   const [unstakeInput, setUnstakeInput] = useState('');
@@ -220,7 +190,7 @@ export default function DashboardPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedVault, setSelectedVault] = useState(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
-
+  
   const myKeyPairRef = useRef(null);
   const [hasLocalKeyPair, setHasLocalKeyPair] = useState(false);
 
@@ -229,27 +199,27 @@ export default function DashboardPage() {
     return () => clearInterval(timer);
   }, []);
 
+  // FIX: Reset keypair ref saat wallet address berubah (switch wallet tanpa disconnect)
+  useEffect(() => {
+    if (address) {
+      myKeyPairRef.current = null;
+      setHasLocalKeyPair(false);
+    }
+  }, [address]);
+
   const [onChainTierConfig, setOnChainTierConfig] = useState({});
   const [isTierConfigLoaded, setIsTierConfigLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-
     const fetchTierConfigs = async () => {
       try {
-        // Menggunakan Auto-Fallback RPC
         const provider = walletProvider
           ? new ethers.BrowserProvider(walletProvider)
-          : getAutomaticProvider();
-
+          : new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-
-        const results = await Promise.all(
-          [0, 1, 2, 3].map((idx) => contract.tierConfigs(idx))
-        );
-
+        const results = await Promise.all([0, 1, 2, 3].map((idx) => contract.tierConfigs(idx)));
         if (cancelled) return;
-
         const parsed = {};
         results.forEach((r, idx) => {
           parsed[idx] = {
@@ -259,30 +229,27 @@ export default function DashboardPage() {
             maxLength: Number(r.maxMessageLength),
           };
         });
-
         setOnChainTierConfig(parsed);
         setIsTierConfigLoaded(true);
       } catch (err) {
-        console.error("Gagal memuat tierConfigs dari kontrak, memakai nilai fallback:", err);
+        console.error(t.consoleTierConfigFail, err);
       }
     };
-
     fetchTierConfigs();
     return () => { cancelled = true; };
   }, [walletProvider]);
 
   const tierDisplayMeta = {
-    basic: { name: 'Basic', desc: t.tiersList.basicDesc, icon: 'bg-neutral-800', color: 'text-gray-300', border: 'border-neutral-600' },
-    premium: { name: 'VIP Vault', desc: t.tiersList.vipDesc, icon: 'bg-cyan-500/20', color: 'text-cyan-400', border: 'border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.15)]' },
-    eternal: { name: 'Eternal', desc: t.tiersList.eternalDesc, icon: 'bg-yellow-500/20', color: 'text-yellow-400', border: 'border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.15)]' },
-    legacy: { name: t.tiersList.legacyName, desc: t.tiersList.legacyDesc, icon: 'bg-red-500/20', color: 'text-red-400', border: 'border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.15)]' },
+    basic: { name: t.tiersList.basicName, desc: t.tiersList.basicDesc, icon: 'bg-neutral-800', color: 'text-gray-300', border: 'border-neutral-500 shadow-[0_0_15px_-3px_rgba(255,255,255,0.1)]' },
+    premium: { name: t.tiersList.vipName, desc: t.tiersList.vipDesc, icon: 'bg-gradient-to-br from-cyan-500/20 to-violet-500/20', color: 'text-cyan-300', border: 'border-cyan-400/70 shadow-[0_0_25px_-4px_rgba(168,85,247,0.45),0_0_15px_-4px_rgba(34,211,238,0.4)]' },
+    eternal: { name: t.tiersList.eternalName, desc: t.tiersList.eternalDesc, icon: 'bg-gradient-to-br from-amber-500/20 to-orange-500/20', color: 'text-amber-300', border: 'border-amber-400/70 shadow-[0_0_25px_-4px_rgba(245,158,11,0.45),0_0_15px_-4px_rgba(251,146,60,0.35)]' },
+    legacy: { name: t.tiersList.legacyName, desc: t.tiersList.legacyDesc, icon: 'bg-gradient-to-br from-fuchsia-500/20 to-rose-500/20', color: 'text-fuchsia-300', border: 'border-fuchsia-400/70 shadow-[0_0_25px_-4px_rgba(232,121,249,0.45),0_0_15px_-4px_rgba(244,63,94,0.35)]' },
   };
 
   const tiers = Object.keys(tierDisplayMeta).reduce((acc, key) => {
     const idx = TIER_ENUM_MAP[key];
     const onChain = onChainTierConfig[idx];
     const fallback = TIER_FALLBACK_CONFIG[key];
-
     acc[key] = {
       ...tierDisplayMeta[key],
       cost: onChain ? onChain.cost : fallback.cost,
@@ -293,30 +260,13 @@ export default function DashboardPage() {
     return acc;
   }, {});
 
-  const burnedTotal = useMemo(() => {
-    return myCapsules
-      .filter((c) => !c.asHeir)
-      .reduce((sum, c) => {
-        const key = TIER_INDEX_TO_KEY[c.tierIndex];
-        const burn = tiers[key]?.burn ?? 0;
-        return sum + burn;
-      }, 0);
-  }, [myCapsules, tiers]);
-
   const showToast = (msg, type = 'info') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 4500);
   };
 
   const extractErrorMessage = (err) => {
-    return (
-      err?.reason ||
-      err?.shortMessage ||
-      err?.error?.message ||
-      err?.data?.message ||
-      err?.message ||
-      "Transaksi gagal atau ditolak jaringan"
-    );
+    return (err?.reason || err?.shortMessage || err?.error?.message || err?.data?.message || err?.message || t.defaultTxErrorMessage);
   };
 
   const getSigner = async () => {
@@ -332,9 +282,9 @@ export default function DashboardPage() {
     setIsSwitchingNetwork(true);
     try {
       await requestSwitchNetwork(walletProvider, TARGET_CHAIN_ID_HEX);
-      showToast(`Berhasil pindah ke jaringan ${TARGET_CHAIN_NAME}.`, 'success');
+      showToast(t.errNetworkSwitchSuccess.replace('{chain}', TARGET_CHAIN_NAME), 'success');
     } catch (err) {
-      showToast(`Gagal pindah jaringan: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.errNetworkSwitchFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsSwitchingNetwork(false);
     }
@@ -348,7 +298,6 @@ export default function DashboardPage() {
     myKeyPairRef.current = kp;
     setHasLocalKeyPair(true);
     return kp;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletProvider]);
 
   const tryDecryptTitle = async (encryptedTitle, privateKey) => {
@@ -356,7 +305,7 @@ export default function DashboardPage() {
     try {
       return await decryptWithPrivateKey(privateKey, encryptedTitle);
     } catch (err) {
-      return null; 
+      return null;
     }
   };
 
@@ -368,21 +317,23 @@ export default function DashboardPage() {
         contract.getUserCapsules(userAddress),
         contract.getHeirCapsules(userAddress),
       ]);
-
-      const allIds = [
-        ...ownedIds.map((id) => ({ id, asHeir: false })),
-        ...heirIds.map((id) => ({ id, asHeir: true })),
-      ];
-
+      const allIdsMap = new Map();
+      ownedIds.forEach((id) => allIdsMap.set(id.toString(), { id, asHeir: false }));
+      heirIds.forEach((id) => {
+        const key = id.toString();
+        if (!allIdsMap.has(key)) {
+          allIdsMap.set(key, { id, asHeir: true });
+        }
+      });
+      const allIds = Array.from(allIdsMap.values());
       const results = await Promise.all(
         allIds.map(async ({ id, asHeir }) => {
           const meta = await contract.getCapsuleMeta(id);
           const ready = await contract.isCapsuleReady(id);
           const decryptedTitle = await tryDecryptTitle(meta.title, privateKeyForTitles);
-
           return {
             id: id.toString(),
-            title: decryptedTitle ?? '🔒 Judul terenkripsi',
+            title: decryptedTitle ?? t.lockedTitleFallback,
             titleIsLocked: decryptedTitle === null,
             unlockTimestamp: Number(meta.unlockTimestamp),
             owner: meta.owner,
@@ -395,249 +346,212 @@ export default function DashboardPage() {
             tierIndex: Number(meta.tier),
             isReady: ready,
             asHeir,
-            tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? 'Legacy' : 'Time-Lock'),
-            status: meta.contentDeleted
-              ? 'Konten Dihapus'
-              : meta.isClaimedOrRevealed
-                ? (t.statusOpened || 'Sudah Dibuka')
-                : ready
-                  ? (t.statusReady || 'Siap Dibuka')
-                  : (t.statusLocked || 'Terkunci'),
+            tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? t.tierLabelLegacy : t.tierLabelTimeLock),
+            status: meta.contentDeleted ? t.statusDeleted : meta.isClaimedOrRevealed ? t.statusOpened : ready ? t.statusReady : t.statusLocked,
           };
         })
       );
-
       results.sort((a, b) => Number(b.id) - Number(a.id));
       setMyCapsules(results);
     } catch (err) {
-      console.error("Gagal memuat kapsul dari blockchain:", err);
+      console.error(t.consoleCapsuleFail, err);
     } finally {
       setIsLoadingCapsules(false);
     }
   }, [t]);
 
-  const fetchTransactionHistoryFromChain = useCallback(async (provider, userAddress) => {
+  const DEPLOY_BLOCK_NUMBER = 91096734;
+
+  const fetchOnChainHistory = useCallback(async (userAddress) => {
     setIsLoadingHistory(true);
     try {
-      // FIX UTAMA: Paksa menggunakan RPC Otomatis (Fallback) yang kuat!
-      const strongProvider = getAutomaticProvider();
-
-      const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, strongProvider);
-      const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, strongProvider);
-      
-      // Ambil block saat ini, lalu mundur 50.000 block ke belakang (aman untuk RPC gratisan)
-      const currentBlock = await strongProvider.getBlockNumber();
-      let fromBlock = currentBlock - 50000;
-      if (fromBlock < 0) fromBlock = 0; 
-
-      const [sealedLogs, stakedLogs, withdrawnLogs, claimedLogs] = await Promise.all([
-        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), fromBlock),
-        stakingContract.queryFilter(stakingContract.filters.Staked(userAddress), fromBlock),
-        stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress), fromBlock),
-        stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress), fromBlock),
+      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+      const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+      const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
+        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
       ]);
 
+      let stakingLogs = { staked: [], withdrawn: [], claimed: [] };
+      if (IS_STAKING_ADDRESS_CONFIGURED) {
+        try {
+          const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
+          const [staked, withdrawn, claimed] = await Promise.all([
+            stakingContract.queryFilter(stakingContract.filters.Staked(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+          ]);
+          stakingLogs = { staked, withdrawn, claimed };
+        } catch (stakeErr) {
+          console.log(t.consoleStakingFail, stakeErr);
+        }
+      }
+
       const allLogs = [
-        ...sealedLogs.map((log) => ({ log, kind: 'seal' })),
-        ...stakedLogs.map((log) => ({ log, kind: 'stake' })),
-        ...withdrawnLogs.map((log) => ({ log, kind: 'withdraw' })),
-        ...claimedLogs.map((log) => ({ log, kind: 'claim' })),
+        ...sealedEvents.map((e) => ({ e, kind: 'sealed' })),
+        ...revealedEvents.map((e) => ({ e, kind: 'revealed' })),
+        ...claimedEvents.map((e) => ({ e, kind: 'claimed' })),
+        ...pingEvents.map((e) => ({ e, kind: 'ping' })),
+        ...stakingLogs.staked.map((e) => ({ e, kind: 'staked' })),
+        ...stakingLogs.withdrawn.map((e) => ({ e, kind: 'withdrawn' })),
+        ...stakingLogs.claimed.map((e) => ({ e, kind: 'rewardClaimed' })),
       ];
 
+      const uniqueBlockNumbers = [...new Set(allLogs.map(({ e }) => e.blockNumber))];
       const blockTimeCache = new Map();
-      const getBlockTime = (blockNumber) => {
-        if (!blockTimeCache.has(blockNumber)) {
-          blockTimeCache.set(blockNumber, strongProvider.getBlock(blockNumber).then((b) => Number(b.timestamp)));
-        }
-        return blockTimeCache.get(blockNumber);
-      };
+      await Promise.all(
+        uniqueBlockNumbers.map(async (blockNumber) => {
+          const block = await provider.getBlock(blockNumber);
+          blockTimeCache.set(blockNumber, block.timestamp);
+        })
+      );
 
-      const rows = await Promise.all(allLogs.map(async ({ log, kind }) => {
-        const ts = await getBlockTime(log.blockNumber);
-        const dateStr = new Date(ts * 1000).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-        const uniqueId = `${log.transactionHash}-${log.index}`;
+      const formatDate = (unixSeconds) => new Date(unixSeconds * 1000).toLocaleString('id-ID', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+      });
 
-        if (kind === 'seal') {
-          const tierName = TIER_INDEX_TO_LABEL[Number(log.args.tier)] || 'Time-Lock';
-          const cost = parseFloat(ethers.formatUnits(log.args.cost, 18));
-          return {
-            id: uniqueId, type: `Segel Kapsul (${tierName})`,
-            detail: `Kapsul #${log.args.capsuleId.toString()} disegel permanen.`,
-            date: dateStr, amount: -cost, blockNumber: log.blockNumber, logIndex: log.index,
-          };
-        }
-        if (kind === 'stake') {
-          return {
-            id: uniqueId, type: 'Stake Token On-Chain',
-            detail: 'Menambahkan likuiditas ke Staking.',
-            date: dateStr, amount: -parseFloat(ethers.formatUnits(log.args.amount, 18)),
-            blockNumber: log.blockNumber, logIndex: log.index,
-          };
-        }
-        if (kind === 'withdraw') {
-          return {
-            id: uniqueId, type: 'Unstake Token On-Chain',
-            detail: 'Menarik pokok dari Staking.',
-            date: dateStr, amount: parseFloat(ethers.formatUnits(log.args.amount, 18)),
-            blockNumber: log.blockNumber, logIndex: log.index,
-          };
-        }
-        return {
-          id: uniqueId, type: 'Klaim Reward On-Chain',
-          detail: 'Menarik bunga staking.',
-          date: dateStr, amount: parseFloat(ethers.formatUnits(log.args.reward, 18)),
-          blockNumber: log.blockNumber, logIndex: log.index,
-        };
-      }));
+      const built = allLogs.map(({ e, kind }) => {
+        const timestamp = blockTimeCache.get(e.blockNumber);
+        const date = formatDate(timestamp);
+        const base = { id: `${kind}-${e.transactionHash}-${e.index ?? e.logIndex}`, date, timestamp, txHash: e.transactionHash };
 
-      rows.sort((a, b) => (b.blockNumber - a.blockNumber) || (b.logIndex - a.logIndex));
-      setTransactions(rows);
+        switch (kind) {
+          case 'sealed': {
+            const tierName = TIER_INDEX_TO_LABEL[Number(e.args.tier)] || 'Kapsul';
+            const costHuman = parseFloat(ethers.formatUnits(e.args.cost, 18));
+            return { ...base, type: t.txSealTitle.replace('{tier}', tierName), detail: t.txSealDetail.replace('{cost}', costHuman).replace('{id}', e.args.capsuleId), amount: costHuman, direction: 'out', tierIdx: Number(e.args.tier) };
+          }
+          case 'revealed': return { ...base, type: t.txRevealTitle, detail: t.txRevealDetail.replace('{id}', e.args.capsuleId), amount: 0, direction: 'neutral' };
+          case 'claimed': return { ...base, type: t.txClaimTitle, detail: t.txClaimDetail.replace('{id}', e.args.capsuleId), amount: 0, direction: 'neutral' };
+          case 'ping': return { ...base, type: t.txPingTitle, detail: t.txPingDetail.replace('{id}', e.args.capsuleId), amount: 0, direction: 'neutral' };
+          case 'staked': return { ...base, type: t.txStakeTitle, detail: t.txStakeDetail, amount: parseFloat(ethers.formatUnits(e.args.amount, 18)), direction: 'out' };
+          case 'withdrawn': return { ...base, type: t.txWithdrawTitle, detail: t.txWithdrawDetail, amount: parseFloat(ethers.formatUnits(e.args.amount, 18)), direction: 'in' };
+          case 'rewardClaimed': return { ...base, type: t.txRewardClaimTitle, detail: t.txRewardClaimDetail, amount: parseFloat(ethers.formatUnits(e.args.reward, 18)), direction: 'in' };
+          default: return null;
+        }
+      });
+      setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
+
+      let totalBurn = 0;
+      sealedEvents.forEach((e) => {
+        const cfg = onChainTierConfig[Number(e.args.tier)];
+        if (cfg) totalBurn += cfg.burn;
+      });
+      setBurnedTotal(totalBurn);
     } catch (err) {
-      console.error("Gagal memuat riwayat transaksi dari blockchain:", err);
+      console.error(t.consoleHistoryFail, err);
     } finally {
       setIsLoadingHistory(false);
     }
-  }, []);
+  }, [onChainTierConfig, showToast, extractErrorMessage]);
+
+  const fetchWalletData = useCallback(async () => {
+    if (isConnected && walletProvider && address) {
+      try {
+        const provider = new ethers.BrowserProvider(walletProvider);
+        const rawBalance = await provider.getBalance(address);
+        setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
+        try {
+          const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+          const rawAethBalance = await tokenContract.balanceOf(address);
+          setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
+          const registeredKey = await tokenContract.encryptionPublicKeys(address);
+          setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x');
+        } catch (err) { console.log(t.consoleAetherVaultFail, err); }
+        try {
+          if (STAKING_CONTRACT_ADDRESS) {
+            const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
+            const [rawStaked, rawReward, rawRate] = await Promise.all([
+              stakingContract.stakedBalance(address),
+              stakingContract.calculateReward(address),
+              stakingContract.rewardRate(),
+            ]);
+            setStakedBalance(parseFloat(ethers.formatUnits(rawStaked, 18)));
+            setPendingReward(parseFloat(ethers.formatUnits(rawReward, 18)));
+            setApyPercent(Number(rawRate) / 10);
+          }
+        } catch (stakingErr) {}
+        let privateKeyForTitles = null;
+        if (!isWrongNetwork) {
+          try {
+            const kp = await getOrDeriveKeyPair();
+            privateKeyForTitles = kp.privateKey;
+          } catch (keyErr) {}
+        }
+        await fetchCapsulesFromChain(provider, address, privateKeyForTitles);
+        await fetchOnChainHistory(address);
+      } catch (err) { console.error(t.consoleWalletFail, err); }
+    } else {
+      setNativeBalance('0.0000'); setAethBalance(0); setStakedBalance(0); setPendingReward(0);
+      setMyCapsules([]); setTransactions([]); setBurnedTotal(0); setMyPublicKeyRegistered(false);
+      myKeyPairRef.current = null; setHasLocalKeyPair(false);
+    }
+  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, t]);
 
   useEffect(() => {
-    const fetchWalletData = async () => {
-      if (isConnected && walletProvider && address) {
-        try {
-          const provider = new ethers.BrowserProvider(walletProvider);
-
-          const rawBalance = await provider.getBalance(address);
-          setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
-
-          try {
-            const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-            const rawAethBalance = await tokenContract.balanceOf(address);
-            setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
-
-            const registeredKey = await tokenContract.encryptionPublicKeys(address);
-            setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x');
-          } catch (err) {
-            console.log("Gagal memuat data AetherVault:", err);
-          }
-
-          try {
-            if (STAKING_CONTRACT_ADDRESS) {
-              const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-              const [rawStaked, rawReward, rawRate] = await Promise.all([
-                stakingContract.stakedBalance(address),
-                stakingContract.calculateReward(address),
-                stakingContract.rewardRate(),
-              ]);
-
-              setStakedBalance(parseFloat(ethers.formatUnits(rawStaked, 18)));
-              setPendingReward(parseFloat(ethers.formatUnits(rawReward, 18)));
-              setApyPercent(Number(rawRate) / 10);
-            }
-          } catch (stakingErr) {
-            console.log("Staking contract sync skipped/pending.");
-          }
-
-          let privateKeyForTitles = null;
-          if (!isWrongNetwork) {
-            try {
-              const kp = await getOrDeriveKeyPair();
-              privateKeyForTitles = kp.privateKey;
-            } catch (keyErr) {
-              console.log("User menolak/gagal menandatangani derivasi kunci; judul akan ditampilkan terkunci.", keyErr);
-            }
-          }
-
-          await fetchCapsulesFromChain(provider, address, privateKeyForTitles);
-          fetchTransactionHistoryFromChain(provider, address);
-        } catch (err) {
-          console.error("Gagal membaca data wallet", err);
-        }
-      } else {
-        setNativeBalance('0.0000');
-        setAethBalance(0);
-        setStakedBalance(0);
-        setPendingReward(0);
-        setMyCapsules([]);
-        setTransactions([]);
-        setMyPublicKeyRegistered(false);
-        myKeyPairRef.current = null;
-        setHasLocalKeyPair(false);
-      }
-    };
-
     fetchWalletData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchTransactionHistoryFromChain, isWrongNetwork]);
+  }, [fetchWalletData]);
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
+  const getMinUnlockDatetimeLocal = () => {
+    const d = new Date(Date.now() + 5 * 60 * 1000);
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+  const formatUnlockDateTime = (unixSeconds) => {
+    if (!unixSeconds) return '-';
+    return new Date(unixSeconds * 1000).toLocaleString('id-ID', {
+      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+  };
 
   const handleRegisterEncryptionKey = async () => {
-    if (!isConnected) return showToast('Hubungkan dompet terlebih dahulu.', 'error');
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
+    if (!isConnected) return showToast(t.connectWalletFirst, 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     setIsRegisteringKey(true);
     try {
       const { publicKey } = await getOrDeriveKeyPair();
-
       const signer = await getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
       const tx = await contract.registerPublicKey(publicKeyToBytes(publicKey));
-      showToast('Mendaftarkan kunci enkripsi ke blockchain...', 'info');
+      showToast(t.registeringKey, 'info');
       await tx.wait();
-
       setMyPublicKeyRegistered(true);
-      showToast('Kunci enkripsi berhasil didaftarkan. Orang lain kini bisa mengirim kapsul terenkripsi untuk Anda.', 'success');
+      showToast(t.keyRegisteredSuccess, 'success');
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal mendaftarkan kunci: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.keyRegisterFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsRegisteringKey(false);
     }
   };
 
   const isPermanentTier = tier === 'eternal' || tier === 'legacy';
-  const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; 
-
-  const [stagedUpload, setStagedUpload] = useState(null);
-  const [isPreparingUpload, setIsPreparingUpload] = useState(false);
+  const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
 
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!isConnected) {
-      return showToast('Hubungkan dompet terlebih dahulu sebelum melampirkan file.', 'error');
-    }
-    if (isWrongNetwork) {
-      return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    }
-    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) {
-      return showToast(`File terlalu besar (maks ${MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)}MB).`, 'error');
-    }
+    if (!isConnected) return showToast(t.connectWalletBeforeAttach, 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)), 'error');
 
     setSelectedFile(file);
     setIsPreparingUpload(true);
-
     try {
       const { publicKey: recipientPublicKey } = await resolveRecipient();
-
       const fileBase64 = await fileToBase64(file);
-      const cipherPayload = JSON.stringify({
-        name: file.name,
-        type: file.type,
-        data: fileBase64,
-      });
+      const cipherPayload = JSON.stringify({ name: file.name, type: file.type, data: fileBase64 });
       const encryptedPayload = await encryptForPublicKey(recipientPublicKey, cipherPayload);
       const encryptedBytes = new TextEncoder().encode(encryptedPayload);
-
       const provider = new ethers.BrowserProvider(walletProvider);
       await ensureCorrectNetwork(await provider.getSigner());
-
       const uploader = await getIrysUploader(provider);
       const estimatedCost = await estimateArweaveCost(uploader, encryptedBytes.byteLength);
-
       setStagedUpload({ file, encryptedBytes, estimatedCost });
     } catch (error) {
-      console.error("Persiapan upload gagal:", error);
-      showToast(`Gagal menyiapkan lampiran: ${extractErrorMessage(error)}`, "error");
+      showToast(t.prepareAttachmentFailPrefix + extractErrorMessage(error), "error");
       setSelectedFile(null);
     } finally {
       setIsPreparingUpload(false);
@@ -646,6 +560,7 @@ export default function DashboardPage() {
 
   const handleConfirmArweaveUpload = async () => {
     if (!stagedUpload) return;
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     setIsUploading(true);
     try {
       const result = await uploadToArweavePermanent(
@@ -653,15 +568,13 @@ export default function DashboardPage() {
         stagedUpload.encryptedBytes,
         [{ name: "Encryption", value: "ECIES-secp256k1" }]
       );
-
       setUploadedCid(result.arweaveUrl);
       setPendingFileCipherRef(result.arweaveUrl);
-      setMessage(prev => prev + (prev ? '\n\n' : '') + `[Lampiran Terenkripsi (Arweave permanen): ${result.arweaveUrl}]`);
-      showToast("File berhasil dienkripsi dan disimpan PERMANEN di Arweave, dibayar dari wallet Anda sendiri.", "success");
+      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag}: ${result.arweaveUrl}]`);
+      showToast(t.fileUploadedSuccess, "success");
       setStagedUpload(null);
     } catch (error) {
-      console.error("Upload Error:", error);
-      showToast(`Gagal mengunggah file: ${extractErrorMessage(error)}`, "error");
+      showToast(t.fileUploadFailPrefix + extractErrorMessage(error), "error");
     } finally {
       setIsUploading(false);
     }
@@ -682,217 +595,137 @@ export default function DashboardPage() {
   const resolveRecipient = async () => {
     const provider = new ethers.BrowserProvider(walletProvider);
     const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-
     if (tier === 'legacy') {
-      if (!ethers.isAddress(heirAddress)) {
-        throw new Error("Masukkan alamat ahli waris yang valid terlebih dahulu.");
-      }
+      if (!ethers.isAddress(heirAddress)) throw new Error(t.enterValidHeirAddress);
       const heirKey = await contract.encryptionPublicKeys(heirAddress);
-      if (!heirKey || heirKey === '0x') {
-        throw new Error("Ahli waris belum mendaftarkan kunci enkripsi di aplikasi ini. Minta mereka membuka AetherVault dan mendaftarkan kunci di tab Settings terlebih dahulu.");
-      }
+      if (!heirKey || heirKey === '0x') throw new Error(t.heirKeyNotRegistered);
       return { publicKey: heirKey, privateKey: null };
     }
-
     const kp = await getOrDeriveKeyPair();
     return { publicKey: publicKeyToBytes(kp.publicKey), privateKey: kp.privateKey };
   };
 
   const handleSeal = async (e) => {
     e.preventDefault();
-    if (!isConnected) return showToast('Otorisasi ditolak. Harap hubungkan dompet.', 'error');
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
+    if (!isConnected) return showToast(t.authRejectedConnectWallet, 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
     const selectedTierData = tiers[tier];
-
-    if (message.length > selectedTierData.maxLength) {
-      return showToast(`Pesan terlalu panjang! Maksimal ${selectedTierData.maxLength} karakter.`, 'error');
-    }
-
-    if (tier === 'legacy' && !ethers.isAddress(heirAddress)) {
-      return showToast('Format alamat Dompet Ahli Waris tidak valid!', 'error');
-    }
+    const messageByteLength = new TextEncoder().encode(message).length;
+    if (messageByteLength > selectedTierData.maxLength) return showToast(t.messageTooLong.replace('{max}', selectedTierData.maxLength), 'error');
+    if (aethBalance < selectedTierData.cost) return showToast(t.insufficientBalance, 'error');
+    if (tier === 'legacy' && !ethers.isAddress(heirAddress)) return showToast(t.invalidHeirAddress, 'error');
 
     setIsSealing(true);
     try {
-      showToast('Mengenkripsi pesan Anda di browser...', 'info');
-
+      showToast(t.encryptingMessage, 'info');
       const { publicKey: recipientPublicKey, privateKey: ownPrivateKeyForRefresh } = await resolveRecipient();
       const encryptedMessage = await encryptForPublicKey(recipientPublicKey, message);
 
-      if (encryptedMessage.length > selectedTierData.maxLength * CIPHERTEXT_OVERHEAD_FACTOR) {
-        throw new Error('Pesan (setelah dienkripsi) melebihi kapasitas tier ini. Pilih tier lebih besar atau persingkat pesan.');
-      }
-
-      const plainTitle = title || "Kapsul Tanpa Judul";
+      if (encryptedMessage.length > selectedTierData.maxLength * CIPHERTEXT_OVERHEAD_FACTOR) throw new Error(t.messageCapacityExceeded);
+      const plainTitle = title || t.defaultCapsuleTitle;
       const encryptedTitle = await encryptForPublicKey(recipientPublicKey, plainTitle);
-
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
-
-      showToast('Mempersiapkan transaksi On-Chain di Blockchain...', 'info');
+      showToast(t.preparingOnChainTx, 'info');
 
       let tx;
       if (tier === 'legacy') {
         const inactivitySeconds = parseInt(inactivityYears) * 365 * 24 * 60 * 60;
-        tx = await contract.sealLegacyCapsule(
-          encryptedTitle,
-          encryptedMessage,
-          inactivitySeconds,
-          heirAddress
-        );
+        tx = await contract.sealLegacyCapsule(encryptedTitle, encryptedMessage, inactivitySeconds, heirAddress);
       } else {
-        if (!unlockDate) throw new Error("Pilih tanggal pembukaan kapsul!");
-        const safeTime = unlockTime && /^\d{2}:\d{2}$/.test(unlockTime) ? unlockTime : '00:00';
-        const unlockTimeMs = new Date(`${unlockDate}T${safeTime}:00`).getTime();
-        if (isNaN(unlockTimeMs)) throw new Error("Tanggal/jam pembukaan kapsul tidak valid!");
+        if (!unlockDate) throw new Error(t.selectUnlockDateTime);
+        const unlockTimeMs = new Date(unlockDate).getTime();
         const unlockTimestamp = Math.floor(unlockTimeMs / 1000);
-        const tierEnumValue = TIER_ENUM_MAP[tier];
-        tx = await contract.sealTimeLockCapsule(
-          tierEnumValue,
-          encryptedTitle,
-          encryptedMessage,
-          unlockTimestamp
-        );
+        tx = await contract.sealTimeLockCapsule(TIER_ENUM_MAP[tier], encryptedTitle, encryptedMessage, unlockTimestamp);
       }
-
-      showToast("Transaksi dikirim. Menunggu konfirmasi blok...", "info");
+      showToast(t.txSentWaitingConfirm, "info");
       await tx.wait();
-
-      setAethBalance(prev => prev - selectedTierData.cost);
-
-      showToast(`Berhasil! Kapsul disegel permanen di Blockchain dalam bentuk terenkripsi.`, 'success');
-      setTitle(''); setMessage(''); setUnlockDate(''); setUnlockTime('12:00'); setHeirAddress('');
+      showToast(t.sealSuccess, 'success');
+      setTitle(''); setMessage(''); setUnlockDate(''); setHeirAddress('');
       setSelectedFile(null); setUploadedCid(''); setPendingFileCipherRef(null);
       setActiveTab('vaults');
 
-      const provider = new ethers.BrowserProvider(walletProvider);
-      await fetchCapsulesFromChain(provider, address, ownPrivateKeyForRefresh);
-      fetchTransactionHistoryFromChain(provider, address);
-
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.genericFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsSealing(false);
     }
   };
 
   const handleOpenVault = async (capsule) => {
-    if (isWrongNetwork) {
-      return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    }
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     if (capsule.contentDeleted) {
-      setSelectedVault({
-        ...capsule,
-        decryptedMessage: null,
-        error: 'Konten kapsul ini sudah dihapus permanen dari state kontrak oleh pemilik/ahli waris. Tidak ada lagi yang bisa ditampilkan.',
-      });
+      setSelectedVault({ ...capsule, decryptedMessage: null, error: t.statusAlreadyDeleted });
       return;
     }
-
     setSelectedVault({ ...capsule, decryptedMessage: null, error: null });
     setIsDecrypting(true);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
-
       let ciphertext;
-
       if (capsule.isClaimedOrRevealed) {
-        showToast('Mengambil ulang kapsul yang sudah pernah dibuka (gratis, tanpa gas)...', 'info');
         ciphertext = await contract.getOpenedCiphertext(capsule.id);
       } else {
         const fnName = capsule.asHeir ? 'claimLegacy' : 'revealCapsule';
-        showToast('Memverifikasi syarat pembukaan di blockchain...', 'info');
-
         ciphertext = await contract[fnName].staticCall(capsule.id);
-
         const tx = await contract[fnName](capsule.id);
-        showToast('Transaksi dikirim. Menunggu konfirmasi...', 'info');
         await tx.wait();
       }
-
       const { privateKey } = await getOrDeriveKeyPair();
       const plaintext = await decryptWithPrivateKey(privateKey, ciphertext);
-
       setSelectedVault(prev => ({ ...prev, decryptedMessage: plaintext }));
-      showToast('Kapsul berhasil didekripsi secara lokal di browser Anda.', 'success');
-
-      const provider = new ethers.BrowserProvider(walletProvider);
-      await fetchCapsulesFromChain(provider, address, privateKey);
+      showToast(t.decryptSuccess, 'success');
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
       const msg = extractErrorMessage(err);
       setSelectedVault(prev => ({ ...prev, error: msg }));
-      showToast(`Gagal membuka kapsul: ${msg}`, 'error');
+      showToast(t.openVaultFailPrefix + msg, 'error');
     } finally {
       setIsDecrypting(false);
     }
   };
 
   const [isPinging, setIsPinging] = useState(null);
-
   const handlePingAlive = async (capsule) => {
-    if (isWrongNetwork) {
-      return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    }
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     setIsPinging(capsule.id);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
-
       const tx = await contract.pingAlive(capsule.id);
-      showToast('Melaporkan status masih aktif ke blockchain...', 'info');
       await tx.wait();
-
-      showToast('Berhasil! Jam mundur ke ahli waris sudah di-reset dari sekarang.', 'success');
-
-      const provider = new ethers.BrowserProvider(walletProvider);
-      await fetchCapsulesFromChain(provider, address, myKeyPairRef.current?.privateKey ?? null);
+      showToast(t.pingSuccess, 'success');
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal melaporkan status aktif: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.pingFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsPinging(null);
     }
   };
 
   const [isDeletingContent, setIsDeletingContent] = useState(null);
-
   const handleDeleteOpenedContent = async (capsule) => {
-    if (isWrongNetwork) {
-      return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    }
-    const confirmed = window.confirm(
-      'Hapus konten kapsul ini?\n\n' +
-      'Setelah dihapus, judul & pesan tidak bisa diambil lagi lewat aplikasi ini — pastikan Anda sudah menyimpan salinannya sendiri.\n\n' +
-      'CATATAN JUJUR: ini menghapus dari data kontrak SAAT INI dan ke depan, TAPI riwayat blockchain lama (sebelum penghapusan ini) tetap bisa ada di full/archive node pihak lain selamanya — blockchain tidak pernah benar-benar "lupa" secara mutlak.\n\n' +
-      'Lanjutkan?'
-    );
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    const confirmed = window.confirm(t.deleteConfirmText);
     if (!confirmed) return;
-
     setIsDeletingContent(capsule.id);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
-
       const tx = await contract.deleteOpenedContent(capsule.id);
-      showToast('Menghapus konten kapsul dari kontrak...', 'info');
       await tx.wait();
-
-      showToast('Konten kapsul berhasil dihapus dari state kontrak saat ini.', 'success');
+      showToast(t.deleteContentSuccess, 'success');
       setSelectedVault(null);
-
-      const provider = new ethers.BrowserProvider(walletProvider);
-      await fetchCapsulesFromChain(provider, address, myKeyPairRef.current?.privateKey ?? null);
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal menghapus konten: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.deleteContentFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsDeletingContent(null);
     }
@@ -900,43 +733,30 @@ export default function DashboardPage() {
 
   const handleStake = async () => {
     const amount = parseFloat(stakeInput);
-    if (isNaN(amount) || amount <= 0) return showToast("Masukkan nominal AETH yang valid", "error");
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
+    if (isNaN(amount) || amount <= 0) return showToast(t.invalidAethAmount, "error");
+    if (!isConnected) return showToast(t.connectWalletFirst, "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
     setIsStaking(true);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const amountInWei = ethers.parseUnits(amount.toString(), 18);
-
       const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
       const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
 
       if (currentAllowance < amountInWei) {
-        showToast("Meminta izin (approve) token AETH untuk kontrak Staking...", "info");
         const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountInWei);
         await approveTx.wait();
       }
-
-      showToast("Mempersiapkan transaksi Staking On-Chain...", "info");
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
       const tx = await stakingContract.stake(amountInWei);
-
-      showToast("Transaksi staking dikirim. Menunggu konfirmasi blockchain...", "info");
       await tx.wait();
-
-      setAethBalance(prev => prev - amount);
-      setStakedBalance(prev => prev + amount);
       setStakeInput('');
-      showToast(`Berhasil melakukan Staking ${amount} AETH secara On-Chain!`, "success");
-
-      const provider = new ethers.BrowserProvider(walletProvider);
-      fetchTransactionHistoryFromChain(provider, address);
-
+      showToast(t.stakeSuccess.replace("{amount}", amount), "success");
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal staking: ${extractErrorMessage(err)}`, "error");
+      showToast(t.stakeFailPrefix + extractErrorMessage(err), "error");
     } finally {
       setIsStaking(false);
     }
@@ -944,66 +764,44 @@ export default function DashboardPage() {
 
   const handleWithdrawStake = async () => {
     const amount = parseFloat(unstakeInput);
-    if (isNaN(amount) || amount <= 0) return showToast("Masukkan nominal AETH yang valid", "error");
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    if (amount > stakedBalance) return showToast("Jumlah melebihi saldo yang Anda stake", "error");
+    if (isNaN(amount) || amount <= 0) return showToast(t.invalidAethAmount, "error");
+    if (!isConnected) return showToast(t.connectWalletFirst, "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (amount > stakedBalance) return showToast(t.unstakeExceedsBalance, "error");
 
     setIsWithdrawingStake(true);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const amountInWei = ethers.parseUnits(amount.toString(), 18);
-
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
       const tx = await stakingContract.withdraw(amountInWei);
-
-      showToast("Transaksi unstake dikirim. Menunggu konfirmasi blockchain...", "info");
       await tx.wait();
-
-      setAethBalance(prev => prev + amount);
-      setStakedBalance(prev => prev - amount);
       setUnstakeInput('');
-      showToast(`Berhasil menarik ${amount} AETH dari staking.`, "success");
-
-      const provider = new ethers.BrowserProvider(walletProvider);
-      fetchTransactionHistoryFromChain(provider, address);
-
+      showToast(t.unstakeSuccess.replace("{amount}", amount), "success");
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal unstake: ${extractErrorMessage(err)}`, "error");
+      showToast(t.unstakeFailPrefix + extractErrorMessage(err), "error");
     } finally {
       setIsWithdrawingStake(false);
     }
   };
 
   const handleClaimReward = async () => {
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-
-    showToast("Memproses klaim reward dari blockchain...", "info");
+    if (!isConnected) return showToast(t.connectWalletFirst, "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (pendingReward <= 0) return showToast(t.noRewardAvailable, "error");
 
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
-
       const tx = await stakingContract.claimReward();
-
-      showToast("Transaksi klaim dikirim. Menunggu konfirmasi...", "info");
       await tx.wait();
-
-      showToast(`Berhasil klaim reward! Token telah masuk ke dompet Anda.`, "success");
-
-      setAethBalance(prev => prev + pendingReward);
-      setPendingReward(0);
-
-      const provider = new ethers.BrowserProvider(walletProvider);
-      fetchTransactionHistoryFromChain(provider, address);
-
+      showToast(t.claimRewardSuccess, "success");
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal klaim reward: ${extractErrorMessage(err)}`, "error");
+      showToast(t.claimRewardFailPrefix + extractErrorMessage(err), "error");
     }
   };
 
@@ -1024,14 +822,14 @@ export default function DashboardPage() {
             setActiveTab(menu.id);
             if (isMobile) setIsMobileMenuOpen(false);
           }}
-          className={`w-full text-left px-4 py-3.5 rounded-2xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex items-center justify-between group ${activeTab === menu.id ? 'bg-gradient-to-r from-cyan-500/15 via-cyan-500/10 to-violet-500/10 text-cyan-300 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.12)]' : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white border border-transparent'}`}
+          className={`w-full text-left px-4 py-3.5 rounded-2xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer flex items-center justify-between group ${activeTab === menu.id ? 'bg-gradient-to-r from-cyan-500/15 via-violet-500/15 to-fuchsia-500/10 text-white border border-violet-400/40 shadow-[0_0_20px_-6px_rgba(168,85,247,0.5)]' : 'text-neutral-400 hover:bg-neutral-900/60 hover:text-white border border-transparent'}`}
         >
           <span className="flex items-center gap-3">
-            <menu.icon className={`w-4 h-4 ${activeTab === menu.id ? 'text-cyan-400' : 'text-neutral-500 group-hover:text-neutral-300'}`} />
+            <menu.icon className={`w-4 h-4 ${activeTab === menu.id ? 'text-cyan-300' : 'text-neutral-500 group-hover:text-neutral-300'}`} />
             {menu.label}
           </span>
           {menu.count !== undefined && (
-            <span className={`px-2 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-mono ${activeTab === menu.id ? 'bg-cyan-500/20 text-cyan-300' : 'bg-neutral-900 text-neutral-400'}`}>{menu.count}</span>
+            <span className={`px-2 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-mono ${activeTab === menu.id ? 'bg-white/10 text-cyan-200' : 'bg-neutral-900 text-neutral-400'}`}>{menu.count}</span>
           )}
         </button>
       ))}
@@ -1040,53 +838,39 @@ export default function DashboardPage() {
 
   if (!IS_CONTRACT_ADDRESS_CONFIGURED || !IS_STAKING_ADDRESS_CONFIGURED) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#030508] text-gray-200 p-6">
-        <div className="max-w-md w-full bg-[#080808] border border-red-500/40 rounded-3xl p-6 sm:p-8 space-y-4 text-center shadow-[0_0_30px_rgba(239,68,68,0.15)]">
+      <div className="min-h-screen flex items-center justify-center bg-[#05030F] text-gray-200 p-6">
+        <div className="max-w-md w-full bg-[#0B0817] border border-red-500/40 rounded-3xl p-6 sm:p-8 space-y-4 text-center shadow-[0_0_30px_rgba(239,68,68,0.15)]">
           <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
-          <h2 className="text-lg font-extrabold text-red-300">Konfigurasi Belum Lengkap</h2>
-          <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
-            {!IS_CONTRACT_ADDRESS_CONFIGURED && "CONTRACT_ADDRESS "}
-            {!IS_CONTRACT_ADDRESS_CONFIGURED && !IS_STAKING_ADDRESS_CONFIGURED && "dan "}
-            {!IS_STAKING_ADDRESS_CONFIGURED && "STAKING_CONTRACT_ADDRESS "}
-            masih memakai alamat placeholder (<code className="text-red-300 font-mono">0x000...dEaD</code>). Ganti dengan alamat hasil deploy sebenarnya di bagian atas file sebelum aplikasi ini dijalankan untuk pengguna nyata.
-          </p>
-          <p className="text-[10px] sm:text-xs text-neutral-600">Pesan ini hanya untuk developer — tidak akan tampil setelah dikonfigurasi dengan benar.</p>
+          <h2 className="text-lg font-extrabold text-red-300">{t.configIncompleteTitle}</h2>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#030508] text-gray-200 font-sans selection:bg-cyan-500/35 relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-[#05030F] text-gray-200 font-sans selection:bg-fuchsia-500/30 relative">
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+        .font-display { font-family: 'Space Grotesk', ui-sans-serif, sans-serif; letter-spacing: -0.01em; }
+      `}</style>
 
-      {/* AMBIENT BACKGROUND GLOW — kesan web3 modern, halus & tidak mengganggu keterbacaan */}
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="absolute -top-32 -left-32 w-[32rem] h-[32rem] rounded-full bg-cyan-600/10 blur-[120px]" />
-        <div className="absolute top-1/3 -right-40 w-[28rem] h-[28rem] rounded-full bg-violet-600/10 blur-[130px]" />
-        <div className="absolute bottom-0 left-1/4 w-[24rem] h-[24rem] rounded-full bg-blue-600/[0.07] blur-[110px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.035)_1px,transparent_0)] bg-[size:28px_28px]" />
-      </div>
-
-      {/* Toast Notification */}
       {toast && (
         <div className="fixed top-24 right-4 sm:right-8 z-[100] animate-in fade-in slide-in-from-right-8 duration-300">
-          <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl shadow-2xl border ${toast.type === 'success' ? 'bg-green-950/90 border-green-500/40 text-green-300' : toast.type === 'error' ? 'bg-red-950/90 border-red-500/40 text-red-300' : 'bg-[#080808] border-cyan-500/40 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)]'} backdrop-blur-md max-w-[90vw]`}>
+          <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl shadow-2xl border ${toast.type === 'success' ? 'bg-green-950/90 border-green-500/40 text-green-300' : toast.type === 'error' ? 'bg-red-950/90 border-red-500/40 text-red-300' : 'bg-[#0B0817] border-violet-500/40 text-cyan-300 shadow-[0_0_20px_rgba(168,85,247,0.25)]'} backdrop-blur-md max-w-[90vw]`}>
             {toast.type === 'success' ? <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 shrink-0" /> : toast.type === 'error' ? <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-400 shrink-0" /> : <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 shrink-0" />}
             <p className="text-[11px] sm:text-sm font-medium">{toast.msg}</p>
           </div>
         </div>
       )}
 
-      {/* MOBILE MENU OVERLAY */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-[#030508]/95 backdrop-blur-xl z-40 lg:hidden pt-24 px-6 pb-6 overflow-y-auto border-b border-white/[0.06] shadow-2xl">
+        <div className="fixed inset-0 bg-[#05030F]/95 backdrop-blur-xl z-40 lg:hidden pt-24 px-6 pb-6 overflow-y-auto border-b border-neutral-900 shadow-2xl">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest font-mono">{t.menuTitle}</h2>
             <button onClick={() => setIsMobileMenuOpen(false)} className="text-neutral-400 hover:text-white p-2 bg-neutral-900 rounded-full"><X className="w-4 h-4"/></button>
           </div>
           {renderNavMenu(true)}
-
-          <div className="mt-8 pt-5 border-t border-white/[0.06] px-2">
+          <div className="mt-8 pt-5 border-t border-neutral-900 px-2">
             <div className="flex items-center justify-between text-[10px] text-neutral-500">
               <span className="flex items-center gap-1.5"><Activity className="w-3 h-3 text-cyan-500 animate-pulse" /> {t.mainnetLabel}</span>
               <span className="font-mono text-neutral-400">{TARGET_CHAIN_NAME}</span>
@@ -1095,21 +879,18 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* MAIN CONTENT AREA */}
-      <main className="flex-1 w-full pt-0 pb-12 relative z-10">
+      <main className="flex-1 w-full pt-0 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-
-          {/* WEB3 CONTROL PANEL */}
-          <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] p-3 sm:p-4 rounded-2xl sm:rounded-3xl mb-6 lg:mb-8 flex items-center justify-between shadow-xl">
+          <div className="bg-[#0B0817] border border-neutral-900 p-3 sm:p-4 rounded-2xl sm:rounded-3xl mb-6 lg:mb-8 flex items-center justify-between shadow-xl">
             <div className="flex items-center gap-3">
               <button
-                className="lg:hidden p-2 bg-neutral-900 border border-white/[0.08] rounded-xl text-neutral-400 hover:text-white"
+                className="lg:hidden p-2 bg-neutral-900 border border-neutral-800 rounded-xl text-neutral-400 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 <Menu className="w-5 h-5" />
               </button>
               <div className="hidden lg:flex items-center gap-2 text-cyan-500 font-bold font-mono text-[10px] sm:text-xs uppercase tracking-widest px-2">
-                <Activity className="w-4 h-4" /> Web3 Terminal
+                <Activity className="w-4 h-4" /> {t.web3TerminalLabel}
               </div>
             </div>
 
@@ -1117,21 +898,21 @@ export default function DashboardPage() {
               {!isConnected ? (
                 <button
                   onClick={() => open()}
-                  className="bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 hover:from-cyan-400 hover:via-blue-500 hover:to-violet-500 text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-full font-bold flex items-center gap-1.5 sm:gap-2 transition-all shadow-[0_0_20px_rgba(6,182,212,0.4)] text-[10px] sm:text-sm cursor-pointer whitespace-nowrap"
+                  className="bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-full font-bold flex items-center gap-1.5 sm:gap-2 transition-all shadow-[0_0_25px_-3px_rgba(168,85,247,0.5),0_0_15px_-3px_rgba(34,211,238,0.4)] text-[10px] sm:text-sm cursor-pointer whitespace-nowrap"
                 >
                   <Wallet className="w-3 h-3 sm:w-4 sm:h-4" /> {t.connectWallet}
                 </button>
               ) : (
                 <div className="flex items-center gap-1.5 sm:gap-3">
-                  <div className="hidden md:flex items-center gap-2.5 bg-[#030508] px-4 py-2 rounded-full border border-white/[0.08]">
+                  <div className="hidden md:flex items-center gap-2.5 bg-[#05030F] px-4 py-2 rounded-full border border-neutral-800">
                     <Cpu className="w-4 h-4 text-cyan-500" />
                     <div className="flex flex-col">
                       <span className="text-[9px] text-neutral-400 uppercase tracking-wider">{t.gasFeeLabel}</span>
                       <span className="text-xs font-bold font-mono text-white">{nativeBalance} POL</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-3 bg-[#030508] px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full border border-white/[0.08] shadow-inner">
-                    <div className="hidden sm:flex w-7 h-7 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 items-center justify-center shadow-md">
+                  <div className="flex items-center gap-2 sm:gap-3 bg-[#05030F] px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full border border-neutral-800 shadow-inner">
+                    <div className="hidden sm:flex w-7 h-7 rounded-full bg-gradient-to-br from-cyan-400 via-violet-400 to-fuchsia-400 items-center justify-center shadow-md">
                       <Wallet className="w-3.5 h-3.5 text-white" />
                     </div>
                     <div className="flex flex-col">
@@ -1141,7 +922,7 @@ export default function DashboardPage() {
                   </div>
                   <button
                     onClick={() => disconnect()}
-                    className="p-1.5 sm:p-2.5 bg-[#030508] hover:bg-red-500/10 border border-white/[0.08] hover:border-red-500/40 rounded-full text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"
+                    className="p-1.5 sm:p-2.5 bg-[#05030F] hover:bg-red-500/10 border border-neutral-800 hover:border-red-500/40 rounded-full text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
@@ -1150,14 +931,13 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* PERINGATAN: JARINGAN SALAH — diprioritaskan di atas peringatan kunci */}
           {isWrongNetwork && (
             <div className="bg-red-950/30 border border-red-500/40 rounded-2xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-red-300">Anda terhubung ke jaringan yang salah</p>
-                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">AetherVault hanya berjalan di {TARGET_CHAIN_NAME}. Pindah jaringan sebelum menyegel/membuka kapsul — kunci enkripsi berbeda di tiap jaringan.</p>
+                  <p className="text-xs sm:text-sm font-bold text-red-300">{t.wrongNetworkTitle}</p>
+                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">{t.wrongNetworkDesc.replace('{chain}', TARGET_CHAIN_NAME)}</p>
                 </div>
               </div>
               <button
@@ -1166,19 +946,18 @@ export default function DashboardPage() {
                 className="whitespace-nowrap bg-red-500/10 hover:bg-red-500/20 border border-red-500/40 text-red-300 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isSwitchingNetwork ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
-                Pindah ke {TARGET_CHAIN_NAME}
+                {t.switchToChainBtn.replace('{chain}', TARGET_CHAIN_NAME)}
               </button>
             </div>
           )}
 
-          {/* PERINGATAN: KUNCI ENKRIPSI BELUM TERDAFTAR */}
           {isConnected && !isWrongNetwork && !myPublicKeyRegistered && (
             <div className="bg-amber-950/20 border border-amber-500/30 rounded-2xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-start gap-3">
                 <KeyRound className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-amber-300">Kunci enkripsi belum terdaftar</p>
-                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">Daftarkan kunci enkripsi Anda agar orang lain bisa menjadikan Anda ahli waris kapsul terenkripsi.</p>
+                  <p className="text-xs sm:text-sm font-bold text-amber-300">{t.keyNotRegisteredTitle}</p>
+                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">{t.keyNotRegisteredDesc}</p>
                 </div>
               </div>
               <button
@@ -1187,18 +966,17 @@ export default function DashboardPage() {
                 className="whitespace-nowrap bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-300 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isRegisteringKey ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <KeyRound className="w-3.5 h-3.5" />}
-                Daftarkan Kunci
+                {t.registerKeyBtn}
               </button>
             </div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
-            {/* Sidebar Desktop */}
             <div className="hidden lg:block lg:col-span-1 space-y-6">
-              <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] p-5 rounded-3xl sticky top-28 shadow-xl">
+              <div className="bg-[#0B0817] border border-neutral-900 p-5 rounded-3xl sticky top-28 shadow-xl">
                 <h2 className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-4 px-3 font-mono">{t.menuTitle}</h2>
                 {renderNavMenu()}
-                <div className="mt-8 pt-5 border-t border-white/[0.06] px-2">
+                <div className="mt-8 pt-5 border-t border-neutral-900 px-2">
                   <div className="flex items-center justify-between text-[11px] text-neutral-500">
                     <span className="flex items-center gap-2"><Activity className="w-3.5 h-3.5 text-cyan-500 animate-pulse" /> {t.mainnetLabel}</span>
                     <span className="font-mono text-neutral-400">{TARGET_CHAIN_NAME}</span>
@@ -1207,23 +985,20 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Konten Tab */}
             <div className="lg:col-span-3 space-y-6">
-
-              {/* TAB: BUAT KAPSUL */}
               {activeTab === 'create' && (
-                <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl space-y-6 sm:space-y-8">
+                <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl space-y-6 sm:space-y-8">
                   <div>
-                    <h3 className="text-lg sm:text-xl font-extrabold text-white mb-1 sm:mb-2 flex items-center gap-2">
+                    <h3 className="font-display text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2 flex items-center gap-2">
                       <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> {t.createTitle}
                     </h3>
                     <p className="text-xs sm:text-sm text-neutral-400">{t.createDesc}</p>
                     <p className="text-[10px] sm:text-xs text-cyan-500/80 mt-2 flex items-center gap-1.5">
-                      <Lock className="w-3 h-3" /> Pesan akan dienkripsi (ECIES) langsung di browser Anda sebelum dikirim ke blockchain.
+                      <Lock className="w-3 h-3" /> {t.encryptionNotice}
                     </p>
                     {!isTierConfigLoaded && (
                       <p className="text-[10px] sm:text-xs text-amber-500/80 mt-1.5 flex items-center gap-1.5">
-                        <Loader2 className="w-3 h-3 animate-spin" /> Memuat biaya tier langsung dari kontrak... (angka di bawah sementara pakai perkiraan)
+                        <Loader2 className="w-3 h-3 animate-spin" /> {t.loadingTierNotice}
                       </p>
                     )}
                   </div>
@@ -1236,7 +1011,7 @@ export default function DashboardPage() {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder={t.capsuleTitlePlaceholder}
-                        className="w-full bg-[#030508] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-cyan-500 focus:shadow-[0_0_15px_rgba(6,182,212,0.1)] outline-none transition-all font-medium"
+                        className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-cyan-500 focus:shadow-[0_0_15px_rgba(6,182,212,0.1)] outline-none transition-all font-medium"
                         required
                       />
                     </div>
@@ -1249,21 +1024,21 @@ export default function DashboardPage() {
                             key={key}
                             type="button"
                             onClick={() => setTier(key)}
-                            className={`p-3 sm:p-5 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${tier === key ? `${data.border} bg-neutral-900/90` : 'border-white/[0.06] bg-[#030508] hover:border-neutral-700'}`}
+                            className={`p-3 sm:p-5 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${tier === key ? `${data.border} bg-neutral-900/90` : 'border-neutral-900 bg-[#05030F] hover:border-neutral-700'}`}
                           >
                             <div>
                               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:mb-3 gap-2 sm:gap-0">
                                 <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl ${data.icon} flex items-center justify-center shrink-0`}>
                                   {key === 'legacy' ? <UserX className={`w-3 h-3 sm:w-4 sm:h-4 ${data.color}`} /> : <Shield className={`w-3 h-3 sm:w-4 sm:h-4 ${data.color}`} />}
                                 </div>
-                                <span className="font-mono text-[9px] sm:text-xs font-bold text-white px-2 py-0.5 sm:py-1 bg-[#030508] rounded-md sm:rounded-lg border border-white/[0.08]">{data.cost} AETH</span>
+                                <span className="font-mono text-[9px] sm:text-xs font-bold text-white px-2 py-0.5 sm:py-1 bg-[#05030F] rounded-md sm:rounded-lg border border-neutral-800">{data.cost} AETH</span>
                               </div>
                               <div className="font-bold text-xs sm:text-sm mb-1 text-white truncate">{data.name}</div>
                               <p className="text-[9px] sm:text-[11px] text-neutral-400 mb-3 sm:mb-4 leading-relaxed line-clamp-2 sm:line-clamp-none">{data.desc}</p>
                             </div>
-                            <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between border-t border-white/[0.08]/80 pt-2 sm:pt-3 w-full gap-1.5 xl:gap-0">
+                            <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between border-t border-neutral-800/80 pt-2 sm:pt-3 w-full gap-1.5 xl:gap-0">
                               <span className="text-[8px] sm:text-[10px] text-neutral-500 uppercase tracking-wider font-mono hidden sm:block">{t.autoBurnProtocol}</span>
-                              <span className="text-[9px] sm:text-[10px] text-red-400 font-bold flex items-center gap-1 font-mono"><Flame className="w-3 h-3" /> {data.burn} Burn</span>
+                              <span className="text-[9px] sm:text-[10px] text-red-400 font-bold flex items-center gap-1 font-mono"><Flame className="w-3 h-3" /> {data.burn} {t.burnLabel}</span>
                             </div>
                           </button>
                         ))}
@@ -1277,12 +1052,12 @@ export default function DashboardPage() {
                         {!isPermanentTier && <span className="bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px]">{t.locked}</span>}
                         {(tier === 'eternal' || tier === 'legacy') && (
                           <span className="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] normal-case font-normal">
-                            Arweave permanen — biaya penyimpanan dibayar terpisah dari wallet Anda
+                            {t.arweavePermanentText}
                           </span>
                         )}
                       </label>
 
-                      <div className={`border-2 border-dashed rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center transition-all ${isPermanentTier ? 'border-cyan-500/30 hover:border-cyan-500 bg-[#030508]' : 'border-white/[0.08] bg-[#080808] opacity-60 cursor-not-allowed'}`}>
+                      <div className={`border-2 border-dashed rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center transition-all ${isPermanentTier ? 'border-cyan-500/30 hover:border-cyan-500 bg-[#05030F]' : 'border-neutral-800 bg-[#0B0817] opacity-60 cursor-not-allowed'}`}>
                         {!isPermanentTier ? (
                           <div>
                             <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-neutral-600 mx-auto mb-2" />
@@ -1294,7 +1069,7 @@ export default function DashboardPage() {
                               <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 shrink-0" />
                               <div className="text-left flex-1 min-w-0">
                                 <p className="text-[10px] sm:text-xs font-bold text-white truncate w-full">{selectedFile?.name}</p>
-                                <p className="text-[9px] sm:text-[10px] text-cyan-500 font-mono truncate w-full">{uploadedCid} (ciphertext)</p>
+                                <p className="text-[9px] sm:text-[10px] text-cyan-500 font-mono truncate w-full">{uploadedCid}</p>
                               </div>
                             </div>
                             <button type="button" onClick={() => {setSelectedFile(null); setUploadedCid(''); setPendingFileCipherRef(null);}} className="text-neutral-500 hover:text-red-400 p-1 sm:p-2 cursor-pointer ml-auto">
@@ -1304,7 +1079,7 @@ export default function DashboardPage() {
                         ) : isPreparingUpload ? (
                           <div className="py-3 sm:py-4">
                             <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-2 sm:mb-3"></div>
-                            <p className="text-[10px] sm:text-xs font-bold text-cyan-400 animate-pulse">Mengenkripsi & menghitung estimasi biaya...</p>
+                            <p className="text-[10px] sm:text-xs font-bold text-cyan-400 animate-pulse">{t.encryptingAndEstimating}</p>
                           </div>
                         ) : stagedUpload ? (
                           <div className="text-left space-y-3">
@@ -1317,24 +1092,24 @@ export default function DashboardPage() {
                             </div>
                             <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3">
                               <p className="text-[10px] sm:text-xs text-purple-200">
-                                Estimasi biaya penyimpanan permanen: <span className="font-mono font-bold">~{stagedUpload.estimatedCost} POL</span>
+                                {t.estimatedCostLabel} <span className="font-mono font-bold">~{stagedUpload.estimatedCost} POL</span>
                               </p>
                               <p className="text-[9px] sm:text-[10px] text-neutral-400 mt-1">
-                                Biaya ini dibayar SEKARANG dari wallet Anda dan TIDAK BISA dikembalikan, meskipun kapsul gagal disegel setelahnya. Wallet Anda akan meminta konfirmasi terpisah.
+                                {t.arweaveWarning}
                               </p>
                             </div>
                             <div className="flex gap-2">
                               {isUploading ? (
                                 <div className="flex-1 flex items-center justify-center gap-2 py-2.5 text-cyan-400 text-[10px] sm:text-xs font-bold">
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Mengunggah ke Arweave...
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> {t.uploadingArweave}
                                 </div>
                               ) : (
                                 <>
                                   <button type="button" onClick={handleConfirmArweaveUpload} className="flex-1 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 font-bold py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs cursor-pointer">
-                                    Konfirmasi & Bayar
+                                    {t.confirmPayBtn}
                                   </button>
                                   <button type="button" onClick={handleCancelStagedUpload} className="px-4 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs cursor-pointer">
-                                    Batal
+                                    {t.cancelBtn}
                                   </button>
                                 </>
                               )}
@@ -1345,7 +1120,7 @@ export default function DashboardPage() {
                             <input type="file" onChange={handleFileSelected} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf,.zip" />
                             <UploadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-500/50 mx-auto mb-1.5 sm:mb-2" />
                             <p className="text-[10px] sm:text-xs text-neutral-400"><span className="text-cyan-400 font-bold">{t.ipfsUploadPrompt}</span></p>
-                            <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-1">{t.ipfsUploadSub} · Maks 10MB</p>
+                            <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-1">{t.ipfsUploadSub}</p>
                           </div>
                         )}
                       </div>
@@ -1357,7 +1132,7 @@ export default function DashboardPage() {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder={t.payloadPlaceholder}
-                        className="w-full h-32 sm:h-40 bg-[#030508] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3 sm:p-5 text-[11px] sm:text-sm text-white focus:border-cyan-500 outline-none resize-none font-mono transition-all"
+                        className="w-full h-32 sm:h-40 bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-[11px] sm:text-sm text-white focus:border-cyan-500 outline-none resize-none font-mono transition-all"
                         required
                       />
                       <div className="text-right text-[9px] sm:text-xs text-neutral-500 font-mono">
@@ -1373,11 +1148,11 @@ export default function DashboardPage() {
                             <select
                               value={inactivityYears}
                               onChange={(e) => setInactivityYears(e.target.value)}
-                              className="w-full bg-[#030508] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-red-500 outline-none cursor-pointer"
+                              className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-red-500 outline-none cursor-pointer"
                             >
-                              <option value="5">5 Years (Minimum Legacy Standard)</option>
-                              <option value="10">10 Years</option>
-                              <option value="20">20 Years</option>
+                              <option value="5">{t.inactivity5y}</option>
+                              <option value="10">{t.inactivity10y}</option>
+                              <option value="20">{t.inactivity20y}</option>
                             </select>
                           </div>
                           <div>
@@ -1387,47 +1162,29 @@ export default function DashboardPage() {
                               value={heirAddress}
                               onChange={(e) => setHeirAddress(e.target.value)}
                               placeholder="0x..."
-                              className="w-full bg-[#030508] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-red-500 outline-none font-mono"
+                              className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-red-500 outline-none font-mono"
                               required
                             />
-                            <p className="text-[9px] sm:text-[10px] text-neutral-500 mt-1.5">Ahli waris harus sudah membuka AetherVault sekali dan mendaftarkan kunci enkripsi di tab Settings.</p>
-                          </div>
-                          <div className="flex items-start gap-2 bg-red-500/5 border border-red-500/20 rounded-lg sm:rounded-xl p-2.5 sm:p-3">
-                            <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-                            <p className="text-[9px] sm:text-[10px] text-neutral-400 leading-relaxed">
-                              Judul & pesan kapsul Legacy dienkripsi khusus untuk ahli waris. Setelah disegel, <span className="text-red-300 font-bold">Anda sendiri tidak akan bisa membacanya lagi</span> — hanya ahli waris yang bisa, setelah syarat tidak-aktif terpenuhi.
-                            </p>
+                            <p className="text-[9px] sm:text-[10px] text-neutral-500 mt-1.5">{t.heirNote}</p>
                           </div>
                         </div>
                       ) : (
                         <div className="space-y-1.5 sm:space-y-2">
                           <label className="block text-[10px] sm:text-xs font-bold text-cyan-500 uppercase tracking-widest">{t.timeLockLabel}</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 sm:gap-3">
-                            <div className="relative">
-                              <Clock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500" />
-                              <input
-                                type="date"
-                                value={unlockDate}
-                                onChange={(e) => setUnlockDate(e.target.value)}
-                                min={new Date().toISOString().split('T')[0]}
-                                className="w-full bg-black/40 backdrop-blur-sm border border-white/[0.07] rounded-xl sm:rounded-2xl pl-10 sm:pl-12 pr-4 sm:pr-5 py-3 sm:py-4 text-xs sm:text-sm text-white focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/10 outline-none font-mono transition-all"
-                                style={{ colorScheme: 'dark' }}
-                                required
-                              />
-                            </div>
-                            <div className="relative">
-                              <input
-                                type="time"
-                                value={unlockTime}
-                                onChange={(e) => setUnlockTime(e.target.value)}
-                                className="w-full sm:w-36 bg-black/40 backdrop-blur-sm border border-white/[0.07] rounded-xl sm:rounded-2xl px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm text-white focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/10 outline-none font-mono transition-all"
-                                style={{ colorScheme: 'dark' }}
-                                required
-                              />
-                            </div>
+                          <div className="relative">
+                            <Clock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500 pointer-events-none" />
+                            <input
+                              type="datetime-local"
+                              value={unlockDate}
+                              onChange={(e) => setUnlockDate(e.target.value)}
+                              min={getMinUnlockDatetimeLocal()}
+                              className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl pl-10 sm:pl-12 pr-4 sm:pr-5 py-3 sm:py-4 text-xs sm:text-sm text-white focus:border-cyan-500 outline-none font-mono transition-all"
+                              style={{ colorScheme: 'dark' }}
+                              required
+                            />
                           </div>
-                          <p className="text-[9px] sm:text-[10px] text-neutral-500 pl-0.5">
-                            Kapsul akan otomatis siap dibuka pada tanggal & jam ini (waktu lokal perangkat Anda).
+                          <p className="text-[9px] sm:text-[10px] text-neutral-500">
+                            {t.timezoneNote.replace('{tz}', Intl.DateTimeFormat().resolvedOptions().timeZone)}
                           </p>
                         </div>
                       )}
@@ -1436,10 +1193,10 @@ export default function DashboardPage() {
                     <button
                       type="submit"
                       disabled={!isConnected || isSealing || isWrongNetwork}
-                      className={`w-full font-bold py-3 sm:py-4 rounded-full flex justify-center items-center gap-1.5 sm:gap-2 transition-all text-xs sm:text-sm mt-2 sm:mt-4 ${isConnected && !isSealing && !isWrongNetwork ? 'bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 hover:from-cyan-400 hover:via-blue-500 hover:to-violet-500 text-white shadow-[0_0_20px_rgba(6,182,212,0.4)] cursor-pointer' : 'bg-[#080808] text-neutral-600 cursor-not-allowed border border-white/[0.08]'}`}
+                      className={`w-full font-bold py-3 sm:py-4 rounded-full flex justify-center items-center gap-1.5 sm:gap-2 transition-all text-xs sm:text-sm mt-2 sm:mt-4 ${isConnected && !isSealing && !isWrongNetwork ? 'bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white shadow-[0_0_25px_-3px_rgba(168,85,247,0.5),0_0_15px_-3px_rgba(34,211,238,0.4)] cursor-pointer' : 'bg-[#0B0817] text-neutral-600 cursor-not-allowed border border-neutral-800'}`}
                     >
                       {isSealing ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                      {isSealing ? 'Memproses...' : isWrongNetwork ? `Pindah ke ${TARGET_CHAIN_NAME} dulu` : (isConnected ? t.sealButton : t.connectToSeal)}
+                      {isSealing ? t.processingBtn : isWrongNetwork ? t.switchToChainFirstBtn.replace('{chain}', TARGET_CHAIN_NAME) : (isConnected ? t.sealButton : t.connectToSeal)}
                     </button>
                   </form>
                 </div>
@@ -1448,22 +1205,21 @@ export default function DashboardPage() {
               {/* TAB: BRANKAS SAYA */}
               {activeTab === 'vaults' && (
                 <div className="space-y-4 sm:space-y-6">
-                  <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl">
-                    <h3 className="text-lg sm:text-xl font-extrabold text-white mb-1 sm:mb-2">{t.vaultsTitle}</h3>
+                  <div className="bg-[#0B0817] border border-neutral-900 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl">
+                    <h3 className="font-display text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">{t.vaultsTitle}</h3>
                     <p className="text-xs sm:text-sm text-neutral-400">{t.vaultsDesc}</p>
                   </div>
 
                   {isLoadingCapsules ? (
-                    <div className="text-center py-16 sm:py-24 bg-[#080808] rounded-2xl sm:rounded-3xl border border-dashed border-white/[0.08]">
+                    <div className="text-center py-16 sm:py-24 bg-[#0B0817] rounded-2xl sm:rounded-3xl border border-dashed border-neutral-800">
                       <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-3 animate-spin" />
-                      <p className="text-neutral-400 text-xs sm:text-sm">Memuat kapsul dari blockchain...</p>
                     </div>
                   ) : myCapsules.length === 0 ? (
-                    <div className="text-center py-16 sm:py-24 bg-[#080808] rounded-2xl sm:rounded-3xl border border-dashed border-white/[0.08]">
+                    <div className="text-center py-16 sm:py-24 bg-[#0B0817] rounded-2xl sm:rounded-3xl border border-dashed border-neutral-800">
                       <Layers className="w-10 h-10 sm:w-12 sm:h-12 text-neutral-700 mx-auto mb-3 sm:mb-4" />
                       <p className="text-neutral-300 font-bold mb-1 text-sm sm:text-base">{t.noVaultsTitle}</p>
                       <p className="text-neutral-500 text-[11px] sm:text-sm max-w-sm mx-auto mb-5 sm:mb-6 px-4">{t.noVaultsDesc}</p>
-                      <button onClick={() => setActiveTab('create')} className="bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 hover:from-cyan-400 hover:via-blue-500 hover:to-violet-500 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-[10px] sm:text-xs font-bold cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all">
+                      <button onClick={() => setActiveTab('create')} className="bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-[10px] sm:text-xs font-bold cursor-pointer shadow-[0_0_20px_-3px_rgba(168,85,247,0.4),0_0_12px_-3px_rgba(34,211,238,0.3)] transition-all">
                         {t.createNowBtn}
                       </button>
                     </div>
@@ -1476,43 +1232,56 @@ export default function DashboardPage() {
                         const canOpen = !cap.contentDeleted && !isOwnUnclaimableLegacy && (cap.isReady || cap.isClaimedOrRevealed);
 
                         return (
-                        <div key={cap.id} className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] hover:border-cyan-500/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.08)] p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6 shadow-lg transition-all">
+                        <div key={cap.id} className="bg-[#0B0817] border border-neutral-900 hover:border-cyan-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6 shadow-lg transition-colors">
                           <div className="space-y-2 w-full md:w-auto">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                              <span className="text-[9px] sm:text-[10px] font-bold text-cyan-400 bg-cyan-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-cyan-500/20 font-mono">{cap.tierLabel}{cap.asHeir ? ' • Sebagai Ahli Waris' : ''}</span>
+                              <span className="text-[9px] sm:text-[10px] font-bold text-cyan-400 bg-cyan-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-cyan-500/20 font-mono">{cap.tierLabel}{cap.asHeir ? t.asHeirSuffix : ''}</span>
                               <span className="text-[9px] sm:text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-amber-500/20 font-mono flex items-center gap-1 sm:gap-1.5">
                                 <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {cap.status}
                               </span>
                             </div>
                             <h4 className="text-sm sm:text-base font-bold text-white truncate">{cap.title}</h4>
-                            {!cap.isLegacy && (
-                              <p className="text-[10px] sm:text-xs text-neutral-500 font-mono flex items-center gap-1.5">
-                                <Clock className="w-3 h-3 text-neutral-600 shrink-0" />
-                                Buka: {new Date(cap.unlockTimestamp * 1000).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                              </p>
-                            )}
+                            <p className="text-[9px] sm:text-[10px] text-neutral-500 font-mono flex items-center gap-1.5">
+                              <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
+                              {cap.isLegacy
+                                ? `${t.lastPingLabel} ${formatUnlockDateTime(cap.lastPingAlive)}`
+                                : `${t.unlockLabel} ${formatUnlockDateTime(cap.unlockTimestamp)}`}
+                            </p>
                           </div>
                           <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
                             {canPingAlive && (
-                              <button onClick={() => handlePingAlive(cap)} disabled={isPinging === cap.id || isWrongNetwork}
+                              <button
+                                onClick={() => handlePingAlive(cap)}
+                                disabled={isPinging === cap.id || isWrongNetwork}
                                 className="w-full md:w-auto bg-transparent hover:bg-green-500/10 disabled:opacity-40 text-green-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-green-500/50 transition-all"
-                                title="Reset jam mundur dead-man switch">
+                              >
                                 {isPinging === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
-                                Saya Masih Aktif
+                                {t.btnPingAlive}
                               </button>
                             )}
                             {canDeleteContent && (
-                              <button onClick={() => handleDeleteOpenedContent(cap)} disabled={isDeletingContent === cap.id || isWrongNetwork}
+                              <button
+                                onClick={() => handleDeleteOpenedContent(cap)}
+                                disabled={isDeletingContent === cap.id || isWrongNetwork}
                                 className="w-full md:w-auto bg-transparent hover:bg-red-500/10 disabled:opacity-40 text-red-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-red-500/50 transition-all"
-                                title="Hapus konten dari kontrak">
+                              >
                                 {isDeletingContent === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
-                                Hapus
+                                {t.btnDeleteContent}
                               </button>
                             )}
-                            <button onClick={() => handleOpenVault(cap)} disabled={!canOpen || isWrongNetwork}
-                              className="w-full md:w-auto bg-transparent hover:bg-cyan-500/10 disabled:opacity-40 disabled:cursor-not-allowed text-cyan-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-cyan-500/50 transition-all">
+                            <button
+                              onClick={() => handleOpenVault(cap)}
+                              disabled={!canOpen || isWrongNetwork}
+                              className="w-full md:w-auto bg-transparent hover:bg-cyan-500/10 disabled:opacity-40 disabled:cursor-not-allowed text-cyan-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-cyan-500/50 transition-all"
+                            >
                               <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                              {cap.contentDeleted ? 'Sudah Dihapus' : isOwnUnclaimableLegacy ? (cap.isReady ? 'Menunggu Diklaim Ahli Waris' : 'Belum Siap') : cap.isClaimedOrRevealed ? 'Lihat Lagi' : (cap.isReady ? t.openVaultBtn : 'Belum Siap')}
+                              {cap.contentDeleted
+                                ? t.statusAlreadyDeleted
+                                : isOwnUnclaimableLegacy
+                                  ? (cap.isReady ? t.statusWaitingHeir : t.statusNotReady)
+                                  : cap.isClaimedOrRevealed
+                                    ? t.btnViewAgain
+                                    : (cap.isReady ? t.openVaultBtn : t.statusNotReady)}
                             </button>
                           </div>
                         </div>
@@ -1525,12 +1294,11 @@ export default function DashboardPage() {
 
               {/* TAB: HISTORY */}
               {activeTab === 'history' && (
-                <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl space-y-4 sm:space-y-6">
-                  <h3 className="text-lg sm:text-xl font-extrabold text-white">{t.historyTitle}</h3>
+                <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl space-y-4 sm:space-y-6">
+                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">{t.historyTitle}</h3>
                   {isLoadingHistory ? (
                     <div className="text-center py-12 sm:py-16 text-neutral-500 text-xs sm:text-sm">
-                      <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-3 animate-spin" />
-                      Memuat riwayat transaksi dari blockchain...
+                      <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-cyan-500 mx-auto mb-2 sm:mb-3 animate-spin" />
                     </div>
                   ) : transactions.length === 0 ? (
                     <div className="text-center py-12 sm:py-16 text-neutral-500 text-xs sm:text-sm">
@@ -1540,14 +1308,16 @@ export default function DashboardPage() {
                   ) : (
                     <div className="space-y-2 sm:space-y-3">
                       {transactions.map((tx) => (
-                        <div key={tx.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-5 bg-black/30 backdrop-blur-md border border-white/[0.05] rounded-xl sm:rounded-2xl hover:border-neutral-700 transition-colors gap-2 sm:gap-0">
+                        <div key={tx.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-5 bg-[#05030F] border border-neutral-900 rounded-xl sm:rounded-2xl hover:border-neutral-700 transition-colors gap-2 sm:gap-0">
                           <div>
                             <p className="text-xs sm:text-sm font-bold text-white mb-0.5 sm:mb-1">{tx.type}</p>
                             <p className="text-[10px] sm:text-xs text-neutral-500">{tx.detail} • <span className="font-mono">{tx.date}</span></p>
                           </div>
-                          <span className={`text-[11px] sm:text-sm font-mono font-bold ${tx.amount < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                            {tx.amount < 0 ? '' : '+'}{tx.amount} AETH
-                          </span>
+                          {tx.direction !== 'neutral' && (
+                            <span className={`text-[11px] sm:text-sm font-mono font-bold ${tx.direction === 'in' ? 'text-green-400' : 'text-red-400'}`}>
+                              {tx.direction === 'in' ? '+' : '-'}{tx.amount} AETH
+                            </span>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1557,16 +1327,16 @@ export default function DashboardPage() {
 
               {/* TAB: STATS */}
               {activeTab === 'stats' && (
-                <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-4 sm:space-y-6 shadow-xl">
-                  <h3 className="text-lg sm:text-xl font-extrabold text-white">{t.statsTitle}</h3>
+                <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-4 sm:space-y-6 shadow-xl">
+                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">{t.statsTitle}</h3>
                   <div className="grid grid-cols-2 gap-3 sm:gap-5">
-                    <div className="bg-black/30 backdrop-blur-md border border-white/[0.05] p-4 sm:p-6 rounded-xl sm:rounded-2xl flex flex-col justify-center">
+                    <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl flex flex-col justify-center">
                       <span className="text-[9px] sm:text-xs uppercase text-neutral-500 block mb-1.5 sm:mb-2 font-bold font-mono">{t.totalBurnedLabel}</span>
                       <span className="text-lg sm:text-3xl font-extrabold font-mono text-red-400 flex items-center gap-1.5 sm:gap-2">
-                        <Flame className="w-4 h-4 sm:w-6 sm:h-6" /> {burnedTotal} <span className="text-[10px] sm:text-lg">AETH</span>
+                        {isLoadingHistory ? <Loader2 className="w-4 h-4 sm:w-6 sm:h-6 animate-spin" /> : <Flame className="w-4 h-4 sm:w-6 sm:h-6" />} {burnedTotal.toFixed(2)} <span className="text-[10px] sm:text-lg">AETH</span>
                       </span>
                     </div>
-                    <div className="bg-black/30 backdrop-blur-md border border-white/[0.05] p-4 sm:p-6 rounded-xl sm:rounded-2xl flex flex-col justify-center">
+                    <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl flex flex-col justify-center">
                       <span className="text-[9px] sm:text-xs uppercase text-neutral-500 block mb-1.5 sm:mb-2 font-bold font-mono">{t.activeCapsulesLabel}</span>
                       <span className="text-lg sm:text-3xl font-extrabold font-mono text-cyan-400 flex items-center gap-1.5">{myCapsules.length} <span className="text-[10px] sm:text-lg text-neutral-500">{t.unit}</span></span>
                     </div>
@@ -1577,48 +1347,53 @@ export default function DashboardPage() {
               {/* TAB: STAKING */}
               {activeTab === 'staking' && (
                 <div className="space-y-4 sm:space-y-6">
-                  <div className="bg-gradient-to-r from-blue-900/30 to-cyan-900/20 border border-cyan-500/30 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
+                  <div className="bg-gradient-to-r from-cyan-900/30 via-violet-900/25 to-fuchsia-900/20 border border-violet-500/30 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
                     <div>
-                      <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-1 sm:mb-2 flex items-center gap-2">
+                      <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2 flex items-center gap-2">
                         <Coins className="text-cyan-400 w-5 h-5 sm:w-6 sm:h-6" /> {t.stakingTitle}
                       </h3>
                       <p className="text-xs sm:text-sm text-neutral-400 max-w-md leading-relaxed">{t.stakingDesc}</p>
                     </div>
-                    <div className="bg-[#030508]/80 backdrop-blur-sm p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-cyan-500/20 min-w-full md:min-w-[200px] text-center md:text-left">
+                    <div className="bg-[#05030F]/80 backdrop-blur-sm p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-violet-500/30 min-w-full md:min-w-[200px] text-center md:text-left shadow-[0_0_25px_-8px_rgba(168,85,247,0.4)]">
                       <p className="text-[10px] sm:text-xs text-neutral-400 uppercase tracking-widest font-bold mb-0.5 sm:mb-1">{t.currentApy}</p>
-                      <p className="text-2xl sm:text-3xl font-mono font-extrabold text-green-400">
+                      <p className="font-display text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
                         {apyPercent !== null ? `${apyPercent}%` : '...'}
                       </p>
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
-                    <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg">
+                    <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg">
                       <h4 className="text-[11px] sm:text-sm font-bold text-white mb-3 sm:mb-4 uppercase tracking-widest">{t.stakeAethTitle}</h4>
                       <div className="space-y-3 sm:space-y-4">
-                        <div className="bg-[#030508] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3 sm:p-4">
+                        <div className="bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4">
                           <div className="flex justify-between text-[9px] sm:text-xs text-neutral-500 mb-1.5 sm:mb-2">
                             <span>{t.stakeAmountLabel}</span>
                             <span>{t.balanceLabel} <span className="font-bold text-white">{aethBalance.toFixed(2)}</span> AETH</span>
                           </div>
                           <div className="flex items-center gap-2 sm:gap-3">
-                            <input type="number" value={stakeInput} onChange={(e) => setStakeInput(e.target.value)} placeholder="0.0"
-                              className="w-full bg-transparent text-lg sm:text-2xl font-mono text-white outline-none" />
-                            <button onClick={() => setStakeInput(aethBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-cyan-500/10 text-cyan-400 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-cyan-500/20 cursor-pointer hover:bg-cyan-500/20">MAX</button>
+                            <input
+                              type="number"
+                              value={stakeInput}
+                              onChange={(e) => setStakeInput(e.target.value)}
+                              placeholder="0.0"
+                              className="w-full bg-transparent text-lg sm:text-2xl font-mono text-white outline-none"
+                            />
+                            <button onClick={() => setStakeInput(aethBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-cyan-500/10 text-cyan-400 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-cyan-500/20 cursor-pointer hover:bg-cyan-500/20">{t.maxBtn}</button>
                           </div>
                         </div>
-                        <button onClick={handleStake} disabled={isStaking || isWrongNetwork}
-                          className="w-full py-3 sm:py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-violet-600 hover:from-cyan-400 hover:via-blue-500 hover:to-violet-500 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm text-white shadow-lg cursor-pointer flex items-center justify-center gap-2">
-                          {isStaking && <Loader2 className="w-3.5 h-3.5 animate-spin" />}{t.stakeBtn}
+                        <button onClick={handleStake} disabled={isStaking || isWrongNetwork} className="w-full py-3 sm:py-4 bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm text-white shadow-lg cursor-pointer flex items-center justify-center gap-2">
+                          {isStaking && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                          {t.stakeBtn}
                         </button>
                       </div>
                     </div>
 
-                    <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg flex flex-col justify-between">
+                    <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg flex flex-col justify-between">
                       <div>
                         <h4 className="text-[11px] sm:text-sm font-bold text-white mb-3 sm:mb-4 uppercase tracking-widest">{t.positionTitle}</h4>
                         <div className="space-y-2 sm:space-y-3">
-                          <div className="flex justify-between items-center border-b border-white/[0.08] pb-2 sm:pb-3">
+                          <div className="flex justify-between items-center border-b border-neutral-800 pb-2 sm:pb-3">
                             <span className="text-neutral-400 text-[10px] sm:text-sm">{t.totalStaked}</span>
                             <span className="text-white font-mono font-bold text-[11px] sm:text-base">{stakedBalance.toFixed(2)} AETH</span>
                           </div>
@@ -1627,29 +1402,38 @@ export default function DashboardPage() {
                             <span className="text-green-400 font-mono font-bold text-[11px] sm:text-base">+{pendingReward.toFixed(4)} AETH</span>
                           </div>
                         </div>
+
                         {stakedBalance > 0 && (
-                          <div className="mt-3 sm:mt-4 bg-[#030508] border border-white/[0.08] rounded-xl sm:rounded-2xl p-3 sm:p-4">
+                          <div className="mt-3 sm:mt-4 bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4">
                             <div className="flex justify-between text-[9px] sm:text-xs text-neutral-500 mb-1.5 sm:mb-2">
-                              <span>Jumlah Unstake</span>
+                              <span>{t.unstakeAmountLabel}</span>
                               <span>Staked: <span className="font-bold text-white">{stakedBalance.toFixed(2)}</span> AETH</span>
                             </div>
                             <div className="flex items-center gap-2 sm:gap-3">
-                              <input type="number" value={unstakeInput} onChange={(e) => setUnstakeInput(e.target.value)} placeholder="0.0"
-                                className="w-full bg-transparent text-lg sm:text-2xl font-mono text-white outline-none" />
-                              <button onClick={() => setUnstakeInput(stakedBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-red-500/10 text-red-300 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-red-500/20 cursor-pointer hover:bg-red-500/20">MAX</button>
+                              <input
+                                type="number"
+                                value={unstakeInput}
+                                onChange={(e) => setUnstakeInput(e.target.value)}
+                                placeholder="0.0"
+                                className="w-full bg-transparent text-lg sm:text-2xl font-mono text-white outline-none"
+                              />
+                              <button onClick={() => setUnstakeInput(stakedBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-red-500/10 text-red-300 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-red-500/20 cursor-pointer hover:bg-red-500/20">{t.maxBtn}</button>
                             </div>
                           </div>
                         )}
                       </div>
                       <div className="flex flex-col gap-2 mt-4">
                         {stakedBalance > 0 && (
-                          <button onClick={handleWithdrawStake} disabled={isWithdrawingStake || isWrongNetwork}
-                            className="w-full py-3 sm:py-4 border border-red-500/40 text-red-300 hover:bg-red-500/10 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center justify-center gap-2">
-                            {isWithdrawingStake && <Loader2 className="w-3.5 h-3.5 animate-spin" />}Unstake
+                          <button
+                            onClick={handleWithdrawStake}
+                            disabled={isWithdrawingStake || isWrongNetwork}
+                            className="w-full py-3 sm:py-4 border border-red-500/40 text-red-300 hover:bg-red-500/10 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
+                          >
+                            {isWithdrawingStake && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                            {t.unstakeBtn}
                           </button>
                         )}
-                        <button onClick={handleClaimReward} disabled={isWrongNetwork}
-                          className="w-full py-3 sm:py-4 border border-green-500/40 text-green-400 hover:bg-green-500/10 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer">
+                        <button onClick={handleClaimReward} disabled={isWrongNetwork} className="w-full py-3 sm:py-4 border border-green-500/40 text-green-400 hover:bg-green-500/10 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer">
                           {t.claimRewardsBtn}
                         </button>
                       </div>
@@ -1661,46 +1445,37 @@ export default function DashboardPage() {
               {/* TAB: INFO KEAMANAN */}
               {activeTab === 'security' && (
                 <div className="space-y-4 sm:space-y-6">
-                  <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                      <h3 className="text-lg sm:text-xl font-extrabold text-white mb-1 flex items-center gap-2">
+                      <h3 className="font-display text-lg sm:text-xl font-bold text-white mb-1 flex items-center gap-2">
                         <Shield className="text-green-500 w-4 h-4 sm:w-5 sm:h-5" /> {t.securityTitle}
                       </h3>
                       <p className="text-xs sm:text-sm text-neutral-400">{t.securityDesc}</p>
                     </div>
                   </div>
 
-                  <div className="bg-[#080808] border border-cyan-500/20 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg space-y-3">
-                    <h5 className="text-sm sm:text-base font-bold text-white flex items-center gap-2"><KeyRound className="w-4 h-4 text-cyan-400"/> Bagaimana isi kapsul dijaga</h5>
-                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">
-                      Judul, pesan, dan lampiran dienkripsi (ECIES/secp256k1) langsung di browser Anda sebelum meninggalkan perangkat.
-                      Kunci dekripsi diturunkan dari signature EIP-712 wallet Anda sendiri dan tidak pernah dikirim ke mana pun.
-                      Yang tersimpan di blockchain dan Arweave hanyalah ciphertext.
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">
-                      Yang TIDAK dienkripsi (publik): alamat pemilik, alamat ahli waris, waktu kapsul dibuat/dibuka, dan tier yang dipilih.
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">
-                      Kunci enkripsi terikat pada jaringan ({TARGET_CHAIN_NAME}). Jangan gunakan AetherVault di jaringan lain.
-                    </p>
+                  <div className="bg-[#0B0817] border border-cyan-500/20 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg space-y-3">
+                    <h5 className="text-sm sm:text-base font-bold text-white flex items-center gap-2"><KeyRound className="w-4 h-4 text-cyan-400"/> {t.secHowProtected}</h5>
+                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">{t.secDesc1}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc2}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc3}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc4}</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    <div className="bg-[#080808] border border-cyan-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
+                    <div className="bg-[#0B0817] border border-cyan-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
                       <div className="absolute top-0 right-0 bg-cyan-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Active</div>
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2"><Lock className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400"/> ReentrancyGuard</h5>
-                      <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">Smart Contract dilindungi multi-layer.</p>
-                      <a href={`https://polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
+                      <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">{t.reentrancyDesc}</p>
+                      <a href={`https://polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
                         {t.viewCodeBtn} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
 
-                    <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
-                      <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2"><Coins className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500"/> {t.vaultReserveTitle}</h5>
+                    <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
+                      <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2"><Coins className="w-4 h-4 sm:w-5 h-5 text-yellow-500"/> {t.vaultReserveTitle}</h5>
                       <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">{t.vaultReserveDesc}</p>
-                      <a href={`https://polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-yellow-400 bg-yellow-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-all border border-yellow-500/30">
+                      <a href={`https://polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-yellow-400 bg-yellow-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-all border border-yellow-500/30">
                         {t.checkVaultBtn} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
@@ -1710,48 +1485,52 @@ export default function DashboardPage() {
 
               {/* TAB: SETTINGS */}
               {activeTab === 'settings' && (
-                <div className="bg-white/[0.025] backdrop-blur-xl border border-white/[0.07] rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 sm:space-y-8 shadow-xl">
+                <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 sm:space-y-8 shadow-xl">
                   <div>
-                    <h3 className="text-lg sm:text-xl font-extrabold text-white flex items-center gap-2"><Settings className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-400"/> {t.settingsTitle}</h3>
+                    <h3 className="font-display text-lg sm:text-xl font-bold text-white flex items-center gap-2"><Settings className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-400"/> {t.settingsTitle}</h3>
                     <p className="text-[11px] sm:text-sm text-neutral-400 mt-1">{t.settingsDesc}</p>
                   </div>
 
                   <div className="space-y-4 sm:space-y-6">
-                    <div className="bg-black/30 backdrop-blur-md border border-white/[0.05] p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+                    <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                         <div>
-                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><KeyRound className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> Kunci Enkripsi Wallet</p>
-                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">Diperlukan agar orang lain bisa menjadikan Anda ahli waris.</p>
+                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><KeyRound className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> {t.encryptionKeyLabel}</p>
+                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.encryptionKeyDesc}</p>
                         </div>
-                        <button onClick={handleRegisterEncryptionKey} disabled={isRegisteringKey || myPublicKeyRegistered || isWrongNetwork}
-                          className={`text-[9px] sm:text-[10px] px-3 sm:px-4 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 flex items-center gap-2 ${myPublicKeyRegistered ? 'bg-green-500/10 text-green-400 border border-green-500/20 cursor-default' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 cursor-pointer disabled:opacity-50'}`}>
-                          {isRegisteringKey && <Loader2 className="w-3 h-3 animate-spin" />}{myPublicKeyRegistered ? 'Terdaftar' : 'Daftarkan'}
+                        <button
+                          onClick={handleRegisterEncryptionKey}
+                          disabled={isRegisteringKey || myPublicKeyRegistered || isWrongNetwork}
+                          className={`text-[9px] sm:text-[10px] px-3 sm:px-4 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 flex items-center gap-2 ${myPublicKeyRegistered ? 'bg-green-500/10 text-green-400 border border-green-500/20 cursor-default' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 cursor-pointer disabled:opacity-50'}`}
+                        >
+                          {isRegisteringKey && <Loader2 className="w-3 h-3 animate-spin" />}
+                          {myPublicKeyRegistered ? t.registeredStatus : t.registerBtn}
                         </button>
                       </div>
                     </div>
 
-                    <div className="bg-black/30 backdrop-blur-md border border-white/[0.05] p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+                    <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                         <div>
                           <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> {t.rpcLabel}</p>
                           <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.rpcDesc}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto mt-1 sm:mt-0">
-                          <input type="text" disabled value="Auto-Fallback (Multi RPC)" className="bg-[#080808] border border-white/[0.08] text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none" />
-                          <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? 'Jaringan Salah' : t.connected}</span>
+                          <input type="text" disabled value={READ_ONLY_RPC_URL} className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none" />
+                          <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? t.wrongNetwork : t.connected}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-black/30 backdrop-blur-md border border-white/[0.05] p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+                    <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                         <div>
-                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><UploadCloud className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> Penyimpanan Lampiran</p>
-                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">Lampiran disimpan permanen di Arweave lewat Irys, dibayar langsung dari wallet Anda.</p>
+                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><UploadCloud className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> {t.storageLabel}</p>
+                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.storageDesc}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto mt-1 sm:mt-0">
-                          <input type="text" disabled value="Arweave via Irys" className="bg-[#080808] border border-white/[0.08] text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none text-center sm:text-left" />
-                          <span className="text-[8px] sm:text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0">Permanen</span>
+                          <input type="text" disabled value="Arweave via Irys" className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none text-center sm:text-left" />
+                          <span className="text-[8px] sm:text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0">{t.permanentStatus}</span>
                         </div>
                       </div>
                     </div>
@@ -1763,7 +1542,7 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      <footer className="relative z-10 border-t border-white/[0.06] bg-[#030508]/80 py-5 sm:py-6 mt-auto">
+      <footer className="border-t border-neutral-900 bg-[#05030F]/80 py-5 sm:py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
             <img src="/logo.png" alt="Logo" className="w-5 h-5 sm:w-6 sm:h-6 grayscale opacity-40" />
@@ -1776,15 +1555,14 @@ export default function DashboardPage() {
       </footer>
 
       {selectedVault && (
-        <div className="fixed inset-0 bg-[#030508]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-[#080808] border border-cyan-500/30 max-w-lg w-full rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-4 sm:space-y-6 shadow-[0_0_30px_rgba(6,182,212,0.15)] relative">
+        <div className="fixed inset-0 bg-[#05030F]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0B0817] border border-cyan-500/30 max-w-lg w-full rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-4 sm:space-y-6 shadow-[0_0_30px_rgba(6,182,212,0.15)] relative">
             <h4 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2 sm:gap-2.5">
               <Sparkles className="text-cyan-400 w-4 h-4 sm:w-5 sm:h-5"/> {t.modalDecryptedTitle}
             </h4>
             {isDecrypting ? (
               <div className="text-center py-8">
                 <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-3 animate-spin" />
-                <p className="text-neutral-400 text-xs sm:text-sm">Memverifikasi on-chain & mendekripsi secara lokal...</p>
               </div>
             ) : selectedVault.error ? (
               <div className="text-center py-6">
@@ -1792,7 +1570,7 @@ export default function DashboardPage() {
                 <p className="text-red-300 text-xs sm:text-sm">{selectedVault.error}</p>
               </div>
             ) : (
-              <div className="w-full bg-[#030508] border border-white/[0.08] rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
+              <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
                 {selectedVault.decryptedMessage}
               </div>
             )}
@@ -1802,6 +1580,7 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

@@ -13,8 +13,8 @@ import {
   publicKeyToBytes,
   encryptForPublicKey,
   decryptWithPrivateKey,
-} from '@/lib/cryptoUtils';
-import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload';
+} from '@/lib/cryptoUtils-testnet';
+import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload-testnet';
 
 // ==========================================
 // ABI TOKEN / VAULT — HARUS SINKRON DENGAN AetherVault.sol
@@ -39,14 +39,7 @@ const AetherVaultABI = [
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "revealCapsule", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "claimLegacy", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "nonpayable", "type": "function" },
 
-  // BARU: baca ulang ciphertext kapsul yang SUDAH pernah dibuka — fungsi
-  // VIEW (gratis, tanpa gas), boleh dipanggil berkali-kali. Beda dari
-  // revealCapsule/claimLegacy yang state-changing dan cuma sekali pakai.
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getOpenedCiphertext", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" },
-  // BARU: hapus konten kapsul yang sudah dibuka (opsional, manual, oleh
-  // owner/heir yang berhak). Lihat peringatan jujur soal ini di
-  // AetherVault.sol — ini TIDAK menghapus riwayat blockchain lama secara
-  // mutlak, cuma dari state saat ini dan ke depan.
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "deleteOpenedContent", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
 
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getCapsuleMeta", "outputs": [
@@ -73,11 +66,6 @@ const AetherVaultABI = [
       { "internalType": "uint256", "name": "maxMessageLength", "type": "uint256" }
     ], "stateMutability": "view", "type": "function" },
 
-  // BARU: definisi EVENT (sebelumnya tidak ada satu pun event di ABI, jadi
-  // queryFilter/filters tidak bisa dipakai sama sekali). Ini yang membuat
-  // tab Riwayat Transaksi & Statistik Deflasi cuma bisa baca dari memori
-  // sesi (hilang tiap refresh) — sekarang dibaca ulang dari log blockchain
-  // yang permanen, jadi tahan refresh/logout/ganti perangkat.
   { "anonymous": false, "inputs": [
       { "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" },
       { "indexed": true, "internalType": "address", "name": "owner", "type": "address" },
@@ -104,23 +92,12 @@ const AetherVaultABI = [
 // ==========================================
 const StakingABI = [
   { "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "stake", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  // BARU: withdraw/unstake — sudah ada di kontrak sejak awal, tapi
-  // sebelumnya TIDAK PERNAH dipanggil dari frontend (bug: user tidak
-  // punya cara menarik pokok stake-nya kembali lewat aplikasi).
   { "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "withdraw", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [], "name": "claimReward", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "stakedBalance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "_user", "type": "address" }], "name": "calculateReward", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-  // BARU: baca APY langsung dari kontrak (constant, tidak akan pernah
-  // berubah tanpa deploy ulang) — supaya angka di UI tidak mungkin lagi
-  // tidak sinkron kalau suatu saat kontrak staking di-redeploy dengan
-  // rewardRate berbeda.
   { "inputs": [], "name": "rewardRate", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-  // BARU: cek berapa reward yang MASIH BISA dibayar tanpa memakan pokok
-  // user lain — dipakai untuk validasi sebelum user coba klaim.
   { "inputs": [], "name": "availableRewardPool", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-
-  // BARU: definisi event untuk membangun ulang riwayat staking dari chain.
   { "anonymous": false, "inputs": [
       { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
       { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
@@ -135,81 +112,23 @@ const StakingABI = [
     ], "name": "RewardClaimed", "type": "event" }
 ];
 
-// ==========================================
-// ALAMAT SMART CONTRACT — GANTI SETELAH DEPLOY ULANG DARI REMIX
-// ==========================================
 const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; // TODO: isi alamat hasil deploy AetherVault.sol (40 hex char setelah 0x!)
 const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!)
-
-// ==========================================
-// GUARD: ALAMAT PLACEHOLDER BELUM DIGANTI
-// ==========================================
-// "0x000...dEaD" adalah format alamat yang VALID secara sintaks — ethers.js
-// tidak akan menganggapnya error, jadi kalau lupa diganti sebelum deploy
-// produksi, aplikasi akan tetap "jalan" tanpa error yang jelas, hanya saja
-// terikat ke kontrak yang tidak ada/salah. Guard eksplisit ini mencegah
-// kesalahan itu lolos diam-diam.
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
   CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
 const IS_STAKING_ADDRESS_CONFIGURED =
   STAKING_CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
 
-// ==========================================
-// JARINGAN TARGET — WAJIB DIISI SESUAI JARINGAN DEPLOY SEBENARNYA
-// ==========================================
-// Karena kunci enkripsi diturunkan dari signature EIP-712 yang mengikat
-// chainId, aplikasi HARUS menolak beroperasi di jaringan selain ini —
-// kalau tidak, user bisa tanpa sadar membuat/membuka kapsul dengan
-// keypair yang salah dan kehilangan akses permanen ke kapsul lamanya.
-// Polygon Mainnet = 137. Ganti sesuai target (mis. 80002 untuk Amoy testnet).
-// ==========================================
-// MODE: TESTNET (Polygon Amoy) — GANTI KE MAINNET SAAT SUDAH SIAP PRODUKSI
-// ==========================================
-// Amoy adalah testnet resmi Polygon saat ini (Mumbai sudah dihentikan per
-// April 2024). Chain ID 80002. Sebelum pindah ke mainnet nanti, ganti
-// TARGET_CHAIN_ID ke 137 dan TARGET_CHAIN_NAME ke "Polygon", DAN deploy
-// ulang kontrak ke mainnet (kontrak testnet & mainnet adalah instance
-// terpisah — alamat, saldo, dan kapsul TIDAK ikut pindah otomatis).
 const TARGET_CHAIN_ID = 80002;
 const TARGET_CHAIN_ID_HEX = "0x" + TARGET_CHAIN_ID.toString(16);
 const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
-
-// Batas pesan ekstra untuk mengakomodasi overhead ciphertext ECIES
-// (ciphertext base64 selalu lebih panjang dari plaintext aslinya)
 const CIPHERTEXT_OVERHEAD_FACTOR = 2.5;
 
-// Pemetaan key tier di frontend -> enum Tier di Solidity.
-// WAJIB sama persis urutannya dengan `enum Tier { Basic, VIP, Eternal, Legacy }`
-// di AetherVault.sol. Jangan diubah tanpa mengubah kontrak juga.
-const TIER_ENUM_MAP = {
-  basic: 0,
-  premium: 1, // VIP di kontrak
-  eternal: 2,
-  legacy: 3,
-};
+const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
+const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
-// Kebalikan dari TIER_ENUM_MAP — dipakai untuk menerjemahkan angka `tier`
-// yang dibaca dari getCapsuleMeta() on-chain kembali ke label yang enak
-// dibaca. Sebelumnya kontrak TIDAK menyimpan tier spesifik per kapsul
-// (cuma bool isLegacy), jadi Basic/VIP/Eternal semua tampil sama sebagai
-// "Time-Lock" generik di daftar Brankas — sekarang dibedakan.
-const TIER_INDEX_TO_LABEL = {
-  0: 'Basic',
-  1: 'VIP',
-  2: 'Eternal',
-  3: 'Legacy',
-};
-
-// RPC publik read-only untuk membaca tierConfigs TANPA perlu wallet
-// terhubung (mis. saat user pertama kali membuka halaman). Untuk produksi
-// sebaiknya ganti ke provider RPC dedicated (Alchemy/Infura/QuickNode)
-// supaya tidak bergantung pada rate-limit endpoint publik.
 const READ_ONLY_RPC_URL = "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM"; // RPC publik Amoy testnet — TODO: ganti ke provider dedicated (Alchemy/Infura) sebelum mainnet
-
-// Nilai fallback HANYA dipakai selagi tierConfigs on-chain belum berhasil
-// dimuat (mis. RPC lambat/gagal). Begitu fetch on-chain sukses, nilai ini
-// langsung ditimpa. Ini mencegah UI kosong/blank saat loading pertama.
 const TIER_FALLBACK_CONFIG = {
   basic: { cost: 10, burn: 2, maxLength: 250, maxYears: 1 },
   premium: { cost: 50, burn: 10, maxLength: 1000, maxYears: 5 },
@@ -222,7 +141,6 @@ export default function DashboardPage() {
   const { t: globalT } = useLanguage();
   const t = globalT.dashboard;
 
-  // 2. INISIALISASI MESIN WALLETCONNECT
   const { open } = useWeb3Modal();
   const { address, isConnected, chainId } = useWeb3ModalAccount();
   const { walletProvider } = useWeb3ModalProvider();
@@ -230,16 +148,12 @@ export default function DashboardPage() {
 
   const isWrongNetwork = isConnected && chainId !== undefined && Number(chainId) !== TARGET_CHAIN_ID;
 
-  // State Mobile Menu
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // State Utama
   const [nativeBalance, setNativeBalance] = useState('0.0000');
   const [aethBalance, setAethBalance] = useState(0);
   const [burnedTotal, setBurnedTotal] = useState(0);
   const [activeTab, setActiveTab] = useState('create');
 
-  // State Form Kapsul
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [unlockDate, setUnlockDate] = useState('');
@@ -248,24 +162,21 @@ export default function DashboardPage() {
   const [heirAddress, setHeirAddress] = useState('');
   const [isSealing, setIsSealing] = useState(false);
 
-  // State Fitur IPFS
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedCid, setUploadedCid] = useState('');
   const [pendingFileCipherRef, setPendingFileCipherRef] = useState(null);
+  const [stagedUpload, setStagedUpload] = useState(null); 
+  const [isPreparingUpload, setIsPreparingUpload] = useState(false);
 
-  // State Ekstra untuk Staking
   const [stakeInput, setStakeInput] = useState('');
   const [unstakeInput, setUnstakeInput] = useState('');
   const [stakedBalance, setStakedBalance] = useState(0);
   const [pendingReward, setPendingReward] = useState(0);
   const [isStaking, setIsStaking] = useState(false);
   const [isWithdrawingStake, setIsWithdrawingStake] = useState(false);
-  // Dibaca langsung dari kontrak (rewardRate), bukan hardcode — nilainya
-  // 125 di on-chain berarti 12.5% (dibagi 10 untuk tampilan persen).
   const [apyPercent, setApyPercent] = useState(null);
 
-  // State Kunci Enkripsi
   const [myPublicKeyRegistered, setMyPublicKeyRegistered] = useState(false);
   const [isRegisteringKey, setIsRegisteringKey] = useState(false);
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false);
@@ -278,18 +189,7 @@ export default function DashboardPage() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedVault, setSelectedVault] = useState(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
-
-  // ==========================================
-  // FIX (perbaikan dari review sebelumnya): keypair identitas disimpan di
-  // REF, bukan useState. Ini murni cache in-memory yang tidak pernah perlu
-  // memicu re-render sendiri — sebelumnya pakai useState menyebabkan
-  // useEffect utama re-trigger sekali ekstra tiap kali kunci baru pertama
-  // kali diturunkan (identitas fungsi getOrDeriveKeyPair berubah karena
-  // dependency [myKeyPair] ikut berubah), sehingga semua data wallet
-  // di-fetch dua kali secara redundant saat pertama connect. Dengan ref,
-  // fungsi getOrDeriveKeyPair punya identitas STABIL sepanjang komponen
-  // hidup, jadi tidak lagi memicu effect tambahan.
-  // ==========================================
+  
   const myKeyPairRef = useRef(null);
   const [hasLocalKeyPair, setHasLocalKeyPair] = useState(false);
 
@@ -298,29 +198,27 @@ export default function DashboardPage() {
     return () => clearInterval(timer);
   }, []);
 
-  // ==========================================
-  // BACA tierConfigs LANGSUNG DARI KONTRAK
-  // ==========================================
+  // FIX: Reset keypair ref saat wallet address berubah (switch wallet tanpa disconnect)
+  useEffect(() => {
+    if (address) {
+      myKeyPairRef.current = null;
+      setHasLocalKeyPair(false);
+    }
+  }, [address]);
+
   const [onChainTierConfig, setOnChainTierConfig] = useState({});
   const [isTierConfigLoaded, setIsTierConfigLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-
     const fetchTierConfigs = async () => {
       try {
         const provider = walletProvider
           ? new ethers.BrowserProvider(walletProvider)
           : new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
-
         const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-
-        const results = await Promise.all(
-          [0, 1, 2, 3].map((idx) => contract.tierConfigs(idx))
-        );
-
+        const results = await Promise.all([0, 1, 2, 3].map((idx) => contract.tierConfigs(idx)));
         if (cancelled) return;
-
         const parsed = {};
         results.forEach((r, idx) => {
           parsed[idx] = {
@@ -330,22 +228,20 @@ export default function DashboardPage() {
             maxLength: Number(r.maxMessageLength),
           };
         });
-
         setOnChainTierConfig(parsed);
         setIsTierConfigLoaded(true);
       } catch (err) {
-        console.error("Gagal memuat tierConfigs dari kontrak, memakai nilai fallback:", err);
+        console.error(t.consoleTierConfigFail, err);
       }
     };
-
     fetchTierConfigs();
     return () => { cancelled = true; };
   }, [walletProvider]);
 
   const tierDisplayMeta = {
-    basic: { name: 'Basic', desc: t.tiersList.basicDesc, icon: 'bg-neutral-800', color: 'text-gray-300', border: 'border-neutral-500 shadow-[0_0_15px_-3px_rgba(255,255,255,0.1)]' },
-    premium: { name: 'VIP Vault', desc: t.tiersList.vipDesc, icon: 'bg-gradient-to-br from-cyan-500/20 to-violet-500/20', color: 'text-cyan-300', border: 'border-cyan-400/70 shadow-[0_0_25px_-4px_rgba(168,85,247,0.45),0_0_15px_-4px_rgba(34,211,238,0.4)]' },
-    eternal: { name: 'Eternal', desc: t.tiersList.eternalDesc, icon: 'bg-gradient-to-br from-amber-500/20 to-orange-500/20', color: 'text-amber-300', border: 'border-amber-400/70 shadow-[0_0_25px_-4px_rgba(245,158,11,0.45),0_0_15px_-4px_rgba(251,146,60,0.35)]' },
+    basic: { name: t.tiersList.basicName, desc: t.tiersList.basicDesc, icon: 'bg-neutral-800', color: 'text-gray-300', border: 'border-neutral-500 shadow-[0_0_15px_-3px_rgba(255,255,255,0.1)]' },
+    premium: { name: t.tiersList.vipName, desc: t.tiersList.vipDesc, icon: 'bg-gradient-to-br from-cyan-500/20 to-violet-500/20', color: 'text-cyan-300', border: 'border-cyan-400/70 shadow-[0_0_25px_-4px_rgba(168,85,247,0.45),0_0_15px_-4px_rgba(34,211,238,0.4)]' },
+    eternal: { name: t.tiersList.eternalName, desc: t.tiersList.eternalDesc, icon: 'bg-gradient-to-br from-amber-500/20 to-orange-500/20', color: 'text-amber-300', border: 'border-amber-400/70 shadow-[0_0_25px_-4px_rgba(245,158,11,0.45),0_0_15px_-4px_rgba(251,146,60,0.35)]' },
     legacy: { name: t.tiersList.legacyName, desc: t.tiersList.legacyDesc, icon: 'bg-gradient-to-br from-fuchsia-500/20 to-rose-500/20', color: 'text-fuchsia-300', border: 'border-fuchsia-400/70 shadow-[0_0_25px_-4px_rgba(232,121,249,0.45),0_0_15px_-4px_rgba(244,63,94,0.35)]' },
   };
 
@@ -353,7 +249,6 @@ export default function DashboardPage() {
     const idx = TIER_ENUM_MAP[key];
     const onChain = onChainTierConfig[idx];
     const fallback = TIER_FALLBACK_CONFIG[key];
-
     acc[key] = {
       ...tierDisplayMeta[key],
       cost: onChain ? onChain.cost : fallback.cost,
@@ -370,14 +265,7 @@ export default function DashboardPage() {
   };
 
   const extractErrorMessage = (err) => {
-    return (
-      err?.reason ||
-      err?.shortMessage ||
-      err?.error?.message ||
-      err?.data?.message ||
-      err?.message ||
-      "Transaksi gagal atau ditolak jaringan"
-    );
+    return (err?.reason || err?.shortMessage || err?.error?.message || err?.data?.message || err?.message || t.defaultTxErrorMessage);
   };
 
   const getSigner = async () => {
@@ -385,9 +273,6 @@ export default function DashboardPage() {
     return provider.getSigner();
   };
 
-  // ==========================================
-  // FIX: validasi jaringan SEBELUM operasi kripto/transaksi apa pun.
-  // ==========================================
   const ensureCorrectNetwork = async (signer) => {
     await assertCorrectNetwork(signer, TARGET_CHAIN_ID);
   };
@@ -396,18 +281,14 @@ export default function DashboardPage() {
     setIsSwitchingNetwork(true);
     try {
       await requestSwitchNetwork(walletProvider, TARGET_CHAIN_ID_HEX);
-      showToast(`Berhasil pindah ke jaringan ${TARGET_CHAIN_NAME}.`, 'success');
+      showToast(t.errNetworkSwitchSuccess.replace('{chain}', TARGET_CHAIN_NAME), 'success');
     } catch (err) {
-      showToast(`Gagal pindah jaringan: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.errNetworkSwitchFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsSwitchingNetwork(false);
     }
   };
 
-  // Mengambil keypair identitas dari cache REF bila sudah ada, atau
-  // menurunkannya sekali dari signature wallet (meminta user tanda tangan
-  // SATU KALI per sesi, gratis/tanpa gas). Identitas fungsi ini STABIL
-  // (tidak berubah tiap render) karena tidak lagi bergantung pada state.
   const getOrDeriveKeyPair = useCallback(async () => {
     if (myKeyPairRef.current) return myKeyPairRef.current;
     const signer = await getSigner();
@@ -416,7 +297,6 @@ export default function DashboardPage() {
     myKeyPairRef.current = kp;
     setHasLocalKeyPair(true);
     return kp;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletProvider]);
 
   const tryDecryptTitle = async (encryptedTitle, privateKey) => {
@@ -424,13 +304,10 @@ export default function DashboardPage() {
     try {
       return await decryptWithPrivateKey(privateKey, encryptedTitle);
     } catch (err) {
-      return null; // bukan penerima ciphertext ini — kondisi normal, bukan bug
+      return null;
     }
   };
 
-  // ==========================================
-  // FETCH DATA WALLET + KAPSUL DARI BLOCKCHAIN (bukan state lokal)
-  // ==========================================
   const fetchCapsulesFromChain = useCallback(async (provider, userAddress, privateKeyForTitles) => {
     setIsLoadingCapsules(true);
     try {
@@ -439,9 +316,6 @@ export default function DashboardPage() {
         contract.getUserCapsules(userAddress),
         contract.getHeirCapsules(userAddress),
       ]);
-
-      // FIX: Deduplikasi — jika user adalah owner sekaligus heir kapsul yang sama,
-      // jangan tampilkan dua kali. Priority: owner (asHeir: false) lebih utama.
       const allIdsMap = new Map();
       ownedIds.forEach((id) => allIdsMap.set(id.toString(), { id, asHeir: false }));
       heirIds.forEach((id) => {
@@ -451,16 +325,14 @@ export default function DashboardPage() {
         }
       });
       const allIds = Array.from(allIdsMap.values());
-
       const results = await Promise.all(
         allIds.map(async ({ id, asHeir }) => {
           const meta = await contract.getCapsuleMeta(id);
           const ready = await contract.isCapsuleReady(id);
           const decryptedTitle = await tryDecryptTitle(meta.title, privateKeyForTitles);
-
           return {
             id: id.toString(),
-            title: decryptedTitle ?? '🔒 Judul terenkripsi',
+            title: decryptedTitle ?? t.lockedTitleFallback,
             titleIsLocked: decryptedTitle === null,
             unlockTimestamp: Number(meta.unlockTimestamp),
             owner: meta.owner,
@@ -473,56 +345,32 @@ export default function DashboardPage() {
             tierIndex: Number(meta.tier),
             isReady: ready,
             asHeir,
-            // Sebelumnya semua kapsul non-Legacy tampil sebagai "Time-Lock"
-            // generik karena kontrak lama tidak menyimpan tier spesifik.
-            // Sekarang pakai meta.tier (Basic/VIP/Eternal/Legacy) langsung.
-            tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? 'Legacy' : 'Time-Lock'),
-            status: meta.contentDeleted
-              ? 'Konten Dihapus'
-              : meta.isClaimedOrRevealed
-                ? (t.statusOpened || 'Sudah Dibuka')
-                : ready
-                  ? (t.statusReady || 'Siap Dibuka')
-                  : (t.statusLocked || 'Terkunci'),
+            tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? t.tierLabelLegacy : t.tierLabelTimeLock),
+            status: meta.contentDeleted ? t.statusDeleted : meta.isClaimedOrRevealed ? t.statusOpened : ready ? t.statusReady : t.statusLocked,
           };
         })
       );
-
       results.sort((a, b) => Number(b.id) - Number(a.id));
       setMyCapsules(results);
     } catch (err) {
-      console.error("Gagal memuat kapsul dari blockchain:", err);
+      console.error(t.consoleCapsuleFail, err);
     } finally {
       setIsLoadingCapsules(false);
     }
   }, [t]);
 
-  // ==========================================
-  // FIX (Riwayat Transaksi & Statistik Deflasi kosong setelah logout/login)
-  // ==========================================
-  // Sebelumnya `transactions` dan `burnedTotal` cuma state React di memori,
-  // ditambah manual tiap kali user berhasil melakukan aksi DI SESI ITU JUGA
-  // — tidak pernah dibaca dari mana pun. Begitu refresh/logout, hilang total.
-  // Bukan soal koneksi internet lambat; datanya memang tidak pernah disimpan.
-  //
-  // Sekarang dibangun ulang dari LOG EVENT BLOCKCHAIN yang permanen —
-  // CapsuleSealed/Revealed/LegacyClaimed/PingRecorded dari vault, dan
-  // Staked/Withdrawn/RewardClaimed dari staking — jadi selalu akurat, tahan
-  // refresh, tahan ganti perangkat, sinkron ke event log sungguhan.
+  const DEPLOY_BLOCK_NUMBER = 91096734;
+
   const fetchOnChainHistory = useCallback(async (userAddress) => {
     setIsLoadingHistory(true);
     try {
-      // FIX: Gunakan JsonRpcProvider read-only, BUKAN BrowserProvider wallet.
-      // Wallet provider sering membatasi/reject eth_getLogs. JsonRpcProvider
-      // lebih stabil untuk query event history.
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-
       const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
-        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), 0, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), 0, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), 0, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), 0, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
       ]);
 
       let stakingLogs = { staked: [], withdrawn: [], claimed: [] };
@@ -530,13 +378,13 @@ export default function DashboardPage() {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
           const [staked, withdrawn, claimed] = await Promise.all([
-            stakingContract.queryFilter(stakingContract.filters.Staked(userAddress), 0, "latest"),
-            stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress), 0, "latest"),
-            stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress), 0, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.Staked(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
           ]);
           stakingLogs = { staked, withdrawn, claimed };
         } catch (stakeErr) {
-          console.log("Gagal memuat riwayat staking (kontrak mungkin belum siap):", stakeErr);
+          console.log(t.consoleStakingFail, stakeErr);
         }
       }
 
@@ -550,8 +398,6 @@ export default function DashboardPage() {
         ...stakingLogs.claimed.map((e) => ({ e, kind: 'rewardClaimed' })),
       ];
 
-      // FIX: Pre-fetch semua block unik untuk hindari race condition & redundant request.
-      // Ethers v6 Log tidak punya method .getBlock() — harus pakai provider.getBlock().
       const uniqueBlockNumbers = [...new Set(allLogs.map(({ e }) => e.blockNumber))];
       const blockTimeCache = new Map();
       await Promise.all(
@@ -565,7 +411,6 @@ export default function DashboardPage() {
         day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
       });
 
-      // Timestamp sudah di-cache — tidak perlu Promise.all lagi.
       const built = allLogs.map(({ e, kind }) => {
         const timestamp = blockTimeCache.get(e.blockNumber);
         const date = formatDate(timestamp);
@@ -575,30 +420,19 @@ export default function DashboardPage() {
           case 'sealed': {
             const tierName = TIER_INDEX_TO_LABEL[Number(e.args.tier)] || 'Kapsul';
             const costHuman = parseFloat(ethers.formatUnits(e.args.cost, 18));
-            return { ...base, type: `Segel Kapsul (${tierName})`, detail: `Membayar ${costHuman} AETH untuk menyegel kapsul #${e.args.capsuleId}.`, amount: costHuman, direction: 'out', tierIdx: Number(e.args.tier) };
+            return { ...base, type: t.txSealTitle.replace('{tier}', tierName), detail: t.txSealDetail.replace('{cost}', costHuman).replace('{id}', e.args.capsuleId), amount: costHuman, direction: 'out', tierIdx: Number(e.args.tier) };
           }
-          case 'revealed':
-            return { ...base, type: 'Buka Kapsul', detail: `Kapsul #${e.args.capsuleId} berhasil dibuka.`, amount: 0, direction: 'neutral' };
-          case 'claimed':
-            return { ...base, type: 'Klaim Warisan (Legacy)', detail: `Kapsul #${e.args.capsuleId} berhasil diklaim sebagai ahli waris.`, amount: 0, direction: 'neutral' };
-          case 'ping':
-            return { ...base, type: 'Lapor Masih Aktif', detail: `Reset jam mundur untuk kapsul #${e.args.capsuleId}.`, amount: 0, direction: 'neutral' };
-          case 'staked':
-            return { ...base, type: 'Stake Token', detail: 'Menambahkan likuiditas ke Smart Contract Staking.', amount: parseFloat(ethers.formatUnits(e.args.amount, 18)), direction: 'out' };
-          case 'withdrawn':
-            return { ...base, type: 'Unstake Token', detail: 'Menarik pokok dari Smart Contract Staking.', amount: parseFloat(ethers.formatUnits(e.args.amount, 18)), direction: 'in' };
-          case 'rewardClaimed':
-            return { ...base, type: 'Klaim Reward Staking', detail: 'Menarik bunga staking.', amount: parseFloat(ethers.formatUnits(e.args.reward, 18)), direction: 'in' };
-          default:
-            return null;
+          case 'revealed': return { ...base, type: t.txRevealTitle, detail: t.txRevealDetail.replace('{id}', e.args.capsuleId), amount: 0, direction: 'neutral' };
+          case 'claimed': return { ...base, type: t.txClaimTitle, detail: t.txClaimDetail.replace('{id}', e.args.capsuleId), amount: 0, direction: 'neutral' };
+          case 'ping': return { ...base, type: t.txPingTitle, detail: t.txPingDetail.replace('{id}', e.args.capsuleId), amount: 0, direction: 'neutral' };
+          case 'staked': return { ...base, type: t.txStakeTitle, detail: t.txStakeDetail, amount: parseFloat(ethers.formatUnits(e.args.amount, 18)), direction: 'out' };
+          case 'withdrawn': return { ...base, type: t.txWithdrawTitle, detail: t.txWithdrawDetail, amount: parseFloat(ethers.formatUnits(e.args.amount, 18)), direction: 'in' };
+          case 'rewardClaimed': return { ...base, type: t.txRewardClaimTitle, detail: t.txRewardClaimDetail, amount: parseFloat(ethers.formatUnits(e.args.reward, 18)), direction: 'in' };
+          default: return null;
         }
       });
-
       setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
 
-      // Total dibakar dihitung dari burnPart tierConfigs ON-CHAIN (bukan
-      // hardcode) dikalikan jumlah kapsul tiap tier yang pernah disegel
-      // user ini — akurat walau tierConfigs berbeda antar deployment.
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
         const cfg = onChainTierConfig[Number(e.args.tier)];
@@ -606,102 +440,65 @@ export default function DashboardPage() {
       });
       setBurnedTotal(totalBurn);
     } catch (err) {
-      console.error("Gagal memuat riwayat on-chain:", err);
-      showToast(`Gagal memuat riwayat: ${extractErrorMessage(err)}`, 'error');
+      console.error(t.consoleHistoryFail, err);
     } finally {
       setIsLoadingHistory(false);
     }
   }, [onChainTierConfig, showToast, extractErrorMessage]);
 
-  useEffect(() => {
-    const fetchWalletData = async () => {
-      if (isConnected && walletProvider && address) {
+  const fetchWalletData = useCallback(async () => {
+    if (isConnected && walletProvider && address) {
+      try {
+        const provider = new ethers.BrowserProvider(walletProvider);
+        const rawBalance = await provider.getBalance(address);
+        setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
         try {
-          const provider = new ethers.BrowserProvider(walletProvider);
-
-          const rawBalance = await provider.getBalance(address);
-          setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
-
+          const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+          const rawAethBalance = await tokenContract.balanceOf(address);
+          setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
+          const registeredKey = await tokenContract.encryptionPublicKeys(address);
+          setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x');
+        } catch (err) { console.log(t.consoleAetherVaultFail, err); }
+        try {
+          if (STAKING_CONTRACT_ADDRESS) {
+            const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
+            const [rawStaked, rawReward, rawRate] = await Promise.all([
+              stakingContract.stakedBalance(address),
+              stakingContract.calculateReward(address),
+              stakingContract.rewardRate(),
+            ]);
+            setStakedBalance(parseFloat(ethers.formatUnits(rawStaked, 18)));
+            setPendingReward(parseFloat(ethers.formatUnits(rawReward, 18)));
+            setApyPercent(Number(rawRate) / 10);
+          }
+        } catch (stakingErr) {}
+        let privateKeyForTitles = null;
+        if (!isWrongNetwork) {
           try {
-            const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-            const rawAethBalance = await tokenContract.balanceOf(address);
-            setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
-
-            const registeredKey = await tokenContract.encryptionPublicKeys(address);
-            setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x');
-          } catch (err) {
-            console.log("Gagal memuat data AetherVault:", err);
-          }
-
-          try {
-            if (STAKING_CONTRACT_ADDRESS) {
-              const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-              const [rawStaked, rawReward, rawRate] = await Promise.all([
-                stakingContract.stakedBalance(address),
-                stakingContract.calculateReward(address),
-                stakingContract.rewardRate(),
-              ]);
-
-              setStakedBalance(parseFloat(ethers.formatUnits(rawStaked, 18)));
-              setPendingReward(parseFloat(ethers.formatUnits(rawReward, 18)));
-              // rewardRate on-chain 125 == 12.5% APY (dibagi 10 untuk tampilan).
-              setApyPercent(Number(rawRate) / 10);
-            }
-          } catch (stakingErr) {
-            console.log("Staking contract sync skipped/pending.");
-          }
-
-          // Jangan minta tanda tangan derivasi kunci kalau user sedang di
-          // jaringan yang salah — hasilnya toh tidak akan valid dipakai.
-          let privateKeyForTitles = null;
-          if (!isWrongNetwork) {
-            try {
-              const kp = await getOrDeriveKeyPair();
-              privateKeyForTitles = kp.privateKey;
-            } catch (keyErr) {
-              console.log("User menolak/gagal menandatangani derivasi kunci; judul akan ditampilkan terkunci.", keyErr);
-            }
-          }
-
-          await fetchCapsulesFromChain(provider, address, privateKeyForTitles);
-          await fetchOnChainHistory(address);
-        } catch (err) {
-          console.error("Gagal membaca data wallet", err);
+            const kp = await getOrDeriveKeyPair();
+            privateKeyForTitles = kp.privateKey;
+          } catch (keyErr) {}
         }
-      } else {
-        setNativeBalance('0.0000');
-        setAethBalance(0);
-        setStakedBalance(0);
-        setPendingReward(0);
-        setMyCapsules([]);
-        setTransactions([]);
-        setBurnedTotal(0);
-        setMyPublicKeyRegistered(false);
-        myKeyPairRef.current = null; // bersihkan private key dari memori saat disconnect
-        setHasLocalKeyPair(false);
-      }
-    };
+        await fetchCapsulesFromChain(provider, address, privateKeyForTitles);
+        await fetchOnChainHistory(address);
+      } catch (err) { console.error(t.consoleWalletFail, err); }
+    } else {
+      setNativeBalance('0.0000'); setAethBalance(0); setStakedBalance(0); setPendingReward(0);
+      setMyCapsules([]); setTransactions([]); setBurnedTotal(0); setMyPublicKeyRegistered(false);
+      myKeyPairRef.current = null; setHasLocalKeyPair(false);
+    }
+  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, t]);
 
+  useEffect(() => {
     fetchWalletData();
-    // getOrDeriveKeyPair sengaja TIDAK dimasukkan ke dependency array —
-    // identitasnya sekarang stabil (lihat komentar di definisinya).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork]);
+  }, [fetchWalletData]);
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
-
-  // Nilai minimum untuk input datetime-local (format wajib: YYYY-MM-DDTHH:mm,
-  // tanpa detik/zona). Dikasih buffer 5 menit ke depan supaya user tidak
-  // bisa pilih waktu yang sudah lewat detik itu juga saat submit.
   const getMinUnlockDatetimeLocal = () => {
     const d = new Date(Date.now() + 5 * 60 * 1000);
     const pad = (n) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
-
-  // Format timestamp on-chain (detik) jadi tanggal+jam yang enak dibaca,
-  // memakai zona waktu perangkat pembaca (bukan UTC mentah) — dipakai di
-  // kartu daftar kapsul (Temuan #1: tanggal buka kunci tidak ditampilkan).
   const formatUnlockDateTime = (unixSeconds) => {
     if (!unixSeconds) return '-';
     return new Date(unixSeconds * 1000).toLocaleString('id-ID', {
@@ -709,102 +506,51 @@ export default function DashboardPage() {
     });
   };
 
-  // ==========================================
-  // REGISTRASI KUNCI PUBLIK ENKRIPSI
-  // ==========================================
   const handleRegisterEncryptionKey = async () => {
-    if (!isConnected) return showToast('Hubungkan dompet terlebih dahulu.', 'error');
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
+    if (!isConnected) return showToast(t.connectWalletFirst, 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     setIsRegisteringKey(true);
     try {
       const { publicKey } = await getOrDeriveKeyPair();
-
       const signer = await getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
       const tx = await contract.registerPublicKey(publicKeyToBytes(publicKey));
-      showToast('Mendaftarkan kunci enkripsi ke blockchain...', 'info');
+      showToast(t.registeringKey, 'info');
       await tx.wait();
-
       setMyPublicKeyRegistered(true);
-      showToast('Kunci enkripsi berhasil didaftarkan. Orang lain kini bisa mengirim kapsul terenkripsi untuk Anda.', 'success');
+      showToast(t.keyRegisteredSuccess, 'success');
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal mendaftarkan kunci: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.keyRegisterFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsRegisteringKey(false);
     }
   };
 
-  // ==========================================
-  // UPLOAD FILE — DIENKRIPSI DI BROWSER, DISIMPAN PERMANEN DI ARWEAVE
-  // ==========================================
-  // Semua lampiran (hanya tersedia untuk tier Eternal & Legacy — Basic/VIP
-  // memang tidak menyediakan fitur lampiran, itu keputusan produk terpisah
-  // dari storage) disimpan lewat Irys ke Arweave. TIDAK ADA lagi jalur ke
-  // 4everland/IPFS — biaya penyimpanan permanen dibayar LANGSUNG oleh
-  // wallet user yang membuat kapsul, bukan developer.
   const isPermanentTier = tier === 'eternal' || tier === 'legacy';
-
-  // Batas ukuran file SEBELUM diproses. Tanpa ini, file besar dibaca penuh
-  // ke memori sebagai base64 lalu dienkripsi di main thread browser — bisa
-  // bikin tab freeze/crash sebelum user sempat lihat estimasi biaya.
-  // Atribut `accept` di <input type="file"> hanyalah HINT UI (gampang
-  // dilewati user pilih "All files"), BUKAN validasi sungguhan — jadi cek
-  // ukuran ini WAJIB dilakukan di JS, bukan diserahkan ke atribut HTML.
-  const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
-
-  // Upload Arweave sekarang DUA LANGKAH: (1) enkripsi + hitung estimasi
-  // biaya SAJA, ditaruh di state `stagedUpload` untuk direview user; (2)
-  // user klik konfirmasi eksplisit (handleConfirmArweaveUpload) baru benar-
-  // benar membayar & upload. Sebelumnya upload (dan pembayarannya) langsung
-  // jalan otomatis begitu file dipilih — kalau user lanjut berubah pikiran
-  // atau transaksi sealCapsule() gagal setelahnya, biaya Arweave yang sudah
-  // dibayar TIDAK BISA dikembalikan. Konfirmasi eksplisit ini tidak
-  // menghilangkan risiko itu (pembayaran tetap non-refundable begitu
-  // dikonfirmasi), tapi memastikan user benar-benar melihat estimasi biaya
-  // dan sengaja menekan tombol sebelum uang keluar dari wallet-nya.
-  const [stagedUpload, setStagedUpload] = useState(null); // {file, encryptedBytes, estimatedCost}
-  const [isPreparingUpload, setIsPreparingUpload] = useState(false);
+  const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
 
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!isConnected) {
-      return showToast('Hubungkan dompet terlebih dahulu sebelum melampirkan file.', 'error');
-    }
-    if (isWrongNetwork) {
-      return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    }
-    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) {
-      return showToast(`File terlalu besar (maks ${MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)}MB).`, 'error');
-    }
+    if (!isConnected) return showToast(t.connectWalletBeforeAttach, 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)), 'error');
 
     setSelectedFile(file);
     setIsPreparingUpload(true);
-
     try {
       const { publicKey: recipientPublicKey } = await resolveRecipient();
-
       const fileBase64 = await fileToBase64(file);
-      const cipherPayload = JSON.stringify({
-        name: file.name,
-        type: file.type,
-        data: fileBase64,
-      });
+      const cipherPayload = JSON.stringify({ name: file.name, type: file.type, data: fileBase64 });
       const encryptedPayload = await encryptForPublicKey(recipientPublicKey, cipherPayload);
       const encryptedBytes = new TextEncoder().encode(encryptedPayload);
-
       const provider = new ethers.BrowserProvider(walletProvider);
       await ensureCorrectNetwork(await provider.getSigner());
-
       const uploader = await getIrysUploader(provider);
       const estimatedCost = await estimateArweaveCost(uploader, encryptedBytes.byteLength);
-
       setStagedUpload({ file, encryptedBytes, estimatedCost });
     } catch (error) {
-      console.error("Persiapan upload gagal:", error);
-      showToast(`Gagal menyiapkan lampiran: ${extractErrorMessage(error)}`, "error");
+      showToast(t.prepareAttachmentFailPrefix + extractErrorMessage(error), "error");
       setSelectedFile(null);
     } finally {
       setIsPreparingUpload(false);
@@ -813,33 +559,21 @@ export default function DashboardPage() {
 
   const handleConfirmArweaveUpload = async () => {
     if (!stagedUpload) return;
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     setIsUploading(true);
     try {
-      // Tag "App-Name: AetherVault" SENGAJA DIHAPUS. Irys/Arweave secara
-      // inheren tetap mempublikasikan alamat wallet penanda tangan tiap
-      // data item (itu properti dasar protokolnya, tidak bisa dihindari) —
-      // tapi tag identik di semua upload platform ini membuatnya TRIVIAL
-      // untuk siapa pun query GraphQL Arweave dan mendapat daftar lengkap
-      // (wallet, waktu, ukuran) setiap lampiran yang pernah diupload lewat
-      // AetherVault, dikorelasikan dengan event CapsuleSealed on-chain yang
-      // juga publik. Menghapus tag ini tidak menghilangkan linkability
-      // wallet->upload (itu tidak bisa dihindari), tapi menghapus cara
-      // termudah untuk MENGELOMPOKKAN semua upload platform ini sekaligus.
       const result = await uploadToArweavePermanent(
         new ethers.BrowserProvider(walletProvider),
         stagedUpload.encryptedBytes,
         [{ name: "Encryption", value: "ECIES-secp256k1" }]
       );
-
       setUploadedCid(result.arweaveUrl);
       setPendingFileCipherRef(result.arweaveUrl);
-      setMessage(prev => prev + (prev ? '\n\n' : '') + `[Lampiran Terenkripsi (Arweave permanen): ${result.arweaveUrl}]`);
-      showToast("File berhasil dienkripsi dan disimpan PERMANEN di Arweave, dibayar dari wallet Anda sendiri.", "success");
+      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag}: ${result.arweaveUrl}]`);
+      showToast(t.fileUploadedSuccess, "success");
       setStagedUpload(null);
     } catch (error) {
-      console.error("Upload Error:", error);
-      showToast(`Gagal mengunggah file: ${extractErrorMessage(error)}`, "error");
+      showToast(t.fileUploadFailPrefix + extractErrorMessage(error), "error");
     } finally {
       setIsUploading(false);
     }
@@ -857,284 +591,140 @@ export default function DashboardPage() {
     reader.readAsDataURL(file);
   });
 
-  // ==========================================
-  // FIX (closure basi): fungsi ini sekarang mengembalikan keypair LENGKAP
-  // (bukan cuma publicKey), sehingga pemanggil bisa memakai privateKey-nya
-  // langsung tanpa bergantung pada state React yang bisa basi (setState
-  // bersifat async, tidak langsung tercermin di closure yang sama).
-  // Untuk tier Legacy, privateKey dikembalikan null — memang benar, pemilik
-  // sendiri tidak seharusnya bisa mendekripsi kapsul Legacy miliknya sendiri.
-  // ==========================================
   const resolveRecipient = async () => {
     const provider = new ethers.BrowserProvider(walletProvider);
     const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-
     if (tier === 'legacy') {
-      if (!ethers.isAddress(heirAddress)) {
-        throw new Error("Masukkan alamat ahli waris yang valid terlebih dahulu.");
-      }
+      if (!ethers.isAddress(heirAddress)) throw new Error(t.enterValidHeirAddress);
       const heirKey = await contract.encryptionPublicKeys(heirAddress);
-      if (!heirKey || heirKey === '0x') {
-        throw new Error("Ahli waris belum mendaftarkan kunci enkripsi di aplikasi ini. Minta mereka membuka AetherVault dan mendaftarkan kunci di tab Settings terlebih dahulu.");
-      }
+      if (!heirKey || heirKey === '0x') throw new Error(t.heirKeyNotRegistered);
       return { publicKey: heirKey, privateKey: null };
     }
-
     const kp = await getOrDeriveKeyPair();
     return { publicKey: publicKeyToBytes(kp.publicKey), privateKey: kp.privateKey };
   };
 
-  // ==========================================
-  // MENYEGEL KAPSUL — PESAN DIENKRIPSI SEBELUM DIKIRIM KE KONTRAK
-  // ==========================================
   const handleSeal = async (e) => {
     e.preventDefault();
-    if (!isConnected) return showToast('Otorisasi ditolak. Harap hubungkan dompet.', 'error');
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
+    if (!isConnected) return showToast(t.authRejectedConnectWallet, 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
     const selectedTierData = tiers[tier];
-
-    // FIX: Cek byte length (bukan character length) untuk akurasi batas kontrak.
-    // Emoji/CJK bisa 3-4 byte per karakter — message.length JS salah hitung.
     const messageByteLength = new TextEncoder().encode(message).length;
-    if (messageByteLength > selectedTierData.maxLength) {
-      return showToast(`Pesan terlalu panjang! Maksimal ${selectedTierData.maxLength} byte (≈${selectedTierData.maxLength} karakter Latin). Pesan Anda: ${messageByteLength} byte.`, 'error');
-    }
-
-    if (aethBalance < selectedTierData.cost) {
-      return showToast(`Saldo AETH tidak mencukupi. Dibutuhkan ${selectedTierData.cost} AETH, Anda punya ${aethBalance.toFixed(4)} AETH.`, 'error');
-    }
-
-    if (tier === 'legacy' && !ethers.isAddress(heirAddress)) {
-      return showToast('Format alamat Dompet Ahli Waris tidak valid!', 'error');
-    }
+    if (messageByteLength > selectedTierData.maxLength) return showToast(t.messageTooLong.replace('{max}', selectedTierData.maxLength), 'error');
+    if (aethBalance < selectedTierData.cost) return showToast(t.insufficientBalance, 'error');
+    if (tier === 'legacy' && !ethers.isAddress(heirAddress)) return showToast(t.invalidHeirAddress, 'error');
 
     setIsSealing(true);
     try {
-      showToast('Mengenkripsi pesan Anda di browser...', 'info');
-
-      // FIX: tangkap keypair (termasuk privateKey bila ada) di variabel
-      // LOKAL, bukan bergantung pada state React yang bisa basi.
+      showToast(t.encryptingMessage, 'info');
       const { publicKey: recipientPublicKey, privateKey: ownPrivateKeyForRefresh } = await resolveRecipient();
       const encryptedMessage = await encryptForPublicKey(recipientPublicKey, message);
 
-      if (encryptedMessage.length > selectedTierData.maxLength * CIPHERTEXT_OVERHEAD_FACTOR) {
-        throw new Error('Pesan (setelah dienkripsi) melebihi kapasitas tier ini. Pilih tier lebih besar atau persingkat pesan.');
-      }
-
-      const plainTitle = title || "Kapsul Tanpa Judul";
+      if (encryptedMessage.length > selectedTierData.maxLength * CIPHERTEXT_OVERHEAD_FACTOR) throw new Error(t.messageCapacityExceeded);
+      const plainTitle = title || t.defaultCapsuleTitle;
       const encryptedTitle = await encryptForPublicKey(recipientPublicKey, plainTitle);
-
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
-
-      showToast('Mempersiapkan transaksi On-Chain di Blockchain...', 'info');
+      showToast(t.preparingOnChainTx, 'info');
 
       let tx;
       if (tier === 'legacy') {
         const inactivitySeconds = parseInt(inactivityYears) * 365 * 24 * 60 * 60;
-        tx = await contract.sealLegacyCapsule(
-          encryptedTitle,
-          encryptedMessage,
-          inactivitySeconds,
-          heirAddress
-        );
+        tx = await contract.sealLegacyCapsule(encryptedTitle, encryptedMessage, inactivitySeconds, heirAddress);
       } else {
-        if (!unlockDate) throw new Error("Pilih tanggal & jam pembukaan kapsul!");
+        if (!unlockDate) throw new Error(t.selectUnlockDateTime);
         const unlockTimeMs = new Date(unlockDate).getTime();
         const unlockTimestamp = Math.floor(unlockTimeMs / 1000);
-        const tierEnumValue = TIER_ENUM_MAP[tier];
-        tx = await contract.sealTimeLockCapsule(
-          tierEnumValue,
-          encryptedTitle,
-          encryptedMessage,
-          unlockTimestamp
-        );
+        tx = await contract.sealTimeLockCapsule(TIER_ENUM_MAP[tier], encryptedTitle, encryptedMessage, unlockTimestamp);
       }
-
-      showToast("Transaksi dikirim. Menunggu konfirmasi blok...", "info");
+      showToast(t.txSentWaitingConfirm, "info");
       await tx.wait();
-
-      setAethBalance(prev => prev - selectedTierData.cost);
-
-      showToast(`Berhasil! Kapsul disegel permanen di Blockchain dalam bentuk terenkripsi.`, 'success');
+      showToast(t.sealSuccess, 'success');
       setTitle(''); setMessage(''); setUnlockDate(''); setHeirAddress('');
       setSelectedFile(null); setUploadedCid(''); setPendingFileCipherRef(null);
       setActiveTab('vaults');
 
-      // FIX: pakai ownPrivateKeyForRefresh yang ditangkap LANGSUNG dari
-      // resolveRecipient() di atas — bukan membaca ulang state React yang
-      // mungkin belum ter-update (closure basi).
-      const provider = new ethers.BrowserProvider(walletProvider);
-      await fetchCapsulesFromChain(provider, address, ownPrivateKeyForRefresh);
-      // FIX (Riwayat/Statistik): baca ulang dari event log on-chain, bukan
-      // push manual ke state sementara — supaya tetap benar setelah
-      // refresh/logout, dan angka totalBurn selalu dari tierConfigs asli.
-      await fetchOnChainHistory(address);
-
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.genericFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsSealing(false);
     }
   };
 
-  // ==========================================
-  // MEMBUKA KAPSUL — VERIFIKASI ON-CHAIN + DEKRIPSI LOKAL
-  // ==========================================
-  // FIX (Bug #1): sebelumnya fungsi ini SELALU mencoba revealCapsule/
-  // claimLegacy, yang cuma boleh dipanggil SEKALI (state-changing, gerbang
-  // waktu/kepemilikan). Kalau user sudah pernah membuka lalu menutup modal
-  // atau refresh browser, klik "Buka" lagi akan selalu gagal — pesan yang
-  // sudah legit dibuka jadi tidak bisa diakses ulang tanpa alasan.
-  //
-  // Sekarang: kalau kapsul SUDAH pernah dibuka (isClaimedOrRevealed==true),
-  // kita pakai getOpenedCiphertext() — fungsi VIEW gratis tanpa gas, boleh
-  // dipanggil berkali-kali kapan saja. Kalau BELUM pernah dibuka, tetap
-  // pakai alur lama (staticCall dulu untuk validasi + tx asli sekali).
   const handleOpenVault = async (capsule) => {
-    if (isWrongNetwork) {
-      return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    }
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     if (capsule.contentDeleted) {
-      // Konten sudah sengaja dihapus oleh owner/heir lewat deleteOpenedContent().
-      // Tidak ada ciphertext untuk diambil sama sekali — jangan coba decrypt.
-      setSelectedVault({
-        ...capsule,
-        decryptedMessage: null,
-        error: 'Konten kapsul ini sudah dihapus permanen dari state kontrak oleh pemilik/ahli waris. Tidak ada lagi yang bisa ditampilkan.',
-      });
+      setSelectedVault({ ...capsule, decryptedMessage: null, error: t.statusAlreadyDeleted });
       return;
     }
-
     setSelectedVault({ ...capsule, decryptedMessage: null, error: null });
     setIsDecrypting(true);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
-
       let ciphertext;
-
       if (capsule.isClaimedOrRevealed) {
-        // Sudah pernah dibuka sebelumnya — baca ulang GRATIS, tanpa tx,
-        // tanpa menunggu konfirmasi blok. Bisa diklik berkali-kali kapan pun.
-        showToast('Mengambil ulang kapsul yang sudah pernah dibuka (gratis, tanpa gas)...', 'info');
         ciphertext = await contract.getOpenedCiphertext(capsule.id);
       } else {
-        // Pertama kali dibuka — tetap butuh transaksi asli (mengubah state
-        // isClaimedOrRevealed jadi true), dan staticCall dulu untuk ambil
-        // nilai kembalian SEBELUM state berubah (lihat catatan lama soal
-        // urutan staticCall vs tx.wait()).
         const fnName = capsule.asHeir ? 'claimLegacy' : 'revealCapsule';
-        showToast('Memverifikasi syarat pembukaan di blockchain...', 'info');
-
         ciphertext = await contract[fnName].staticCall(capsule.id);
-
         const tx = await contract[fnName](capsule.id);
-        showToast('Transaksi dikirim. Menunggu konfirmasi...', 'info');
         await tx.wait();
       }
-
       const { privateKey } = await getOrDeriveKeyPair();
       const plaintext = await decryptWithPrivateKey(privateKey, ciphertext);
-
       setSelectedVault(prev => ({ ...prev, decryptedMessage: plaintext }));
-      showToast('Kapsul berhasil didekripsi secara lokal di browser Anda.', 'success');
-
-      const provider = new ethers.BrowserProvider(walletProvider);
-      await fetchCapsulesFromChain(provider, address, privateKey);
-      await fetchOnChainHistory(address);
+      showToast(t.decryptSuccess, 'success');
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
       const msg = extractErrorMessage(err);
       setSelectedVault(prev => ({ ...prev, error: msg }));
-      showToast(`Gagal membuka kapsul: ${msg}`, 'error');
+      showToast(t.openVaultFailPrefix + msg, 'error');
     } finally {
       setIsDecrypting(false);
     }
   };
 
-  // ==========================================
-  // FIX (Bug #3): tombol "Saya Masih Aktif" untuk tier Legacy
-  // ==========================================
-  // pingAlive() sudah ada di kontrak & ABI sejak awal, tapi TIDAK ADA satu
-  // pun tombol di UI yang memanggilnya. Tanpa ini, tier Legacy secara
-  // praktis rusak: pemilik tidak punya cara "lapor masih hidup" lewat
-  // aplikasi, jadi ahli waris otomatis bisa klaim begitu jangka waktu
-  // minimum terlewati — walau pemiliknya masih hidup dan aktif.
-  const [isPinging, setIsPinging] = useState(null); // simpan id kapsul yang sedang diproses
-
+  const [isPinging, setIsPinging] = useState(null);
   const handlePingAlive = async (capsule) => {
-    if (isWrongNetwork) {
-      return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    }
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     setIsPinging(capsule.id);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
-
       const tx = await contract.pingAlive(capsule.id);
-      showToast('Melaporkan status masih aktif ke blockchain...', 'info');
       await tx.wait();
-
-      showToast('Berhasil! Jam mundur ke ahli waris sudah di-reset dari sekarang.', 'success');
-
-      const provider = new ethers.BrowserProvider(walletProvider);
-      await fetchCapsulesFromChain(provider, address, myKeyPairRef.current?.privateKey ?? null);
-      await fetchOnChainHistory(address);
+      showToast(t.pingSuccess, 'success');
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal melaporkan status aktif: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.pingFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsPinging(null);
     }
   };
 
-  // ==========================================
-  // FIX (fitur baru diminta user): hapus konten kapsul yang sudah dibuka
-  // ==========================================
-  // OPSIONAL — hanya bisa dipanggil kalau kapsul sudah pernah legit dibuka.
-  // Lihat peringatan jujur di AetherVault.sol: ini menghapus dari state
-  // SAAT INI dan ke depan, BUKAN dari seluruh riwayat blockchain lama
-  // (archive node/indexer pihak ketiga tetap bisa punya salinan lama).
-  // Karena itu konfirmasi di sini eksplisit menyebutkan batasan tsb, bukan
-  // menjanjikan "hilang total tanpa jejak".
   const [isDeletingContent, setIsDeletingContent] = useState(null);
-
   const handleDeleteOpenedContent = async (capsule) => {
-    if (isWrongNetwork) {
-      return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    }
-    const confirmed = window.confirm(
-      'Hapus konten kapsul ini?\n\n' +
-      'Setelah dihapus, judul & pesan tidak bisa diambil lagi lewat aplikasi ini — pastikan Anda sudah menyimpan salinannya sendiri.\n\n' +
-      'CATATAN JUJUR: ini menghapus dari data kontrak SAAT INI dan ke depan, TAPI riwayat blockchain lama (sebelum penghapusan ini) tetap bisa ada di full/archive node pihak lain selamanya — blockchain tidak pernah benar-benar "lupa" secara mutlak.\n\n' +
-      'Lanjutkan?'
-    );
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    const confirmed = window.confirm(t.deleteConfirmText);
     if (!confirmed) return;
-
     setIsDeletingContent(capsule.id);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
-
       const tx = await contract.deleteOpenedContent(capsule.id);
-      showToast('Menghapus konten kapsul dari kontrak...', 'info');
       await tx.wait();
-
-      showToast('Konten kapsul berhasil dihapus dari state kontrak saat ini.', 'success');
+      showToast(t.deleteContentSuccess, 'success');
       setSelectedVault(null);
-
-      const provider = new ethers.BrowserProvider(walletProvider);
-      await fetchCapsulesFromChain(provider, address, myKeyPairRef.current?.privateKey ?? null);
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal menghapus konten: ${extractErrorMessage(err)}`, 'error');
+      showToast(t.deleteContentFailPrefix + extractErrorMessage(err), 'error');
     } finally {
       setIsDeletingContent(null);
     }
@@ -1142,123 +732,75 @@ export default function DashboardPage() {
 
   const handleStake = async () => {
     const amount = parseFloat(stakeInput);
-    if (isNaN(amount) || amount <= 0) return showToast("Masukkan nominal AETH yang valid", "error");
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
+    if (isNaN(amount) || amount <= 0) return showToast(t.invalidAethAmount, "error");
+    if (!isConnected) return showToast(t.connectWalletFirst, "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
     setIsStaking(true);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const amountInWei = ethers.parseUnits(amount.toString(), 18);
-
       const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
       const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
 
       if (currentAllowance < amountInWei) {
-        showToast("Meminta izin (approve) token AETH untuk kontrak Staking...", "info");
         const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountInWei);
         await approveTx.wait();
       }
-
-      showToast("Mempersiapkan transaksi Staking On-Chain...", "info");
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
       const tx = await stakingContract.stake(amountInWei);
-
-      showToast("Transaksi staking dikirim. Menunggu konfirmasi blockchain...", "info");
       await tx.wait();
-
-      setAethBalance(prev => prev - amount);
-      setStakedBalance(prev => prev + amount);
       setStakeInput('');
-      showToast(`Berhasil melakukan Staking ${amount} AETH secara On-Chain!`, "success");
-
-      const refreshProvider = new ethers.BrowserProvider(walletProvider);
-      await fetchOnChainHistory(address);
-
+      showToast(t.stakeSuccess.replace("{amount}", amount), "success");
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal staking: ${extractErrorMessage(err)}`, "error");
+      showToast(t.stakeFailPrefix + extractErrorMessage(err), "error");
     } finally {
       setIsStaking(false);
     }
   };
 
-  // ==========================================
-  // FIX (Temuan #3 audit staking): tombol Unstake/Withdraw yang tadinya
-  // hilang total dari UI. Kontrak sudah punya withdraw() sejak awal, tapi
-  // tidak ada satu pun jalan memanggilnya dari aplikasi — dari sudut
-  // pandang user, dana yang di-stake terkesan "terkunci selamanya".
-  // withdraw() di kontrak SENGAJA tidak bisa di-pause, jadi tombol ini
-  // tetap aktif walau kontrak sedang dijeda owner untuk investigasi.
-  // ==========================================
   const handleWithdrawStake = async () => {
     const amount = parseFloat(unstakeInput);
-    if (isNaN(amount) || amount <= 0) return showToast("Masukkan nominal AETH yang valid", "error");
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    if (amount > stakedBalance) return showToast("Jumlah melebihi saldo yang Anda stake", "error");
+    if (isNaN(amount) || amount <= 0) return showToast(t.invalidAethAmount, "error");
+    if (!isConnected) return showToast(t.connectWalletFirst, "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (amount > stakedBalance) return showToast(t.unstakeExceedsBalance, "error");
 
     setIsWithdrawingStake(true);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const amountInWei = ethers.parseUnits(amount.toString(), 18);
-
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
       const tx = await stakingContract.withdraw(amountInWei);
-
-      showToast("Transaksi unstake dikirim. Menunggu konfirmasi blockchain...", "info");
       await tx.wait();
-
-      setAethBalance(prev => prev + amount);
-      setStakedBalance(prev => prev - amount);
       setUnstakeInput('');
-      showToast(`Berhasil menarik ${amount} AETH dari staking.`, "success");
-
-      const refreshProvider1 = new ethers.BrowserProvider(walletProvider);
-      await fetchOnChainHistory(address);
-
+      showToast(t.unstakeSuccess.replace("{amount}", amount), "success");
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      showToast(`Gagal unstake: ${extractErrorMessage(err)}`, "error");
+      showToast(t.unstakeFailPrefix + extractErrorMessage(err), "error");
     } finally {
       setIsWithdrawingStake(false);
     }
   };
 
   const handleClaimReward = async () => {
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindah ke jaringan ${TARGET_CHAIN_NAME} terlebih dahulu.`, 'error');
-    if (pendingReward <= 0) return showToast("Tidak ada reward yang tersedia untuk diklaim.", "error");
-
-    showToast("Memproses klaim reward dari blockchain...", "info");
+    if (!isConnected) return showToast(t.connectWalletFirst, "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (pendingReward <= 0) return showToast(t.noRewardAvailable, "error");
 
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
-
       const tx = await stakingContract.claimReward();
-
-      showToast("Transaksi klaim dikirim. Menunggu konfirmasi...", "info");
       await tx.wait();
-
-      showToast(`Berhasil klaim reward! Token telah masuk ke dompet Anda.`, "success");
-
-      setAethBalance(prev => prev + pendingReward);
-      setPendingReward(0);
-
-      const refreshProvider2 = new ethers.BrowserProvider(walletProvider);
-      await fetchOnChainHistory(address);
-
+      showToast(t.claimRewardSuccess, "success");
+      await fetchWalletData();
     } catch (err) {
-      console.error(err);
-      // FIX: pesan error dari kontrak sekarang bisa berupa "Pool reward
-      // belum mencukupi..." (bukan gagal generik) berkat perbaikan invariant
-      // solvabilitas di kontrak staking — user dapat penjelasan yang jelas
-      // kenapa klaimnya gagal, bukan cuma "transaksi gagal".
-      showToast(`Gagal klaim reward: ${extractErrorMessage(err)}`, "error");
+      showToast(t.claimRewardFailPrefix + extractErrorMessage(err), "error");
     }
   };
 
@@ -1293,27 +835,12 @@ export default function DashboardPage() {
     </nav>
   );
 
-  // ==========================================
-  // BLOCKING GUARD: JANGAN JALANKAN APLIKASI DENGAN ALAMAT PLACEHOLDER
-  // ==========================================
-  // Ditaruh SEBELUM return utama supaya tidak ada jalur (termasuk connect
-  // wallet, baca tierConfigs, dsb) yang bisa jalan diam-diam dengan alamat
-  // yang salah. Ini pengaman developer, bukan untuk end-user produksi —
-  // begitu CONTRACT_ADDRESS/STAKING_CONTRACT_ADDRESS diisi alamat asli,
-  // blok ini otomatis tidak pernah tampil lagi.
   if (!IS_CONTRACT_ADDRESS_CONFIGURED || !IS_STAKING_ADDRESS_CONFIGURED) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#05030F] text-gray-200 p-6">
         <div className="max-w-md w-full bg-[#0B0817] border border-red-500/40 rounded-3xl p-6 sm:p-8 space-y-4 text-center shadow-[0_0_30px_rgba(239,68,68,0.15)]">
           <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
-          <h2 className="text-lg font-extrabold text-red-300">Konfigurasi Belum Lengkap</h2>
-          <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
-            {!IS_CONTRACT_ADDRESS_CONFIGURED && "CONTRACT_ADDRESS "}
-            {!IS_CONTRACT_ADDRESS_CONFIGURED && !IS_STAKING_ADDRESS_CONFIGURED && "dan "}
-            {!IS_STAKING_ADDRESS_CONFIGURED && "STAKING_CONTRACT_ADDRESS "}
-            masih memakai alamat placeholder (<code className="text-red-300 font-mono">0x000...dEaD</code>). Ganti dengan alamat hasil deploy sebenarnya di bagian atas file sebelum aplikasi ini dijalankan untuk pengguna nyata.
-          </p>
-          <p className="text-[10px] sm:text-xs text-neutral-600">Pesan ini hanya untuk developer — tidak akan tampil setelah dikonfigurasi dengan benar.</p>
+          <h2 className="text-lg font-extrabold text-red-300">{t.configIncompleteTitle}</h2>
         </div>
       </div>
     );
@@ -1321,20 +848,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#05030F] text-gray-200 font-sans selection:bg-fuchsia-500/30 relative">
-      {/* ==========================================
-          DESIGN TOKENS — arah "Web3 bold/glowing" (ala Uniswap/OpenSea)
-          ==========================================
-          Signature: gradient cyan -> violet -> magenta dipakai konsisten
-          di tombol utama, border aktif, dan aksen teks penting — bukan
-          disebar acak ke semua elemen (biar tetap terasa 1 identitas,
-          bukan pelangi). Font display baru (Space Grotesk) dipakai khusus
-          untuk judul section & angka besar, supaya tidak generik-Inter. */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
         .font-display { font-family: 'Space Grotesk', ui-sans-serif, sans-serif; letter-spacing: -0.01em; }
       `}</style>
 
-      {/* Toast Notification */}
       {toast && (
         <div className="fixed top-24 right-4 sm:right-8 z-[100] animate-in fade-in slide-in-from-right-8 duration-300">
           <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl shadow-2xl border ${toast.type === 'success' ? 'bg-green-950/90 border-green-500/40 text-green-300' : toast.type === 'error' ? 'bg-red-950/90 border-red-500/40 text-red-300' : 'bg-[#0B0817] border-violet-500/40 text-cyan-300 shadow-[0_0_20px_rgba(168,85,247,0.25)]'} backdrop-blur-md max-w-[90vw]`}>
@@ -1344,7 +862,6 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* MOBILE MENU OVERLAY */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 bg-[#05030F]/95 backdrop-blur-xl z-40 lg:hidden pt-24 px-6 pb-6 overflow-y-auto border-b border-neutral-900 shadow-2xl">
           <div className="flex justify-between items-center mb-6">
@@ -1352,7 +869,6 @@ export default function DashboardPage() {
             <button onClick={() => setIsMobileMenuOpen(false)} className="text-neutral-400 hover:text-white p-2 bg-neutral-900 rounded-full"><X className="w-4 h-4"/></button>
           </div>
           {renderNavMenu(true)}
-
           <div className="mt-8 pt-5 border-t border-neutral-900 px-2">
             <div className="flex items-center justify-between text-[10px] text-neutral-500">
               <span className="flex items-center gap-1.5"><Activity className="w-3 h-3 text-cyan-500 animate-pulse" /> {t.mainnetLabel}</span>
@@ -1362,11 +878,8 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* MAIN CONTENT AREA */}
       <main className="flex-1 w-full pt-0 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-
-          {/* WEB3 CONTROL PANEL */}
           <div className="bg-[#0B0817] border border-neutral-900 p-3 sm:p-4 rounded-2xl sm:rounded-3xl mb-6 lg:mb-8 flex items-center justify-between shadow-xl">
             <div className="flex items-center gap-3">
               <button
@@ -1376,7 +889,7 @@ export default function DashboardPage() {
                 <Menu className="w-5 h-5" />
               </button>
               <div className="hidden lg:flex items-center gap-2 text-cyan-500 font-bold font-mono text-[10px] sm:text-xs uppercase tracking-widest px-2">
-                <Activity className="w-4 h-4" /> Web3 Terminal
+                <Activity className="w-4 h-4" /> {t.web3TerminalLabel}
               </div>
             </div>
 
@@ -1417,14 +930,13 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* PERINGATAN: JARINGAN SALAH — diprioritaskan di atas peringatan kunci */}
           {isWrongNetwork && (
             <div className="bg-red-950/30 border border-red-500/40 rounded-2xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-red-300">Anda terhubung ke jaringan yang salah</p>
-                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">AetherVault hanya berjalan di {TARGET_CHAIN_NAME}. Pindah jaringan sebelum menyegel/membuka kapsul — kunci enkripsi berbeda di tiap jaringan.</p>
+                  <p className="text-xs sm:text-sm font-bold text-red-300">{t.wrongNetworkTitle}</p>
+                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">{t.wrongNetworkDesc.replace('{chain}', TARGET_CHAIN_NAME)}</p>
                 </div>
               </div>
               <button
@@ -1433,19 +945,18 @@ export default function DashboardPage() {
                 className="whitespace-nowrap bg-red-500/10 hover:bg-red-500/20 border border-red-500/40 text-red-300 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isSwitchingNetwork ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
-                Pindah ke {TARGET_CHAIN_NAME}
+                {t.switchToChainBtn.replace('{chain}', TARGET_CHAIN_NAME)}
               </button>
             </div>
           )}
 
-          {/* PERINGATAN: KUNCI ENKRIPSI BELUM TERDAFTAR */}
           {isConnected && !isWrongNetwork && !myPublicKeyRegistered && (
             <div className="bg-amber-950/20 border border-amber-500/30 rounded-2xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-start gap-3">
                 <KeyRound className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-amber-300">Kunci enkripsi belum terdaftar</p>
-                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">Daftarkan kunci enkripsi Anda agar orang lain bisa menjadikan Anda ahli waris kapsul terenkripsi.</p>
+                  <p className="text-xs sm:text-sm font-bold text-amber-300">{t.keyNotRegisteredTitle}</p>
+                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">{t.keyNotRegisteredDesc}</p>
                 </div>
               </div>
               <button
@@ -1454,13 +965,12 @@ export default function DashboardPage() {
                 className="whitespace-nowrap bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-300 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isRegisteringKey ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <KeyRound className="w-3.5 h-3.5" />}
-                Daftarkan Kunci
+                {t.registerKeyBtn}
               </button>
             </div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
-            {/* Sidebar Desktop */}
             <div className="hidden lg:block lg:col-span-1 space-y-6">
               <div className="bg-[#0B0817] border border-neutral-900 p-5 rounded-3xl sticky top-28 shadow-xl">
                 <h2 className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-4 px-3 font-mono">{t.menuTitle}</h2>
@@ -1474,10 +984,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Konten Tab */}
             <div className="lg:col-span-3 space-y-6">
-
-              {/* TAB: BUAT KAPSUL */}
               {activeTab === 'create' && (
                 <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl space-y-6 sm:space-y-8">
                   <div>
@@ -1486,11 +993,11 @@ export default function DashboardPage() {
                     </h3>
                     <p className="text-xs sm:text-sm text-neutral-400">{t.createDesc}</p>
                     <p className="text-[10px] sm:text-xs text-cyan-500/80 mt-2 flex items-center gap-1.5">
-                      <Lock className="w-3 h-3" /> Pesan akan dienkripsi (ECIES) langsung di browser Anda sebelum dikirim ke blockchain.
+                      <Lock className="w-3 h-3" /> {t.encryptionNotice}
                     </p>
                     {!isTierConfigLoaded && (
                       <p className="text-[10px] sm:text-xs text-amber-500/80 mt-1.5 flex items-center gap-1.5">
-                        <Loader2 className="w-3 h-3 animate-spin" /> Memuat biaya tier langsung dari kontrak... (angka di bawah sementara pakai perkiraan)
+                        <Loader2 className="w-3 h-3 animate-spin" /> {t.loadingTierNotice}
                       </p>
                     )}
                   </div>
@@ -1530,14 +1037,13 @@ export default function DashboardPage() {
                             </div>
                             <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between border-t border-neutral-800/80 pt-2 sm:pt-3 w-full gap-1.5 xl:gap-0">
                               <span className="text-[8px] sm:text-[10px] text-neutral-500 uppercase tracking-wider font-mono hidden sm:block">{t.autoBurnProtocol}</span>
-                              <span className="text-[9px] sm:text-[10px] text-red-400 font-bold flex items-center gap-1 font-mono"><Flame className="w-3 h-3" /> {data.burn} Burn</span>
+                              <span className="text-[9px] sm:text-[10px] text-red-400 font-bold flex items-center gap-1 font-mono"><Flame className="w-3 h-3" /> {data.burn} {t.burnLabel}</span>
                             </div>
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    {/* AREA UPLOAD FILE (ARWEAVE PERMANEN) */}
                     <div className="space-y-2 mt-4 sm:mt-6">
                       <label className="text-[10px] sm:text-xs font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
                         <UploadCloud className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -1545,7 +1051,7 @@ export default function DashboardPage() {
                         {!isPermanentTier && <span className="bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px]">{t.locked}</span>}
                         {(tier === 'eternal' || tier === 'legacy') && (
                           <span className="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] normal-case font-normal">
-                            Arweave permanen — biaya penyimpanan dibayar terpisah dari wallet Anda
+                            {t.arweavePermanentText}
                           </span>
                         )}
                       </label>
@@ -1562,7 +1068,7 @@ export default function DashboardPage() {
                               <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 shrink-0" />
                               <div className="text-left flex-1 min-w-0">
                                 <p className="text-[10px] sm:text-xs font-bold text-white truncate w-full">{selectedFile?.name}</p>
-                                <p className="text-[9px] sm:text-[10px] text-cyan-500 font-mono truncate w-full">{uploadedCid} (ciphertext)</p>
+                                <p className="text-[9px] sm:text-[10px] text-cyan-500 font-mono truncate w-full">{uploadedCid}</p>
                               </div>
                             </div>
                             <button type="button" onClick={() => {setSelectedFile(null); setUploadedCid(''); setPendingFileCipherRef(null);}} className="text-neutral-500 hover:text-red-400 p-1 sm:p-2 cursor-pointer ml-auto">
@@ -1572,7 +1078,7 @@ export default function DashboardPage() {
                         ) : isPreparingUpload ? (
                           <div className="py-3 sm:py-4">
                             <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-2 sm:mb-3"></div>
-                            <p className="text-[10px] sm:text-xs font-bold text-cyan-400 animate-pulse">Mengenkripsi & menghitung estimasi biaya...</p>
+                            <p className="text-[10px] sm:text-xs font-bold text-cyan-400 animate-pulse">{t.encryptingAndEstimating}</p>
                           </div>
                         ) : stagedUpload ? (
                           <div className="text-left space-y-3">
@@ -1585,24 +1091,24 @@ export default function DashboardPage() {
                             </div>
                             <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3">
                               <p className="text-[10px] sm:text-xs text-purple-200">
-                                Estimasi biaya penyimpanan permanen: <span className="font-mono font-bold">~{stagedUpload.estimatedCost} POL</span>
+                                {t.estimatedCostLabel} <span className="font-mono font-bold">~{stagedUpload.estimatedCost} POL</span>
                               </p>
                               <p className="text-[9px] sm:text-[10px] text-neutral-400 mt-1">
-                                Biaya ini dibayar SEKARANG dari wallet Anda dan TIDAK BISA dikembalikan, meskipun kapsul gagal disegel setelahnya. Wallet Anda akan meminta konfirmasi terpisah.
+                                {t.arweaveWarning}
                               </p>
                             </div>
                             <div className="flex gap-2">
                               {isUploading ? (
                                 <div className="flex-1 flex items-center justify-center gap-2 py-2.5 text-cyan-400 text-[10px] sm:text-xs font-bold">
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Mengunggah ke Arweave...
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> {t.uploadingArweave}
                                 </div>
                               ) : (
                                 <>
                                   <button type="button" onClick={handleConfirmArweaveUpload} className="flex-1 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 font-bold py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs cursor-pointer">
-                                    Konfirmasi & Bayar
+                                    {t.confirmPayBtn}
                                   </button>
                                   <button type="button" onClick={handleCancelStagedUpload} className="px-4 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs cursor-pointer">
-                                    Batal
+                                    {t.cancelBtn}
                                   </button>
                                 </>
                               )}
@@ -1613,7 +1119,7 @@ export default function DashboardPage() {
                             <input type="file" onChange={handleFileSelected} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf,.zip" />
                             <UploadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-500/50 mx-auto mb-1.5 sm:mb-2" />
                             <p className="text-[10px] sm:text-xs text-neutral-400"><span className="text-cyan-400 font-bold">{t.ipfsUploadPrompt}</span></p>
-                            <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-1">{t.ipfsUploadSub} · Maks 10MB</p>
+                            <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-1">{t.ipfsUploadSub}</p>
                           </div>
                         )}
                       </div>
@@ -1643,9 +1149,9 @@ export default function DashboardPage() {
                               onChange={(e) => setInactivityYears(e.target.value)}
                               className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-red-500 outline-none cursor-pointer"
                             >
-                              <option value="5">5 Years (Minimum Legacy Standard)</option>
-                              <option value="10">10 Years</option>
-                              <option value="20">20 Years</option>
+                              <option value="5">{t.inactivity5y}</option>
+                              <option value="10">{t.inactivity10y}</option>
+                              <option value="20">{t.inactivity20y}</option>
                             </select>
                           </div>
                           <div>
@@ -1658,13 +1164,7 @@ export default function DashboardPage() {
                               className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-red-500 outline-none font-mono"
                               required
                             />
-                            <p className="text-[9px] sm:text-[10px] text-neutral-500 mt-1.5">Ahli waris harus sudah membuka AetherVault sekali dan mendaftarkan kunci enkripsi di tab Settings.</p>
-                          </div>
-                          <div className="flex items-start gap-2 bg-red-500/5 border border-red-500/20 rounded-lg sm:rounded-xl p-2.5 sm:p-3">
-                            <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-                            <p className="text-[9px] sm:text-[10px] text-neutral-400 leading-relaxed">
-                              Judul & pesan kapsul Legacy dienkripsi khusus untuk ahli waris. Setelah disegel, <span className="text-red-300 font-bold">Anda sendiri tidak akan bisa membacanya lagi</span> — hanya ahli waris yang bisa, setelah syarat tidak-aktif terpenuhi.
-                            </p>
+                            <p className="text-[9px] sm:text-[10px] text-neutral-500 mt-1.5">{t.heirNote}</p>
                           </div>
                         </div>
                       ) : (
@@ -1683,7 +1183,7 @@ export default function DashboardPage() {
                             />
                           </div>
                           <p className="text-[9px] sm:text-[10px] text-neutral-500">
-                            Waktu memakai zona waktu perangkat Anda saat ini ({Intl.DateTimeFormat().resolvedOptions().timeZone}). Kapsul akan bisa dibuka mulai jam-menit yang dipilih, bukan hanya tanggalnya.
+                            {t.timezoneNote.replace('{tz}', Intl.DateTimeFormat().resolvedOptions().timeZone)}
                           </p>
                         </div>
                       )}
@@ -1695,7 +1195,7 @@ export default function DashboardPage() {
                       className={`w-full font-bold py-3 sm:py-4 rounded-full flex justify-center items-center gap-1.5 sm:gap-2 transition-all text-xs sm:text-sm mt-2 sm:mt-4 ${isConnected && !isSealing && !isWrongNetwork ? 'bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white shadow-[0_0_25px_-3px_rgba(168,85,247,0.5),0_0_15px_-3px_rgba(34,211,238,0.4)] cursor-pointer' : 'bg-[#0B0817] text-neutral-600 cursor-not-allowed border border-neutral-800'}`}
                     >
                       {isSealing ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                      {isSealing ? 'Memproses...' : isWrongNetwork ? `Pindah ke ${TARGET_CHAIN_NAME} dulu` : (isConnected ? t.sealButton : t.connectToSeal)}
+                      {isSealing ? t.processingBtn : isWrongNetwork ? t.switchToChainFirstBtn.replace('{chain}', TARGET_CHAIN_NAME) : (isConnected ? t.sealButton : t.connectToSeal)}
                     </button>
                   </form>
                 </div>
@@ -1712,7 +1212,6 @@ export default function DashboardPage() {
                   {isLoadingCapsules ? (
                     <div className="text-center py-16 sm:py-24 bg-[#0B0817] rounded-2xl sm:rounded-3xl border border-dashed border-neutral-800">
                       <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-3 animate-spin" />
-                      <p className="text-neutral-400 text-xs sm:text-sm">Memuat kapsul dari blockchain...</p>
                     </div>
                   ) : myCapsules.length === 0 ? (
                     <div className="text-center py-16 sm:py-24 bg-[#0B0817] rounded-2xl sm:rounded-3xl border border-dashed border-neutral-800">
@@ -1726,27 +1225,8 @@ export default function DashboardPage() {
                   ) : (
                     <div className="space-y-3 sm:space-y-4">
                       {myCapsules.map((cap) => {
-                        // Tombol "Saya Masih Aktif" hanya untuk kapsul Legacy
-                        // MILIK SENDIRI (bukan sebagai ahli waris) yang belum
-                        // diklaim ahli waris. Ini yang tadinya hilang total
-                        // dari UI walau fungsinya sudah ada di kontrak.
                         const canPingAlive = cap.isLegacy && !cap.asHeir && !cap.isClaimedOrRevealed;
-                        // Tombol hapus konten hanya untuk kapsul yang sudah
-                        // pernah dibuka dan belum dihapus.
                         const canDeleteContent = cap.isClaimedOrRevealed && !cap.contentDeleted;
-
-                        // FIX (bug baru ditemukan sebelum deploy testnet):
-                        // Kapsul Legacy HANYA bisa dibuka via claimLegacy() oleh
-                        // ahli waris — pemilik sendiri (asHeir === false) TIDAK
-                        // PERNAH berwenang memanggil revealCapsule/claimLegacy
-                        // untuk kapsul Legacy miliknya sendiri, walau isReady
-                        // sudah true (masa tidak-aktif terlewati). Sebelumnya
-                        // tombol "Buka" tetap aktif untuk kondisi ini dan akan
-                        // SELALU revert on-chain ("Gunakan claimLegacy()...")
-                        // begitu diklik — membingungkan pemilik yang cuma ingin
-                        // memantau status kapsulnya sendiri. Kondisinya SAMA
-                        // dengan canPingAlive di atas (pemilik & belum diklaim),
-                        // jadi dipakai ulang, bukan didefinisikan dua kali.
                         const isOwnUnclaimableLegacy = canPingAlive;
                         const canOpen = !cap.contentDeleted && !isOwnUnclaimableLegacy && (cap.isReady || cap.isClaimedOrRevealed);
 
@@ -1754,7 +1234,7 @@ export default function DashboardPage() {
                         <div key={cap.id} className="bg-[#0B0817] border border-neutral-900 hover:border-cyan-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6 shadow-lg transition-colors">
                           <div className="space-y-2 w-full md:w-auto">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                              <span className="text-[9px] sm:text-[10px] font-bold text-cyan-400 bg-cyan-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-cyan-500/20 font-mono">{cap.tierLabel}{cap.asHeir ? ' • Sebagai Ahli Waris' : ''}</span>
+                              <span className="text-[9px] sm:text-[10px] font-bold text-cyan-400 bg-cyan-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-cyan-500/20 font-mono">{cap.tierLabel}{cap.asHeir ? t.asHeirSuffix : ''}</span>
                               <span className="text-[9px] sm:text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-amber-500/20 font-mono flex items-center gap-1 sm:gap-1.5">
                                 <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {cap.status}
                               </span>
@@ -1763,8 +1243,8 @@ export default function DashboardPage() {
                             <p className="text-[9px] sm:text-[10px] text-neutral-500 font-mono flex items-center gap-1.5">
                               <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
                               {cap.isLegacy
-                                ? `Terakhir lapor aktif: ${formatUnlockDateTime(cap.lastPingAlive)}`
-                                : `Buka: ${formatUnlockDateTime(cap.unlockTimestamp)}`}
+                                ? `${t.lastPingLabel} ${formatUnlockDateTime(cap.lastPingAlive)}`
+                                : `${t.unlockLabel} ${formatUnlockDateTime(cap.unlockTimestamp)}`}
                             </p>
                           </div>
                           <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
@@ -1773,10 +1253,9 @@ export default function DashboardPage() {
                                 onClick={() => handlePingAlive(cap)}
                                 disabled={isPinging === cap.id || isWrongNetwork}
                                 className="w-full md:w-auto bg-transparent hover:bg-green-500/10 disabled:opacity-40 text-green-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-green-500/50 transition-all"
-                                title="Reset jam mundur dead-man switch — lapor ke kontrak bahwa Anda masih aktif"
                               >
                                 {isPinging === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
-                                Saya Masih Aktif
+                                {t.btnPingAlive}
                               </button>
                             )}
                             {canDeleteContent && (
@@ -1784,10 +1263,9 @@ export default function DashboardPage() {
                                 onClick={() => handleDeleteOpenedContent(cap)}
                                 disabled={isDeletingContent === cap.id || isWrongNetwork}
                                 className="w-full md:w-auto bg-transparent hover:bg-red-500/10 disabled:opacity-40 text-red-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-red-500/50 transition-all"
-                                title="Hapus konten dari kontrak (opsional, tidak bisa dibatalkan)"
                               >
                                 {isDeletingContent === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
-                                Hapus
+                                {t.btnDeleteContent}
                               </button>
                             )}
                             <button
@@ -1797,12 +1275,12 @@ export default function DashboardPage() {
                             >
                               <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               {cap.contentDeleted
-                                ? 'Sudah Dihapus'
+                                ? t.statusAlreadyDeleted
                                 : isOwnUnclaimableLegacy
-                                  ? (cap.isReady ? 'Menunggu Diklaim Ahli Waris' : 'Belum Siap')
+                                  ? (cap.isReady ? t.statusWaitingHeir : t.statusNotReady)
                                   : cap.isClaimedOrRevealed
-                                    ? 'Lihat Lagi'
-                                    : (cap.isReady ? t.openVaultBtn : 'Belum Siap')}
+                                    ? t.btnViewAgain
+                                    : (cap.isReady ? t.openVaultBtn : t.statusNotReady)}
                             </button>
                           </div>
                         </div>
@@ -1820,7 +1298,6 @@ export default function DashboardPage() {
                   {isLoadingHistory ? (
                     <div className="text-center py-12 sm:py-16 text-neutral-500 text-xs sm:text-sm">
                       <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-cyan-500 mx-auto mb-2 sm:mb-3 animate-spin" />
-                      Memuat riwayat dari blockchain...
                     </div>
                   ) : transactions.length === 0 ? (
                     <div className="text-center py-12 sm:py-16 text-neutral-500 text-xs sm:text-sm">
@@ -1901,7 +1378,7 @@ export default function DashboardPage() {
                               placeholder="0.0"
                               className="w-full bg-transparent text-lg sm:text-2xl font-mono text-white outline-none"
                             />
-                            <button onClick={() => setStakeInput(aethBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-cyan-500/10 text-cyan-400 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-cyan-500/20 cursor-pointer hover:bg-cyan-500/20">MAX</button>
+                            <button onClick={() => setStakeInput(aethBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-cyan-500/10 text-cyan-400 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-cyan-500/20 cursor-pointer hover:bg-cyan-500/20">{t.maxBtn}</button>
                           </div>
                         </div>
                         <button onClick={handleStake} disabled={isStaking || isWrongNetwork} className="w-full py-3 sm:py-4 bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm text-white shadow-lg cursor-pointer flex items-center justify-center gap-2">
@@ -1925,14 +1402,10 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        {/* BARU: panel Unstake — sebelumnya fitur ini hilang
-                            total dari UI walau sudah ada di kontrak sejak
-                            awal. withdraw() di kontrak sengaja tidak bisa
-                            di-pause, jadi selalu tersedia untuk user. */}
                         {stakedBalance > 0 && (
                           <div className="mt-3 sm:mt-4 bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4">
                             <div className="flex justify-between text-[9px] sm:text-xs text-neutral-500 mb-1.5 sm:mb-2">
-                              <span>Jumlah Unstake</span>
+                              <span>{t.unstakeAmountLabel}</span>
                               <span>Staked: <span className="font-bold text-white">{stakedBalance.toFixed(2)}</span> AETH</span>
                             </div>
                             <div className="flex items-center gap-2 sm:gap-3">
@@ -1943,7 +1416,7 @@ export default function DashboardPage() {
                                 placeholder="0.0"
                                 className="w-full bg-transparent text-lg sm:text-2xl font-mono text-white outline-none"
                               />
-                              <button onClick={() => setUnstakeInput(stakedBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-red-500/10 text-red-300 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-red-500/20 cursor-pointer hover:bg-red-500/20">MAX</button>
+                              <button onClick={() => setUnstakeInput(stakedBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-red-500/10 text-red-300 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-red-500/20 cursor-pointer hover:bg-red-500/20">{t.maxBtn}</button>
                             </div>
                           </div>
                         )}
@@ -1956,7 +1429,7 @@ export default function DashboardPage() {
                             className="w-full py-3 sm:py-4 border border-red-500/40 text-red-300 hover:bg-red-500/10 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
                           >
                             {isWithdrawingStake && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                            Unstake
+                            {t.unstakeBtn}
                           </button>
                         )}
                         <button onClick={handleClaimReward} disabled={isWrongNetwork} className="w-full py-3 sm:py-4 border border-green-500/40 text-green-400 hover:bg-green-500/10 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer">
@@ -1981,28 +1454,18 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="bg-[#0B0817] border border-cyan-500/20 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg space-y-3">
-                    <h5 className="text-sm sm:text-base font-bold text-white flex items-center gap-2"><KeyRound className="w-4 h-4 text-cyan-400"/> Bagaimana isi kapsul dijaga</h5>
-                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">
-                      Judul, pesan, dan lampiran dienkripsi (ECIES/secp256k1) langsung di browser Anda sebelum meninggalkan perangkat.
-                      Kunci dekripsi diturunkan dari signature EIP-712 wallet Anda sendiri dan tidak pernah dikirim ke mana pun, termasuk ke server AetherVault.
-                      Yang tersimpan di blockchain dan Arweave hanyalah ciphertext — tidak bisa dibaca tanpa wallet asli penerima yang dituju.
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">
-                      Yang TIDAK dienkripsi (dan selalu terlihat publik di blockchain): alamat pemilik, alamat ahli waris, waktu kapsul dibuat/dibuka, dan tier yang dipilih. Rahasiakan hanya melalui isinya, bukan metadatanya.
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">
-                      Kunci enkripsi terikat pada jaringan ({TARGET_CHAIN_NAME}) yang sedang Anda pakai. Jangan menggunakan AetherVault sambil terhubung ke jaringan lain — aplikasi akan memblokir aksi dan meminta Anda pindah jaringan dulu untuk mencegah kehilangan akses.
-                    </p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">
-                      Catatan jujur: keamanan ini setara dengan keamanan wallet Anda sendiri. Jaga seed phrase Anda dan waspada permintaan tanda tangan dari situs tak dikenal — siapa pun yang menguasai wallet Anda (lewat seed phrase bocor maupun tanda tangan yang ditipu) juga bisa menurunkan kunci dekripsi yang sama.
-                    </p>
+                    <h5 className="text-sm sm:text-base font-bold text-white flex items-center gap-2"><KeyRound className="w-4 h-4 text-cyan-400"/> {t.secHowProtected}</h5>
+                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">{t.secDesc1}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc2}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc3}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc4}</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="bg-[#0B0817] border border-cyan-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
                       <div className="absolute top-0 right-0 bg-cyan-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Active</div>
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2"><Lock className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400"/> ReentrancyGuard</h5>
-                      <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">Smart Contract Staking is multi-layered with chain-linked execution control functions.</p>
+                      <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">{t.reentrancyDesc}</p>
                       <a href={`https://polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
                         {t.viewCodeBtn} <ArrowUpRight className="w-3 h-3" />
                       </a>
@@ -2031,8 +1494,8 @@ export default function DashboardPage() {
                     <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                         <div>
-                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><KeyRound className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> Kunci Enkripsi Wallet</p>
-                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">Diperlukan agar orang lain bisa menjadikan Anda ahli waris kapsul terenkripsi.</p>
+                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><KeyRound className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> {t.encryptionKeyLabel}</p>
+                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.encryptionKeyDesc}</p>
                         </div>
                         <button
                           onClick={handleRegisterEncryptionKey}
@@ -2040,7 +1503,7 @@ export default function DashboardPage() {
                           className={`text-[9px] sm:text-[10px] px-3 sm:px-4 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 flex items-center gap-2 ${myPublicKeyRegistered ? 'bg-green-500/10 text-green-400 border border-green-500/20 cursor-default' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 cursor-pointer disabled:opacity-50'}`}
                         >
                           {isRegisteringKey && <Loader2 className="w-3 h-3 animate-spin" />}
-                          {myPublicKeyRegistered ? 'Terdaftar' : 'Daftarkan'}
+                          {myPublicKeyRegistered ? t.registeredStatus : t.registerBtn}
                         </button>
                       </div>
                     </div>
@@ -2053,7 +1516,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto mt-1 sm:mt-0">
                           <input type="text" disabled value={READ_ONLY_RPC_URL} className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none" />
-                          <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? 'Jaringan Salah' : t.connected}</span>
+                          <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? t.wrongNetwork : t.connected}</span>
                         </div>
                       </div>
                     </div>
@@ -2061,12 +1524,12 @@ export default function DashboardPage() {
                     <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                         <div>
-                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><UploadCloud className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> Penyimpanan Lampiran</p>
-                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">Lampiran kapsul disimpan permanen di Arweave lewat Irys, dibayar langsung dari wallet Anda saat upload — tidak ada pihak ketiga penyimpanan lain yang terlibat.</p>
+                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><UploadCloud className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> {t.storageLabel}</p>
+                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.storageDesc}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto mt-1 sm:mt-0">
                           <input type="text" disabled value="Arweave via Irys" className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none text-center sm:text-left" />
-                          <span className="text-[8px] sm:text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0">Permanen</span>
+                          <span className="text-[8px] sm:text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0">{t.permanentStatus}</span>
                         </div>
                       </div>
                     </div>
@@ -2078,7 +1541,6 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* FOOTER */}
       <footer className="border-t border-neutral-900 bg-[#05030F]/80 py-5 sm:py-6 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
@@ -2091,18 +1553,15 @@ export default function DashboardPage() {
         </div>
       </footer>
 
-      {/* MODAL DEKRIPSI KAPSUL */}
       {selectedVault && (
         <div className="fixed inset-0 bg-[#05030F]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-[#0B0817] border border-cyan-500/30 max-w-lg w-full rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-4 sm:space-y-6 shadow-[0_0_30px_rgba(6,182,212,0.15)] relative">
             <h4 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2 sm:gap-2.5">
               <Sparkles className="text-cyan-400 w-4 h-4 sm:w-5 sm:h-5"/> {t.modalDecryptedTitle}
             </h4>
-
             {isDecrypting ? (
               <div className="text-center py-8">
                 <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-3 animate-spin" />
-                <p className="text-neutral-400 text-xs sm:text-sm">Memverifikasi on-chain & mendekripsi secara lokal...</p>
               </div>
             ) : selectedVault.error ? (
               <div className="text-center py-6">
@@ -2114,7 +1573,6 @@ export default function DashboardPage() {
                 {selectedVault.decryptedMessage}
               </div>
             )}
-
             <button onClick={() => setSelectedVault(null)} className="w-full bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-3 sm:py-4 rounded-xl sm:rounded-full text-[10px] sm:text-xs cursor-pointer transition-colors outline-none border border-transparent focus:border-neutral-500">
               {t.closeVaultBtn}
             </button>
