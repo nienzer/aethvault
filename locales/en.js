@@ -38,7 +38,7 @@ export const en = {
     tier2Title: "Tier 2: VIP Vault",
     tier2Desc: "For medium documents. Maximum 1,000 characters. Secure calendar Time-Lock up to 5 years.",
     tier3Title: "Tier 3: Eternal",
-    tier3Desc: "Permanent archive storage. Unlimited characters. Pure calendar up to 100 years without ping.",
+    tier3Desc: "Permanentt archive storage. Unlimited characters. Pure calendar up to 100 years without ping.",
     tier4Title: "Tier 4: Legacy",
     tier4Desc: "Dead Man's Switch system. Automatically opens EXCLUSIVELY for the Heir's wallet if you are inactive (5+ years).",
     autoBurn: "Auto-Burn",
@@ -100,15 +100,15 @@ export const en = {
     abstractText: "In the modern digital era, billions of dollars in crypto assets and confidential data are lost forever each year due to lost access (forgotten seed phrases) or owners passing away without passing down access. AetherVault emerges as the first decentralized Web3 solution combining Time Capsule concepts and Dead Man's Switch protocols on the blockchain network. Utilizing Smart Contracts and IPFS storage, AetherVault ensures your data remains secure, time-locked, and accessible exclusively to authorized parties in the future.",
     
     sec1Title: "1. Introduction",
-    sec1Text: "Traditional Web2 infrastructure relies on centralized servers vulnerable to hacking, censorship, or corporate bankruptcy. If a cloud storage company shuts down, your data vanishes. AetherVault solves this with a '100% On-Chain & Zero-Knowledge' approach. The protocol does not store data on private servers, encrypting it directly onto the Polygon blockchain network and distributing supporting files to the Arweave (permanent decentralized storage) network.",
+    sec1Text: "Traditional Web2 infrastructure relies on centralized servers vulnerable to hacking, censorship, or corporate bankruptcy. If a cloud storage company shuts down, your data vanishes. AetherVault solves this with a '100% On-Chain & Zero-Knowledge' approach. The protocol does not store data on private servers, encrypting it directly onto the Polygon blockchain network and distributing supporting files to the IPFS (InterPlanetary File System) network.",
     
     sec2Title: "2. Core Architecture & Security",
     sec2Box1Title: "Time-Lock Protocol",
     sec2Box1Text: "Messages are encrypted and sealed using Smart Contracts. Timestamp parameters are embedded directly into network blocks. No one—not even developers—has access to decrypt messages before the designated time limit is reached.",
     sec2Box2Title: "Dead Man's Switch (Legacy System)",
     sec2Box2Text: "An exclusive feature allowing users to register an Heir's wallet. If the primary wallet fails to perform a ping activity within a specific timeframe (e.g., 5 years), the Smart Contract automatically transfers capsule access rights to the Heir.",
-    sec2Box3Title: "Arweave Permanent Storage via Irys",
-    sec2Box3Text: "Supporting files (images, PDF documents, ZIP archives) are encrypted client-side and uploaded to Arweave for permanent storage via Irys. Users pay once directly from their wallet — no monthly fees, no centralized server dependency. The resulting Arweave ID is immutable and permanently retrievable.",
+    sec2Box3Title: "IPFS Pinata Integration",
+    sec2Box3Text: "Supporting files (images, PDF documents, ZIP archives) are uploaded to the decentralized IPFS network, receiving a unique immutable Content Identifier (CID).",
     sec2Box4Title: "Anti-Reentrancy Guard",
     sec2Box4Text: "AetherVault Staking and Vault contracts are equipped with high-tier multi-layered Solidity security guards to prevent chain manipulation attacks (Reentrancy or Flash Loan Attacks).",
     
@@ -176,7 +176,7 @@ export const en = {
     phase1Time: "Q3 2026 - Completed",
     phase1Title: "Phase 1: Genesis & Architecture",
     phase1Item1: "Time-Lock Smart Contract design and architecture.",
-    phase1Item2: "Arweave (Irys) permanent storage integration.",
+    phase1Item2: "IPFS (Pinata) storage integration.",
     phase1Item3: "DApp Dashboard launch on the Polygon Mainnet.",
     phase1Item4: "Liquid Staking Protocol implementation.",
     
@@ -207,7 +207,7 @@ export const en = {
     item2Text: " All transactions, capsule encryption, and staking interactions are executed and recorded permanently on the public Polygon network. This data is public yet anonymously encrypted by default from the blockchain.",
     
     sec3Title: "3. Secret Message Storage & IPFS",
-    sec3Text: "Secret messages or seed phrases you input into the Time Capsule are encrypted directly on the client-side using Web3 infrastructure. Uploaded attachments are pinned via the Arweave (permanent decentralized storage) network. Due to the decentralized nature of the network, AetherVault as the developer entity possesses no keys or backdoor access to decrypt your data before your calendar Time-Lock deadline is reached.",
+    sec3Text: "Secret messages or seed phrases you input into the Time Capsule are encrypted directly on the client-side using Web3 infrastructure. Uploaded attachments are pinned via the IPFS (InterPlanetary File System) network. Due to the decentralized nature of the network, AetherVault as the developer entity possesses no keys or backdoor access to decrypt your data before your calendar Time-Lock deadline is reached.",
     
     sec4Title: "4. Financial Security",
     sec4Text: "We never have administrative access to your crypto wallet. The AetherVault protocol runs using non-custodial Smart Contracts. The responsibility of securing your MetaMask wallet's recovery phrase (seed phrase) rests entirely in your hands."
@@ -264,12 +264,12 @@ export const en = {
     capsuleTitlePlaceholder: "Example: Main Crypto Wallet Key / Family Will",
     securityTierLabel: "Select Security Architecture (Tier)",
     autoBurnProtocol: "Auto-Burn Protocol",
-    ipfsAttachment: "Arweave File Attachment",
+    ipfsAttachment: "IPFS File Attachment",
     locked: "Locked",
-    ipfsLockedDesc: "Encrypted image and document attachment features to Arweave permanent storage are exclusively available for Eternal & Legacy Tier users.",
-    ipfsUploadPrompt: "Click or Drag file to this area for permanent Arweave storage.",
-    ipfsUploadSub: "Supports Images, PDF, & ZIP (Max 10MB). Stored permanently on Arweave via Irys.",
-    ipfsUploading: "Encrypting & Uploading to Arweave via Irys...",
+    ipfsLockedDesc: "Encrypted image and document attachment features to IPFS are exclusively available for Eternal & Legacy Tier users.",
+    ipfsUploadPrompt: "Click or Drag file to this area.",
+    ipfsUploadSub: "Supports Images, PDF, & ZIP (Max 10MB)",
+    ipfsUploading: "Uploading & Pinning to IPFS Node...",
     payloadLabel: "Capsule Payload (Secret Data)",
     payloadPlaceholder: "Write seed phrase, passwords, or secret messages here...",
     charCount: "Characters:",
@@ -321,8 +321,8 @@ export const en = {
     rpcLabel: "Main RPC Node (Polygon)",
     rpcDesc: "Primary communication pathway to the blockchain.",
     connected: "Connected",
-    ipfsApiLabel: "Arweave Gateway (Irys)",
-    ipfsApiDesc: "Irys bundler for permanent encrypted file storage on Arweave. Decentralized & serverless.",
+    ipfsApiLabel: "IPFS Gateway API",
+    ipfsApiDesc: "Pinata provider for encrypted file seals (Server-side Secured).",
     secured: "Secured",
 
     tiersList: {
@@ -331,10 +331,10 @@ export const en = {
       vipName: "VIP Vault",
       vipDesc: "For medium documents. Maximum 1,000 characters. Time-Lock up to 5 years.",
       eternalName: "Eternal",
-      eternalDesc: "Permanent archive storage + Arweave File Attachment. Pure calendar up to 100 years.",
+      eternalDesc: "Permanentt archive storage + IPFS File Attachment. Pure calendar up to 100 years.",
       legacyName: "Legacy",
-      legacyDesc: "Dead Man's Switch + Arweave File Attachment. Automatic access for Heir's Wallet."
-    }, // <-- Nah, kurung kurawal ini yang harus ditutup dulu, dan JANGAN LUPA KOMA INI!
+      legacyDesc: "Dead Man's Switch + IPFS File Attachment. Automatic access for Heir's Wallet."
+    }, // <-- Nah, kurung kurawal ini yang harus ditutup first, dan JANGAN LUPA KOMA INI!
 
     // ========== TAMBAHAN TERBARU UNTUK DASHBOARD ==========
     encryptionNotice: "Messages are encrypted (ECIES) directly in your browser before being sent to the blockchain.",
@@ -363,7 +363,7 @@ export const en = {
     asHeirSuffix: " • As Heir",
 
     // Upload & Arweave
-    arweavePermanentText: "Permanent Arweave — storage fee paid separately from your wallet",
+    arweavePermanenttText: "Permanentt Arweave — storage fee paid separately from your wallet",
     encryptingAndEstimating: "Encrypting & estimating cost...",
     estimatedCostLabel: "Estimated permanent storage cost:",
     arweaveWarning: "This fee is paid NOW from your wallet and is NON-REFUNDABLE, even if the capsule fails to seal afterwards. Your wallet will prompt a separate confirmation.",
@@ -384,7 +384,7 @@ export const en = {
     wrongNetwork: "Wrong Network",
     storageLabel: "Attachment Storage",
     storageDesc: "Capsule attachments are permanently stored on Arweave via Irys, paid directly from your wallet during upload — no other third-party storage involved.",
-    permanentStatus: "Permanent",
+    permanentStatus: "Permanentt",
 
     // ========== NEW: toast & dynamic messages ==========
     dateLocale: "en-US",
