@@ -1641,28 +1641,30 @@ export default function DashboardPage() {
                 <p className="text-red-300 text-xs sm:text-sm">{selectedVault.error}</p>
               </div>
             ) : (
-              <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
-                {selectedVault.decryptedMessage}
-              </div>
-              {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
-                <button
-                  onClick={handleDownloadAttachment}
-                  disabled={isDownloadingAttachment === selectedVault.id}
-                  className="w-full py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
-                >
-                  {isDownloadingAttachment === selectedVault.id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Mendekripsi & Mengunduh...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4" />
-                      Download & Decrypt File
-                    </>
-                  )}
-                </button>
-              )}
+              <>
+                <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
+                  {selectedVault.decryptedMessage}
+                </div>
+                {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
+                  <button
+                    onClick={handleDownloadAttachment}
+                    disabled={isDownloadingAttachment === selectedVault.id}
+                    className="w-full py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
+                  >
+                    {isDownloadingAttachment === selectedVault.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Mendekripsi & Mengunduh...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        Download & Decrypt File
+                      </>
+                    )}
+                  </button>
+                )}
+              </>
             )}
             <button onClick={() => setSelectedVault(null)} className="w-full bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-3 sm:py-4 rounded-xl sm:rounded-full text-[10px] sm:text-xs cursor-pointer transition-colors outline-none border border-transparent focus:border-neutral-500">
               {t.closeVaultBtn}
