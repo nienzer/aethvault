@@ -2,7 +2,7 @@
 // 1. IMPORT HOOKS WALLETCONNECT SECARA LENGKAP
 import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect } from '@web3modal/ethers/react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Landmark, Cpu, Coins, Settings, UserX, AlertTriangle, UploadCloud, FileImage, X, CheckCircle2, ArrowUpRight, Menu, KeyRound, Loader2 } from 'lucide-react';
+import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Landmark, Cpu, Coins, Settings, UserX, AlertTriangle, UploadCloud, FileImage, X, CheckCircle2, ArrowUpRight, Menu, KeyRound, Loader2, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
@@ -113,7 +113,8 @@ const StakingABI = [
 ];
 
 const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; // TODO: isi alamat hasil deploy AetherVault.sol (40 hex char setelah 0x!)
-const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!) 
+const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!)  
+
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
   CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -123,6 +124,7 @@ const IS_STAKING_ADDRESS_CONFIGURED =
 const TARGET_CHAIN_ID = 80002;
 const TARGET_CHAIN_ID_HEX = "0x" + TARGET_CHAIN_ID.toString(16);
 const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
+
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
@@ -184,10 +186,12 @@ export default function DashboardPage() {
   const [isLoadingCapsules, setIsLoadingCapsules] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [transactions, setTransactions] = useState([]);
+  const [isFullHistoryLoaded, setIsFullHistoryLoaded] = useState(false);
   const [tierConfigError, setTierConfigError] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedVault, setSelectedVault] = useState(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
+  const [isDownloadingAttachment, setIsDownloadingAttachment] = useState(null);
   
   const myKeyPairRef = useRef(null);
   const [hasLocalKeyPair, setHasLocalKeyPair] = useState(false);
@@ -263,14 +267,14 @@ export default function DashboardPage() {
     return acc;
   }, {});
 
-  const showToast = (msg, type = 'info') => {
+  const showToast = useCallback((msg, type = 'info') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 4500);
-  };
+  }, []);
 
-  const extractErrorMessage = (err) => {
+  const extractErrorMessage = useCallback((err) => {
     return (err?.reason || err?.shortMessage || err?.error?.message || err?.data?.message || err?.message || t.defaultTxErrorMessage);
-  };
+  }, [t.defaultTxErrorMessage]);
 
   const getSigner = async () => {
     const provider = new ethers.BrowserProvider(walletProvider);
@@ -365,7 +369,7 @@ export default function DashboardPage() {
 
   const DEPLOY_BLOCK_NUMBER = 43345845;
 
-  const fetchOnChainHistory = useCallback(async (userAddress) => {
+  const fetchOnChainHistory = useCallback(async (userAddress, fromBlock = DEPLOY_BLOCK_NUMBER) => {
     setIsLoadingHistory(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
@@ -447,8 +451,9 @@ export default function DashboardPage() {
       console.error(t.consoleHistoryFail, err);
     } finally {
       setIsLoadingHistory(false);
+      setIsFullHistoryLoaded(true);
     }
-  }, [onChainTierConfig, showToast, extractErrorMessage]);
+  }, [onChainTierConfig]);
 
   const fetchWalletData = useCallback(async () => {
     if (isConnected && walletProvider && address) {
@@ -622,7 +627,7 @@ export default function DashboardPage() {
     setIsSealing(true);
     try {
       showToast(t.encryptingMessage, 'info');
-      const { publicKey: recipientPublicKey, privateKey: ownPrivateKeyForRefresh } = await resolveRecipient();
+      const { publicKey: recipientPublicKey } = await resolveRecipient();
       const encryptedMessage = await encryptForPublicKey(recipientPublicKey, message);
 
       if (encryptedMessage.length > selectedTierData.maxLength) throw new Error(t.messageCapacityExceeded);
@@ -805,6 +810,51 @@ export default function DashboardPage() {
       await fetchWalletData();
     } catch (err) {
       showToast(t.claimRewardFailPrefix + extractErrorMessage(err), "error");
+    }
+  };
+
+  const extractArweaveUrl = (text) => {
+    const match = text?.match(/\[Attachment:\s*(https:\/\/arweave\.net\/[^\]]+)\]/);
+    return match ? match[1] : null;
+  };
+
+  const handleDownloadAttachment = async () => {
+    if (!selectedVault?.decryptedMessage) return;
+    const arweaveUrl = extractArweaveUrl(selectedVault.decryptedMessage);
+    if (!arweaveUrl) {
+      showToast("Tidak ada lampiran ditemukan dalam pesan", "error");
+      return;
+    }
+    setIsDownloadingAttachment(selectedVault.id);
+    try {
+      showToast("Mengambil file dari Arweave...", "info");
+      const response = await fetch(arweaveUrl);
+      if (!response.ok) throw new Error("Gagal mengambil file dari Arweave");
+      const encryptedText = await response.text();
+      const { privateKey } = await getOrDeriveKeyPair();
+      const decryptedJsonString = await decryptWithPrivateKey(privateKey, encryptedText);
+      const fileData = JSON.parse(decryptedJsonString);
+      const byteCharacters = atob(fileData.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: fileData.type || "application/octet-stream" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileData.name || "aether-file";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      showToast(`File "${fileData.name}" berhasil diunduh!`, "success");
+    } catch (err) {
+      console.error("Download/Decrypt error:", err);
+      showToast("Gagal mengunduh file: " + extractErrorMessage(err), "error");
+    } finally {
+      setIsDownloadingAttachment(null);
     }
   };
 
@@ -1594,6 +1644,25 @@ export default function DashboardPage() {
               <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
                 {selectedVault.decryptedMessage}
               </div>
+              {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
+                <button
+                  onClick={handleDownloadAttachment}
+                  disabled={isDownloadingAttachment === selectedVault.id}
+                  className="w-full py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
+                >
+                  {isDownloadingAttachment === selectedVault.id ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Mendekripsi & Mengunduh...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      Download & Decrypt File
+                    </>
+                  )}
+                </button>
+              )}
             )}
             <button onClick={() => setSelectedVault(null)} className="w-full bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-3 sm:py-4 rounded-xl sm:rounded-full text-[10px] sm:text-xs cursor-pointer transition-colors outline-none border border-transparent focus:border-neutral-500">
               {t.closeVaultBtn}

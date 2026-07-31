@@ -186,6 +186,7 @@ export default function DashboardPage() {
   const [isLoadingCapsules, setIsLoadingCapsules] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [transactions, setTransactions] = useState([]);
+  const [isFullHistoryLoaded, setIsFullHistoryLoaded] = useState(false);
   const [tierConfigError, setTierConfigError] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedVault, setSelectedVault] = useState(null);
@@ -265,14 +266,14 @@ export default function DashboardPage() {
     return acc;
   }, {});
 
-  const showToast = (msg, type = 'info') => {
+  const showToast = useCallback((msg, type = 'info') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 4500);
-  };
+  }, []);
 
-  const extractErrorMessage = (err) => {
+  const extractErrorMessage = useCallback((err) => {
     return (err?.reason || err?.shortMessage || err?.error?.message || err?.data?.message || err?.message || t.defaultTxErrorMessage);
-  };
+  }, [t.defaultTxErrorMessage]);
 
   const getSigner = async () => {
     const provider = new ethers.BrowserProvider(walletProvider);
@@ -367,7 +368,7 @@ export default function DashboardPage() {
 
   const DEPLOY_BLOCK_NUMBER = 91096734;
 
-  const fetchOnChainHistory = useCallback(async (userAddress) => {
+  const fetchOnChainHistory = useCallback(async (userAddress, fromBlock = DEPLOY_BLOCK_NUMBER) => {
     setIsLoadingHistory(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
@@ -449,8 +450,9 @@ export default function DashboardPage() {
       console.error(t.consoleHistoryFail, err);
     } finally {
       setIsLoadingHistory(false);
+      setIsFullHistoryLoaded(true);
     }
-  }, [onChainTierConfig, showToast, extractErrorMessage]);
+  }, [onChainTierConfig]);
 
   const fetchWalletData = useCallback(async () => {
     if (isConnected && walletProvider && address) {
@@ -624,7 +626,7 @@ export default function DashboardPage() {
     setIsSealing(true);
     try {
       showToast(t.encryptingMessage, 'info');
-      const { publicKey: recipientPublicKey, privateKey: ownPrivateKeyForRefresh } = await resolveRecipient();
+      const { publicKey: recipientPublicKey } = await resolveRecipient();
       const encryptedMessage = await encryptForPublicKey(recipientPublicKey, message);
 
       if (encryptedMessage.length > selectedTierData.maxLength) throw new Error(t.messageCapacityExceeded);
