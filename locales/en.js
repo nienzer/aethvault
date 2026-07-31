@@ -268,7 +268,7 @@ export const en = {
     locked: "Locked",
     ipfsLockedDesc: "Encrypted image and document attachment features to Arweave permanent storage are exclusively available for Eternal & Legacy Tier users.",
     ipfsUploadPrompt: "Click or Drag file to this area for permanent Arweave storage.",
-    ipfsUploadSub: "Supports Images, PDF, & ZIP (Max 10MB). Stored permanently on Arweave via Irys."
+    ipfsUploadSub: "Supports Images, PDF, & ZIP (Max 10MB). Stored permanently on Arweave via Irys.",
     ipfsUploading: "Encrypting & Uploading to Arweave via Irys...",
     payloadLabel: "Capsule Payload (Secret Data)",
     payloadPlaceholder: "Write seed phrase, passwords, or secret messages here...",

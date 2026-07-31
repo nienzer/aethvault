@@ -268,7 +268,7 @@ export const id = {
     locked: "Locked",
     ipfsLockedDesc: "Fitur lampiran file gambar & dokumen terenkripsi ke penyimpanan permanen Arweave hanya tersedia untuk pengguna Tier Eternal & Legacy.",
     ipfsUploadPrompt: "Klik atau Drag file ke area ini untuk penyimpanan permanen Arweave.",
-    ipfsUploadSub: "Mendukung Gambar, PDF, & ZIP (Max 10MB). Disimpan permanen di Arweave via Irys."
+    ipfsUploadSub: "Mendukung Gambar, PDF, & ZIP (Max 10MB). Disimpan permanen di Arweave via Irys.",
     ipfsUploading: "Mengenkripsi & Mengunggah ke Arweave via Irys...",
     payloadLabel: "Muatan Kapsul (Data Rahasia)",
     payloadPlaceholder: "Tulis seed phrase, password, atau pesan rahasia di sini...",

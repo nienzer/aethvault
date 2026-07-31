@@ -3,27 +3,34 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { id } from '@/locales/id';
 import { en } from '@/locales/en';
 
-// Membuat wadah Context
-const LanguageContext = createContext();
+const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState('en');
 
-  // Membaca memori browser saat pertama kali dimuat
   useEffect(() => {
-    const savedLang = localStorage.getItem('aeth_lang');
-    if (savedLang) {
-      setLang(savedLang);
+    // FIX: Guard untuk Cloudflare edge runtime (tidak ada localStorage di server)
+    if (typeof window !== 'undefined') {
+      try {
+        const savedLang = localStorage.getItem('aeth_lang');
+        if (savedLang) setLang(savedLang);
+      } catch (e) {
+        // Silent fail kalau localStorage blocked/dilarang
+      }
     }
   }, []);
 
-  // Fungsi mengubah bahasa dan menyimpannya di memori
   const changeLanguage = (newLang) => {
     setLang(newLang);
-    localStorage.setItem('aeth_lang', newLang);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('aeth_lang', newLang);
+      } catch (e) {
+        // Silent fail
+      }
+    }
   };
 
-  // Otomatis memilih kamus berdasarkan bahasa yang aktif
   const t = lang === 'en' ? en : id;
 
   return (
@@ -33,5 +40,8 @@ export function LanguageProvider({ children }) {
   );
 }
 
-// Hook khusus agar halaman lain mudah memanggil data bahasa
-export const useLanguage = () => useContext(LanguageContext);
+export const useLanguage = () => {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) throw new Error('useLanguage must be used inside LanguageProvider');
+  return ctx;
+};

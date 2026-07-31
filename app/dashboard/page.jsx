@@ -114,7 +114,6 @@ const StakingABI = [
 
 const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; // TODO: isi alamat hasil deploy AetherVault.sol (40 hex char setelah 0x!)
 const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!) 
-
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
   CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -128,7 +127,7 @@ const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
-const READ_ONLY_RPC_URL = "https://polygon-mainnet.g.alchemy.com/v2/alch_EJ4vIEBOFNz5ybhl8CbuD"; 
+const READ_ONLY_RPC_URL = "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM"; 
 const TIER_FALLBACK_CONFIG = {
   basic: { cost: 10, burn: 2, maxLength: 250, maxYears: 1 },
   premium: { cost: 50, burn: 10, maxLength: 1000, maxYears: 5 },
@@ -360,8 +359,7 @@ export default function DashboardPage() {
     }
   }, [t]);
 
-  const DEPLOY_BLOCK_NUMBER = 43345845
-;
+  const DEPLOY_BLOCK_NUMBER = 43345845;
 
   const CHUNK_SIZE = 5000; // ~5k blocks per request (Polygon-safe for most RPC tiers)
 
