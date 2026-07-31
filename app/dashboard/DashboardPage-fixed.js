@@ -1097,7 +1097,7 @@ export default function DashboardPage() {
                               <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-purple-300 shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <p className="text-[10px] sm:text-xs font-bold text-white truncate">{stagedUpload.file.name}</p>
-                                <p className="text-[9px] sm:text-[10px] text-neutral-500">{(stagedUpload.file.size / 1024).toFixed(1)} KB (setelah dienkripsi)</p>
+                                <p className="text-[9px] sm:text-[10px] text-neutral-500">{(stagedUpload.file.size / 1024).toFixed(1)} KB ({t.afterEncryptedLabel})</p>
                               </div>
                             </div>
                             <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3">

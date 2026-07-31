@@ -363,7 +363,8 @@ export const en = {
     asHeirSuffix: " • As Heir",
 
     // Upload & Arweave
-    arweavePermanenttText: "Permanentt Arweave — storage fee paid separately from your wallet",
+    arweavePermanentText: "Permanent Arweave — storage fee paid separately from your wallet",
+    afterEncryptedLabel: "after encryption",
     encryptingAndEstimating: "Encrypting & estimating cost...",
     estimatedCostLabel: "Estimated permanent storage cost:",
     arweaveWarning: "This fee is paid NOW from your wallet and is NON-REFUNDABLE, even if the capsule fails to seal afterwards. Your wallet will prompt a separate confirmation.",

@@ -364,6 +364,7 @@ export const id = {
 
     // Upload & Arweave
     arweavePermanentText: "Arweave permanen — biaya penyimpanan dibayar terpisah dari wallet Anda",
+    afterEncryptedLabel: "setelah dienkripsi",
     encryptingAndEstimating: "Mengenkripsi & menghitung estimasi biaya...",
     estimatedCostLabel: "Estimasi biaya penyimpanan permanen:",
     arweaveWarning: "Biaya ini dibayar SEKARANG dari wallet Anda dan TIDAK BISA dikembalikan, meskipun kapsul gagal disegel setelahnya. Wallet Anda akan meminta konfirmasi terpisah.",

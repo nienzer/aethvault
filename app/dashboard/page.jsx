@@ -13,8 +13,8 @@ import {
   publicKeyToBytes,
   encryptForPublicKey,
   decryptWithPrivateKey,
-} from '@/lib/cryptoUtils-testnet';
-import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload-testnet';
+} from '@/lib/cryptoUtils';
+import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload';
 
 // ==========================================
 // ABI TOKEN / VAULT — HARUS SINKRON DENGAN AetherVault.sol
@@ -114,7 +114,6 @@ const StakingABI = [
 
 const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; // TODO: isi alamat hasil deploy AetherVault.sol (40 hex char setelah 0x!)
 const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!) 
-
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
   CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -124,7 +123,6 @@ const IS_STAKING_ADDRESS_CONFIGURED =
 const TARGET_CHAIN_ID = 80002;
 const TARGET_CHAIN_ID_HEX = "0x" + TARGET_CHAIN_ID.toString(16);
 const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
-
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
@@ -1097,7 +1095,7 @@ export default function DashboardPage() {
                               <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-purple-300 shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <p className="text-[10px] sm:text-xs font-bold text-white truncate">{stagedUpload.file.name}</p>
-                                <p className="text-[9px] sm:text-[10px] text-neutral-500">{(stagedUpload.file.size / 1024).toFixed(1)} KB (setelah dienkripsi)</p>
+                                <p className="text-[9px] sm:text-[10px] text-neutral-500">{(stagedUpload.file.size / 1024).toFixed(1)} KB ({t.afterEncryptedLabel})</p>
                               </div>
                             </div>
                             <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3">
@@ -1465,7 +1463,7 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* TAB: INI INFO KEAMANAN  */}
+              {/* TAB: INFO KEAMANAN */}
               {activeTab === 'security' && (
                 <div className="space-y-4 sm:space-y-6">
                   <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
