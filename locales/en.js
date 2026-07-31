@@ -108,7 +108,7 @@ export const en = {
     sec2Box2Title: "Dead Man's Switch (Legacy System)",
     sec2Box2Text: "An exclusive feature allowing users to register an Heir's wallet. If the primary wallet fails to perform a ping activity within a specific timeframe (e.g., 5 years), the Smart Contract automatically transfers capsule access rights to the Heir.",
     sec2Box3Title: "Arweave Permanent Storage via Irys",
-    sec2Box3Text: "Supporting files (images, PDF documents, ZIP archives) are encrypted client-side and uploaded to Arweave for permanent storage via Irys. Users pay once directly from their wallet — no monthly fees, no centralized server dependency. The resulting Arweave ID is immutable and permanently retrievable."
+    sec2Box3Text: "Supporting files (images, PDF documents, ZIP archives) are encrypted client-side and uploaded to Arweave for permanent storage via Irys. Users pay once directly from their wallet — no monthly fees, no centralized server dependency. The resulting Arweave ID is immutable and permanently retrievable.",
     sec2Box4Title: "Anti-Reentrancy Guard",
     sec2Box4Text: "AetherVault Staking and Vault contracts are equipped with high-tier multi-layered Solidity security guards to prevent chain manipulation attacks (Reentrancy or Flash Loan Attacks).",
     

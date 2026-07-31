@@ -1362,22 +1362,20 @@ const fetchWalletData = useCallback(async () => {
                       ))}
                     </div>
                   )}
+                  {!isFullHistoryLoaded && !isLoadingHistory && transactions.length > 0 && (
+                    <div className="pt-4 text-center">
+                      <button
+                        onClick={() => fetchOnChainHistory(address, DEPLOY_BLOCK_NUMBER)}
+                        className="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold transition-all cursor-pointer"
+                      >
+                        Load Full History (from genesis block)
+                      </button>
+                      <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-2">
+                        Full sync may take a while depending on RPC rate limits.
+                      </p>
+                    </div>
+                  )}
                 </div>
-
-              {!isFullHistoryLoaded && !isLoadingHistory && transactions.length > 0 && (
-                <div className="pt-4 text-center">
-                  <button
-                    onClick={() => fetchOnChainHistory(address, DEPLOY_BLOCK_NUMBER)}
-                    className="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold transition-all cursor-pointer"
-                  >
-                    Load Full History (from genesis block)
-                  </button>
-                  <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-2">
-                    Full sync may take a while depending on RPC rate limits.
-                  </p>
-                </div>
-              )}
-
               )}
 
               {/* TAB: STATS */}

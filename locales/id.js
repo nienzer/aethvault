@@ -108,7 +108,7 @@ export const id = {
     sec2Box2Title: "Dead Man Switch (Sistem Warisan)",
     sec2Box2Text: "Fitur eksklusif di mana user dapat mendaftarkan dompet Ahli Waris. Jika dompet utama tidak melakukan aktivitas ping dalam batas waktu tertentu (misal: 5 tahun), Smart Contract akan secara otomatis memindahkan hak akses kapsul kepada Ahli Waris.",
     sec2Box3Title: "Penyimpanan Permanen Arweave via Irys",
-    sec2Box3Text: "File pendukung (gambar, dokumen PDF, arsip ZIP) dienkripsi di sisi klien dan diunggah ke Arweave untuk penyimpanan permanen via Irys. Pengguna membayar sekali langsung dari dompetnya — tanpa biaya bulanan, tanpa ketergantungan server terpusat. ID Arweave yang dihasilkan bersifat immutable dan dapat diambil selamanya."
+    sec2Box3Text: "File pendukung (gambar, dokumen PDF, arsip ZIP) dienkripsi di sisi klien dan diunggah ke Arweave untuk penyimpanan permanen via Irys. Pengguna membayar sekali langsung dari dompetnya — tanpa biaya bulanan, tanpa ketergantungan server terpusat. ID Arweave yang dihasilkan bersifat immutable dan dapat diambil selamanya.",
     sec2Box4Title: "Anti-Reentrancy Guard",
     sec2Box4Text: "Kontrak Staking dan Brankas AetherVault dilengkapi dengan pengaman berlapis tingkat tinggi dari Solidity untuk mencegah serangan manipulasi berantai (Reentrancy Attack atau Flash Loan Attack).",
     
