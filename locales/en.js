@@ -100,7 +100,7 @@ export const en = {
     abstractText: "In the modern digital era, billions of dollars in crypto assets and confidential data are lost forever each year due to lost access (forgotten seed phrases) or owners passing away without passing down access. AetherVault emerges as the first decentralized Web3 solution combining Time Capsule concepts and Dead Man's Switch protocols on the blockchain network. Utilizing Smart Contracts and IPFS storage, AetherVault ensures your data remains secure, time-locked, and accessible exclusively to authorized parties in the future.",
     
     sec1Title: "1. Introduction",
-    sec1Text: "Traditional Web2 infrastructure relies on centralized servers vulnerable to hacking, censorship, or corporate bankruptcy. If a cloud storage company shuts down, your data vanishes. AetherVault solves this with a '100% On-Chain & Zero-Knowledge' approach. The protocol does not store data on private servers, encrypting it directly onto the Polygon blockchain network and distributing supporting files to the IPFS (InterPlanetary File System) network.",
+    sec1Text: "Traditional Web2 infrastructure relies on centralized servers vulnerable to hacking, censorship, or corporate bankruptcy. If a cloud storage company shuts down, your data vanishes. AetherVault solves this with a '100% On-Chain & Zero-Knowledge' approach. The protocol does not store data on private servers, encrypting it directly onto the Polygon blockchain network and distributing supporting files to the Arweave (permanent decentralized storage) network.",
     
     sec2Title: "2. Core Architecture & Security",
     sec2Box1Title: "Time-Lock Protocol",
@@ -176,7 +176,7 @@ export const en = {
     phase1Time: "Q3 2026 - Completed",
     phase1Title: "Phase 1: Genesis & Architecture",
     phase1Item1: "Time-Lock Smart Contract design and architecture.",
-    phase1Item2: "IPFS (Pinata) storage integration.",
+    phase1Item2: "Arweave (Irys) permanent storage integration.",
     phase1Item3: "DApp Dashboard launch on the Polygon Mainnet.",
     phase1Item4: "Liquid Staking Protocol implementation.",
     
@@ -207,7 +207,7 @@ export const en = {
     item2Text: " All transactions, capsule encryption, and staking interactions are executed and recorded permanently on the public Polygon network. This data is public yet anonymously encrypted by default from the blockchain.",
     
     sec3Title: "3. Secret Message Storage & IPFS",
-    sec3Text: "Secret messages or seed phrases you input into the Time Capsule are encrypted directly on the client-side using Web3 infrastructure. Uploaded attachments are pinned via the IPFS (InterPlanetary File System) network. Due to the decentralized nature of the network, AetherVault as the developer entity possesses no keys or backdoor access to decrypt your data before your calendar Time-Lock deadline is reached.",
+    sec3Text: "Secret messages or seed phrases you input into the Time Capsule are encrypted directly on the client-side using Web3 infrastructure. Uploaded attachments are pinned via the Arweave (permanent decentralized storage) network. Due to the decentralized nature of the network, AetherVault as the developer entity possesses no keys or backdoor access to decrypt your data before your calendar Time-Lock deadline is reached.",
     
     sec4Title: "4. Financial Security",
     sec4Text: "We never have administrative access to your crypto wallet. The AetherVault protocol runs using non-custodial Smart Contracts. The responsibility of securing your MetaMask wallet's recovery phrase (seed phrase) rests entirely in your hands."
@@ -331,9 +331,9 @@ export const en = {
       vipName: "VIP Vault",
       vipDesc: "For medium documents. Maximum 1,000 characters. Time-Lock up to 5 years.",
       eternalName: "Eternal",
-      eternalDesc: "Permanent archive storage + IPFS File Attachment. Pure calendar up to 100 years.",
+      eternalDesc: "Permanent archive storage + Arweave File Attachment. Pure calendar up to 100 years.",
       legacyName: "Legacy",
-      legacyDesc: "Dead Man's Switch + IPFS File Attachment. Automatic access for Heir's Wallet."
+      legacyDesc: "Dead Man's Switch + Arweave File Attachment. Automatic access for Heir's Wallet."
     }, // <-- Nah, kurung kurawal ini yang harus ditutup dulu, dan JANGAN LUPA KOMA INI!
 
     // ========== TAMBAHAN TERBARU UNTUK DASHBOARD ==========

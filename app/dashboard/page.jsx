@@ -114,6 +114,7 @@ const StakingABI = [
 
 const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; // TODO: isi alamat hasil deploy AetherVault.sol (40 hex char setelah 0x!)
 const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!) 
+
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
   CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -185,8 +186,8 @@ export default function DashboardPage() {
   const [isLoadingCapsules, setIsLoadingCapsules] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [transactions, setTransactions] = useState([]);
-  const [isFullHistoryLoaded, setIsFullHistoryLoaded] = useState(false);
-    const [currentTime, setCurrentTime] = useState(new Date());
+  const [tierConfigError, setTierConfigError] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedVault, setSelectedVault] = useState(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   
@@ -213,6 +214,7 @@ export default function DashboardPage() {
     let cancelled = false;
     const fetchTierConfigs = async () => {
       try {
+        setTierConfigError(null);
         const provider = walletProvider
           ? new ethers.BrowserProvider(walletProvider)
           : new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
@@ -232,6 +234,10 @@ export default function DashboardPage() {
         setIsTierConfigLoaded(true);
       } catch (err) {
         console.error(t.consoleTierConfigFail, err);
+        if (!cancelled) {
+          setTierConfigError(err?.message || 'Failed to load tier config');
+          setIsTierConfigLoaded(true); // Show fallback data, don't spin forever
+        }
       }
     };
     fetchTierConfigs();
@@ -361,58 +367,28 @@ export default function DashboardPage() {
 
   const DEPLOY_BLOCK_NUMBER = 43345845;
 
-  const CHUNK_SIZE = 5000; // ~5k blocks per request (Polygon-safe for most RPC tiers)
-
-  const fetchOnChainHistory = useCallback(async (userAddress, loadFromBlock = null) => {
+  const fetchOnChainHistory = useCallback(async (userAddress) => {
     setIsLoadingHistory(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-      const latestBlock = await provider.getBlockNumber();
-
-      // Default: last 200k blocks (~5-6 days on Polygon). 
-      // Pass DEPLOY_BLOCK_NUMBER explicitly for full history scan.
-      const fromBlock = loadFromBlock ?? Math.max(DEPLOY_BLOCK_NUMBER, latestBlock - 200000);
-      const toBlock = latestBlock;
-
-      // Helper: chunked queryFilter with auto-split on rate-limit / timeout / too many results
-      const queryChunked = async (contract, filter, _from, _to) => {
-        const results = [];
-        let current = _from;
-        while (current <= _to) {
-          const end = Math.min(current + CHUNK_SIZE - 1, _to);
-          try {
-            const chunk = await contract.queryFilter(filter, current, end);
-            results.push(...chunk);
-          } catch (err) {
-            const msg = err?.message || '';
-            // Too many results / timeout / rate limit → split chunk in half and retry
-            if (msg.includes('too many') || msg.includes('timeout') || msg.includes('exceeded') || msg.includes('limit') || err?.error?.code === -32005) {
-              const mid = Math.floor((current + end) / 2);
-              const left = await queryChunked(contract, filter, current, mid);
-              const right = await queryChunked(contract, filter, mid + 1, end);
-              results.push(...left, ...right);
-            } else {
-              throw err;
-            }
-          }
-          current = end + 1;
-        }
-        return results;
-      };
-
-      const sealedEvents = await queryChunked(vaultContract, vaultContract.filters.CapsuleSealed(null, userAddress), fromBlock, toBlock);
-      const revealedEvents = await queryChunked(vaultContract, vaultContract.filters.CapsuleRevealed(null, userAddress), fromBlock, toBlock);
-      const claimedEvents = await queryChunked(vaultContract, vaultContract.filters.LegacyClaimed(null, userAddress), fromBlock, toBlock);
-      const pingEvents = await queryChunked(vaultContract, vaultContract.filters.PingRecorded(null, userAddress), fromBlock, toBlock);
+      const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
+        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+      ]);
 
       let stakingLogs = { staked: [], withdrawn: [], claimed: [] };
       if (IS_STAKING_ADDRESS_CONFIGURED) {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-          stakingLogs.staked = await queryChunked(stakingContract, stakingContract.filters.Staked(userAddress), fromBlock, toBlock);
-          stakingLogs.withdrawn = await queryChunked(stakingContract, stakingContract.filters.Withdrawn(userAddress), fromBlock, toBlock);
-          stakingLogs.claimed = await queryChunked(stakingContract, stakingContract.filters.RewardClaimed(userAddress), fromBlock, toBlock);
+          const [staked, withdrawn, claimed] = await Promise.all([
+            stakingContract.queryFilter(stakingContract.filters.Staked(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+          ]);
+          stakingLogs = { staked, withdrawn, claimed };
         } catch (stakeErr) {
           console.log(t.consoleStakingFail, stakeErr);
         }
@@ -461,18 +437,7 @@ export default function DashboardPage() {
           default: return null;
         }
       });
-
-      // If loading full history, replace. If loading recent, merge & dedupe.
-      if (loadFromBlock === DEPLOY_BLOCK_NUMBER) {
-        setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
-        setIsFullHistoryLoaded(true);
-      } else {
-        setTransactions(prev => {
-          const combined = [...prev, ...built.filter(Boolean)];
-          const deduped = Array.from(new Map(combined.map(tx => [tx.id, tx])).values());
-          return deduped.sort((a, b) => b.timestamp - a.timestamp);
-        });
-      }
+      setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
 
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
@@ -485,8 +450,9 @@ export default function DashboardPage() {
     } finally {
       setIsLoadingHistory(false);
     }
-  }, [onChainTierConfig, showToast, extractErrorMessage, t]);
-const fetchWalletData = useCallback(async () => {
+  }, [onChainTierConfig, showToast, extractErrorMessage]);
+
+  const fetchWalletData = useCallback(async () => {
     if (isConnected && walletProvider && address) {
       try {
         const provider = new ethers.BrowserProvider(walletProvider);
@@ -1035,9 +1001,14 @@ const fetchWalletData = useCallback(async () => {
                     <p className="text-[10px] sm:text-xs text-cyan-500/80 mt-2 flex items-center gap-1.5">
                       <Lock className="w-3 h-3" /> {t.encryptionNotice}
                     </p>
-                    {!isTierConfigLoaded && (
+                    {!isTierConfigLoaded && !tierConfigError && (
                       <p className="text-[10px] sm:text-xs text-amber-500/80 mt-1.5 flex items-center gap-1.5">
                         <Loader2 className="w-3 h-3 animate-spin" /> {t.loadingTierNotice}
+                      </p>
+                    )}
+                    {tierConfigError && (
+                      <p className="text-[10px] sm:text-xs text-red-400/80 mt-1.5 flex items-center gap-1.5">
+                        <AlertTriangle className="w-3 h-3" /> {t.loadingTierNotice} (using fallback)
                       </p>
                     )}
                   </div>

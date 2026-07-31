@@ -100,14 +100,14 @@ export const id = {
     abstractText: "Di era digital modern, miliaran dolar aset kripto dan data rahasia hilang selamanya setiap tahun karena hilangnya akses (lupa seed phrase) atau pemilik yang meninggal dunia tanpa mewariskan aksesnya. AetherVault hadir sebagai solusi Web3 terdesentralisasi pertama yang menggabungkan konsep Kapsul Waktu (Time Capsule) dan Surat Wasiat Otomatis (Dead Man Switch) di atas jaringan blockchain. Dengan memanfaatkan Smart Contract dan penyimpanan IPFS, AetherVault memastikan data Anda aman, terkunci oleh waktu, dan hanya bisa diakses oleh pihak yang berhak di masa depan.",
     
     sec1Title: "1. Pendahuluan",
-    sec1Text: "Infrastruktur Web2 tradisional bergantung pada server terpusat yang rentan terhadap peretasan, penyensoran, atau kebangkrutan perusahaan. Jika perusahaan cloud storage tutup, data Anda lenyap. AetherVault memecahkan masalah ini dengan pendekatan '100% On-Chain & Zero-Knowledge'. Protokol ini tidak menyimpan data di server pribadi, melainkan mengenkripsinya langsung ke dalam jaringan blockchain Polygon dan mendistribusikan file pendukungnya ke jaringan IPFS (InterPlanetary File System).",
+    sec1Text: "Infrastruktur Web2 tradisional bergantung pada server terpusat yang rentan terhadap peretasan, penyensoran, atau kebangkrutan perusahaan. Jika perusahaan cloud storage tutup, data Anda lenyap. AetherVault memecahkan masalah ini dengan pendekatan '100% On-Chain & Zero-Knowledge'. Protokol ini tidak menyimpan data di server pribadi, melainkan mengenkripsinya langsung ke dalam jaringan blockchain Polygon dan mendistribusikan file pendukungnya ke jaringan Arweave (permanent decentralized storage).",
     
     sec2Title: "2. Arsitektur Inti & Keamanan",
     sec2Box1Title: "Time-Lock Protocol",
     sec2Box1Text: "Pesan dienkripsi dan disegel menggunakan Smart Contract. Parameter waktu (timestamp) dimasukkan ke dalam blok jaringan. Tidak ada seorang pun—bahkan developer—yang memiliki akses untuk mendekripsi pesan sebelum batas waktu yang ditentukan tercapai.",
     sec2Box2Title: "Dead Man Switch (Sistem Warisan)",
     sec2Box2Text: "Fitur eksklusif di mana user dapat mendaftarkan dompet Ahli Waris. Jika dompet utama tidak melakukan aktivitas ping dalam batas waktu tertentu (misal: 5 tahun), Smart Contract akan secara otomatis memindahkan hak akses kapsul kepada Ahli Waris.",
-    sec2Box3Title: "Penyimpanan Permanen Arweave via Irys",
+    sec2Box3Title: "Arweave Permanent Storage via Irys",
     sec2Box3Text: "File pendukung (gambar, dokumen PDF, arsip ZIP) dienkripsi di sisi klien dan diunggah ke Arweave untuk penyimpanan permanen via Irys. Pengguna membayar sekali langsung dari dompetnya — tanpa biaya bulanan, tanpa ketergantungan server terpusat. ID Arweave yang dihasilkan bersifat immutable dan dapat diambil selamanya.",
     sec2Box4Title: "Anti-Reentrancy Guard",
     sec2Box4Text: "Kontrak Staking dan Brankas AetherVault dilengkapi dengan pengaman berlapis tingkat tinggi dari Solidity untuk mencegah serangan manipulasi berantai (Reentrancy Attack atau Flash Loan Attack).",
@@ -207,7 +207,7 @@ export const id = {
     item2Text: " Semua transaksi, enkripsi kapsul, dan interaksi staking dieksekusi dan dicatat secara permanen di jaringan publik Polygon. Data ini bersifat publik namun terenkripsi anonim bawaan dari blockchain.",
     
     sec3Title: "3. Penyimpanan Pesan Rahasia & IPFS",
-    sec3Text: "Pesan rahasia atau seed phrase yang Anda masukkan ke dalam Kapsul Waktu dienkripsi langsung dari sisi klien (client-side) menggunakan infrastruktur Web3. File lampiran yang Anda unggah disematkan (pinned) melalui jaringan IPFS (InterPlanetary File System). Karena sifat jaringan terdesentralisasi, AetherVault sebagai entitas pengembang tidak memiliki kunci atau akses belakang (backdoor) untuk mendekripsi data Anda sebelum batas waktu Time-Lock kalender Anda tercapai.",
+    sec3Text: "Pesan rahasia atau seed phrase yang Anda masukkan ke dalam Kapsul Waktu dienkripsi langsung dari sisi klien (client-side) menggunakan infrastruktur Web3. File lampiran yang Anda unggah disematkan (pinned) melalui jaringan Arweave (permanent decentralized storage). Karena sifat jaringan terdesentralisasi, AetherVault sebagai entitas pengembang tidak memiliki kunci atau akses belakang (backdoor) untuk mendekripsi data Anda sebelum batas waktu Time-Lock kalender Anda tercapai.",
     
     sec4Title: "4. Keamanan Keuangan",
     sec4Text: "Kami tidak pernah memiliki akses administratif ke dompet kripto Anda. Protokol AetherVault berjalan menggunakan Smart Contract yang bersifat non-custodial. Tanggung jawab pengamanan frasa pemulihan (seed phrase) dompet MetaMask Anda berada sepenuhnya di tangan Anda."
@@ -264,9 +264,9 @@ export const id = {
     capsuleTitlePlaceholder: "Contoh: Kunci Dompet Kripto Utama / Wasiat Keluarga",
     securityTierLabel: "Pilih Arsitektur Keamanan (Tier)",
     autoBurnProtocol: "Auto-Burn Protocol",
-    ipfsAttachment: "Lampiran File Arweave",
+    ipfsAttachment: "Arweave File Attachment",
     locked: "Locked",
-    ipfsLockedDesc: "Fitur lampiran file gambar & dokumen terenkripsi ke penyimpanan permanen Arweave hanya tersedia untuk pengguna Tier Eternal & Legacy.",
+    ipfsLockedDesc: "Fitur lampiran file gambar & dokumen terenkripsi ke IPFS hanya tersedia untuk pengguna Tier Eternal & Legacy.",
     ipfsUploadPrompt: "Klik atau Drag file ke area ini untuk penyimpanan permanen Arweave.",
     ipfsUploadSub: "Mendukung Gambar, PDF, & ZIP (Max 10MB). Disimpan permanen di Arweave via Irys.",
     ipfsUploading: "Mengenkripsi & Mengunggah ke Arweave via Irys...",
