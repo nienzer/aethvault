@@ -1465,7 +1465,7 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* TAB: INFO KEAMANAN */}
+              {/* TAB: INI INFO KEAMANAN  */}
               {activeTab === 'security' && (
                 <div className="space-y-4 sm:space-y-6">
                   <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
