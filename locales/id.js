@@ -107,8 +107,8 @@ export const id = {
     sec2Box1Text: "Pesan dienkripsi dan disegel menggunakan Smart Contract. Parameter waktu (timestamp) dimasukkan ke dalam blok jaringan. Tidak ada seorang pun—bahkan developer—yang memiliki akses untuk mendekripsi pesan sebelum batas waktu yang ditentukan tercapai.",
     sec2Box2Title: "Dead Man Switch (Sistem Warisan)",
     sec2Box2Text: "Fitur eksklusif di mana user dapat mendaftarkan dompet Ahli Waris. Jika dompet utama tidak melakukan aktivitas ping dalam batas waktu tertentu (misal: 5 tahun), Smart Contract akan secara otomatis memindahkan hak akses kapsul kepada Ahli Waris.",
-    sec2Box3Title: "IPFS Pinata Integration",
-    sec2Box3Text: "File pendukung (gambar, dokumen PDF, arsip ZIP) diunggah ke jaringan terdesentralisasi IPFS. File ini mendapatkan CID (Content Identifier) unik yang tidak dapat diubah (immutable).",
+    sec2Box3Title: "Penyimpanan Permanen Arweave via Irys",
+    sec2Box3Text: "File pendukung (gambar, dokumen PDF, arsip ZIP) dienkripsi di sisi klien dan diunggah ke Arweave untuk penyimpanan permanen via Irys. Pengguna membayar sekali langsung dari dompetnya — tanpa biaya bulanan, tanpa ketergantungan server terpusat. ID Arweave yang dihasilkan bersifat immutable dan dapat diambil selamanya."
     sec2Box4Title: "Anti-Reentrancy Guard",
     sec2Box4Text: "Kontrak Staking dan Brankas AetherVault dilengkapi dengan pengaman berlapis tingkat tinggi dari Solidity untuk mencegah serangan manipulasi berantai (Reentrancy Attack atau Flash Loan Attack).",
     
@@ -264,12 +264,12 @@ export const id = {
     capsuleTitlePlaceholder: "Contoh: Kunci Dompet Kripto Utama / Wasiat Keluarga",
     securityTierLabel: "Pilih Arsitektur Keamanan (Tier)",
     autoBurnProtocol: "Auto-Burn Protocol",
-    ipfsAttachment: "IPFS File Attachment",
+    ipfsAttachment: "Lampiran File Arweave",
     locked: "Locked",
-    ipfsLockedDesc: "Fitur lampiran file gambar & dokumen terenkripsi ke IPFS hanya tersedia untuk pengguna Tier Eternal & Legacy.",
-    ipfsUploadPrompt: "Klik atau Drag file ke area ini.",
-    ipfsUploadSub: "Mendukung Gambar, PDF, & ZIP (Max 10MB)",
-    ipfsUploading: "Upload & Pinning ke IPFS Node...",
+    ipfsLockedDesc: "Fitur lampiran file gambar & dokumen terenkripsi ke penyimpanan permanen Arweave hanya tersedia untuk pengguna Tier Eternal & Legacy.",
+    ipfsUploadPrompt: "Klik atau Drag file ke area ini untuk penyimpanan permanen Arweave.",
+    ipfsUploadSub: "Mendukung Gambar, PDF, & ZIP (Max 10MB). Disimpan permanen di Arweave via Irys."
+    ipfsUploading: "Mengenkripsi & Mengunggah ke Arweave via Irys...",
     payloadLabel: "Muatan Kapsul (Data Rahasia)",
     payloadPlaceholder: "Tulis seed phrase, password, atau pesan rahasia di sini...",
     charCount: "Karakter:",
@@ -321,8 +321,8 @@ export const id = {
     rpcLabel: "Main RPC Node (Polygon)",
     rpcDesc: "Jalur komunikasi utama ke blockchain.",
     connected: "Connected",
-    ipfsApiLabel: "IPFS Gateway API",
-    ipfsApiDesc: "Provider Pinata untuk segel file terenkripsi (Server-side Secured).",
+    ipfsApiLabel: "Arweave Gateway (Irys)",
+    ipfsApiDesc: "Bundler Irys untuk penyimpanan file terenkripsi permanen di Arweave. Terdesentralisasi & tanpa server.",
     secured: "Secured",
 
     tiersList: {
@@ -475,8 +475,5 @@ burnLabel: "Burn",
     consoleWalletFail: "Gagal membaca data wallet",
     consoleAetherVaultFail: "Gagal memuat data AetherVault:",
     consoleStakingFail: "Gagal memuat riwayat staking:",
-    attachmentTag: "Lampiran Terenkripsi (Arweave permanen)",
-    messageCapacityExceeded: "Pesan (setelah dienkripsi) melebihi kapasitas tier ini.",
-    defaultCapsuleTitle: "Kapsul Tanpa Judul",
   }
 };

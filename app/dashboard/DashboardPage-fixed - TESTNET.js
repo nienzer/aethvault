@@ -124,7 +124,6 @@ const IS_STAKING_ADDRESS_CONFIGURED =
 const TARGET_CHAIN_ID = 137;
 const TARGET_CHAIN_ID_HEX = "0x" + TARGET_CHAIN_ID.toString(16);
 const TARGET_CHAIN_NAME = "Polygon Mainnet";
-const CIPHERTEXT_OVERHEAD_FACTOR = 2.5;
 
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
@@ -187,7 +186,8 @@ export default function DashboardPage() {
   const [isLoadingCapsules, setIsLoadingCapsules] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [transactions, setTransactions] = useState([]);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isFullHistoryLoaded, setIsFullHistoryLoaded] = useState(false);
+    const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedVault, setSelectedVault] = useState(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   
@@ -362,28 +362,58 @@ export default function DashboardPage() {
 
   const DEPLOY_BLOCK_NUMBER = 91096734;
 
-  const fetchOnChainHistory = useCallback(async (userAddress) => {
+  const CHUNK_SIZE = 5000; // ~5k blocks per request (Polygon-safe for most RPC tiers)
+
+  const fetchOnChainHistory = useCallback(async (userAddress, loadFromBlock = null) => {
     setIsLoadingHistory(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-      const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
-        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-      ]);
+      const latestBlock = await provider.getBlockNumber();
+
+      // Default: last 200k blocks (~5-6 days on Polygon). 
+      // Pass DEPLOY_BLOCK_NUMBER explicitly for full history scan.
+      const fromBlock = loadFromBlock ?? Math.max(DEPLOY_BLOCK_NUMBER, latestBlock - 200000);
+      const toBlock = latestBlock;
+
+      // Helper: chunked queryFilter with auto-split on rate-limit / timeout / too many results
+      const queryChunked = async (contract, filter, _from, _to) => {
+        const results = [];
+        let current = _from;
+        while (current <= _to) {
+          const end = Math.min(current + CHUNK_SIZE - 1, _to);
+          try {
+            const chunk = await contract.queryFilter(filter, current, end);
+            results.push(...chunk);
+          } catch (err) {
+            const msg = err?.message || '';
+            // Too many results / timeout / rate limit → split chunk in half and retry
+            if (msg.includes('too many') || msg.includes('timeout') || msg.includes('exceeded') || msg.includes('limit') || err?.error?.code === -32005) {
+              const mid = Math.floor((current + end) / 2);
+              const left = await queryChunked(contract, filter, current, mid);
+              const right = await queryChunked(contract, filter, mid + 1, end);
+              results.push(...left, ...right);
+            } else {
+              throw err;
+            }
+          }
+          current = end + 1;
+        }
+        return results;
+      };
+
+      const sealedEvents = await queryChunked(vaultContract, vaultContract.filters.CapsuleSealed(null, userAddress), fromBlock, toBlock);
+      const revealedEvents = await queryChunked(vaultContract, vaultContract.filters.CapsuleRevealed(null, userAddress), fromBlock, toBlock);
+      const claimedEvents = await queryChunked(vaultContract, vaultContract.filters.LegacyClaimed(null, userAddress), fromBlock, toBlock);
+      const pingEvents = await queryChunked(vaultContract, vaultContract.filters.PingRecorded(null, userAddress), fromBlock, toBlock);
 
       let stakingLogs = { staked: [], withdrawn: [], claimed: [] };
       if (IS_STAKING_ADDRESS_CONFIGURED) {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-          const [staked, withdrawn, claimed] = await Promise.all([
-            stakingContract.queryFilter(stakingContract.filters.Staked(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-            stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-            stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-          ]);
-          stakingLogs = { staked, withdrawn, claimed };
+          stakingLogs.staked = await queryChunked(stakingContract, stakingContract.filters.Staked(userAddress), fromBlock, toBlock);
+          stakingLogs.withdrawn = await queryChunked(stakingContract, stakingContract.filters.Withdrawn(userAddress), fromBlock, toBlock);
+          stakingLogs.claimed = await queryChunked(stakingContract, stakingContract.filters.RewardClaimed(userAddress), fromBlock, toBlock);
         } catch (stakeErr) {
           console.log(t.consoleStakingFail, stakeErr);
         }
@@ -408,7 +438,7 @@ export default function DashboardPage() {
         })
       );
 
-      const formatDate = (unixSeconds) => new Date(unixSeconds * 1000).toLocaleString('id-ID', {
+      const formatDate = (unixSeconds) => new Date(unixSeconds * 1000).toLocaleString(t.dateLocale, {
         day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
       });
 
@@ -432,7 +462,18 @@ export default function DashboardPage() {
           default: return null;
         }
       });
-      setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
+
+      // If loading full history, replace. If loading recent, merge & dedupe.
+      if (loadFromBlock === DEPLOY_BLOCK_NUMBER) {
+        setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
+        setIsFullHistoryLoaded(true);
+      } else {
+        setTransactions(prev => {
+          const combined = [...prev, ...built.filter(Boolean)];
+          const deduped = Array.from(new Map(combined.map(tx => [tx.id, tx])).values());
+          return deduped.sort((a, b) => b.timestamp - a.timestamp);
+        });
+      }
 
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
@@ -445,9 +486,8 @@ export default function DashboardPage() {
     } finally {
       setIsLoadingHistory(false);
     }
-  }, [onChainTierConfig, showToast, extractErrorMessage]);
-
-  const fetchWalletData = useCallback(async () => {
+  }, [onChainTierConfig, showToast, extractErrorMessage, t]);
+const fetchWalletData = useCallback(async () => {
     if (isConnected && walletProvider && address) {
       try {
         const provider = new ethers.BrowserProvider(walletProvider);
@@ -502,7 +542,7 @@ export default function DashboardPage() {
   };
   const formatUnlockDateTime = (unixSeconds) => {
     if (!unixSeconds) return '-';
-    return new Date(unixSeconds * 1000).toLocaleString('id-ID', {
+    return new Date(unixSeconds * 1000).toLocaleString(t.dateLocale, {
       day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
     });
   };
@@ -622,7 +662,7 @@ export default function DashboardPage() {
       const { publicKey: recipientPublicKey, privateKey: ownPrivateKeyForRefresh } = await resolveRecipient();
       const encryptedMessage = await encryptForPublicKey(recipientPublicKey, message);
 
-      if (encryptedMessage.length > selectedTierData.maxLength * CIPHERTEXT_OVERHEAD_FACTOR) throw new Error(t.messageCapacityExceeded);
+      if (encryptedMessage.length > selectedTierData.maxLength) throw new Error(t.messageCapacityExceeded);
       const plainTitle = title || t.defaultCapsuleTitle;
       const encryptedTitle = await encryptForPublicKey(recipientPublicKey, plainTitle);
       const signer = await getSigner();
@@ -1323,6 +1363,21 @@ export default function DashboardPage() {
                     </div>
                   )}
                 </div>
+
+              {!isFullHistoryLoaded && !isLoadingHistory && transactions.length > 0 && (
+                <div className="pt-4 text-center">
+                  <button
+                    onClick={() => fetchOnChainHistory(address, DEPLOY_BLOCK_NUMBER)}
+                    className="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Load Full History (from genesis block)
+                  </button>
+                  <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-2">
+                    Full sync may take a while depending on RPC rate limits.
+                  </p>
+                </div>
+              )}
+
               )}
 
               {/* TAB: STATS */}

@@ -13,8 +13,8 @@ import {
   publicKeyToBytes,
   encryptForPublicKey,
   decryptWithPrivateKey,
-} from '@/lib/cryptoUtils-testnet';
-import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload-testnet';
+} from '@/lib/cryptoUtils';
+import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload';
 
 // ==========================================
 // ABI TOKEN / VAULT — HARUS SINKRON DENGAN AetherVault.sol
@@ -112,8 +112,8 @@ const StakingABI = [
     ], "name": "RewardClaimed", "type": "event" }
 ];
 
-const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; // TODO: isi alamat hasil deploy AetherVault.sol (40 hex char setelah 0x!)
-const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!)
+const CONTRACT_ADDRESS = "0x718b453206A950Eee77832F1cBfE63320A90d70f"; 
+const STAKING_CONTRACT_ADDRESS = "0x30C7Be9E02e2717676B583dEED79F2fBD2493aCc"; 
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
@@ -121,9 +121,9 @@ const IS_CONTRACT_ADDRESS_CONFIGURED =
 const IS_STAKING_ADDRESS_CONFIGURED =
   STAKING_CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
 
-const TARGET_CHAIN_ID = 80002;
+const TARGET_CHAIN_ID = 137;
 const TARGET_CHAIN_ID_HEX = "0x" + TARGET_CHAIN_ID.toString(16);
-const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
+const TARGET_CHAIN_NAME = "Polygon Mainnet";
 
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
@@ -360,8 +360,7 @@ export default function DashboardPage() {
     }
   }, [t]);
 
-  const DEPLOY_BLOCK_NUMBER = 43345845
-;
+  const DEPLOY_BLOCK_NUMBER = 91096734;
 
   const CHUNK_SIZE = 5000; // ~5k blocks per request (Polygon-safe for most RPC tiers)
 

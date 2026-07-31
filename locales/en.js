@@ -107,8 +107,8 @@ export const en = {
     sec2Box1Text: "Messages are encrypted and sealed using Smart Contracts. Timestamp parameters are embedded directly into network blocks. No one—not even developers—has access to decrypt messages before the designated time limit is reached.",
     sec2Box2Title: "Dead Man's Switch (Legacy System)",
     sec2Box2Text: "An exclusive feature allowing users to register an Heir's wallet. If the primary wallet fails to perform a ping activity within a specific timeframe (e.g., 5 years), the Smart Contract automatically transfers capsule access rights to the Heir.",
-    sec2Box3Title: "IPFS Pinata Integration",
-    sec2Box3Text: "Supporting files (images, PDF documents, ZIP archives) are uploaded to the decentralized IPFS network, receiving a unique immutable Content Identifier (CID).",
+    sec2Box3Title: "Arweave Permanent Storage via Irys",
+    sec2Box3Text: "Supporting files (images, PDF documents, ZIP archives) are encrypted client-side and uploaded to Arweave for permanent storage via Irys. Users pay once directly from their wallet — no monthly fees, no centralized server dependency. The resulting Arweave ID is immutable and permanently retrievable."
     sec2Box4Title: "Anti-Reentrancy Guard",
     sec2Box4Text: "AetherVault Staking and Vault contracts are equipped with high-tier multi-layered Solidity security guards to prevent chain manipulation attacks (Reentrancy or Flash Loan Attacks).",
     
@@ -264,12 +264,12 @@ export const en = {
     capsuleTitlePlaceholder: "Example: Main Crypto Wallet Key / Family Will",
     securityTierLabel: "Select Security Architecture (Tier)",
     autoBurnProtocol: "Auto-Burn Protocol",
-    ipfsAttachment: "IPFS File Attachment",
+    ipfsAttachment: "Arweave File Attachment",
     locked: "Locked",
-    ipfsLockedDesc: "Encrypted image and document attachment features to IPFS are exclusively available for Eternal & Legacy Tier users.",
-    ipfsUploadPrompt: "Click or Drag file to this area.",
-    ipfsUploadSub: "Supports Images, PDF, & ZIP (Max 10MB)",
-    ipfsUploading: "Uploading & Pinning to IPFS Node...",
+    ipfsLockedDesc: "Encrypted image and document attachment features to Arweave permanent storage are exclusively available for Eternal & Legacy Tier users.",
+    ipfsUploadPrompt: "Click or Drag file to this area for permanent Arweave storage.",
+    ipfsUploadSub: "Supports Images, PDF, & ZIP (Max 10MB). Stored permanently on Arweave via Irys."
+    ipfsUploading: "Encrypting & Uploading to Arweave via Irys...",
     payloadLabel: "Capsule Payload (Secret Data)",
     payloadPlaceholder: "Write seed phrase, passwords, or secret messages here...",
     charCount: "Characters:",
@@ -321,13 +321,16 @@ export const en = {
     rpcLabel: "Main RPC Node (Polygon)",
     rpcDesc: "Primary communication pathway to the blockchain.",
     connected: "Connected",
-    ipfsApiLabel: "IPFS Gateway API",
-    ipfsApiDesc: "Pinata provider for encrypted file seals (Server-side Secured).",
+    ipfsApiLabel: "Arweave Gateway (Irys)",
+    ipfsApiDesc: "Irys bundler for permanent encrypted file storage on Arweave. Decentralized & serverless.",
     secured: "Secured",
 
     tiersList: {
+      basicName: "Basic",
       basicDesc: "Suitable for short notes. Maximum 250 characters. Time-Lock up to 1 year.",
+      vipName: "VIP Vault",
       vipDesc: "For medium documents. Maximum 1,000 characters. Time-Lock up to 5 years.",
+      eternalName: "Eternal",
       eternalDesc: "Permanent archive storage + IPFS File Attachment. Pure calendar up to 100 years.",
       legacyName: "Legacy",
       legacyDesc: "Dead Man's Switch + IPFS File Attachment. Automatic access for Heir's Wallet."
@@ -472,8 +475,5 @@ burnLabel: "Burn",
     consoleWalletFail: "Failed to read wallet data",
     consoleAetherVaultFail: "Failed to load AetherVault data:",
     consoleStakingFail: "Failed to load staking history:",
-    attachmentTag: "Encrypted Attachment (permanent Arweave)",
-    messageCapacityExceeded: "Message (after encryption) exceeds this tier's capacity.",
-    defaultCapsuleTitle: "Untitled Capsule",
   }
 };
