@@ -1338,7 +1338,7 @@ export default function DashboardPage() {
                                 : isOwnUnclaimableLegacy
                                   ? (cap.isReady ? "Waiting for Heir" : "Not Ready")
                                   : cap.isClaimedOrRevealed
-                                    ? "View Again"
+                                    ? t.btnViewAgain
                                     : (cap.isReady ? "Open Vault" : "Not Ready")}
                             </button>
                           </div>
