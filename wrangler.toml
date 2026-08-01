@@ -14,11 +14,3 @@ id = "3b20e13ab38a42c79fa966221a8d3e7a"
 [vars]
 NEXT_PUBLIC_APP_URL = "https://aethvault.xyz"
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID = "ID_ASLI_ANDA_DI_SINI"
-
-[[routes]]
-pattern = "aethvault.xyz/*"
-custom_domain = true
-
-[[routes]]
-pattern = "www.aethvault.xyz/*"
-custom_domain = true
