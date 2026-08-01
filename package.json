@@ -10,9 +10,13 @@
     "preview": "opennextjs-cloudflare build && wrangler dev"
   },
   "dependencies": {
+    "@irys/web-upload": "^0.0.15",
+    "@irys/web-upload-ethereum": "^0.0.16",
+    "@irys/web-upload-ethereum-ethers-v6": "^0.0.16",
     "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
     "@web3modal/ethers": "^5.1.11",
+    "eth-crypto": "^4.1.0",
     "lucide-react": "^1.28.0",
     "next": "^15.x",
     "react": "^19.x",
