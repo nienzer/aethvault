@@ -91,8 +91,8 @@ export const id = {
     terms: "Terms of Service",
     navInfrastructure: "Infrastruktur",
     navRoadmap: "Peta Jalan",
-    navWhitepaper": "Whitepaper",
-    navLaunchApp": "Buka Aplikasi",
+    navWhitepaper: "Whitepaper",
+    navLaunchApp: "Buka Aplikasi",
     copyright: "© {year} Nienzer. Hak Cipta Dilindungi. Email: admin@aethvault.xyz."
   },
   whitepaper: {
