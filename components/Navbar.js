@@ -59,7 +59,7 @@ export default function Navbar() {
               onClick={() => router.push('/dashboard')} 
               className="flex items-center gap-1 sm:gap-2 bg-transparent hover:bg-cyan-500/10 border border-cyan-500/50 px-3 sm:px-6 py-1.5 sm:py-2.5 rounded-full transition-all text-[9px] sm:text-xs font-bold text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.2)] cursor-pointer outline-none whitespace-nowrap"
             >
-              {lang === 'id' ? 'Luncurkan App' : 'Launch App'}
+              {t.nav.launchApp}
             </button>
           ) : (
             <button 
@@ -67,7 +67,7 @@ export default function Navbar() {
               className="flex items-center gap-1.5 sm:gap-2 bg-transparent hover:bg-neutral-900 border border-neutral-800 px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full transition-all text-[10px] sm:text-xs font-bold text-neutral-400 cursor-pointer outline-none"
             >
               <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
-              <span className="hidden sm:inline">{lang === 'id' ? 'Kembali' : 'Back'}</span>
+              <span className="hidden sm:inline">{t.nav.back}</span>
             </button>
           )}
           

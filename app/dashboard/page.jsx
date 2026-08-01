@@ -201,7 +201,6 @@ export default function DashboardPage() {
     return () => clearInterval(timer);
   }, []);
 
-  // FIX: Reset keypair ref saat wallet address berubah (switch wallet tanpa disconnect)
   useEffect(() => {
     if (address) {
       myKeyPairRef.current = null;
@@ -238,7 +237,7 @@ export default function DashboardPage() {
         console.error(t.consoleTierConfigFail, err);
         if (!cancelled) {
           setTierConfigError(err?.message || 'Failed to load tier config');
-          setIsTierConfigLoaded(true); // Show fallback data, don't spin forever
+          setIsTierConfigLoaded(true); 
         }
       }
     };
@@ -578,7 +577,7 @@ export default function DashboardPage() {
       );
       setUploadedCid(result.arweaveUrl);
       setPendingFileCipherRef(result.arweaveUrl);
-      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag}: ${result.arweaveUrl}]`);
+      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.ipfsAttachment}: ${result.arweaveUrl}]`);
       showToast(t.fileUploadedSuccess, "success");
       setStagedUpload(null);
     } catch (error) {
@@ -666,7 +665,7 @@ export default function DashboardPage() {
   const handleOpenVault = async (capsule) => {
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     if (capsule.contentDeleted) {
-      setSelectedVault({ ...capsule, decryptedMessage: null, error: "Already Deleted" });
+      setSelectedVault({ ...capsule, decryptedMessage: null, error: t.alreadyDeleted });
       return;
     }
     setSelectedVault({ ...capsule, decryptedMessage: null, error: null });
@@ -822,12 +821,12 @@ export default function DashboardPage() {
     if (!selectedVault?.decryptedMessage) return;
     const arweaveUrl = extractArweaveUrl(selectedVault.decryptedMessage);
     if (!arweaveUrl) {
-      showToast("No attachment found in message", "error");
+      showToast(t.noAttachmentFound, "error"); // <-- Sudah dipanggil dari kamus
       return;
     }
     setIsDownloadingAttachment(selectedVault.id);
     try {
-      showToast("Fetching file from Arweave...", "info");
+      showToast(t.fetchingArweave, "info"); // <-- Sudah dipanggil dari kamus
       const response = await fetch(arweaveUrl);
       if (!response.ok) throw new Error("Failed to fetch file from Arweave");
       const encryptedText = await response.text();
@@ -849,10 +848,12 @@ export default function DashboardPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      showToast(`File "${fileData.name}" downloaded successfully!`, "success");
+      
+      // Memanggil pesan sukses dengan nama file dinamis
+      showToast(t.downloadSuccess.replace('{file}', fileData.name), "success"); 
     } catch (err) {
       console.error("Download/Decrypt error:", err);
-      showToast("Failed to download file: " + extractErrorMessage(err), "error");
+      showToast(t.downloadFailPrefix + extractErrorMessage(err), "error"); // <-- Sudah dipanggil dari kamus
     } finally {
       setIsDownloadingAttachment(null);
     }
@@ -1047,16 +1048,16 @@ export default function DashboardPage() {
                     </h3>
                     <p className="text-xs sm:text-sm text-neutral-400">{t.createDesc}</p>
                     <p className="text-[10px] sm:text-xs text-cyan-500/80 mt-2 flex items-center gap-1.5">
-                      <Lock className="w-3 h-3" /> {"Messages are encrypted (ECIES) directly in your browser before being sent to the blockchain."}
+                      <Lock className="w-3 h-3" /> {t.createNote}
                     </p>
                     {!isTierConfigLoaded && !tierConfigError && (
                       <p className="text-[10px] sm:text-xs text-amber-500/80 mt-1.5 flex items-center gap-1.5">
-                        <Loader2 className="w-3 h-3 animate-spin" /> {"Loading tier costs directly from contract... (numbers below temporarily use estimates)"}
+                        <Loader2 className="w-3 h-3 animate-spin" /> {t.loadingTierFallback}
                       </p>
                     )}
                     {tierConfigError && (
                       <p className="text-[10px] sm:text-xs text-red-400/80 mt-1.5 flex items-center gap-1.5">
-                        <AlertTriangle className="w-3 h-3" /> {"Loading tier costs directly from contract... (numbers below temporarily use estimates)"} (using fallback)
+                        <AlertTriangle className="w-3 h-3" /> {t.loadingTierFallback} {t.usingFallback}
                       </p>
                     )}
                   </div>
@@ -1324,7 +1325,7 @@ export default function DashboardPage() {
                                 className="w-full md:w-auto bg-transparent hover:bg-red-500/10 disabled:opacity-40 text-red-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-red-500/50 transition-all"
                               >
                                 {isDeletingContent === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
-                                {"Delete"}
+                                {t.deleteBtn}
                               </button>
                             )}
                             <button
@@ -1334,12 +1335,12 @@ export default function DashboardPage() {
                             >
                               <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               {cap.contentDeleted
-                                ? "Already Deleted"
+                                ? t.alreadyDeleted
                                 : isOwnUnclaimableLegacy
-                                  ? (cap.isReady ? "Waiting for Heir" : "Not Ready")
+                                  ? (cap.isReady ? t.waitingForHeir : t.notReady)
                                   : cap.isClaimedOrRevealed
                                     ? t.btnViewAgain
-                                    : (cap.isReady ? "Open Vault" : "Not Ready")}
+                                    : (cap.isReady ? t.openVault : t.notReady)}
                             </button>
                           </div>
                         </div>
@@ -1386,10 +1387,10 @@ export default function DashboardPage() {
                         onClick={() => fetchOnChainHistory(address, DEPLOY_BLOCK_NUMBER)}
                         className="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold transition-all cursor-pointer"
                       >
-                        Load Full History (from genesis block)
+                        {t.loadFullHistory}
                       </button>
                       <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-2">
-                        Full sync may take a while depending on RPC rate limits.
+                        {t.fullSyncNote}
                       </p>
                     </div>
                   )}
@@ -1527,10 +1528,10 @@ export default function DashboardPage() {
 
                   <div className="bg-[#0B0817] border border-cyan-500/20 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg space-y-3">
                     <h5 className="text-sm sm:text-base font-bold text-white flex items-center gap-2"><KeyRound className="w-4 h-4 text-cyan-400"/> {t.secHowProtected}</h5>
-                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">{"Title, message, and attachments are encrypted (ECIES/secp256k1) directly in your browser before leaving the device. The decryption key is derived from your wallet's own EIP-712 signature and is never sent anywhere. Only ciphertext is stored on the blockchain and Arweave."}</p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{"Arweave is permanent — storage fees are paid separately from your wallet. Legacy capsule titles & messages are encrypted specifically for the heir. Once sealed, you yourself will not be able to read them again — only the heir can, after the inactivity requirement is met. The heir must have opened AetherVault once and registered their encryption key in the Settings tab."}</p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{"What is NOT encrypted (public): owner address, heir address, capsule creation/opening time, and selected tier."}</p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{"The encryption key is bound to the network (Polygon Amoy Testnet). Do not use AetherVault on another network."}</p>
+                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">{t.secPara1}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secPara2}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secPara3}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secPara4}</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -1654,12 +1655,12 @@ export default function DashboardPage() {
                   {isDownloadingAttachment === selectedVault.id ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Decrypting & Downloading...
+                      {t.decryptingDownloading}
                     </>
                   ) : (
                     <>
                       <Download className="w-4 h-4" />
-                      Download & Decrypt File
+                      {t.downloadDecryptBtn}
                     </>
                   )}
                 </button>
