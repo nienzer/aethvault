@@ -354,7 +354,7 @@ export default function DashboardPage() {
             isReady: ready,
             asHeir,
             tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? t.tierLabelLegacy : t.tierLabelTimeLock),
-            status: meta.contentDeleted ? "Deleted" : meta.isClaimedOrRevealed ? "Opened" : ready ? "Ready" : "Locked",
+            status: meta.contentDeleted ? t.statusDeleted : meta.isClaimedOrRevealed ? t.statusOpened : ready ? t.statusReady : t.statusLocked,
           };
         })
       );
@@ -666,7 +666,7 @@ export default function DashboardPage() {
   const handleOpenVault = async (capsule) => {
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     if (capsule.contentDeleted) {
-      setSelectedVault({ ...capsule, decryptedMessage: null, error: "Already Deleted" });
+      setSelectedVault({ ...capsule, decryptedMessage: null, error: t.statusAlreadyDeleted });
       return;
     }
     setSelectedVault({ ...capsule, decryptedMessage: null, error: null });
@@ -822,14 +822,14 @@ export default function DashboardPage() {
     if (!selectedVault?.decryptedMessage) return;
     const arweaveUrl = extractArweaveUrl(selectedVault.decryptedMessage);
     if (!arweaveUrl) {
-      showToast("No attachment found in message", "error");
+      showToast("Tidak ada lampiran ditemukan dalam pesan", "error");
       return;
     }
     setIsDownloadingAttachment(selectedVault.id);
     try {
-      showToast("Fetching file from Arweave...", "info");
+      showToast("Mengambil file dari Arweave...", "info");
       const response = await fetch(arweaveUrl);
-      if (!response.ok) throw new Error("Failed to fetch file from Arweave");
+      if (!response.ok) throw new Error("Gagal mengambil file dari Arweave");
       const encryptedText = await response.text();
       const { privateKey } = await getOrDeriveKeyPair();
       const decryptedJsonString = await decryptWithPrivateKey(privateKey, encryptedText);
@@ -849,10 +849,10 @@ export default function DashboardPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      showToast(`File "${fileData.name}" downloaded successfully!`, "success");
+      showToast(`File "${fileData.name}" berhasil diunduh!`, "success");
     } catch (err) {
       console.error("Download/Decrypt error:", err);
-      showToast("Failed to download file: " + extractErrorMessage(err), "error");
+      showToast("Gagal mengunduh file: " + extractErrorMessage(err), "error");
     } finally {
       setIsDownloadingAttachment(null);
     }
@@ -1047,16 +1047,16 @@ export default function DashboardPage() {
                     </h3>
                     <p className="text-xs sm:text-sm text-neutral-400">{t.createDesc}</p>
                     <p className="text-[10px] sm:text-xs text-cyan-500/80 mt-2 flex items-center gap-1.5">
-                      <Lock className="w-3 h-3" /> {"Messages are encrypted (ECIES) directly in your browser before being sent to the blockchain."}
+                      <Lock className="w-3 h-3" /> {t.encryptionNotice}
                     </p>
                     {!isTierConfigLoaded && !tierConfigError && (
                       <p className="text-[10px] sm:text-xs text-amber-500/80 mt-1.5 flex items-center gap-1.5">
-                        <Loader2 className="w-3 h-3 animate-spin" /> {"Loading tier costs directly from contract... (numbers below temporarily use estimates)"}
+                        <Loader2 className="w-3 h-3 animate-spin" /> {t.loadingTierNotice}
                       </p>
                     )}
                     {tierConfigError && (
                       <p className="text-[10px] sm:text-xs text-red-400/80 mt-1.5 flex items-center gap-1.5">
-                        <AlertTriangle className="w-3 h-3" /> {"Loading tier costs directly from contract... (numbers below temporarily use estimates)"} (using fallback)
+                        <AlertTriangle className="w-3 h-3" /> {t.loadingTierNotice} (using fallback)
                       </p>
                     )}
                   </div>
@@ -1324,7 +1324,7 @@ export default function DashboardPage() {
                                 className="w-full md:w-auto bg-transparent hover:bg-red-500/10 disabled:opacity-40 text-red-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-red-500/50 transition-all"
                               >
                                 {isDeletingContent === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
-                                {"Delete"}
+                                {t.btnDeleteContent}
                               </button>
                             )}
                             <button
@@ -1334,12 +1334,12 @@ export default function DashboardPage() {
                             >
                               <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               {cap.contentDeleted
-                                ? "Already Deleted"
+                                ? t.statusAlreadyDeleted
                                 : isOwnUnclaimableLegacy
-                                  ? (cap.isReady ? "Waiting for Heir" : "Not Ready")
+                                  ? (cap.isReady ? t.statusWaitingHeir : t.statusNotReady)
                                   : cap.isClaimedOrRevealed
-                                    ? "View Again"
-                                    : (cap.isReady ? "Open Vault" : "Not Ready")}
+                                    ? t.btnViewAgain
+                                    : (cap.isReady ? t.openVaultBtn : t.statusNotReady)}
                             </button>
                           </div>
                         </div>
@@ -1527,10 +1527,10 @@ export default function DashboardPage() {
 
                   <div className="bg-[#0B0817] border border-cyan-500/20 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg space-y-3">
                     <h5 className="text-sm sm:text-base font-bold text-white flex items-center gap-2"><KeyRound className="w-4 h-4 text-cyan-400"/> {t.secHowProtected}</h5>
-                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">{"Title, message, and attachments are encrypted (ECIES/secp256k1) directly in your browser before leaving the device. The decryption key is derived from your wallet's own EIP-712 signature and is never sent anywhere. Only ciphertext is stored on the blockchain and Arweave."}</p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{"Arweave is permanent — storage fees are paid separately from your wallet. Legacy capsule titles & messages are encrypted specifically for the heir. Once sealed, you yourself will not be able to read them again — only the heir can, after the inactivity requirement is met. The heir must have opened AetherVault once and registered their encryption key in the Settings tab."}</p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{"What is NOT encrypted (public): owner address, heir address, capsule creation/opening time, and selected tier."}</p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{"The encryption key is bound to the network (Polygon Amoy Testnet). Do not use AetherVault on another network."}</p>
+                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">{t.secDesc1}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc2}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc3}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc4}</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -1642,29 +1642,29 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
-              <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
-                {selectedVault.decryptedMessage}
-              </div>
-              {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
-                <button
-                  onClick={handleDownloadAttachment}
-                  disabled={isDownloadingAttachment === selectedVault.id}
-                  className="w-full py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
-                >
-                  {isDownloadingAttachment === selectedVault.id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Decrypting & Downloading...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4" />
-                      Download & Decrypt File
-                    </>
-                  )}
-                </button>
-              )}
-            </>
+                <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
+                  {selectedVault.decryptedMessage}
+                </div>
+                {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
+                  <button
+                    onClick={handleDownloadAttachment}
+                    disabled={isDownloadingAttachment === selectedVault.id}
+                    className="w-full py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
+                  >
+                    {isDownloadingAttachment === selectedVault.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Mendekripsi & Mengunduh...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        Download & Decrypt File
+                      </>
+                    )}
+                  </button>
+                )}
+              </>
             )}
             <button onClick={() => setSelectedVault(null)} className="w-full bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-3 sm:py-4 rounded-xl sm:rounded-full text-[10px] sm:text-xs cursor-pointer transition-colors outline-none border border-transparent focus:border-neutral-500">
               {t.closeVaultBtn}
