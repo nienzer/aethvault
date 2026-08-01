@@ -5,7 +5,7 @@ export const id = {
     tiers: "Tiers",
     tokenomics: "Tokenomics",
     team: "Team",
-    launchApp: "Luncurkan App"
+    launchApp: "Luncurkan App",
     back: "Kembali"
   },
   hero: {
