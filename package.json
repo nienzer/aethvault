@@ -1,39 +1,22 @@
 {
-  "name": "aethervaul",
-  "version": "0.1.0",
+  "name": "aethvault",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
+    "cloudflare-build": "opennextjs-cloudflare build",
     "deploy": "opennextjs-cloudflare build && wrangler deploy",
     "preview": "opennextjs-cloudflare build && wrangler dev"
   },
   "dependencies": {
-    "@irys/web-upload": "^0.0.15",
-    "@irys/web-upload-ethereum": "^0.0.16",
-    "@irys/web-upload-ethereum-ethers-v6": "^0.0.16",
-    "@web3modal/ethers": "^5.1.11",
-    "eth-crypto": "^4.1.0",
-    "ethers": "^6.17.0",
-    "lucide-react": "^1.25.0",
-    "next": "^15.5.21",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "next": "^15.x",
+    "react": "^19.x",
+    "react-dom": "^19.x"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.0.0",
-    "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "autoprefixer": "^10.5.4",
-    "eslint": "^9",
-    "eslint-config-next": "^15.5.21",
-    "postcss": "^8.5.22",
-    "tailwindcss": "^4.3.3",
-    "typescript": "^5",
-    "wrangler": "^4.0.0"
+    "@opennextjs/cloudflare": "^1.x",
+    "wrangler": "^4.x",
+    "typescript": "^5.x"
   }
 }
