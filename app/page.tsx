@@ -373,7 +373,7 @@ export default function LandingPage() {
             <p className="text-neutral-500 text-[10px] sm:text-xs leading-relaxed">{t.footer.desc}</p>
           </div>
           
-          {/* QUICK LINKS & COMMUNITY DI BUAT SEJAJAR DI HP */}
+          {/* QUICK LINKS & COMMUNITY INI DI BUAT SEJAJAR DI HP */}
           <div className="flex justify-center gap-12 sm:gap-24">
             <div className="flex flex-col items-start">
               <h4 className="text-white font-bold text-[10px] sm:text-xs mb-4 font-mono">{t.footer.quickLinks}</h4>
