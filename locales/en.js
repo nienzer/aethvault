@@ -5,7 +5,7 @@ export const en = {
     tiers: "Tiers",
     tokenomics: "Tokenomics",
     team: "Team",
-    launchApp: "Launch App"
+    launchApp: "Launch App",
     back: "Back"
   },
   hero: {
@@ -92,7 +92,7 @@ export const en = {
     navInfrastructure: "Infrastructure",
     navRoadmap: "Roadmap",
     navWhitepaper: "Whitepaper",
-    navLaunchApp": "Launch App",
+    navLaunchApp: "Launch App",
     copyright: "© {year} Nienzer. All rights reserved. Email: admin@aethvault.xyz."
   },
   whitepaper: {
@@ -326,13 +326,11 @@ export const en = {
     keyNotRegisteredTitle: "Encryption Key Not Registered",
     keyNotRegisteredDesc: "Register your public key on the blockchain to receive encrypted messages.",
     registerKeyBtn: "Register Key",
-    
     createTitle: "Create New Capsule",
     createDesc: "Secure your messages or files with military-grade encryption.",
     createNote: "Messages are encrypted (ECIES) directly in your browser before being sent to the blockchain.",
     loadingTierFallback: "Loading tier costs directly from contract... (numbers below temporarily use estimates)",
     usingFallback: "(using fallback)",
-    
     capsuleTitleLabel: "Capsule Title",
     capsuleTitlePlaceholder: "E.g., A message for the future",
     securityTierLabel: "Security Tier",
@@ -365,7 +363,6 @@ export const en = {
     processingBtn: "Processing...",
     sealButton: "Seal Capsule Now",
     connectToSeal: "Connect Wallet to Seal",
-    
     vaultsTitle: "My Capsule Vaults",
     vaultsDesc: "Manage all your active and legacy capsules here.",
     noVaultsTitle: "No Capsules Yet",
@@ -374,7 +371,6 @@ export const en = {
     asHeirSuffix: " (Recipient)",
     lastPingLabel: "Last Ping:",
     unlockLabel: "Unlock On:",
-    
     btnPingAlive: "Send Proof of Life",
     btnViewAgain: "View Capsule",
     alreadyDeleted: "Already Deleted",
@@ -382,12 +378,10 @@ export const en = {
     notReady: "Not Ready",
     openVault: "Open Vault",
     deleteBtn: "Delete",
-
     historyTitle: "Transaction History",
     historyEmpty: "No transaction history found yet.",
     loadFullHistory: "Load Full History (from genesis block)",
     fullSyncNote: "Full sync may take a while depending on RPC rate limits.",
-    
     statsTitle: "Protocol Statistics",
     totalBurnedLabel: "Total AETH Burned",
     activeCapsulesLabel: "Your Active Capsules",
@@ -406,7 +400,6 @@ export const en = {
     unstakeAmountLabel: "Unstake Amount",
     unstakeBtn: "Withdraw Stake (Unstake)",
     claimRewardsBtn: "Claim Rewards Only",
-    
     securityTitle: "Security Infrastructure",
     securityDesc: "Learn how your data and funds are protected.",
     secHowProtected: "How Your Data is Protected",
@@ -419,7 +412,6 @@ export const en = {
     vaultReserveTitle: "Vault Reserve",
     vaultReserveDesc: "Token assets are fully secured on-chain with no centralized control.",
     checkVaultBtn: "Check on Explorer",
-    
     settingsTitle: "Account Settings",
     settingsDesc: "Manage your security keys and network preferences.",
     encryptionKeyLabel: "On-Chain Encryption Key",
@@ -433,12 +425,10 @@ export const en = {
     storageLabel: "Storage Provider",
     storageDesc: "Where your secret file attachments are decentrally stored.",
     permanentStatus: "Permanent Mode",
-    
     modalDecryptedTitle: "Decrypted Capsule Content",
     closeVaultBtn: "Close & Lock Again",
     decryptingDownloading: "Decrypting & Downloading...",
-    downloadDecryptBtn: "Download & Decrypt File"
-
+    downloadDecryptBtn: "Download & Decrypt File",
     noAttachmentFound: "No attachment found in this message.",
     fetchingArweave: "Fetching file from Arweave...",
     downloadSuccess: "File '{file}' downloaded successfully!",

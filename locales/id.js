@@ -241,7 +241,7 @@ export const id = {
       vipName: "VIP",
       vipDesc: "Kapasitas lebih besar.",
       eternalName: "Abadi",
-      eternalDesc": "Penyimpanan permanen.",
+      eternalDesc: "Penyimpanan permanen.",
       legacyName: "Warisan",
       legacyDesc: "Sistem ahli waris."
     },
@@ -326,13 +326,11 @@ export const id = {
     keyNotRegisteredTitle: "Kunci Enkripsi Belum Terdaftar",
     keyNotRegisteredDesc: "Daftarkan kunci publik Anda di blockchain agar dapat menerima pesan terenkripsi.",
     registerKeyBtn: "Daftarkan Kunci",
-    
     createTitle: "Buat Kapsul Baru",
     createDesc: "Amankan pesan atau file Anda dengan enkripsi tingkat militer.",
     createNote: "Pesan akan dienkripsi (ECIES) langsung di browser Anda sebelum dikirim ke blockchain.",
     loadingTierFallback: "Memuat biaya tier langsung dari kontrak... (angka di bawah sementara pakai perkiraan)",
     usingFallback: "(menggunakan data cadangan)",
-    
     capsuleTitleLabel: "Judul Kapsul",
     capsuleTitlePlaceholder: "Misal: Pesan untuk masa depan",
     securityTierLabel: "Tingkat Keamanan",
@@ -365,7 +363,6 @@ export const id = {
     processingBtn: "Memproses...",
     sealButton: "Segel Kapsul Sekarang",
     connectToSeal: "Hubungkan Dompet untuk Menyegel",
-    
     vaultsTitle: "Brankas Kapsul Saya",
     vaultsDesc: "Kelola semua kapsul aktif dan warisan Anda di sini.",
     noVaultsTitle: "Belum Ada Kapsul",
@@ -374,7 +371,6 @@ export const id = {
     asHeirSuffix: " (Penerima)",
     lastPingLabel: "Ping Terakhir:",
     unlockLabel: "Buka Pada:",
-    
     btnPingAlive: "Kirim Sinyal Kehidupan",
     btnViewAgain: "Lihat Kapsul",
     alreadyDeleted: "Sudah Dihapus",
@@ -382,12 +378,10 @@ export const id = {
     notReady: "Belum Siap",
     openVault: "Buka Brankas",
     deleteBtn: "Hapus",
-
     historyTitle: "Riwayat Transaksi",
     historyEmpty: "Belum ada riwayat transaksi ditemukan.",
     loadFullHistory: "Muat Riwayat Penuh (dari blok awal)",
     fullSyncNote: "Sinkronisasi penuh mungkin memakan waktu tergantung batasan laju RPC.",
-    
     statsTitle: "Statistik Protokol",
     totalBurnedLabel: "Total AETH Terbakar",
     activeCapsulesLabel: "Kapsul Aktif Anda",
@@ -406,7 +400,6 @@ export const id = {
     unstakeAmountLabel: "Jumlah Penarikan",
     unstakeBtn: "Tarik Stake (Unstake)",
     claimRewardsBtn: "Klaim Hadiah Saja",
-    
     securityTitle: "Infrastruktur Keamanan",
     securityDesc: "Pelajari bagaimana data dan dana Anda dilindungi.",
     secHowProtected: "Bagaimana Data Anda Dilindungi",
@@ -419,7 +412,6 @@ export const id = {
     vaultReserveTitle: "Cadangan Brankas",
     vaultReserveDesc: "Aset token sepenuhnya diamankan secara on-chain tanpa kontrol terpusat.",
     checkVaultBtn: "Periksa di Explorer",
-    
     settingsTitle: "Pengaturan Akun",
     settingsDesc: "Kelola kunci keamanan dan preferensi jaringan Anda.",
     encryptionKeyLabel: "Kunci Enkripsi On-Chain",
@@ -433,12 +425,10 @@ export const id = {
     storageLabel: "Penyedia Penyimpanan",
     storageDesc: "Di mana lampiran file rahasia Anda disimpan secara terdesentralisasi.",
     permanentStatus: "Mode Permanen",
-    
     modalDecryptedTitle: "Isi Kapsul Terbuka",
     closeVaultBtn: "Tutup & Kunci Kembali",
     decryptingDownloading: "Mendekripsi & Mengunduh...",
-    downloadDecryptBtn: "Unduh & Dekripsi File"
-
+    downloadDecryptBtn: "Unduh & Dekripsi File",
     noAttachmentFound: "Tidak ada lampiran ditemukan di pesan ini.",
     fetchingArweave: "Mengambil file dari Arweave...",
     downloadSuccess: "File '{file}' berhasil diunduh!",
