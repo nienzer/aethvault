@@ -402,7 +402,7 @@ export default function DashboardPage() {
       const allLogs = [
         ...sealedEvents.map((e) => ({ e, kind: 'sealed' })),
         ...revealedEvents.map((e) => ({ e, kind: 'revealed' })),
-        ...claimedEvents.map((e, kind: 'claimed' })),
+        ...claimedEvents.map((e) => ({ e, kind: 'claimed' })),
         ...pingEvents.map((e) => ({ e, kind: 'ping' })),
         ...stakingLogs.staked.map((e) => ({ e, kind: 'staked' })),
         ...stakingLogs.withdrawn.map((e) => ({ e, kind: 'withdrawn' })),
