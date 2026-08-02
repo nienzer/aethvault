@@ -14,6 +14,14 @@ import {
   encryptForPublicKey,
   decryptWithPrivateKey,
 } from '@/lib/cryptoUtils';
+import {
+  saveKeyPair,
+  getKeyPair,
+  clearKeyPair,
+  isKeyPairValid,
+  cleanupExpiredKeys,
+  purgeSessionKey,
+} from '@/lib/secureKeyStorage';
 import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload';
 
 // ==========================================
@@ -198,12 +206,29 @@ export default function DashboardPage() {
   const [hasLocalKeyPair, setHasLocalKeyPair] = useState(false);
 
   useEffect(() => {
+    cleanupExpiredKeys();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
     if (address) {
+      // HYBRID: Coba load dari cache dulu (tidak perlu sign)
+      getKeyPair(address).then((cached) => {
+        if (cached && isKeyPairValid(cached)) {
+          myKeyPairRef.current = cached;
+          setHasLocalKeyPair(true);
+        } else {
+          // Cache tidak ada/expired — akan auto-derive saat fetchWalletData
+          myKeyPairRef.current = null;
+          setHasLocalKeyPair(false);
+        }
+      }).catch(() => {
+        myKeyPairRef.current = null;
+        setHasLocalKeyPair(false);
+      });
+    } else {
+      // Disconnect = hapus semua key dari memory
       myKeyPairRef.current = null;
       setHasLocalKeyPair(false);
     }
@@ -299,13 +324,39 @@ export default function DashboardPage() {
 
   const getOrDeriveKeyPair = useCallback(async () => {
     if (myKeyPairRef.current) return myKeyPairRef.current;
+
+    // HYBRID: Coba ambil dari IndexedDB cache dulu
+    if (address) {
+      try {
+        const cached = await getKeyPair(address);
+        if (cached && isKeyPairValid(cached)) {
+          myKeyPairRef.current = cached;
+          setHasLocalKeyPair(true);
+          return cached;
+        }
+      } catch (cacheErr) {
+        console.warn('[getOrDeriveKeyPair] Cache read failed:', cacheErr);
+      }
+    }
+
+    // FALLBACK: Derive dari signature wallet (1x sign)
     const signer = await getSigner();
     await ensureCorrectNetwork(signer);
     const kp = await deriveIdentityKeyPair(signer, CONTRACT_ADDRESS);
+
+    // Simpan ke cache untuk next time
+    if (address) {
+      try {
+        await saveKeyPair(address, kp);
+      } catch (saveErr) {
+        console.warn('[getOrDeriveKeyPair] Cache save failed:', saveErr);
+      }
+    }
+
     myKeyPairRef.current = kp;
     setHasLocalKeyPair(true);
     return kp;
-  }, [walletProvider]);
+  }, [walletProvider, address]);
 
   const tryDecryptTitle = async (encryptedTitle, privateKey) => {
     if (!privateKey || !encryptedTitle) return null;
@@ -1077,7 +1128,11 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                     </div>
                   </div>
                   <button
-                    onClick={() => disconnect()}
+                    onClick={async () => {
+                      if (address) await clearKeyPair(address);
+                      purgeSessionKey();
+                      disconnect();
+                    }}
                     className="p-1.5 sm:p-2.5 bg-[#05030F] hover:bg-red-500/10 border border-neutral-800 hover:border-red-500/40 rounded-full text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
