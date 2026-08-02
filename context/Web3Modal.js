@@ -28,7 +28,7 @@ const polygonAmoyTestnet = {
   name: 'Polygon Amoy Testnet',
   currency: 'POL',
   explorerUrl: 'https://amoy.polygonscan.com',
-  rpcUrl: 'https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM'
+  rpcUrl: 'https://rpc-amoy.polygon.technology/'
 };
 
 const metadata = {
