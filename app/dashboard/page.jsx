@@ -363,19 +363,25 @@ export default function DashboardPage() {
   }, [t]);
 
   // GUNAKAN BLOK 11 JUTA (Sesuai umur Amoy Testnet saat ini, BUKAN 43 Juta)
-  const DEPLOY_BLOCK_NUMBER = 11000000;
+  const DEPLOY_BLOCK_NUMBER = 43345845;
 
-  const fetchOnChainHistory = useCallback(async (userAddress, fromBlock = DEPLOY_BLOCK_NUMBER) => {
+  const fetchOnChainHistory = useCallback(async (userAddress) => {
     setIsLoadingHistory(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+      
+      // Ambil blok terkini (latest) supaya kita bisa batasi pencarian 
+      // max 50.000 blok ke belakang agar tidak ditolak RPC publik
+      const currentBlock = await provider.getBlockNumber();
+      const startBlock = Math.max(DEPLOY_BLOCK_NUMBER, currentBlock - 50000);
+
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
       
       const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
-        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), startBlock, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), startBlock, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), startBlock, "latest"),
       ]);
 
       let stakingLogs = { staked: [], withdrawn: [], claimed: [] };
@@ -383,9 +389,9 @@ export default function DashboardPage() {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
           const [staked, withdrawn, claimed] = await Promise.all([
-            stakingContract.queryFilter(stakingContract.filters.Staked(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-            stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-            stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.Staked(userAddress), startBlock, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.Withdrawn(userAddress), startBlock, "latest"),
+            stakingContract.queryFilter(stakingContract.filters.RewardClaimed(userAddress), startBlock, "latest"),
           ]);
           stakingLogs = { staked, withdrawn, claimed };
         } catch (stakeErr) {
@@ -396,7 +402,7 @@ export default function DashboardPage() {
       const allLogs = [
         ...sealedEvents.map((e) => ({ e, kind: 'sealed' })),
         ...revealedEvents.map((e) => ({ e, kind: 'revealed' })),
-        ...claimedEvents.map((e) => ({ e, kind: 'claimed' })),
+        ...claimedEvents.map((e, kind: 'claimed' })),
         ...pingEvents.map((e) => ({ e, kind: 'ping' })),
         ...stakingLogs.staked.map((e) => ({ e, kind: 'staked' })),
         ...stakingLogs.withdrawn.map((e) => ({ e, kind: 'withdrawn' })),
@@ -438,7 +444,6 @@ export default function DashboardPage() {
       });
       setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
 
-      // FIX: Pakai Fallback agar tidak bernilai 0 jika data on-chain terlambat dimuat
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
         const tierIdx = Number(e.args.tier);
