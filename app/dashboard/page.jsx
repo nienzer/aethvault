@@ -362,13 +362,15 @@ export default function DashboardPage() {
     }
   }, [t]);
 
-  const DEPLOY_BLOCK_NUMBER = 43345845;
+  // GUNAKAN BLOK 11 JUTA (Sesuai umur Amoy Testnet saat ini, BUKAN 43 Juta)
+  const DEPLOY_BLOCK_NUMBER = 11000000;
 
   const fetchOnChainHistory = useCallback(async (userAddress, fromBlock = DEPLOY_BLOCK_NUMBER) => {
     setIsLoadingHistory(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+      
       const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
         vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
         vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
@@ -436,10 +438,19 @@ export default function DashboardPage() {
       });
       setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
 
+      // FIX: Pakai Fallback agar tidak bernilai 0 jika data on-chain terlambat dimuat
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
-        const cfg = onChainTierConfig[Number(e.args.tier)];
-        if (cfg) totalBurn += cfg.burn;
+        const tierIdx = Number(e.args.tier);
+        const cfg = onChainTierConfig[tierIdx];
+        if (cfg) {
+          totalBurn += cfg.burn;
+        } else {
+          const tierKey = Object.keys(TIER_ENUM_MAP).find(k => TIER_ENUM_MAP[k] === tierIdx);
+          if (tierKey && TIER_FALLBACK_CONFIG[tierKey]) {
+            totalBurn += TIER_FALLBACK_CONFIG[tierKey].burn;
+          }
+        }
       });
       setBurnedTotal(totalBurn);
     } catch (err) {
@@ -448,7 +459,7 @@ export default function DashboardPage() {
       setIsLoadingHistory(false);
       setIsFullHistoryLoaded(true);
     }
-  }, [onChainTierConfig]);
+  }, [onChainTierConfig, t]);
 
   const fetchWalletData = useCallback(async () => {
     if (isConnected && walletProvider && address) {
