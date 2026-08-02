@@ -112,8 +112,9 @@ const StakingABI = [
     ], "name": "RewardClaimed", "type": "event" }
 ];
 
-const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; // TODO: isi alamat hasil deploy AetherVault.sol (40 hex char setelah 0x!)
-const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!)  
+// KONFIGURASI AMOY TESTNET
+const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; 
+const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; 
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
@@ -814,7 +815,8 @@ export default function DashboardPage() {
   };
 
   const extractArweaveUrl = (text) => {
-    const match = text?.match(/\[Attachment:\s*(https:\/\/arweave\.net\/[^\]]+)\]/);
+    // FIX: Gunakan regex universal, abaikan nama "Attachment" / "Lampiran" di depannya
+    const match = text?.match(/(https:\/\/arweave\.net\/[a-zA-Z0-9_-]+)/);
     return match ? match[1] : null;
   };
 
@@ -1545,7 +1547,7 @@ export default function DashboardPage() {
                       <div className="absolute top-0 right-0 bg-cyan-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Active</div>
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2"><Lock className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400"/> ReentrancyGuard</h5>
                       <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">{t.reentrancyDesc}</p>
-                      <a href={`https://polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
+                      <a href={`https://amoy.polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
                         {t.viewCodeBtn} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
@@ -1553,7 +1555,7 @@ export default function DashboardPage() {
                     <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2"><Coins className="w-4 h-4 sm:w-5 h-5 text-yellow-500"/> {t.vaultReserveTitle}</h5>
                       <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">{t.vaultReserveDesc}</p>
-                      <a href={`https://polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-yellow-400 bg-yellow-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-all border border-yellow-500/30">
+                      <a href={`https://amoy.polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-yellow-400 bg-yellow-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-all border border-yellow-500/30">
                         {t.checkVaultBtn} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
@@ -1661,12 +1663,12 @@ export default function DashboardPage() {
                     {isDownloadingAttachment === selectedVault.id ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        {t.decryptingDownloading || "Mendekripsi & Mengunduh..."}
+                        {t.decryptingDownloading}
                       </>
                     ) : (
                       <>
                         <Download className="w-4 h-4" />
-                        {t.downloadBtn || "Download & Decrypt File"}
+                        {t.downloadDecryptBtn}
                       </>
                     )}
                   </button>
