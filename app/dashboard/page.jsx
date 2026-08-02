@@ -135,7 +135,24 @@ const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
-const READ_ONLY_RPC_URL = "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM"; 
+const READ_ONLY_RPC_URLS = [
+  "https://rpc-amoy.polygon.technology/",
+  "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM",
+  "https://polygon-amoy.blockpi.network/v1/rpc/public",
+];
+
+async function getWorkingProvider(preferredIndex = 0) {
+  for (let i = preferredIndex; i < READ_ONLY_RPC_URLS.length; i++) {
+    try {
+      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URLS[i]);
+      await provider.getBlockNumber();
+      return provider;
+    } catch (err) {
+      console.warn(`[RPC] Failed: ${READ_ONLY_RPC_URLS[i]}, trying next...`);
+    }
+  }
+  throw new Error('All RPC endpoints failed');
+} 
 const TIER_FALLBACK_CONFIG = {
   basic: { cost: 10, burn: 2, maxLength: 250, maxYears: 1 },
   premium: { cost: 50, burn: 10, maxLength: 1000, maxYears: 5 },
@@ -206,12 +223,9 @@ export default function DashboardPage() {
   const [hasLocalKeyPair, setHasLocalKeyPair] = useState(false);
 
   const [walletProviderReady, setWalletProviderReady] = useState(false);
-  const [dataFetchError, setDataFetchError] = useState(null);
 
-  // GUARDS: prevent duplicate RPC spam
+  // GUARD: tier config fetch hanya 1x per session
   const tierFetchedRef = useRef(false);
-  const walletDataFetchedRef = useRef(false);
-  const historyFetchedRef = useRef(false);
 
   useEffect(() => {
     cleanupExpiredKeys();
@@ -229,15 +243,11 @@ export default function DashboardPage() {
       return () => clearTimeout(timer);
     } else {
       setWalletProviderReady(false);
-      // Reset fetch guards on disconnect so next connect can fetch fresh
-      walletDataFetchedRef.current = false;
     }
   }, [isConnected, walletProvider]);
 
   useEffect(() => {
     if (address) {
-      // Reset fetch guards for new address
-      walletDataFetchedRef.current = false;
       // HYBRID: Coba load dari cache dulu (tidak perlu sign)
       getKeyPair(address).then((cached) => {
         if (cached && isKeyPairValid(cached)) {
@@ -561,7 +571,7 @@ export default function DashboardPage() {
     }
   }, [onChainTierConfig]);
 
-  const fetchWalletData = useCallback(async (retryCount = 0) => {
+  const fetchWalletData = useCallback(async () => {
     if (!isConnected || !walletProvider || !address) {
       setNativeBalance('0.0000'); setAethBalance(0); setStakedBalance(0); setPendingReward(0);
       setMyCapsules([]); setTransactions([]); setBurnedTotal(0); setMyPublicKeyRegistered(false);
@@ -569,24 +579,8 @@ export default function DashboardPage() {
       return;
     }
 
-    // Defensive: wait for provider to be ready
-    if (!walletProvider.request) {
-      if (retryCount < 3) {
-        setTimeout(() => fetchWalletData(retryCount + 1), 800);
-      } else {
-        setDataFetchError('Wallet provider not ready after retries');
-        showToast(t.walletProviderNotReady || 'Wallet provider not ready. Please refresh.', 'error');
-      }
-      return;
-    }
-
     try {
-      setDataFetchError(null);
-      const provider = new ethers.BrowserProvider(walletProvider);
-
-      // Test provider with a simple call first
-      await provider.getNetwork();
-
+            const provider = new ethers.BrowserProvider(walletProvider);
       const rawBalance = await provider.getBalance(address);
       setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
 
@@ -597,7 +591,7 @@ export default function DashboardPage() {
         const registeredKey = await tokenContract.encryptionPublicKeys(address);
         setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x' && registeredKey.length > 2);
       } catch (err) { 
-        console.warn('[fetchWalletData] Token/Key read failed:', err.message);
+        console.warn('[fetchWalletData] Token/Key read failed:', err?.message);
         setAethBalance(0);
         setMyPublicKeyRegistered(false);
       }
@@ -615,7 +609,7 @@ export default function DashboardPage() {
           setApyPercent(Number(rawRate) / 10);
         }
       } catch (stakingErr) {
-        console.warn('[fetchWalletData] Staking read failed:', stakingErr.message);
+        console.warn('[fetchWalletData] Staking read failed:', stakingErr?.message);
       }
 
       let privateKeyForTitles = null;
@@ -624,7 +618,7 @@ export default function DashboardPage() {
           const kp = await getOrDeriveKeyPair();
           privateKeyForTitles = kp.privateKey;
         } catch (keyErr) {
-          console.warn('[fetchWalletData] Key derive failed:', keyErr.message);
+          console.warn('[fetchWalletData] Key derive failed:', keyErr?.message);
         }
       }
 
@@ -632,19 +626,12 @@ export default function DashboardPage() {
       await fetchOnChainHistory(address);
     } catch (err) { 
       console.error('[fetchWalletData] Fatal error:', err);
-      setDataFetchError(err.message);
-      if (retryCount < 2) {
-        setTimeout(() => fetchWalletData(retryCount + 1), 1000);
-      } else {
-        showToast(t.walletDataFetchFail || 'Failed to load wallet data. Please refresh.', 'error');
-      }
+            showToast(t.walletDataFetchFail || 'Failed to load wallet data. Please refresh.', 'error');
     }
   }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, t, showToast]);
 
   useEffect(() => {
     if (!isConnected || !walletProviderReady || !address) return;
-    if (walletDataFetchedRef.current) return;
-    walletDataFetchedRef.current = true;
     fetchWalletData();
   }, [isConnected, walletProviderReady, address]);
 
@@ -1809,7 +1796,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                           <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.rpcDesc}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto mt-1 sm:mt-0">
-                          <input type="text" disabled value={READ_ONLY_RPC_URL} className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none" />
+                          <input type="text" disabled value={READ_ONLY_RPC_URLS[0]} className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none" />
                           <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? t.wrongNetwork : t.connected}</span>
                         </div>
                       </div>
