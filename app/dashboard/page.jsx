@@ -467,13 +467,17 @@ export default function DashboardPage() {
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
         const tierIdx = Number(e.args.tier);
-        const cfg = onChainTierConfig[tierIdx];
-        // Fallback ke TIER_FALLBACK_CONFIG kalau on-chain belum ready
-        const fallbackKey = Object.keys(TIER_ENUM_MAP).find(k => TIER_ENUM_MAP[k] === tierIdx);
-        const fallback = fallbackKey ? TIER_FALLBACK_CONFIG[fallbackKey] : null;
-        const burnAmount = cfg ? cfg.burn : (fallback ? fallback.burn : 0);
-        totalBurn += burnAmount;
+        // Prioritas 1: on-chain config
+        let burnAmount = onChainTierConfig[tierIdx]?.burn;
+        // Prioritas 2: fallback config
+        if (burnAmount === undefined || burnAmount === null || isNaN(burnAmount)) {
+          const fallbackKey = Object.keys(TIER_ENUM_MAP).find(k => TIER_ENUM_MAP[k] === tierIdx);
+          const fallback = fallbackKey ? TIER_FALLBACK_CONFIG[fallbackKey] : null;
+          burnAmount = fallback ? fallback.burn : 0;
+        }
+        totalBurn += Number(burnAmount) || 0;
       });
+      console.log('[Burn Debug] Total burned calculated:', totalBurn, 'from', sealedEvents.length, 'events');
       setBurnedTotal(totalBurn);
     } catch (err) {
       console.error(t.consoleHistoryFail, err);
@@ -529,6 +533,13 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchWalletData();
   }, [fetchWalletData]);
+
+  // Re-fetch history setelah tier config berhasil load (untuk burn calculation)
+  useEffect(() => {
+    if (isTierConfigLoaded && address && isConnected && !isWrongNetwork) {
+      fetchOnChainHistory(address);
+    }
+  }, [isTierConfigLoaded, address, isConnected, isWrongNetwork, fetchOnChainHistory]);
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   const getMinUnlockDatetimeLocal = () => {
