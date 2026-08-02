@@ -229,9 +229,8 @@ export default function DashboardPage() {
       return () => clearTimeout(timer);
     } else {
       setWalletProviderReady(false);
-      // Reset all fetch guards on disconnect so next connect can fetch fresh
+      // Reset fetch guards on disconnect so next connect can fetch fresh
       walletDataFetchedRef.current = false;
-      historyFetchedRef.current = false;
     }
   }, [isConnected, walletProvider]);
 
@@ -239,7 +238,6 @@ export default function DashboardPage() {
     if (address) {
       // Reset fetch guards for new address
       walletDataFetchedRef.current = false;
-      historyFetchedRef.current = false;
       // HYBRID: Coba load dari cache dulu (tidak perlu sign)
       getKeyPair(address).then((cached) => {
         if (cached && isKeyPairValid(cached)) {
@@ -270,7 +268,7 @@ export default function DashboardPage() {
     const fetchTierConfigs = async () => {
       try {
         setTierConfigError(null);
-        const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+        const provider = await getWorkingProvider();
         const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
         const results = await Promise.all([0, 1, 2, 3].map((idx) => contract.tierConfigs(idx)));
         if (cancelled) return;
@@ -451,7 +449,7 @@ export default function DashboardPage() {
     if (!userAddress) return;
     setIsLoadingHistory(true);
     try {
-      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+      const provider = await getWorkingProvider();
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
 
       // Chunking untuk RPC testnet yang limit block range (Alchemy ~2000 blocks)
@@ -545,9 +543,7 @@ export default function DashboardPage() {
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
         const tierIdx = Number(e.args.tier);
-        // Prioritas 1: on-chain config
         let burnAmount = onChainTierConfig[tierIdx]?.burn;
-        // Prioritas 2: fallback config
         if (burnAmount === undefined || burnAmount === null || isNaN(burnAmount)) {
           const fallbackKey = Object.keys(TIER_ENUM_MAP).find(k => TIER_ENUM_MAP[k] === tierIdx);
           const fallback = fallbackKey ? TIER_FALLBACK_CONFIG[fallbackKey] : null;
@@ -555,7 +551,7 @@ export default function DashboardPage() {
         }
         totalBurn += Number(burnAmount) || 0;
       });
-      console.log('[Burn Debug] Total burned calculated:', totalBurn, 'from', sealedEvents.length, 'events');
+      console.log('[Burn Debug] Total burned:', totalBurn.toFixed(2), 'AETH from', sealedEvents.length, 'sealed events');
       setBurnedTotal(totalBurn);
     } catch (err) {
       console.error(t.consoleHistoryFail, err);
@@ -647,18 +643,18 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isConnected || !walletProviderReady || !address) return;
-    if (walletDataFetchedRef.current) return; // prevent double fetch on reconnect
+    if (walletDataFetchedRef.current) return;
     walletDataFetchedRef.current = true;
     fetchWalletData();
-  }, [isConnected, walletProviderReady, address]); // Hapus fetchWalletData dari deps
+  }, [isConnected, walletProviderReady, address]);
 
   // Re-fetch history setelah tier config berhasil load (untuk burn calculation)
+  // atau kalau address berubah
   useEffect(() => {
     if (!isTierConfigLoaded || !address || !isConnected || isWrongNetwork) return;
-    if (historyFetchedRef.current) return;
-    historyFetchedRef.current = true;
+    // Allow re-fetch on address change (reset guard handled in address effect)
     fetchOnChainHistory(address);
-  }, [isTierConfigLoaded, address, isConnected, isWrongNetwork]); // Hapus fetchOnChainHistory dari deps
+  }, [isTierConfigLoaded, address, isConnected, isWrongNetwork]);
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   const getMinUnlockDatetimeLocal = () => {
