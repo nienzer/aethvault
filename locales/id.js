@@ -438,6 +438,7 @@ export const id = {
     previewFailPrefix: "Gagal memuat preview: ",
     previewLoading: "Memuat preview...",
     previewSuccess: "Preview berhasil dimuat",
-    attachmentNotice: "File attachment terdeteksi. Gunakan Preview untuk melihat gambar, atau Download untuk menyimpan file ke perangkat Anda."
+    attachmentNotice: "File attachment terdeteksi. Gunakan Preview untuk melihat gambar, atau Download untuk menyimpan file ke perangkat Anda.",
+    decryptFallbackPlaintext: "Pesan ditampilkan langsung (format tidak terenkripsi)"
   }
 };

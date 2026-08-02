@@ -370,16 +370,39 @@ export default function DashboardPage() {
   const DEPLOY_BLOCK_NUMBER = 43345845;
 
   const fetchOnChainHistory = useCallback(async (userAddress, fromBlock = DEPLOY_BLOCK_NUMBER) => {
+    if (!userAddress) return;
     setIsLoadingHistory(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-      const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
-        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
-      ]);
+
+      // Chunking untuk RPC testnet yang limit block range (Alchemy ~2000 blocks)
+      const latestBlock = await provider.getBlockNumber();
+      const CHUNK_SIZE = 2000;
+      let allSealed = [], allRevealed = [], allClaimed = [], allPing = [];
+
+      for (let start = fromBlock; start <= latestBlock; start += CHUNK_SIZE) {
+        const end = Math.min(start + CHUNK_SIZE - 1, latestBlock);
+        try {
+          const [s, r, c, p] = await Promise.all([
+            vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), start, end),
+            vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), start, end),
+            vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), start, end),
+            vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), start, end),
+          ]);
+          allSealed.push(...s);
+          allRevealed.push(...r);
+          allClaimed.push(...c);
+          allPing.push(...p);
+        } catch (chunkErr) {
+          console.warn(`History chunk ${start}-${end} failed:`, chunkErr.message);
+        }
+      }
+
+      const sealedEvents = allSealed;
+      const revealedEvents = allRevealed;
+      const claimedEvents = allClaimed;
+      const pingEvents = allPing;
 
       let stakingLogs = { staked: [], withdrawn: [], claimed: [] };
       if (IS_STAKING_ADDRESS_CONFIGURED) {
@@ -443,8 +466,13 @@ export default function DashboardPage() {
 
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
-        const cfg = onChainTierConfig[Number(e.args.tier)];
-        if (cfg) totalBurn += cfg.burn;
+        const tierIdx = Number(e.args.tier);
+        const cfg = onChainTierConfig[tierIdx];
+        // Fallback ke TIER_FALLBACK_CONFIG kalau on-chain belum ready
+        const fallbackKey = Object.keys(TIER_ENUM_MAP).find(k => TIER_ENUM_MAP[k] === tierIdx);
+        const fallback = fallbackKey ? TIER_FALLBACK_CONFIG[fallbackKey] : null;
+        const burnAmount = cfg ? cfg.burn : (fallback ? fallback.burn : 0);
+        totalBurn += burnAmount;
       });
       setBurnedTotal(totalBurn);
     } catch (err) {
@@ -685,7 +713,21 @@ export default function DashboardPage() {
         await tx.wait();
       }
       const { privateKey } = await getOrDeriveKeyPair();
-      const plaintext = await decryptWithPrivateKey(privateKey, ciphertext);
+      let plaintext;
+      try {
+        plaintext = await decryptWithPrivateKey(privateKey, ciphertext);
+      } catch (decryptErr) {
+        // Kalau "Bad MAC", bisa jadi contract store plaintext (bukan ciphertext)
+        // atau data corrupt. Coba tampilkan raw sebagai fallback.
+        const errMsg = decryptErr?.message || '';
+        if (errMsg.includes('Bad MAC') || errMsg.includes('mac') || errMsg.includes('authentication')) {
+          console.warn('Bad MAC decrypt — treating as plaintext fallback. Raw:', ciphertext?.substring(0, 100));
+          plaintext = ciphertext;
+          showToast(t.decryptFallbackPlaintext || 'Pesan ditampilkan langsung (format tidak terenkripsi)', 'info');
+        } else {
+          throw decryptErr;
+        }
+      }
       setSelectedVault(prev => ({ ...prev, decryptedMessage: plaintext }));
       showToast(t.decryptSuccess, 'success');
       await fetchWalletData();

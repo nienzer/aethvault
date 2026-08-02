@@ -438,6 +438,7 @@ export const en = {
     previewFailPrefix: "Failed to load preview: ",
     previewLoading: "Loading preview...",
     previewSuccess: "Preview loaded successfully",
-    attachmentNotice: "Attachment detected. Use Preview to view the image, or Download to save the file to your device."
+    attachmentNotice: "Attachment detected. Use Preview to view the image, or Download to save the file to your device.",
+    decryptFallbackPlaintext: "Message displayed directly (unencrypted format)"
   }
 };
