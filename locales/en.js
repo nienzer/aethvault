@@ -349,6 +349,7 @@ export const en = {
     cancelBtn: "Cancel",
     ipfsUploadPrompt: "Click or drag file here",
     ipfsUploadSub: "Max attachment 10MB (PDF, ZIP, Images)",
+    ipfsUploadSubEternal: "Max attachment 5MB (PDF, ZIP, Images) — Eternal Tier",
     payloadLabel: "Secret Message Payload",
     payloadPlaceholder: "Type the message you want to secure...",
     charCount: "Characters: ",
@@ -438,7 +439,6 @@ export const en = {
     previewFailPrefix: "Failed to load preview: ",
     previewLoading: "Loading preview...",
     previewSuccess: "Preview loaded successfully",
-    attachmentNotice: "Attachment detected. Use Preview to view the image, or Download to save the file to your device.",
-    decryptFallbackPlaintext: "Message displayed directly (unencrypted format)"
+    attachmentNotice: "Attachment detected. Use Preview to view the image, or Download to save the file to your device."
   }
 };

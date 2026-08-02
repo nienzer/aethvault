@@ -349,6 +349,7 @@ export const id = {
     cancelBtn: "Batal",
     ipfsUploadPrompt: "Klik atau seret file ke sini",
     ipfsUploadSub: "Maksimal lampiran 10MB (PDF, ZIP, Gambar)",
+    ipfsUploadSubEternal: "Maksimal lampiran 5MB (PDF, ZIP, Gambar) — Tier Abadi",
     payloadLabel: "Isi Pesan Rahasia",
     payloadPlaceholder: "Ketik pesan yang ingin Anda amankan...",
     charCount: "Karakter: ",
@@ -438,7 +439,6 @@ export const id = {
     previewFailPrefix: "Gagal memuat preview: ",
     previewLoading: "Memuat preview...",
     previewSuccess: "Preview berhasil dimuat",
-    attachmentNotice: "File attachment terdeteksi. Gunakan Preview untuk melihat gambar, atau Download untuk menyimpan file ke perangkat Anda.",
-    decryptFallbackPlaintext: "Pesan ditampilkan langsung (format tidak terenkripsi)"
+    attachmentNotice: "File attachment terdeteksi. Gunakan Preview untuk melihat gambar, atau Download untuk menyimpan file ke perangkat Anda."
   }
 };

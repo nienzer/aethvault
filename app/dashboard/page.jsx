@@ -564,14 +564,16 @@ export default function DashboardPage() {
   };
 
   const isPermanentTier = tier === 'eternal' || tier === 'legacy';
-  const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
+  const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // Legacy default
+const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
 
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!isConnected) return showToast(t.connectWalletBeforeAttach, 'error');
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
-    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)), 'error');
+    const maxSize = tier === 'eternal' ? MAX_ATTACHMENT_SIZE_ETERNAL : MAX_ATTACHMENT_SIZE_BYTES;
+    if (file.size > maxSize) return showToast(t.fileTooLarge.replace('{size}', maxSize / (1024 * 1024)), 'error');
 
     setSelectedFile(file);
     setIsPreparingUpload(true);
@@ -585,7 +587,7 @@ export default function DashboardPage() {
       await ensureCorrectNetwork(await provider.getSigner());
       const uploader = await getIrysUploader(provider);
       const estimatedCost = await estimateArweaveCost(uploader, encryptedBytes.byteLength);
-      setStagedUpload({ file, encryptedBytes, estimatedCost });
+      setStagedUpload({ file, encryptedBytes, estimatedCost: String(estimatedCost || 0) });
     } catch (error) {
       showToast(t.prepareAttachmentFailPrefix + extractErrorMessage(error), "error");
       setSelectedFile(null);
@@ -1217,7 +1219,7 @@ export default function DashboardPage() {
                               <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 shrink-0" />
                               <div className="text-left flex-1 min-w-0">
                                 <p className="text-[10px] sm:text-xs font-bold text-white truncate w-full">{selectedFile?.name}</p>
-                                <p className="text-[9px] sm:text-[10px] text-cyan-500 font-mono truncate w-full">{uploadedCid}</p>
+                                <p className="text-[9px] sm:text-[10px] text-cyan-500 font-mono truncate w-full">{String(uploadedCid || "")}</p>
                               </div>
                             </div>
                             <button type="button" onClick={() => {setSelectedFile(null); setUploadedCid(''); setPendingFileCipherRef(null);}} className="text-neutral-500 hover:text-red-400 p-1 sm:p-2 cursor-pointer ml-auto">
@@ -1240,7 +1242,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3">
                               <p className="text-[10px] sm:text-xs text-purple-200">
-                                {t.estimatedCostLabel} <span className="font-mono font-bold">~{stagedUpload.estimatedCost} POL</span>
+                                {t.estimatedCostLabel} <span className="font-mono font-bold">~{String(stagedUpload.estimatedCost || 0)} POL</span>
                               </p>
                               <p className="text-[9px] sm:text-[10px] text-neutral-400 mt-1">
                                 {t.arweaveWarning}
@@ -1268,7 +1270,7 @@ export default function DashboardPage() {
                             <input type="file" onChange={handleFileSelected} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf,.zip" />
                             <UploadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-500/50 mx-auto mb-1.5 sm:mb-2" />
                             <p className="text-[10px] sm:text-xs text-neutral-400"><span className="text-cyan-400 font-bold">{t.ipfsUploadPrompt}</span></p>
-                            <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-1">{t.ipfsUploadSub}</p>
+                            <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-1">{tier === 'eternal' ? t.ipfsUploadSubEternal || "Maksimal lampiran 5MB (PDF, ZIP, Gambar)" : t.ipfsUploadSub || "Maksimal lampiran 10MB (PDF, ZIP, Gambar)"}</p>
                           </div>
                         )}
                       </div>
