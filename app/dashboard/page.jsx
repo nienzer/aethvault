@@ -14,12 +14,6 @@ import {
   encryptForPublicKey,
   decryptWithPrivateKey,
 } from '@/lib/cryptoUtils';
-import {
-  saveKeyPair,
-  getKeyPair,
-  clearKeyPair,
-  isKeyPairValid,
-} from '@/lib/secureKeyStorage';
 import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload';
 
 // ==========================================
@@ -120,6 +114,7 @@ const StakingABI = [
 
 const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; // TODO: isi alamat hasil deploy AetherVault.sol (40 hex char setelah 0x!)
 const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!)  
+
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
   CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -133,24 +128,7 @@ const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
-const READ_ONLY_RPC_URLS = [
-  "https://polygon-amoy.drpc.org",
-  "https://rpc-amoy.polygon.technology/",
-  "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM",
-];
-
-async function getWorkingProvider(preferredIndex = 0) {
-  for (let i = preferredIndex; i < READ_ONLY_RPC_URLS.length; i++) {
-    try {
-      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URLS[i]);
-      await provider.getBlockNumber();
-      return provider;
-    } catch (err) {
-      console.warn(`[RPC] Failed: ${READ_ONLY_RPC_URLS[i]}, trying next...`);
-    }
-  }
-  throw new Error('All RPC endpoints failed');
-} 
+const READ_ONLY_RPC_URL = "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM"; 
 const TIER_FALLBACK_CONFIG = {
   basic: { cost: 10, burn: 2, maxLength: 250, maxYears: 1 },
   premium: { cost: 50, burn: 10, maxLength: 1000, maxYears: 5 },
@@ -214,49 +192,18 @@ export default function DashboardPage() {
   const [selectedVault, setSelectedVault] = useState(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [isDownloadingAttachment, setIsDownloadingAttachment] = useState(null);
-  const [attachmentPreview, setAttachmentPreview] = useState(null);
-  const [isPreviewing, setIsPreviewing] = useState(null);
   
   const myKeyPairRef = useRef(null);
   const [hasLocalKeyPair, setHasLocalKeyPair] = useState(false);
-  const [walletProviderReady, setWalletProviderReady] = useState(false);
-  
-  // Guard: tier config hanya fetch 1x per session
-  const tierFetchedRef = useRef(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Tunggu walletProvider fully ready setelah reconnect
-  useEffect(() => {
-    if (isConnected && walletProvider) {
-      const timer = setTimeout(() => setWalletProviderReady(true), 800);
-      return () => clearTimeout(timer);
-    } else {
-      setWalletProviderReady(false);
-    }
-  }, [isConnected, walletProvider]);
-
+  // FIX: Reset keypair ref saat wallet address berubah (switch wallet tanpa disconnect)
   useEffect(() => {
     if (address) {
-      // HYBRID: Coba load dari cache dulu (tidak perlu sign)
-      getKeyPair(address).then((cached) => {
-        if (cached && isKeyPairValid(cached)) {
-          myKeyPairRef.current = cached;
-          setHasLocalKeyPair(true);
-        } else {
-          // Cache tidak ada/expired — akan auto-derive saat fetchWalletData
-          myKeyPairRef.current = null;
-          setHasLocalKeyPair(false);
-        }
-      }).catch(() => {
-        myKeyPairRef.current = null;
-        setHasLocalKeyPair(false);
-      });
-    } else {
-      // Disconnect = hapus semua key dari memory
       myKeyPairRef.current = null;
       setHasLocalKeyPair(false);
     }
@@ -266,12 +213,13 @@ export default function DashboardPage() {
   const [isTierConfigLoaded, setIsTierConfigLoaded] = useState(false);
 
   useEffect(() => {
-    if (tierFetchedRef.current) return;
     let cancelled = false;
     const fetchTierConfigs = async () => {
       try {
         setTierConfigError(null);
-        const provider = await getWorkingProvider();
+        const provider = walletProvider
+          ? new ethers.BrowserProvider(walletProvider)
+          : new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
         const results = await Promise.all([0, 1, 2, 3].map((idx) => contract.tierConfigs(idx)));
         if (cancelled) return;
@@ -286,19 +234,17 @@ export default function DashboardPage() {
         });
         setOnChainTierConfig(parsed);
         setIsTierConfigLoaded(true);
-        tierFetchedRef.current = true;
       } catch (err) {
         console.error(t.consoleTierConfigFail, err);
         if (!cancelled) {
           setTierConfigError(err?.message || 'Failed to load tier config');
-          setIsTierConfigLoaded(true); 
+          setIsTierConfigLoaded(true);
         }
       }
     };
     fetchTierConfigs();
     return () => { cancelled = true; };
-  }, []);
-
+  }, [walletProvider]);
 
   const tierDisplayMeta = {
     basic: { name: t.tiersList.basicName, desc: t.tiersList.basicDesc, icon: 'bg-neutral-800', color: 'text-gray-300', border: 'border-neutral-500 shadow-[0_0_15px_-3px_rgba(255,255,255,0.1)]' },
@@ -353,39 +299,13 @@ export default function DashboardPage() {
 
   const getOrDeriveKeyPair = useCallback(async () => {
     if (myKeyPairRef.current) return myKeyPairRef.current;
-
-    // HYBRID: Coba ambil dari IndexedDB cache dulu
-    if (address) {
-      try {
-        const cached = await getKeyPair(address);
-        if (cached && isKeyPairValid(cached)) {
-          myKeyPairRef.current = cached;
-          setHasLocalKeyPair(true);
-          return cached;
-        }
-      } catch (cacheErr) {
-        console.warn('[getOrDeriveKeyPair] Cache read failed:', cacheErr);
-      }
-    }
-
-    // FALLBACK: Derive dari signature wallet (1x sign)
     const signer = await getSigner();
     await ensureCorrectNetwork(signer);
     const kp = await deriveIdentityKeyPair(signer, CONTRACT_ADDRESS);
-
-    // Simpan ke cache untuk next time
-    if (address) {
-      try {
-        await saveKeyPair(address, kp);
-      } catch (saveErr) {
-        console.warn('[getOrDeriveKeyPair] Cache save failed:', saveErr);
-      }
-    }
-
     myKeyPairRef.current = kp;
     setHasLocalKeyPair(true);
     return kp;
-  }, [walletProvider, address]);
+  }, [walletProvider]);
 
   const tryDecryptTitle = async (encryptedTitle, privateKey) => {
     if (!privateKey || !encryptedTitle) return null;
@@ -434,7 +354,7 @@ export default function DashboardPage() {
             isReady: ready,
             asHeir,
             tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? t.tierLabelLegacy : t.tierLabelTimeLock),
-            status: meta.contentDeleted ? "Deleted" : meta.isClaimedOrRevealed ? "Opened" : ready ? "Ready" : "Locked",
+            status: meta.contentDeleted ? t.statusDeleted : meta.isClaimedOrRevealed ? t.statusOpened : ready ? t.statusReady : t.statusLocked,
           };
         })
       );
@@ -450,43 +370,16 @@ export default function DashboardPage() {
   const DEPLOY_BLOCK_NUMBER = 43345845;
 
   const fetchOnChainHistory = useCallback(async (userAddress, fromBlock = DEPLOY_BLOCK_NUMBER) => {
-    if (!userAddress) return;
     setIsLoadingHistory(true);
     try {
-      const provider = await getWorkingProvider();
+      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-
-      // Chunking untuk RPC testnet (public RPC friendly)
-      const latestBlock = await provider.getBlockNumber();
-      const CHUNK_SIZE = 800;
-      const CHUNK_DELAY_MS = 200;
-      let allSealed = [], allRevealed = [], allClaimed = [], allPing = [];
-
-      for (let start = fromBlock; start <= latestBlock; start += CHUNK_SIZE) {
-        const end = Math.min(start + CHUNK_SIZE - 1, latestBlock);
-        try {
-          const [s, r, c, p] = await Promise.all([
-            vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), start, end),
-            vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), start, end),
-            vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), start, end),
-            vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), start, end),
-          ]);
-          allSealed.push(...s);
-          allRevealed.push(...r);
-          allClaimed.push(...c);
-          allPing.push(...p);
-        } catch (chunkErr) {
-          console.warn(`History chunk ${start}-${end} failed:`, chunkErr.message);
-        }
-        if (start + CHUNK_SIZE <= latestBlock) {
-          await new Promise(r => setTimeout(r, CHUNK_DELAY_MS));
-        }
-      }
-
-      const sealedEvents = allSealed;
-      const revealedEvents = allRevealed;
-      const claimedEvents = allClaimed;
-      const pingEvents = allPing;
+      const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
+        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), DEPLOY_BLOCK_NUMBER, "latest"),
+      ]);
 
       let stakingLogs = { staked: [], withdrawn: [], claimed: [] };
       if (IS_STAKING_ADDRESS_CONFIGURED) {
@@ -550,18 +443,9 @@ export default function DashboardPage() {
 
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
-        const tierIdx = Number(e.args.tier);
-        // Prioritas 1: on-chain config
-        let burnAmount = onChainTierConfig[tierIdx]?.burn;
-        // Prioritas 2: fallback config
-        if (burnAmount === undefined || burnAmount === null || isNaN(burnAmount)) {
-          const fallbackKey = Object.keys(TIER_ENUM_MAP).find(k => TIER_ENUM_MAP[k] === tierIdx);
-          const fallback = fallbackKey ? TIER_FALLBACK_CONFIG[fallbackKey] : null;
-          burnAmount = fallback ? fallback.burn : 0;
-        }
-        totalBurn += Number(burnAmount) || 0;
+        const cfg = onChainTierConfig[Number(e.args.tier)];
+        if (cfg) totalBurn += cfg.burn;
       });
-      console.log('[Burn Debug] Total burned calculated:', totalBurn, 'from', sealedEvents.length, 'events');
       setBurnedTotal(totalBurn);
     } catch (err) {
       console.error(t.consoleHistoryFail, err);
@@ -569,7 +453,7 @@ export default function DashboardPage() {
       setIsLoadingHistory(false);
       setIsFullHistoryLoaded(true);
     }
-  }, []);
+  }, [onChainTierConfig]);
 
   const fetchWalletData = useCallback(async () => {
     if (isConnected && walletProvider && address) {
@@ -612,20 +496,11 @@ export default function DashboardPage() {
       setMyCapsules([]); setTransactions([]); setBurnedTotal(0); setMyPublicKeyRegistered(false);
       myKeyPairRef.current = null; setHasLocalKeyPair(false);
     }
-  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork]);
+  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, t]);
 
   useEffect(() => {
-    if (isConnected && walletProviderReady && address) {
-      fetchWalletData();
-    }
-  }, [isConnected, walletProviderReady, address]);
-
-  // Re-fetch history setelah tier config berhasil load (hanya 1x)
-  useEffect(() => {
-    if (isTierConfigLoaded && address && isConnected && !isWrongNetwork) {
-      fetchOnChainHistory(address);
-    }
-  }, [isTierConfigLoaded, address, isConnected, isWrongNetwork]);
+    fetchWalletData();
+  }, [fetchWalletData]);
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   const getMinUnlockDatetimeLocal = () => {
@@ -661,16 +536,14 @@ export default function DashboardPage() {
   };
 
   const isPermanentTier = tier === 'eternal' || tier === 'legacy';
-  const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // Legacy default
-const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
+  const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
 
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!isConnected) return showToast(t.connectWalletBeforeAttach, 'error');
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
-    const maxSize = tier === 'eternal' ? MAX_ATTACHMENT_SIZE_ETERNAL : MAX_ATTACHMENT_SIZE_BYTES;
-    if (file.size > maxSize) return showToast(t.fileTooLarge.replace('{size}', maxSize / (1024 * 1024)), 'error');
+    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)), 'error');
 
     setSelectedFile(file);
     setIsPreparingUpload(true);
@@ -684,7 +557,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
       await ensureCorrectNetwork(await provider.getSigner());
       const uploader = await getIrysUploader(provider);
       const estimatedCost = await estimateArweaveCost(uploader, encryptedBytes.byteLength);
-      setStagedUpload({ file, encryptedBytes, estimatedCost: String(estimatedCost || 0) });
+      setStagedUpload({ file, encryptedBytes, estimatedCost });
     } catch (error) {
       showToast(t.prepareAttachmentFailPrefix + extractErrorMessage(error), "error");
       setSelectedFile(null);
@@ -705,7 +578,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
       );
       setUploadedCid(result.arweaveUrl);
       setPendingFileCipherRef(result.arweaveUrl);
-      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.ipfsAttachment}: ${result.arweaveUrl}]`);
+      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${result.arweaveUrl}]`);
       showToast(t.fileUploadedSuccess, "success");
       setStagedUpload(null);
     } catch (error) {
@@ -793,7 +666,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
   const handleOpenVault = async (capsule) => {
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     if (capsule.contentDeleted) {
-      setSelectedVault({ ...capsule, decryptedMessage: null, error: t.alreadyDeleted });
+      setSelectedVault({ ...capsule, decryptedMessage: null, error: t.statusAlreadyDeleted });
       return;
     }
     setSelectedVault({ ...capsule, decryptedMessage: null, error: null });
@@ -812,21 +685,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
         await tx.wait();
       }
       const { privateKey } = await getOrDeriveKeyPair();
-      let plaintext;
-      try {
-        plaintext = await decryptWithPrivateKey(privateKey, ciphertext);
-      } catch (decryptErr) {
-        // Kalau "Bad MAC", bisa jadi contract store plaintext (bukan ciphertext)
-        // atau data corrupt. Coba tampilkan raw sebagai fallback.
-        const errMsg = decryptErr?.message || '';
-        if (errMsg.includes('Bad MAC') || errMsg.includes('mac') || errMsg.includes('authentication')) {
-          console.warn('Bad MAC decrypt — treating as plaintext fallback. Raw:', ciphertext?.substring(0, 100));
-          plaintext = ciphertext;
-          showToast(t.decryptFallbackPlaintext || 'Pesan ditampilkan langsung (format tidak terenkripsi)', 'info');
-        } else {
-          throw decryptErr;
-        }
-      }
+      const plaintext = await decryptWithPrivateKey(privateKey, ciphertext);
       setSelectedVault(prev => ({ ...prev, decryptedMessage: plaintext }));
       showToast(t.decryptSuccess, 'success');
       await fetchWalletData();
@@ -871,7 +730,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
       const tx = await contract.deleteOpenedContent(capsule.id);
       await tx.wait();
       showToast(t.deleteContentSuccess, 'success');
-      closeVaultModal();
+      setSelectedVault(null);
       await fetchWalletData();
     } catch (err) {
       showToast(t.deleteContentFailPrefix + extractErrorMessage(err), 'error');
@@ -955,22 +814,22 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
   };
 
   const extractArweaveUrl = (text) => {
-  const match = text?.match(/(https:\/\/arweave\.net\/[a-zA-Z0-9_-]+)/);
-  return match ? match[1] : null;
-};
+    const match = text?.match(/\[Attachment:\s*(https:\/\/arweave\.net\/[^\]]+)\]/);
+    return match ? match[1] : null;
+  };
 
   const handleDownloadAttachment = async () => {
     if (!selectedVault?.decryptedMessage) return;
     const arweaveUrl = extractArweaveUrl(selectedVault.decryptedMessage);
     if (!arweaveUrl) {
-      showToast(t.noAttachmentFound, "error"); // <-- Sudah dipanggil dari kamus
+      showToast(t.noAttachmentFound || "Tidak ada lampiran ditemukan dalam pesan", "error");
       return;
     }
     setIsDownloadingAttachment(selectedVault.id);
     try {
-      showToast(t.fetchingArweave, "info"); // <-- Sudah dipanggil dari kamus
+      showToast(t.fetchingArweave || "Mengambil file dari Arweave...", "info");
       const response = await fetch(arweaveUrl);
-      if (!response.ok) throw new Error("Failed to fetch file from Arweave");
+      if (!response.ok) throw new Error(t.fetchArweaveFail || "Gagal mengambil file dari Arweave");
       const encryptedText = await response.text();
       const { privateKey } = await getOrDeriveKeyPair();
       const decryptedJsonString = await decryptWithPrivateKey(privateKey, encryptedText);
@@ -991,59 +850,14 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       
-      // Memanggil pesan sukses dengan nama file dinamis
-      showToast(t.downloadSuccess.replace('{file}', fileData.name), "success"); 
+      const successMsg = t.downloadSuccess ? t.downloadSuccess.replace('{file}', fileData.name) : `File "${fileData.name}" berhasil diunduh!`;
+      showToast(successMsg, "success");
     } catch (err) {
       console.error("Download/Decrypt error:", err);
-      showToast(t.downloadFailPrefix + extractErrorMessage(err), "error"); // <-- Sudah dipanggil dari kamus
+      const failPrefix = t.downloadFailPrefix || "Gagal mengunduh file: ";
+      showToast(failPrefix + extractErrorMessage(err), "error");
     } finally {
       setIsDownloadingAttachment(null);
-    }
-  };
-
-  const closeVaultModal = () => {
-    if (attachmentPreview?.url) {
-      window.URL.revokeObjectURL(attachmentPreview.url);
-    }
-    setSelectedVault(null);
-    setAttachmentPreview(null);
-    setIsPreviewing(null);
-  };
-
-  const handlePreviewAttachment = async () => {
-    if (!selectedVault?.decryptedMessage) return;
-    const arweaveUrl = extractArweaveUrl(selectedVault.decryptedMessage);
-    if (!arweaveUrl) {
-      showToast(t.noAttachmentFound || "Lampiran tidak ditemukan", "error");
-      return;
-    }
-    if (attachmentPreview?.url) {
-      window.URL.revokeObjectURL(attachmentPreview.url);
-    }
-    setIsPreviewing(selectedVault.id);
-    try {
-      showToast(t.fetchingArweave || "Mengambil file dari Arweave...", "info");
-      const response = await fetch(arweaveUrl);
-      if (!response.ok) throw new Error("Failed to fetch file from Arweave");
-      const encryptedText = await response.text();
-      const { privateKey } = await getOrDeriveKeyPair();
-      const decryptedJsonString = await decryptWithPrivateKey(privateKey, encryptedText);
-      const fileData = JSON.parse(decryptedJsonString);
-      const byteCharacters = atob(fileData.data);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: fileData.type || "application/octet-stream" });
-      const url = window.URL.createObjectURL(blob);
-      setAttachmentPreview({ url, name: fileData.name, type: fileData.type });
-      showToast(t.previewSuccess || "Preview berhasil dimuat", "success");
-    } catch (err) {
-      console.error("Preview error:", err);
-      showToast((t.previewFailPrefix || "Gagal memuat preview: ") + extractErrorMessage(err), "error");
-    } finally {
-      setIsPreviewing(null);
     }
   };
 
@@ -1163,8 +977,9 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                     </div>
                   </div>
                   <button
-                    onClick={async () => {
-                      if (address) await clearKeyPair(address);
+                    onClick={() => {
+                      myKeyPairRef.current = null;
+                      setHasLocalKeyPair(false);
                       disconnect();
                     }}
                     className="p-1.5 sm:p-2.5 bg-[#05030F] hover:bg-red-500/10 border border-neutral-800 hover:border-red-500/40 rounded-full text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"
@@ -1239,16 +1054,16 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                     </h3>
                     <p className="text-xs sm:text-sm text-neutral-400">{t.createDesc}</p>
                     <p className="text-[10px] sm:text-xs text-cyan-500/80 mt-2 flex items-center gap-1.5">
-                      <Lock className="w-3 h-3" /> {t.createNote}
+                      <Lock className="w-3 h-3" /> {t.encryptionNotice}
                     </p>
                     {!isTierConfigLoaded && !tierConfigError && (
                       <p className="text-[10px] sm:text-xs text-amber-500/80 mt-1.5 flex items-center gap-1.5">
-                        <Loader2 className="w-3 h-3 animate-spin" /> {t.loadingTierFallback}
+                        <Loader2 className="w-3 h-3 animate-spin" /> {t.loadingTierNotice}
                       </p>
                     )}
                     {tierConfigError && (
                       <p className="text-[10px] sm:text-xs text-red-400/80 mt-1.5 flex items-center gap-1.5">
-                        <AlertTriangle className="w-3 h-3" /> {t.loadingTierFallback} {t.usingFallback}
+                        <AlertTriangle className="w-3 h-3" /> {t.loadingTierNotice} (using fallback)
                       </p>
                     )}
                   </div>
@@ -1319,7 +1134,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                               <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 shrink-0" />
                               <div className="text-left flex-1 min-w-0">
                                 <p className="text-[10px] sm:text-xs font-bold text-white truncate w-full">{selectedFile?.name}</p>
-                                <p className="text-[9px] sm:text-[10px] text-cyan-500 font-mono truncate w-full">{String(uploadedCid || "")}</p>
+                                <p className="text-[9px] sm:text-[10px] text-cyan-500 font-mono truncate w-full">{uploadedCid}</p>
                               </div>
                             </div>
                             <button type="button" onClick={() => {setSelectedFile(null); setUploadedCid(''); setPendingFileCipherRef(null);}} className="text-neutral-500 hover:text-red-400 p-1 sm:p-2 cursor-pointer ml-auto">
@@ -1342,7 +1157,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                             </div>
                             <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3">
                               <p className="text-[10px] sm:text-xs text-purple-200">
-                                {t.estimatedCostLabel} <span className="font-mono font-bold">~{String(stagedUpload.estimatedCost || 0)} POL</span>
+                                {t.estimatedCostLabel} <span className="font-mono font-bold">~{stagedUpload.estimatedCost} POL</span>
                               </p>
                               <p className="text-[9px] sm:text-[10px] text-neutral-400 mt-1">
                                 {t.arweaveWarning}
@@ -1370,7 +1185,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                             <input type="file" onChange={handleFileSelected} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf,.zip" />
                             <UploadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-500/50 mx-auto mb-1.5 sm:mb-2" />
                             <p className="text-[10px] sm:text-xs text-neutral-400"><span className="text-cyan-400 font-bold">{t.ipfsUploadPrompt}</span></p>
-                            <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-1">{tier === 'eternal' ? t.ipfsUploadSubEternal || "Maksimal lampiran 5MB (PDF, ZIP, Gambar)" : t.ipfsUploadSub || "Maksimal lampiran 10MB (PDF, ZIP, Gambar)"}</p>
+                            <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-1">{t.ipfsUploadSub}</p>
                           </div>
                         )}
                       </div>
@@ -1516,7 +1331,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                                 className="w-full md:w-auto bg-transparent hover:bg-red-500/10 disabled:opacity-40 text-red-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-red-500/50 transition-all"
                               >
                                 {isDeletingContent === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
-                                {t.deleteBtn}
+                                {t.btnDeleteContent}
                               </button>
                             )}
                             <button
@@ -1526,12 +1341,12 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                             >
                               <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                               {cap.contentDeleted
-                                ? t.alreadyDeleted
+                                ? t.statusAlreadyDeleted
                                 : isOwnUnclaimableLegacy
-                                  ? (cap.isReady ? t.waitingForHeir : t.notReady)
+                                  ? (cap.isReady ? t.statusWaitingHeir : t.statusNotReady)
                                   : cap.isClaimedOrRevealed
                                     ? t.btnViewAgain
-                                    : (cap.isReady ? t.openVault : t.notReady)}
+                                    : (cap.isReady ? t.openVaultBtn : t.statusNotReady)}
                             </button>
                           </div>
                         </div>
@@ -1578,10 +1393,10 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                         onClick={() => fetchOnChainHistory(address, DEPLOY_BLOCK_NUMBER)}
                         className="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-400 hover:text-white px-5 py-2.5 rounded-full text-[10px] sm:text-xs font-bold transition-all cursor-pointer"
                       >
-                        {t.loadFullHistory}
+                        {t.loadFullHistory || "Load Full History (from genesis block)"}
                       </button>
                       <p className="text-[9px] sm:text-[10px] text-neutral-600 mt-2">
-                        {t.fullSyncNote}
+                        {t.fullSyncNote || "Full sync may take a while depending on RPC rate limits."}
                       </p>
                     </div>
                   )}
@@ -1719,10 +1534,10 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
 
                   <div className="bg-[#0B0817] border border-cyan-500/20 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg space-y-3">
                     <h5 className="text-sm sm:text-base font-bold text-white flex items-center gap-2"><KeyRound className="w-4 h-4 text-cyan-400"/> {t.secHowProtected}</h5>
-                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">{t.secPara1}</p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secPara2}</p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secPara3}</p>
-                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secPara4}</p>
+                    <p className="text-[11px] sm:text-sm text-neutral-400 leading-relaxed">{t.secDesc1}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc2}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc3}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500 leading-relaxed">{t.secDesc4}</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -1779,7 +1594,7 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                           <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.rpcDesc}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto mt-1 sm:mt-0">
-                          <input type="text" disabled value={READ_ONLY_RPC_URLS[0]} className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none" />
+                          <input type="text" disabled value={READ_ONLY_RPC_URL} className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none" />
                           <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? t.wrongNetwork : t.connected}</span>
                         </div>
                       </div>
@@ -1834,76 +1649,31 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
               </div>
             ) : (
               <>
-              <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
-                {selectedVault.decryptedMessage}
-              </div>
-              {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
-              <div className="space-y-3">
-                {/* PEMBERITAHUAN / NOTICE (bisa ditranslate) */}
-                <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-lg p-3 flex items-start gap-2">
-                  <Bell className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                  <p className="text-[10px] sm:text-xs text-cyan-300/80 leading-relaxed">
-                    {t.attachmentNotice || "File attachment terdeteksi. Gunakan Preview untuk melihat gambar, atau Download untuk menyimpan file ke perangkat Anda."}
-                  </p>
+                <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
+                  {selectedVault.decryptedMessage}
                 </div>
-
-                {/* AREA PREVIEW GAMBAR */}
-                {attachmentPreview && attachmentPreview.type?.startsWith('image/') && (
-                  <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-                    <img 
-                      src={attachmentPreview.url} 
-                      alt={attachmentPreview.name} 
-                      className="w-full max-h-64 object-contain"
-                    />
-                    <p className="text-[10px] text-neutral-500 text-center py-2 border-t border-neutral-800 font-mono">
-                      {attachmentPreview.name}
-                    </p>
-                  </div>
-                )}
-
-                {/* 2 TOMBOL: PREVIEW + DOWNLOAD */}
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={handlePreviewAttachment}
-                    disabled={isPreviewing === selectedVault.id || isDownloadingAttachment === selectedVault.id}
-                    className={`py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all ${attachmentPreview ? 'ring-1 ring-cyan-500/50 bg-cyan-500/15' : ''}`}
-                  >
-                    {isPreviewing === selectedVault.id ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {t.previewLoading || "Memuat..."}
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="w-4 h-4" />
-                        {t.previewBtn || "Preview"}
-                      </>
-                    )}
-                  </button>
-
+                {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
                   <button
                     onClick={handleDownloadAttachment}
-                    disabled={isDownloadingAttachment === selectedVault.id || isPreviewing === selectedVault.id}
-                    className="py-3 sm:py-3.5 bg-purple-500/10 hover:bg-purple-500/20 disabled:opacity-50 border border-purple-500/40 text-purple-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
+                    disabled={isDownloadingAttachment === selectedVault.id}
+                    className="w-full py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
                   >
                     {isDownloadingAttachment === selectedVault.id ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        {t.decryptingDownloading || "Mendownload..."}
+                        {t.decryptingDownloading || "Mendekripsi & Mengunduh..."}
                       </>
                     ) : (
                       <>
                         <Download className="w-4 h-4" />
-                        {t.downloadBtn || "Download"}
+                        {t.downloadBtn || "Download & Decrypt File"}
                       </>
                     )}
                   </button>
-                </div>
-              </div>
+                )}
+              </>
             )}
-            </>
-            )}
-            <button onClick={closeVaultModal} className="w-full bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-3 sm:py-4 rounded-xl sm:rounded-full text-[10px] sm:text-xs cursor-pointer transition-colors outline-none border border-transparent focus:border-neutral-500">
+            <button onClick={() => setSelectedVault(null)} className="w-full bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-3 sm:py-4 rounded-xl sm:rounded-full text-[10px] sm:text-xs cursor-pointer transition-colors outline-none border border-transparent focus:border-neutral-500">
               {t.closeVaultBtn}
             </button>
           </div>
