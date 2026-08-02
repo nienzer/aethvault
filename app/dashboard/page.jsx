@@ -19,8 +19,6 @@ import {
   getKeyPair,
   clearKeyPair,
   isKeyPairValid,
-  cleanupExpiredKeys,
-  purgeSessionKey,
 } from '@/lib/secureKeyStorage';
 import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload';
 
@@ -136,9 +134,9 @@ const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
 const READ_ONLY_RPC_URLS = [
+  "https://polygon-amoy.drpc.org",
   "https://rpc-amoy.polygon.technology/",
   "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM",
-  "https://polygon-amoy.blockpi.network/v1/rpc/public",
 ];
 
 async function getWorkingProvider(preferredIndex = 0) {
@@ -221,25 +219,20 @@ export default function DashboardPage() {
   
   const myKeyPairRef = useRef(null);
   const [hasLocalKeyPair, setHasLocalKeyPair] = useState(false);
-
   const [walletProviderReady, setWalletProviderReady] = useState(false);
-
-  // GUARD: tier config fetch hanya 1x per session
+  
+  // Guard: tier config hanya fetch 1x per session
   const tierFetchedRef = useRef(false);
 
   useEffect(() => {
-    cleanupExpiredKeys();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Wait for walletProvider to be fully ready after reconnect
+  // Tunggu walletProvider fully ready setelah reconnect
   useEffect(() => {
     if (isConnected && walletProvider) {
-      // Give provider a moment to fully initialize
-      const timer = setTimeout(() => {
-        setWalletProviderReady(true);
-      }, 500);
+      const timer = setTimeout(() => setWalletProviderReady(true), 800);
       return () => clearTimeout(timer);
     } else {
       setWalletProviderReady(false);
@@ -295,16 +288,17 @@ export default function DashboardPage() {
         setIsTierConfigLoaded(true);
         tierFetchedRef.current = true;
       } catch (err) {
-        console.error('[TierConfig] Fetch failed:', err.message);
+        console.error(t.consoleTierConfigFail, err);
         if (!cancelled) {
           setTierConfigError(err?.message || 'Failed to load tier config');
-          setIsTierConfigLoaded(true);
+          setIsTierConfigLoaded(true); 
         }
       }
     };
     fetchTierConfigs();
     return () => { cancelled = true; };
-  }, []); // EMPTY DEPS — hanya 1x saat mount
+  }, []);
+
 
   const tierDisplayMeta = {
     basic: { name: t.tiersList.basicName, desc: t.tiersList.basicDesc, icon: 'bg-neutral-800', color: 'text-gray-300', border: 'border-neutral-500 shadow-[0_0_15px_-3px_rgba(255,255,255,0.1)]' },
@@ -462,9 +456,10 @@ export default function DashboardPage() {
       const provider = await getWorkingProvider();
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
 
-      // Chunking untuk RPC testnet yang limit block range (Alchemy ~2000 blocks)
+      // Chunking untuk RPC testnet (public RPC friendly)
       const latestBlock = await provider.getBlockNumber();
-      const CHUNK_SIZE = 2000;
+      const CHUNK_SIZE = 800;
+      const CHUNK_DELAY_MS = 200;
       let allSealed = [], allRevealed = [], allClaimed = [], allPing = [];
 
       for (let start = fromBlock; start <= latestBlock; start += CHUNK_SIZE) {
@@ -482,6 +477,9 @@ export default function DashboardPage() {
           allPing.push(...p);
         } catch (chunkErr) {
           console.warn(`History chunk ${start}-${end} failed:`, chunkErr.message);
+        }
+        if (start + CHUNK_SIZE <= latestBlock) {
+          await new Promise(r => setTimeout(r, CHUNK_DELAY_MS));
         }
       }
 
@@ -553,7 +551,9 @@ export default function DashboardPage() {
       let totalBurn = 0;
       sealedEvents.forEach((e) => {
         const tierIdx = Number(e.args.tier);
+        // Prioritas 1: on-chain config
         let burnAmount = onChainTierConfig[tierIdx]?.burn;
+        // Prioritas 2: fallback config
         if (burnAmount === undefined || burnAmount === null || isNaN(burnAmount)) {
           const fallbackKey = Object.keys(TIER_ENUM_MAP).find(k => TIER_ENUM_MAP[k] === tierIdx);
           const fallback = fallbackKey ? TIER_FALLBACK_CONFIG[fallbackKey] : null;
@@ -561,7 +561,7 @@ export default function DashboardPage() {
         }
         totalBurn += Number(burnAmount) || 0;
       });
-      console.log('[Burn Debug] Total burned:', totalBurn.toFixed(2), 'AETH from', sealedEvents.length, 'sealed events');
+      console.log('[Burn Debug] Total burned calculated:', totalBurn, 'from', sealedEvents.length, 'events');
       setBurnedTotal(totalBurn);
     } catch (err) {
       console.error(t.consoleHistoryFail, err);
@@ -569,78 +569,62 @@ export default function DashboardPage() {
       setIsLoadingHistory(false);
       setIsFullHistoryLoaded(true);
     }
-  }, [onChainTierConfig]);
+  }, []);
 
   const fetchWalletData = useCallback(async () => {
-    if (!isConnected || !walletProvider || !address) {
+    if (isConnected && walletProvider && address) {
+      try {
+        const provider = new ethers.BrowserProvider(walletProvider);
+        const rawBalance = await provider.getBalance(address);
+        setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
+        try {
+          const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+          const rawAethBalance = await tokenContract.balanceOf(address);
+          setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
+          const registeredKey = await tokenContract.encryptionPublicKeys(address);
+          setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x');
+        } catch (err) { console.log(t.consoleAetherVaultFail, err); }
+        try {
+          if (STAKING_CONTRACT_ADDRESS) {
+            const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
+            const [rawStaked, rawReward, rawRate] = await Promise.all([
+              stakingContract.stakedBalance(address),
+              stakingContract.calculateReward(address),
+              stakingContract.rewardRate(),
+            ]);
+            setStakedBalance(parseFloat(ethers.formatUnits(rawStaked, 18)));
+            setPendingReward(parseFloat(ethers.formatUnits(rawReward, 18)));
+            setApyPercent(Number(rawRate) / 10);
+          }
+        } catch (stakingErr) {}
+        let privateKeyForTitles = null;
+        if (!isWrongNetwork) {
+          try {
+            const kp = await getOrDeriveKeyPair();
+            privateKeyForTitles = kp.privateKey;
+          } catch (keyErr) {}
+        }
+        await fetchCapsulesFromChain(provider, address, privateKeyForTitles);
+        await fetchOnChainHistory(address);
+      } catch (err) { console.error(t.consoleWalletFail, err); }
+    } else {
       setNativeBalance('0.0000'); setAethBalance(0); setStakedBalance(0); setPendingReward(0);
       setMyCapsules([]); setTransactions([]); setBurnedTotal(0); setMyPublicKeyRegistered(false);
       myKeyPairRef.current = null; setHasLocalKeyPair(false);
-      return;
     }
-
-    try {
-            const provider = new ethers.BrowserProvider(walletProvider);
-      const rawBalance = await provider.getBalance(address);
-      setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
-
-      try {
-        const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-        const rawAethBalance = await tokenContract.balanceOf(address);
-        setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
-        const registeredKey = await tokenContract.encryptionPublicKeys(address);
-        setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x' && registeredKey.length > 2);
-      } catch (err) { 
-        console.warn('[fetchWalletData] Token/Key read failed:', err?.message);
-        setAethBalance(0);
-        setMyPublicKeyRegistered(false);
-      }
-
-      try {
-        if (STAKING_CONTRACT_ADDRESS && IS_STAKING_ADDRESS_CONFIGURED) {
-          const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-          const [rawStaked, rawReward, rawRate] = await Promise.all([
-            stakingContract.stakedBalance(address),
-            stakingContract.calculateReward(address),
-            stakingContract.rewardRate(),
-          ]);
-          setStakedBalance(parseFloat(ethers.formatUnits(rawStaked, 18)));
-          setPendingReward(parseFloat(ethers.formatUnits(rawReward, 18)));
-          setApyPercent(Number(rawRate) / 10);
-        }
-      } catch (stakingErr) {
-        console.warn('[fetchWalletData] Staking read failed:', stakingErr?.message);
-      }
-
-      let privateKeyForTitles = null;
-      if (!isWrongNetwork) {
-        try {
-          const kp = await getOrDeriveKeyPair();
-          privateKeyForTitles = kp.privateKey;
-        } catch (keyErr) {
-          console.warn('[fetchWalletData] Key derive failed:', keyErr?.message);
-        }
-      }
-
-      await fetchCapsulesFromChain(provider, address, privateKeyForTitles);
-      await fetchOnChainHistory(address);
-    } catch (err) { 
-      console.error('[fetchWalletData] Fatal error:', err);
-            showToast(t.walletDataFetchFail || 'Failed to load wallet data. Please refresh.', 'error');
-    }
-  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, t, showToast]);
+  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork]);
 
   useEffect(() => {
-    if (!isConnected || !walletProviderReady || !address) return;
-    fetchWalletData();
+    if (isConnected && walletProviderReady && address) {
+      fetchWalletData();
+    }
   }, [isConnected, walletProviderReady, address]);
 
-  // Re-fetch history setelah tier config berhasil load (untuk burn calculation)
-  // atau kalau address berubah
+  // Re-fetch history setelah tier config berhasil load (hanya 1x)
   useEffect(() => {
-    if (!isTierConfigLoaded || !address || !isConnected || isWrongNetwork) return;
-    // Allow re-fetch on address change (reset guard handled in address effect)
-    fetchOnChainHistory(address);
+    if (isTierConfigLoaded && address && isConnected && !isWrongNetwork) {
+      fetchOnChainHistory(address);
+    }
   }, [isTierConfigLoaded, address, isConnected, isWrongNetwork]);
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
@@ -1181,7 +1165,6 @@ const MAX_ATTACHMENT_SIZE_ETERNAL = 5 * 1024 * 1024; // Eternal: 5MB
                   <button
                     onClick={async () => {
                       if (address) await clearKeyPair(address);
-                      purgeSessionKey();
                       disconnect();
                     }}
                     className="p-1.5 sm:p-2.5 bg-[#05030F] hover:bg-red-500/10 border border-neutral-800 hover:border-red-500/40 rounded-full text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"
