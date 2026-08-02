@@ -129,7 +129,7 @@ const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
-const READ_ONLY_RPC_URL = "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM"; 
+const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology/";
 const TIER_FALLBACK_CONFIG = {
   basic: { cost: 10, burn: 2, maxLength: 250, maxYears: 1 },
   premium: { cost: 50, burn: 10, maxLength: 1000, maxYears: 5 },
@@ -189,18 +189,12 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState([]);
   const [isFullHistoryLoaded, setIsFullHistoryLoaded] = useState(false);
   const [tierConfigError, setTierConfigError] = useState(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedVault, setSelectedVault] = useState(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [isDownloadingAttachment, setIsDownloadingAttachment] = useState(null);
   
   const myKeyPairRef = useRef(null);
   const [hasLocalKeyPair, setHasLocalKeyPair] = useState(false);
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   // FIX: Reset keypair ref saat wallet address berubah (switch wallet tanpa disconnect)
   useEffect(() => {
@@ -501,7 +495,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchWalletData();
-  }, [fetchWalletData]);
+  }, [isConnected, address, isWrongNetwork]); 
+  // Dependency dikunci agar tidak spam RPC
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   const getMinUnlockDatetimeLocal = () => {
