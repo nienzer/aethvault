@@ -432,6 +432,12 @@ export const en = {
     noAttachmentFound: "No attachment found in this message.",
     fetchingArweave: "Fetching file from Arweave...",
     downloadSuccess: "File '{file}' downloaded successfully!",
-    downloadFailPrefix: "Failed to download file: "
+    downloadFailPrefix: "Failed to download file: ",
+    previewBtn: "Preview",
+    downloadBtn: "Download",
+    previewFailPrefix: "Failed to load preview: ",
+    previewLoading: "Loading preview...",
+    previewSuccess: "Preview loaded successfully",
+    attachmentNotice: "Attachment detected. Use Preview to view the image, or Download to save the file to your device."
   }
 };

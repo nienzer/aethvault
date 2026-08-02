@@ -432,6 +432,12 @@ export const id = {
     noAttachmentFound: "Tidak ada lampiran ditemukan di pesan ini.",
     fetchingArweave: "Mengambil file dari Arweave...",
     downloadSuccess: "File '{file}' berhasil diunduh!",
-    downloadFailPrefix: "Gagal mengunduh file: "
+    downloadFailPrefix: "Gagal mengunduh file: ",
+    previewBtn: "Preview",
+    downloadBtn: "Download",
+    previewFailPrefix: "Gagal memuat preview: ",
+    previewLoading: "Memuat preview...",
+    previewSuccess: "Preview berhasil dimuat",
+    attachmentNotice: "File attachment terdeteksi. Gunakan Preview untuk melihat gambar, atau Download untuk menyimpan file ke perangkat Anda."
   }
 };

@@ -112,23 +112,22 @@ const StakingABI = [
     ], "name": "RewardClaimed", "type": "event" }
 ];
 
-const CONTRACT_ADDRESS = "0x718b453206A950Eee77832F1cBfE63320A90d70f"; 
-const STAKING_CONTRACT_ADDRESS = "0x30C7Be9E02e2717676B583dEED79F2fBD2493aCc"; 
-
+const CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; // TODO: isi alamat hasil deploy AetherVault.sol (40 hex char setelah 0x!)
+const STAKING_CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; // TODO: isi alamat staking (40 hex char setelah 0x!)  
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED =
   CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
 const IS_STAKING_ADDRESS_CONFIGURED =
   STAKING_CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
 
-const TARGET_CHAIN_ID = 137;
+const TARGET_CHAIN_ID = 80002;
 const TARGET_CHAIN_ID_HEX = "0x" + TARGET_CHAIN_ID.toString(16);
-const TARGET_CHAIN_NAME = "Polygon Mainnet";
+const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
 
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
 
-const READ_ONLY_RPC_URL = "https://polygon-mainnet.g.alchemy.com/v2/alch_EJ4vIEBOFNz5ybhl8CbuD"; 
+const READ_ONLY_RPC_URL = "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM"; 
 const TIER_FALLBACK_CONFIG = {
   basic: { cost: 10, burn: 2, maxLength: 250, maxYears: 1 },
   premium: { cost: 50, burn: 10, maxLength: 1000, maxYears: 5 },
@@ -192,6 +191,8 @@ export default function DashboardPage() {
   const [selectedVault, setSelectedVault] = useState(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [isDownloadingAttachment, setIsDownloadingAttachment] = useState(null);
+  const [attachmentPreview, setAttachmentPreview] = useState(null);
+  const [isPreviewing, setIsPreviewing] = useState(null);
   
   const myKeyPairRef = useRef(null);
   const [hasLocalKeyPair, setHasLocalKeyPair] = useState(false);
@@ -366,7 +367,7 @@ export default function DashboardPage() {
     }
   }, [t]);
 
-  const DEPLOY_BLOCK_NUMBER = 91096734;
+  const DEPLOY_BLOCK_NUMBER = 43345845;
 
   const fetchOnChainHistory = useCallback(async (userAddress, fromBlock = DEPLOY_BLOCK_NUMBER) => {
     setIsLoadingHistory(true);
@@ -729,7 +730,7 @@ export default function DashboardPage() {
       const tx = await contract.deleteOpenedContent(capsule.id);
       await tx.wait();
       showToast(t.deleteContentSuccess, 'success');
-      setSelectedVault(null);
+      closeVaultModal();
       await fetchWalletData();
     } catch (err) {
       showToast(t.deleteContentFailPrefix + extractErrorMessage(err), 'error');
@@ -813,9 +814,9 @@ export default function DashboardPage() {
   };
 
   const extractArweaveUrl = (text) => {
-    const match = text?.match(/\[Attachment:\s*(https:\/\/arweave\.net\/[^\]]+)\]/);
-    return match ? match[1] : null;
-  };
+  const match = text?.match(/(https:\/\/arweave\.net\/[a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+};
 
   const handleDownloadAttachment = async () => {
     if (!selectedVault?.decryptedMessage) return;
@@ -856,6 +857,52 @@ export default function DashboardPage() {
       showToast(t.downloadFailPrefix + extractErrorMessage(err), "error"); // <-- Sudah dipanggil dari kamus
     } finally {
       setIsDownloadingAttachment(null);
+    }
+  };
+
+  const closeVaultModal = () => {
+    if (attachmentPreview?.url) {
+      window.URL.revokeObjectURL(attachmentPreview.url);
+    }
+    setSelectedVault(null);
+    setAttachmentPreview(null);
+    setIsPreviewing(null);
+  };
+
+  const handlePreviewAttachment = async () => {
+    if (!selectedVault?.decryptedMessage) return;
+    const arweaveUrl = extractArweaveUrl(selectedVault.decryptedMessage);
+    if (!arweaveUrl) {
+      showToast(t.noAttachmentFound || "Lampiran tidak ditemukan", "error");
+      return;
+    }
+    if (attachmentPreview?.url) {
+      window.URL.revokeObjectURL(attachmentPreview.url);
+    }
+    setIsPreviewing(selectedVault.id);
+    try {
+      showToast(t.fetchingArweave || "Mengambil file dari Arweave...", "info");
+      const response = await fetch(arweaveUrl);
+      if (!response.ok) throw new Error("Failed to fetch file from Arweave");
+      const encryptedText = await response.text();
+      const { privateKey } = await getOrDeriveKeyPair();
+      const decryptedJsonString = await decryptWithPrivateKey(privateKey, encryptedText);
+      const fileData = JSON.parse(decryptedJsonString);
+      const byteCharacters = atob(fileData.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: fileData.type || "application/octet-stream" });
+      const url = window.URL.createObjectURL(blob);
+      setAttachmentPreview({ url, name: fileData.name, type: fileData.type });
+      showToast(t.previewSuccess || "Preview berhasil dimuat", "success");
+    } catch (err) {
+      console.error("Preview error:", err);
+      showToast((t.previewFailPrefix || "Gagal memuat preview: ") + extractErrorMessage(err), "error");
+    } finally {
+      setIsPreviewing(null);
     }
   };
 
@@ -1647,27 +1694,72 @@ export default function DashboardPage() {
                 {selectedVault.decryptedMessage}
               </div>
               {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
-                <button
-                  onClick={handleDownloadAttachment}
-                  disabled={isDownloadingAttachment === selectedVault.id}
-                  className="w-full py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
-                >
-                  {isDownloadingAttachment === selectedVault.id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      {t.decryptingDownloading}
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4" />
-                      {t.downloadDecryptBtn}
-                    </>
-                  )}
-                </button>
-              )}
+              <div className="space-y-3">
+                {/* PEMBERITAHUAN / NOTICE (bisa ditranslate) */}
+                <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-lg p-3 flex items-start gap-2">
+                  <Bell className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                  <p className="text-[10px] sm:text-xs text-cyan-300/80 leading-relaxed">
+                    {t.attachmentNotice || "File attachment terdeteksi. Gunakan Preview untuk melihat gambar, atau Download untuk menyimpan file ke perangkat Anda."}
+                  </p>
+                </div>
+
+                {/* AREA PREVIEW GAMBAR */}
+                {attachmentPreview && attachmentPreview.type?.startsWith('image/') && (
+                  <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+                    <img 
+                      src={attachmentPreview.url} 
+                      alt={attachmentPreview.name} 
+                      className="w-full max-h-64 object-contain"
+                    />
+                    <p className="text-[10px] text-neutral-500 text-center py-2 border-t border-neutral-800 font-mono">
+                      {attachmentPreview.name}
+                    </p>
+                  </div>
+                )}
+
+                {/* 2 TOMBOL: PREVIEW + DOWNLOAD */}
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handlePreviewAttachment}
+                    disabled={isPreviewing === selectedVault.id || isDownloadingAttachment === selectedVault.id}
+                    className={`py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all ${attachmentPreview ? 'ring-1 ring-cyan-500/50 bg-cyan-500/15' : ''}`}
+                  >
+                    {isPreviewing === selectedVault.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {t.previewLoading || "Memuat..."}
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-4 h-4" />
+                        {t.previewBtn || "Preview"}
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={handleDownloadAttachment}
+                    disabled={isDownloadingAttachment === selectedVault.id || isPreviewing === selectedVault.id}
+                    className="py-3 sm:py-3.5 bg-purple-500/10 hover:bg-purple-500/20 disabled:opacity-50 border border-purple-500/40 text-purple-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
+                  >
+                    {isDownloadingAttachment === selectedVault.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {t.decryptingDownloading || "Mendownload..."}
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        {t.downloadBtn || "Download"}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
             </>
             )}
-            <button onClick={() => setSelectedVault(null)} className="w-full bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-3 sm:py-4 rounded-xl sm:rounded-full text-[10px] sm:text-xs cursor-pointer transition-colors outline-none border border-transparent focus:border-neutral-500">
+            <button onClick={closeVaultModal} className="w-full bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-3 sm:py-4 rounded-xl sm:rounded-full text-[10px] sm:text-xs cursor-pointer transition-colors outline-none border border-transparent focus:border-neutral-500">
               {t.closeVaultBtn}
             </button>
           </div>
