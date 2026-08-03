@@ -12,7 +12,7 @@ export const en = {
     badge: "Live on Polygon Mainnet",
     titleLine1: "The Next Generation",
     titleHighlight: "Decentralized Time Capsule",
-    desc: "AetherVault secures your confidential messages, wills, and digital assets using 100% blockchain encryption, Dead Man's Switch protocols, and deflationary token mechanisms.",
+    desc: "The first decentralized protocol to secure your digital legacy. Equipped with Web3 encryption, Dead Man's Switch systems, Liquid Staking, and Aether Proof™ Certificates for absolute on-chain verification.",
     exploreBtn: "Explore Ecosystem",
     whitepaperBtn: "Whitepaper",
     builtOn: "Built on",
@@ -22,7 +22,7 @@ export const en = {
   infrastructure: {
     tag: "Infrastructure",
     title: "Modular.\nScalable.\nDecentralized.",
-    desc: "Advanced infrastructure to secure data across time.",
+    desc: "Advanced infrastructure with tamper-proof cryptographic evidence to secure data across time.",
     nodesTitle: "Decentralized Nodes",
     nodesDesc: "Global access to a distributed network for storing data payloads.",
     interopTitle: "Interoperability",

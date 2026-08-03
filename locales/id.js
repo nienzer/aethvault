@@ -12,7 +12,7 @@ export const id = {
     badge: "Live on Polygon Mainnet",
     titleLine1: "The Next Generation",
     titleHighlight: "Decentralized Time Capsule",
-    desc: "AetherVault mengamankan pesan rahasia, surat wasiat, dan aset digital Anda menggunakan enkripsi 100% blockchain, protokol Dead Man's Switch, dan mekanisme token deflasi.",
+    desc: "Protokol desentralisasi pertama yang mengamankan warisan digital Anda. Dilengkapi dengan enkripsi Web3, sistem Dead Man's Switch, Liquid Staking, dan Sertifikat Aether Proof™ untuk verifikasi on-chain yang absolut.",
     exploreBtn: "Explore Ecosystem",
     whitepaperBtn: "Whitepaper",
     builtOn: "Built on",
@@ -22,7 +22,7 @@ export const id = {
   infrastructure: {
     tag: "Infrastructure",
     title: "Modular.\nScalable.\nDecentralized.",
-    desc: "Infrastruktur tingkat lanjut untuk mengamankan data lintas waktu.",
+    desc: "Infrastruktur tingkat lanjut dengan bukti kriptografi yang tidak dapat dimanipulasi untuk mengamankan data lintas waktu.",
     nodesTitle: "Decentralized Nodes",
     nodesDesc: "Akses global jaringan terdistribusi untuk menyimpan muatan data.",
     interopTitle: "Interoperability",

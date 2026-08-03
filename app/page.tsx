@@ -1,12 +1,12 @@
 "use client";
 import React, { useState } from 'react';
-import { Wallet, Shield, Lock, Clock, Database, Activity, ArrowRight, Server, Cpu, Globe, CheckCircle2, MessageSquare, Send, Code, Zap, Flame, UserX, Layers, FileText, Map, Users, ChevronRight, Bell, AlertTriangle, RefreshCcw, LineChart, Mail } from "lucide-react";
+import { Wallet, Shield, Lock, Clock, Database, Activity, ArrowRight, Server, Cpu, Globe, CheckCircle2, MessageSquare, Send, Code, Zap, Flame, UserX, Layers, FileText, Map, Users, ChevronRight, Bell, AlertTriangle, RefreshCcw, LineChart, Mail, Award } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useLanguage } from '@/context/LanguageContext'; // <-- Panggil Otak Bahasa
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function LandingPage() {
   const router = useRouter();
-  const { t, lang } = useLanguage(); // Gantikan useState manual
+  const { t, lang } = useLanguage();
 
   const [toast, setToast] = useState<{msg: string, type: 'success' | 'error' | 'info'} | null>(null);
 
@@ -46,9 +46,7 @@ export default function LandingPage() {
         .animate-orbit { animation: orbit 25s linear infinite; }
       `}</style>
 
-      {/* KODE <nav> PANJANG SUDAH DIHAPUS KARENA MENGGUNAKAN NAVBAR GLOBAL */}
-
-      {/* HERO SECTION (Jarak atas disesuaikan jadi pt-4 sm:pt-16 agar pas dengan Navbar Global) */}
+      {/* HERO SECTION */}
       <section id="home" className="pt-4 sm:pt-16 pb-12 sm:pb-20 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 sm:gap-12 items-center relative">
         <div className="absolute top-1/4 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-cyan-600/10 blur-[150px] rounded-full pointer-events-none"></div>
 
@@ -100,19 +98,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* INFRASTRUCTURE */}
+      {/* INFRASTRUCTURE - SUDAH DIROMBAK UNTUK MENAMPILKAN AETHER PROOF */}
       <section id="infrastructure" className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 border-t border-neutral-900">
+        <div className="text-center mb-8 sm:mb-12">
+          <span className="text-cyan-400 text-[10px] sm:text-xs font-bold tracking-widest uppercase block mb-1.5 sm:mb-2 font-mono">{t.infrastructure.tag}</span>
+          <h2 className="text-xl sm:text-3xl font-extrabold mb-2 sm:mb-3 text-white leading-tight whitespace-pre-line">{t.infrastructure.title.replace('\n', ' ')}</h2>
+          <p className="text-neutral-500 text-[10px] sm:text-sm leading-relaxed max-w-2xl mx-auto">{t.infrastructure.desc}</p>
+        </div>
+
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          <div className="col-span-2 lg:col-span-1 text-center lg:text-left mb-4 lg:mb-0">
-            <span className="text-cyan-400 text-[10px] sm:text-xs font-bold tracking-widest uppercase block mb-1.5 sm:mb-2 font-mono">{t.infrastructure.tag}</span>
-            <h2 className="text-xl sm:text-3xl font-extrabold mb-2 sm:mb-3 text-white leading-tight whitespace-pre-line">{t.infrastructure.title}</h2>
-            <p className="text-neutral-500 text-[10px] sm:text-sm leading-relaxed max-w-xs mx-auto lg:mx-0">{t.infrastructure.desc}</p>
-          </div>
-          
           {[
             { icon: <Cpu className="w-4 h-4 sm:w-6 sm:h-6 text-cyan-400" />, title: t.infrastructure.nodesTitle, desc: t.infrastructure.nodesDesc },
             { icon: <Layers className="w-4 h-4 sm:w-6 sm:h-6 text-blue-400" />, title: t.infrastructure.interopTitle, desc: t.infrastructure.interopDesc },
-            { icon: <Shield className="w-4 h-4 sm:w-6 sm:h-6 text-purple-400" />, title: t.infrastructure.securityTitle, desc: t.infrastructure.securityDesc }
+            { icon: <Shield className="w-4 h-4 sm:w-6 sm:h-6 text-purple-400" />, title: t.infrastructure.securityTitle, desc: t.infrastructure.securityDesc },
+            { icon: <Award className="w-4 h-4 sm:w-6 sm:h-6 text-amber-400" />, title: t.dashboard?.certTitle || "Aether Proof™", desc: t.dashboard?.certSub || "Blockchain Certificate of Existence" }
           ].map((item, i) => (
             <div key={i} className="bg-[#080808] border border-neutral-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl hover:border-cyan-500/30 transition-all group flex flex-col justify-between">
               <div>
@@ -148,7 +147,7 @@ export default function LandingPage() {
             </div>
             <div className="pt-3 sm:pt-4 border-t border-neutral-900 flex flex-col xl:flex-row items-start xl:items-center justify-between text-[9px] sm:text-[11px] font-mono text-neutral-500 gap-1.5 xl:gap-0">
               <span>{t.tiers.autoBurn}</span>
-              <span className="text-red-400 font-bold flex items-center gap-1"><Flame className="w-3 h-3"/> 2 Burn</span>
+              <span className="text-red-400 font-bold flex items-center gap-1"><Flame className="w-3 h-3"/> 2 {t.tiers.burnUnit}</span>
             </div>
           </div>
 
@@ -165,7 +164,7 @@ export default function LandingPage() {
             </div>
             <div className="pt-3 sm:pt-4 border-t border-neutral-900 flex flex-col xl:flex-row items-start xl:items-center justify-between text-[9px] sm:text-[11px] font-mono text-neutral-500 gap-1.5 xl:gap-0">
               <span>{t.tiers.autoBurn}</span>
-              <span className="text-red-400 font-bold flex items-center gap-1"><Flame className="w-3 h-3"/> 10 Burn</span>
+              <span className="text-red-400 font-bold flex items-center gap-1"><Flame className="w-3 h-3"/> 10 {t.tiers.burnUnit}</span>
             </div>
           </div>
 
@@ -181,7 +180,7 @@ export default function LandingPage() {
             </div>
             <div className="pt-3 sm:pt-4 border-t border-neutral-900 flex flex-col xl:flex-row items-start xl:items-center justify-between text-[9px] sm:text-[11px] font-mono text-neutral-500 gap-1.5 xl:gap-0">
               <span>{t.tiers.autoBurn}</span>
-              <span className="text-red-400 font-bold flex items-center gap-1"><Flame className="w-3 h-3"/> 40 Burn</span>
+              <span className="text-red-400 font-bold flex items-center gap-1"><Flame className="w-3 h-3"/> 40 {t.tiers.burnUnit}</span>
             </div>
           </div>
 
@@ -198,7 +197,7 @@ export default function LandingPage() {
             </div>
             <div className="pt-3 sm:pt-4 border-t border-neutral-900 flex flex-col xl:flex-row items-start xl:items-center justify-between text-[9px] sm:text-[11px] font-mono text-neutral-500 gap-1.5 xl:gap-0">
               <span>{t.tiers.autoBurn}</span>
-              <span className="text-red-400 font-bold flex items-center gap-1"><Flame className="w-3 h-3"/> 100 Burn</span>
+              <span className="text-red-400 font-bold flex items-center gap-1"><Flame className="w-3 h-3"/> 100 {t.tiers.burnUnit}</span>
             </div>
           </div>
         </div>
@@ -316,17 +315,12 @@ export default function LandingPage() {
               
               {/* SOCIAL MEDIA LINKS */}
               <div className="flex justify-center gap-4 sm:gap-5 text-neutral-500">
-                {/* Twitter / X */}
                 <a href="https://twitter.com/nien_zer" target="_blank" rel="noreferrer" title="Twitter / X" className="outline-none">
                   <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 hover:text-cyan-400 cursor-pointer transition-colors" />
                 </a>
-                
-                {/* Telegram */}
                 <a href="https://t.me/nienzer" target="_blank" rel="noreferrer" title="Telegram" className="outline-none">
                   <Send className="w-4 h-4 sm:w-5 sm:h-5 hover:text-blue-400 cursor-pointer transition-colors" />
                 </a>
-                
-                {/* GitHub */}
                 <a href="https://github.com/nienzer" target="_blank" rel="noreferrer" title="GitHub" className="outline-none">
                   <Code className="w-4 h-4 sm:w-5 sm:h-5 hover:text-white cursor-pointer transition-colors" />
                 </a>
@@ -373,31 +367,30 @@ export default function LandingPage() {
             <p className="text-neutral-500 text-[10px] sm:text-xs leading-relaxed">{t.footer.desc}</p>
           </div>
           
-          {/* QUICK LINKS & COMMUNITY INI DI BUAT SEJAJAR DI HP */}
           <div className="flex justify-center gap-12 sm:gap-24">
             <div className="flex flex-col items-start">
               <h4 className="text-white font-bold text-[10px] sm:text-xs mb-4 font-mono">{t.footer.quickLinks}</h4>
               <ul className="space-y-3 text-[10px] sm:text-xs text-neutral-500 text-left">
-                <li><a href="#infrastructure" className="hover:text-cyan-400 transition-colors">Infrastructure</a></li>
-                <li><button onClick={() => router.push('/roadmap')} className="bg-transparent border-none p-0 hover:text-cyan-400 transition-colors cursor-pointer text-left outline-none">Roadmap</button></li>
-                <li><button onClick={() => router.push('/whitepaper')} className="bg-transparent border-none p-0 hover:text-cyan-400 transition-colors cursor-pointer text-left outline-none">Whitepaper</button></li>
-                <li><button onClick={handleConnect} className="bg-transparent border-none p-0 hover:text-cyan-400 transition-colors cursor-pointer text-left outline-none">Launch App</button></li>
+                <li><a href="#infrastructure" className="hover:text-cyan-400 transition-colors">{t.footer.navInfrastructure || "Infrastructure"}</a></li>
+                <li><button onClick={() => router.push('/roadmap')} className="bg-transparent border-none p-0 hover:text-cyan-400 transition-colors cursor-pointer text-left outline-none">{t.footer.navRoadmap || "Roadmap"}</button></li>
+                <li><button onClick={() => router.push('/whitepaper')} className="bg-transparent border-none p-0 hover:text-cyan-400 transition-colors cursor-pointer text-left outline-none">{t.footer.navWhitepaper || "Whitepaper"}</button></li>
+                <li><button onClick={handleConnect} className="bg-transparent border-none p-0 hover:text-cyan-400 transition-colors cursor-pointer text-left outline-none">{t.footer.navLaunchApp || "Launch App"}</button></li>
               </ul>
             </div>
             
             <div className="flex flex-col items-start">
               <h4 className="text-white font-bold text-[10px] sm:text-xs mb-4 font-mono">{t.footer.community}</h4>
               <ul className="space-y-3 text-[10px] sm:text-xs text-neutral-500 text-left">
-                <li><button onClick={() => router.push('/community')} className="bg-transparent border-none p-0 hover:text-cyan-400 flex items-center gap-2 transition-colors outline-none cursor-pointer"><MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5"/> Twitter / X</button></li>
-                <li><button onClick={() => router.push('/community')} className="bg-transparent border-none p-0 hover:text-cyan-400 flex items-center gap-2 transition-colors outline-none cursor-pointer"><Send className="w-3 h-3 sm:w-3.5 sm:h-3.5"/> Telegram</button></li>
-                <li><button onClick={() => router.push('/community')} className="bg-transparent border-none p-0 hover:text-cyan-400 flex items-center gap-2 transition-colors outline-none cursor-pointer"><Code className="w-3 h-3 sm:w-3.5 sm:h-3.5"/> Github</button></li>
+                <li><button onClick={() => router.push('/community')} className="bg-transparent border-none p-0 hover:text-cyan-400 flex items-center gap-2 transition-colors outline-none cursor-pointer"><MessageSquare className="w-3 h-3 sm:w-3.5 sm:h-3.5"/> {t.communityPage?.twitterTitle || "Twitter / X"}</button></li>
+                <li><button onClick={() => router.push('/community')} className="bg-transparent border-none p-0 hover:text-cyan-400 flex items-center gap-2 transition-colors outline-none cursor-pointer"><Send className="w-3 h-3 sm:w-3.5 sm:h-3.5"/> {t.communityPage?.telegramTitle || "Telegram"}</button></li>
+                <li><button onClick={() => router.push('/community')} className="bg-transparent border-none p-0 hover:text-cyan-400 flex items-center gap-2 transition-colors outline-none cursor-pointer"><Code className="w-3 h-3 sm:w-3.5 sm:h-3.5"/> {t.communityPage?.githubTitle || "Github"}</button></li>
               </ul>
             </div>
           </div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 border-t border-neutral-900 pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between text-[9px] sm:text-[11px] text-neutral-600 font-mono gap-3 sm:gap-4">
-          <p className="text-center sm:text-left">© {new Date().getFullYear()} Nienzer. All rights reserved. Email: admin@aethvault.xyz.</p>
+          <p className="text-center sm:text-left">{t.footer.copyright ? t.footer.copyright.replace('{year}', new Date().getFullYear()) : `© ${new Date().getFullYear()} Nienzer. All rights reserved.`}</p>
           <div className="flex gap-4 sm:gap-6">
             <a href="/privacy" className="hover:text-neutral-400 cursor-pointer outline-none transition-colors">{t.footer.privacy}</a>
             <a href="/terms" className="hover:text-neutral-400 cursor-pointer outline-none transition-colors">{t.footer.terms}</a>

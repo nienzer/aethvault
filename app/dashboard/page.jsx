@@ -15,12 +15,14 @@ import {
 } from '@/lib/cryptoUtils';
 import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload';
 
-// ⭐ IMPORT SEMUA KOMPONEN YANG SUDAH KITA PECAH
+// ⭐ IMPORT SEMUA KOMPONEN
 import CertificateModal from '@/components/CertificateModal';
 import StakingPanel from '@/components/StakingPanel';
 import GlobalStats from '@/components/GlobalStats';
 import VaultsList from '@/components/VaultsList';
 import CreateCapsule from '@/components/CreateCapsule';
+import AetherProofHub from '@/components/AetherProofHub';
+import HallOfProof from '@/components/HallOfProof';
 
 // ==========================================
 // ⭐ ABI AETHERVAULT V2.2
@@ -68,7 +70,6 @@ const StakingABI = [
   { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "user", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "reward", "type": "uint256" }], "name": "RewardClaimed", "type": "event" }
 ];
 
-// ⭐ KONFIGURASI ALAMAT BARU BOS
 const CONTRACT_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9"; 
 const STAKING_CONTRACT_ADDRESS = "0xc72433e176F2935965cbf595d6f30a70A89F702c"; 
 
@@ -138,7 +139,6 @@ export default function DashboardPage() {
   const [myCapsules, setMyCapsules] = useState([]);
   const [isLoadingCapsules, setIsLoadingCapsules] = useState(false);
   
-  // STATISTIK
   const [platformStats, setPlatformStats] = useState({ capsules: 0, burned: 0, users: 0, supply: 0 });
   const [stakingGlobalStats, setStakingGlobalStats] = useState({ totalStaked: 0, totalRewards: 0, stakers: 0 });
   const [isFetchingGlobalStats, setIsFetchingGlobalStats] = useState(true);
@@ -257,7 +257,6 @@ export default function DashboardPage() {
 
   const extractErrorMessage = useCallback((err) => {
     const errorString = err?.message?.toLowerCase() || "";
-    
     if (err?.code === 4001 || errorString.includes("user rejected") || errorString.includes("denied")) {
       return t.errUserRejected || "Transaksi dibatalkan oleh pengguna.";
     }
@@ -267,12 +266,8 @@ export default function DashboardPage() {
     if (errorString.includes("network error") || errorString.includes("timeout") || errorString.includes("rpc")) {
       return t.errNetworkIssue || "Gangguan jaringan/RPC.";
     }
-    if (err?.reason) { 
-      return `${t.errContractReverted || "Ditolak Jaringan:"} ${err.reason}`; 
-    }
-    if (err?.data?.message) { 
-      return err.data.message.replace("execution reverted: ", ""); 
-    }
+    if (err?.reason) { return `${t.errContractReverted || "Ditolak Jaringan:"} ${err.reason}`; }
+    if (err?.data?.message) { return err.data.message.replace("execution reverted: ", ""); }
     return t.defaultTxErrorMessage || "Transaksi gagal. Cek saldo dan jaringan Anda.";
   }, [t]);
 
@@ -858,6 +853,8 @@ export default function DashboardPage() {
     <nav className="space-y-1.5">
       {[
         { id: 'create', icon: Lock, label: t.menuCreate },
+        { id: 'proof', icon: Award, label: t.menuProof || 'Aether Proof' },
+        { id: 'hall', icon: Globe, label: t.menuHall || 'Hall of Proof' },
         { id: 'vaults', icon: Layers, label: t.menuVaults, count: myCapsules.length > 0 ? myCapsules.length : undefined },
         { id: 'history', icon: History, label: t.menuHistory },
         { id: 'stats', icon: Flame, label: t.menuStats },
@@ -1033,7 +1030,7 @@ export default function DashboardPage() {
 
             <div className="lg:col-span-3 space-y-6">
               
-              {/* ⭐ MEMANGGIL KOMPONEN CREATE CAPSULE */}
+              {/* TAB: CREATE */}
               {activeTab === 'create' && (
                 <CreateCapsule
                   t={t}
@@ -1059,7 +1056,24 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* ⭐ MEMANGGIL KOMPONEN VAULT LIST */}
+              {/* ⭐ TAB: AETHER PROOF (BARU) */}
+              {activeTab === 'proof' && (
+                <AetherProofHub
+                  t={t}
+                  myCapsules={myCapsules}
+                  handleViewCertificate={handleViewCertificate}
+                  setActiveTab={setActiveTab}
+                />
+              )}
+
+              {activeTab === 'hall' && (
+                <HallOfProof 
+                  t={t} 
+                  handleViewCertificate={handleViewCertificate} 
+                />
+              )}
+
+              {/* TAB: VAULTS */}
               {activeTab === 'vaults' && (
                 <VaultsList
                   t={t}
@@ -1077,7 +1091,7 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* TAB: HISTORY PRIBADI (Dibiarkan inline karena tidak terlalu panjang) */}
+              {/* TAB: HISTORY */}
               {activeTab === 'history' && (
                 <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl space-y-4 sm:space-y-6">
                   <h3 className="font-display text-lg sm:text-xl font-bold text-white">{t.historyTitle}</h3>
@@ -1110,7 +1124,7 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* ⭐ MEMANGGIL KOMPONEN GLOBAL STATS */}
+              {/* TAB: STATS */}
               {activeTab === 'stats' && (
                 <GlobalStats
                   t={t}
@@ -1119,7 +1133,7 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* ⭐ MEMANGGIL KOMPONEN STAKING */}
+              {/* TAB: STAKING */}
               {activeTab === 'staking' && (
                 <StakingPanel
                   t={t}
@@ -1142,7 +1156,7 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* TAB: KEAMANAN & SETTINGS (Dibiarkan inline karena ini sekadar teks) */}
+              {/* TAB: SECURITY */}
               {activeTab === 'security' && (
                 <div className="space-y-4 sm:space-y-6">
                   <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1175,6 +1189,7 @@ export default function DashboardPage() {
                 </div>
               )}
 
+              {/* TAB: SETTINGS */}
               {activeTab === 'settings' && (
                 <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 sm:space-y-8 shadow-xl">
                   <div>
@@ -1232,15 +1247,14 @@ export default function DashboardPage() {
         </div>
       </footer>
 
-      {/* ⭐ MEMANGGIL KOMPONEN MODAL SERTIFIKAT */}
       <CertificateModal 
         selectedCertificate={selectedCertificate}
         setSelectedCertificate={setSelectedCertificate}
         TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
         showToast={showToast}
+        t={t}
       />
 
-      {/* MODAL: BACA KAPSUL */}
       {selectedVault && (
         <div className="fixed inset-0 bg-[#05030F]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-[#0B0817] border border-cyan-500/30 max-w-lg w-full rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-4 sm:space-y-6 shadow-[0_0_30px_rgba(6,182,212,0.15)] relative">
