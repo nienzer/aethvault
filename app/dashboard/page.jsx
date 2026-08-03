@@ -70,7 +70,9 @@ const StakingABI = [
   { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "user", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "reward", "type": "uint256" }], "name": "RewardClaimed", "type": "event" }
 ];
 
-const CONTRACT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B"; 
+// ⭐ ALAMAT KONTRAK DIPISAH DENGAN JELAS
+const AETH_TOKEN_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9"; // Kontrak Token $AETH Lama (Penyimpan Saldo)[cite: 4]
+const CONTRACT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B"; // Kontrak Vault V3 Baru (Pencetak Sertifikat)
 const STAKING_CONTRACT_ADDRESS = "0xc72433e176F2935965cbf595d6f30a70A89F702c"; 
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
@@ -430,7 +432,8 @@ export default function DashboardPage() {
         const rawBalance = await provider.getBalance(address);
         setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
         try {
-          const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+          // ⭐ SALDO AETH DIAMBIL DARI KONTRAK TOKEN LAMA
+          const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, provider);
           const rawAethBalance = await tokenContract.balanceOf(address);
           setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
           const registeredKey = await tokenContract.encryptionPublicKeys(address);
@@ -739,7 +742,8 @@ export default function DashboardPage() {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const amountInWei = ethers.parseUnits(amount.toString(), 18);
-      const tokenContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      // ⭐ ALLOWANCE & STAKE MENGGUNAKAN KONTRAK TOKEN LAMA
+      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
 
       if (currentAllowance < amountInWei) {
