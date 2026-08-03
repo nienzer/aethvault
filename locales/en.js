@@ -444,6 +444,38 @@ export const en = {
     statusNotReady: "Not Ready",
     openVaultBtn: "Open Vault",
     btnDeleteContent: "Delete Content",
-    attachmentTag: "Attachment"
+    attachmentTag: "Attachment",
+    // --- SMART ERROR HANDLING ---
+    errUserRejected: "Transaction cancelled by user (User Rejected).",
+    errInsufficientFunds: "Insufficient POL (Gas) or AETH balance for this transaction.",
+    errNetworkIssue: "Network/RPC connection issue. Please try again later.",
+    errContractReverted: "Network Rejected:",
+    
+    // --- STAKING STATS ---
+    tvlLabel: "TVL:",
+    stakersLabel: "Stakers:",
+
+    // --- AETHER PROOF CERTIFICATE ---
+    totalSupplyLabel: "Total Supply",
+    totalUsersLabel: "Active Users",
+    viewProofBtn: "View Proof",
+    certFetchFail: "Failed to load certificate: ",
+    certTitle: "Aether Proof™",
+    certSub: "Blockchain Certificate of Existence",
+    certPreparing: "Preparing PDF Certificate...",
+    certDownloaded: "Certificate downloaded successfully!",
+    certFail: "Failed to generate PDF.",
+    certClose: "Close Certificate",
+    certDownloadBtn: "Download PDF Proof",
+    certVerified: "VERIFIED ON-CHAIN ✓",
+    certHash: "Proof Hash (Keccak256)",
+    certId: "Certificate ID",
+    certBlock: "Block Mined",
+    certCreator: "Creator / Owner",
+    certNetwork: "Network",
+    certTier: "Security Tier",
+    certScan: "Scan to Verify On-Chain",
+    certFooter: "This certificate confirms that a digital asset was cryptographically sealed on the blockchain. The certificate does not disclose the content. Content remains encrypted and accessible only by the rightful owner.",
+    certCertifiedBy: "Certified On-Chain by AetherVault™"
   }
 };

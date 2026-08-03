@@ -15,12 +15,8 @@ import {
 } from '@/lib/cryptoUtils';
 import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload';
 
-// ⭐ IMPORT SEMUA KOMPONEN YANG SUDAH KITA PECAH
+// ⭐ IMPORT KOMPONEN SERTIFIKAT YANG BARU BOS BUAT
 import CertificateModal from '@/components/CertificateModal';
-import StakingPanel from '@/components/StakingPanel';
-import GlobalStats from '@/components/GlobalStats';
-import VaultsList from '@/components/VaultsList';
-import CreateCapsule from '@/components/CreateCapsule';
 
 // ==========================================
 // ⭐ ABI AETHERVAULT V2.2
@@ -29,23 +25,72 @@ const AetherVaultABI = [
   { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
+
   { "inputs": [{ "internalType": "bytes", "name": "_pubKey", "type": "bytes" }], "name": "registerPublicKey", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "encryptionPublicKeys", "outputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [ { "internalType": "enum AetherVault.Tier", "name": "_tier", "type": "uint8" }, { "internalType": "string", "name": "_title", "type": "string" }, { "internalType": "string", "name": "_encryptedMessage", "type": "string" }, { "internalType": "uint256", "name": "_unlockTimestamp", "type": "uint256" } ], "name": "sealTimeLockCapsule", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+
+  { "inputs": [
+      { "internalType": "enum AetherVault.Tier", "name": "_tier", "type": "uint8" },
+      { "internalType": "string", "name": "_title", "type": "string" },
+      { "internalType": "string", "name": "_encryptedMessage", "type": "string" },
+      { "internalType": "uint256", "name": "_unlockTimestamp", "type": "uint256" }
+    ], "name": "sealTimeLockCapsule", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "string", "name": "_title", "type": "string" }, { "internalType": "string", "name": "_encryptedMessage", "type": "string" }, { "internalType": "uint256", "name": "_inactivityDuration", "type": "uint256" }, { "internalType": "address", "name": "_heirAddress", "type": "address" }], "name": "sealLegacyCapsule", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "pingAlive", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "revealCapsule", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "claimLegacy", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "nonpayable", "type": "function" },
+
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getOpenedCiphertext", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "deleteOpenedContent", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getCapsuleMeta", "outputs": [ { "internalType": "string", "name": "title", "type": "string" }, { "internalType": "uint256", "name": "unlockTimestamp", "type": "uint256" }, { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "enum AetherVault.Tier", "name": "tier", "type": "uint8" }, { "internalType": "bool", "name": "isLegacy", "type": "bool" }, { "internalType": "address", "name": "heirAddress", "type": "address" }, { "internalType": "uint256", "name": "lastPingAlive", "type": "uint256" }, { "internalType": "uint256", "name": "inactivityLimit", "type": "uint256" }, { "internalType": "bool", "name": "isClaimedOrRevealed", "type": "bool" }, { "internalType": "bool", "name": "contentDeleted", "type": "bool" } ], "stateMutability": "view", "type": "function" },
-  { "inputs": [], "name": "getPlatformStats", "outputs": [ { "internalType": "uint256", "name": "totalCapsules", "type": "uint256" }, { "internalType": "uint256", "name": "burnedAeth", "type": "uint256" }, { "internalType": "uint256", "name": "users", "type": "uint256" }, { "internalType": "uint256", "name": "currentSupply", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getCertificate", "outputs": [ { "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "enum AetherVault.Tier", "name": "tier", "type": "uint8" }, { "internalType": "bool", "name": "isLegacy", "type": "bool" }, { "internalType": "bytes32", "name": "proofHash", "type": "bytes32" }, { "internalType": "uint256", "name": "creationTimestamp", "type": "uint256" }, { "internalType": "uint256", "name": "blockNumber", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
+
+  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getCapsuleMeta", "outputs": [
+      { "internalType": "string", "name": "title", "type": "string" },
+      { "internalType": "uint256", "name": "unlockTimestamp", "type": "uint256" },
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "enum AetherVault.Tier", "name": "tier", "type": "uint8" },
+      { "internalType": "bool", "name": "isLegacy", "type": "bool" },
+      { "internalType": "address", "name": "heirAddress", "type": "address" },
+      { "internalType": "uint256", "name": "lastPingAlive", "type": "uint256" },
+      { "internalType": "uint256", "name": "inactivityLimit", "type": "uint256" },
+      { "internalType": "bool", "name": "isClaimedOrRevealed", "type": "bool" },
+      { "internalType": "bool", "name": "contentDeleted", "type": "bool" }
+    ], "stateMutability": "view", "type": "function" },
+  
+  { "inputs": [], "name": "getPlatformStats", "outputs": [
+      { "internalType": "uint256", "name": "totalCapsules", "type": "uint256" },
+      { "internalType": "uint256", "name": "burnedAeth", "type": "uint256" },
+      { "internalType": "uint256", "name": "users", "type": "uint256" },
+      { "internalType": "uint256", "name": "currentSupply", "type": "uint256" }
+    ], "stateMutability": "view", "type": "function" },
+  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getCertificate", "outputs": [
+      { "internalType": "uint256", "name": "capsuleId", "type": "uint256" },
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "enum AetherVault.Tier", "name": "tier", "type": "uint8" },
+      { "internalType": "bool", "name": "isLegacy", "type": "bool" },
+      { "internalType": "bytes32", "name": "proofHash", "type": "bytes32" },
+      { "internalType": "uint256", "name": "creationTimestamp", "type": "uint256" },
+      { "internalType": "uint256", "name": "blockNumber", "type": "uint256" }
+    ], "stateMutability": "view", "type": "function" },
+
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "isCapsuleReady", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "_user", "type": "address" }], "name": "getUserCapsules", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "_heir", "type": "address" }], "name": "getHeirCapsules", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "enum AetherVault.Tier", "name": "", "type": "uint8" }], "name": "tierConfigs", "outputs": [ { "internalType": "uint256", "name": "cost", "type": "uint256" }, { "internalType": "uint256", "name": "burnPart", "type": "uint256" }, { "internalType": "uint256", "name": "maxDuration", "type": "uint256" }, { "internalType": "uint256", "name": "maxMessageLength", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
-  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": false, "internalType": "enum AetherVault.Tier", "name": "tier", "type": "uint8" }, { "indexed": false, "internalType": "uint256", "name": "cost", "type": "uint256" }, { "indexed": false, "internalType": "bytes32", "name": "proofHash", "type": "bytes32" } ], "name": "CapsuleSealed", "type": "event" },
+  
+  { "inputs": [{ "internalType": "enum AetherVault.Tier", "name": "", "type": "uint8" }], "name": "tierConfigs", "outputs": [
+      { "internalType": "uint256", "name": "cost", "type": "uint256" },
+      { "internalType": "uint256", "name": "burnPart", "type": "uint256" },
+      { "internalType": "uint256", "name": "maxDuration", "type": "uint256" },
+      { "internalType": "uint256", "name": "maxMessageLength", "type": "uint256" }
+    ], "stateMutability": "view", "type": "function" },
+
+  { "anonymous": false, "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "owner", "type": "address" },
+      { "indexed": false, "internalType": "enum AetherVault.Tier", "name": "tier", "type": "uint8" },
+      { "indexed": false, "internalType": "uint256", "name": "cost", "type": "uint256" },
+      { "indexed": false, "internalType": "bytes32", "name": "proofHash", "type": "bytes32" }
+    ], "name": "CapsuleSealed", "type": "event" },
   { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "revealer", "type": "address" }], "name": "CapsuleRevealed", "type": "event" },
   { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "heir", "type": "address" }], "name": "LegacyClaimed", "type": "event" },
   { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }], "name": "PingRecorded", "type": "event" },
@@ -62,7 +107,12 @@ const StakingABI = [
   { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "stakedBalance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "_user", "type": "address" }], "name": "calculateReward", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [], "name": "rewardRate", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [], "name": "getStakingStats", "outputs": [ { "internalType": "uint256", "name": "currentTotalStaked", "type": "uint256" }, { "internalType": "uint256", "name": "totalRewardsPaid", "type": "uint256" }, { "internalType": "uint256", "name": "stakersCount", "type": "uint256" }, { "internalType": "uint256", "name": "rewardPoolAvailable", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
+  { "inputs": [], "name": "getStakingStats", "outputs": [
+      { "internalType": "uint256", "name": "currentTotalStaked", "type": "uint256" },
+      { "internalType": "uint256", "name": "totalRewardsPaid", "type": "uint256" },
+      { "internalType": "uint256", "name": "stakersCount", "type": "uint256" },
+      { "internalType": "uint256", "name": "rewardPoolAvailable", "type": "uint256" }
+    ], "stateMutability": "view", "type": "function" },
   { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "user", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Staked", "type": "event" },
   { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "user", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Withdrawn", "type": "event" },
   { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "user", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "reward", "type": "uint256" }], "name": "RewardClaimed", "type": "event" }
@@ -148,7 +198,7 @@ export default function DashboardPage() {
   
   const [tierConfigError, setTierConfigError] = useState(null);
   const [selectedVault, setSelectedVault] = useState(null);
-  const [selectedCertificate, setSelectedCertificate] = useState(null); 
+  const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [isDownloadingAttachment, setIsDownloadingAttachment] = useState(null);
   
@@ -255,24 +305,31 @@ export default function DashboardPage() {
     setTimeout(() => setToast(null), 4500);
   }, []);
 
+  // ⭐ ERROR HANDLING TINGKAT DEWA 
   const extractErrorMessage = useCallback((err) => {
     const errorString = err?.message?.toLowerCase() || "";
     
+    // 1. User Batalin di MetaMask (User Reject)
     if (err?.code === 4001 || errorString.includes("user rejected") || errorString.includes("denied")) {
-      return t.errUserRejected || "Transaksi dibatalkan oleh pengguna.";
+      return "Transaksi dibatalkan oleh pengguna (User Rejected).";
     }
+    // 2. Saldo Gas / Token Kurang (Insufficient Funds)
     if (errorString.includes("insufficient funds") || errorString.includes("exceeds balance")) {
-      return t.errInsufficientFunds || "Saldo tidak mencukupi.";
+      return "Saldo POL (Gas) atau AETH tidak mencukupi untuk transaksi ini.";
     }
+    // 3. Masalah Jaringan / RPC Timeout
     if (errorString.includes("network error") || errorString.includes("timeout") || errorString.includes("rpc")) {
-      return t.errNetworkIssue || "Gangguan jaringan/RPC.";
+      return "Gangguan koneksi RPC/Jaringan. Silakan coba beberapa saat lagi.";
     }
-    if (err?.reason) { 
-      return `${t.errContractReverted || "Ditolak Jaringan:"} ${err.reason}`; 
+    // 4. Contract Revert (Custom Errors dari Solidity V2.2)
+    if (err?.reason) {
+      return `Ditolak Jaringan: ${err.reason}`;
     }
-    if (err?.data?.message) { 
+    if (err?.data?.message) {
       return err.data.message.replace("execution reverted: ", ""); 
     }
+    
+    // 5. Fallback error default
     return t.defaultTxErrorMessage || "Transaksi gagal. Cek saldo dan jaringan Anda.";
   }, [t]);
 
@@ -1033,51 +1090,303 @@ export default function DashboardPage() {
 
             <div className="lg:col-span-3 space-y-6">
               
-              {/* ⭐ MEMANGGIL KOMPONEN CREATE CAPSULE */}
+              {/* TAB: CREATE */}
               {activeTab === 'create' && (
-                <CreateCapsule
-                  t={t}
-                  title={title} setTitle={setTitle}
-                  message={message} setMessage={setMessage}
-                  unlockDate={unlockDate} setUnlockDate={setUnlockDate}
-                  tier={tier} setTier={setTier}
-                  tiers={tiers}
-                  inactivityYears={inactivityYears} setInactivityYears={setInactivityYears}
-                  heirAddress={heirAddress} setHeirAddress={setHeirAddress}
-                  isSealing={isSealing} handleSeal={handleSeal}
-                  isConnected={isConnected} isWrongNetwork={isWrongNetwork}
-                  TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
-                  isPermanentTier={isPermanentTier}
-                  uploadedCid={uploadedCid} setUploadedCid={setUploadedCid}
-                  selectedFile={selectedFile} setSelectedFile={setSelectedFile}
-                  isPreparingUpload={isPreparingUpload} stagedUpload={stagedUpload}
-                  isUploading={isUploading}
-                  handleConfirmArweaveUpload={handleConfirmArweaveUpload}
-                  handleCancelStagedUpload={handleCancelStagedUpload}
-                  handleFileSelected={handleFileSelected}
-                  getMinUnlockDatetimeLocal={getMinUnlockDatetimeLocal}
-                />
+                <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-xl space-y-6 sm:space-y-8">
+                  <div>
+                    <h3 className="font-display text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" /> {t.createTitle}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-neutral-400">{t.createDesc}</p>
+                    <p className="text-[10px] sm:text-xs text-cyan-500/80 mt-2 flex items-center gap-1.5">
+                      <Lock className="w-3 h-3" /> {t.encryptionNotice}
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSeal} className="space-y-5 sm:space-y-6">
+                    <div>
+                      <label className="block text-[10px] sm:text-xs font-bold text-cyan-500 uppercase tracking-widest mb-1.5 sm:mb-2">{t.capsuleTitleLabel}</label>
+                      <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder={t.capsuleTitlePlaceholder}
+                        className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-cyan-500 focus:shadow-[0_0_15px_rgba(6,182,212,0.1)] outline-none transition-all font-medium"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2 sm:space-y-3">
+                      <label className="block text-[10px] sm:text-xs font-bold text-cyan-500 uppercase tracking-widest">{t.securityTierLabel}</label>
+                      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                        {Object.entries(tiers).map(([key, data]) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setTier(key)}
+                            className={`p-3 sm:p-5 rounded-xl sm:rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${tier === key ? `${data.border} bg-neutral-900/90` : 'border-neutral-900 bg-[#05030F] hover:border-neutral-700'}`}
+                          >
+                            <div>
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:mb-3 gap-2 sm:gap-0">
+                                <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl ${data.icon} flex items-center justify-center shrink-0`}>
+                                  {key === 'legacy' ? <UserX className={`w-3 h-3 sm:w-4 sm:h-4 ${data.color}`} /> : <Shield className={`w-3 h-3 sm:w-4 sm:h-4 ${data.color}`} />}
+                                </div>
+                                <span className="font-mono text-[9px] sm:text-xs font-bold text-white px-2 py-0.5 sm:py-1 bg-[#05030F] rounded-md sm:rounded-lg border border-neutral-800">{data.cost} AETH</span>
+                              </div>
+                              <div className="font-bold text-xs sm:text-sm mb-1 text-white truncate">{data.name}</div>
+                              <p className="text-[9px] sm:text-[11px] text-neutral-400 mb-3 sm:mb-4 leading-relaxed line-clamp-2 sm:line-clamp-none">{data.desc}</p>
+                            </div>
+                            <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between border-t border-neutral-800/80 pt-2 sm:pt-3 w-full gap-1.5 xl:gap-0">
+                              <span className="text-[8px] sm:text-[10px] text-neutral-500 uppercase tracking-wider font-mono hidden sm:block">{t.autoBurnProtocol}</span>
+                              <span className="text-[9px] sm:text-[10px] text-red-400 font-bold flex items-center gap-1 font-mono"><Flame className="w-3 h-3" /> {data.burn} {t.burnLabel}</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 mt-4 sm:mt-6">
+                      <label className="text-[10px] sm:text-xs font-bold text-cyan-500 uppercase tracking-widest flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                        <UploadCloud className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        {t.ipfsAttachment}
+                        {!isPermanentTier && <span className="bg-red-500/10 text-red-400 border border-red-500/20 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px]">{t.locked}</span>}
+                      </label>
+                      <div className={`border-2 border-dashed rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center transition-all ${isPermanentTier ? 'border-cyan-500/30 hover:border-cyan-500 bg-[#05030F]' : 'border-neutral-800 bg-[#0B0817] opacity-60 cursor-not-allowed'}`}>
+                        {!isPermanentTier ? (
+                          <div>
+                            <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-neutral-600 mx-auto mb-2" />
+                            <p className="text-[10px] sm:text-xs text-neutral-500">{t.ipfsLockedDesc}</p>
+                          </div>
+                        ) : uploadedCid ? (
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-cyan-500/10 border border-cyan-500/30 p-2 sm:p-3 rounded-xl gap-2 sm:gap-0">
+                            <div className="flex items-center gap-2 sm:gap-3 w-full">
+                              <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 shrink-0" />
+                              <div className="text-left flex-1 min-w-0">
+                                <p className="text-[10px] sm:text-xs font-bold text-white truncate w-full">{selectedFile?.name}</p>
+                                <p className="text-[9px] sm:text-[10px] text-cyan-500 font-mono truncate w-full">{uploadedCid}</p>
+                              </div>
+                            </div>
+                            <button type="button" onClick={() => {setSelectedFile(null); setUploadedCid('');}} className="text-neutral-500 hover:text-red-400 p-1 sm:p-2 cursor-pointer ml-auto">
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : isPreparingUpload ? (
+                          <div className="py-3 sm:py-4">
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-2 sm:mb-3"></div>
+                            <p className="text-[10px] sm:text-xs font-bold text-cyan-400 animate-pulse">{t.encryptingAndEstimating}</p>
+                          </div>
+                        ) : stagedUpload ? (
+                          <div className="text-left space-y-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <FileImage className="w-5 h-5 sm:w-6 sm:h-6 text-purple-300 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[10px] sm:text-xs font-bold text-white truncate">{stagedUpload.file.name}</p>
+                                <p className="text-[9px] sm:text-[10px] text-neutral-500">{(stagedUpload.file.size / 1024).toFixed(1)} KB ({t.afterEncryptedLabel})</p>
+                              </div>
+                            </div>
+                            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3">
+                              <p className="text-[10px] sm:text-xs text-purple-200">
+                                {t.estimatedCostLabel} <span className="font-mono font-bold">~{stagedUpload.estimatedCost} POL</span>
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              {isUploading ? (
+                                <div className="flex-1 flex items-center justify-center gap-2 py-2.5 text-cyan-400 text-[10px] sm:text-xs font-bold">
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> {t.uploadingArweave}
+                                </div>
+                              ) : (
+                                <>
+                                  <button type="button" onClick={handleConfirmArweaveUpload} className="flex-1 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 font-bold py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs cursor-pointer">
+                                    {t.confirmPayBtn}
+                                  </button>
+                                  <button type="button" onClick={handleCancelStagedUpload} className="px-4 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs cursor-pointer">
+                                    {t.cancelBtn}
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <input type="file" onChange={handleFileSelected} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf,.zip" />
+                            <UploadCloud className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-500/50 mx-auto mb-1.5 sm:mb-2" />
+                            <p className="text-[10px] sm:text-xs text-neutral-400"><span className="text-cyan-400 font-bold">{t.ipfsUploadPrompt}</span></p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <label className="block text-[10px] sm:text-xs font-bold text-cyan-500 uppercase tracking-widest">{t.payloadLabel}</label>
+                      <textarea
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder={t.payloadPlaceholder}
+                        className="w-full h-32 sm:h-40 bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-[11px] sm:text-sm text-white focus:border-cyan-500 outline-none resize-none font-mono transition-all"
+                        required
+                      />
+                      <div className="text-right text-[9px] sm:text-xs text-neutral-500 font-mono">
+                        {t.charCount} {message.length} / {tiers[tier].maxLength}
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      {tier === 'legacy' ? (
+                        <div className="space-y-4 sm:space-y-5 bg-red-950/10 border border-red-500/20 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+                          <div>
+                            <label className="block text-[10px] sm:text-xs font-bold text-red-400 uppercase tracking-widest mb-1.5 sm:mb-2">{t.deadManLimitLabel}</label>
+                            <select
+                              value={inactivityYears}
+                              onChange={(e) => setInactivityYears(e.target.value)}
+                              className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-red-500 outline-none cursor-pointer"
+                            >
+                              <option value="5">{t.inactivity5y}</option>
+                              <option value="10">{t.inactivity10y}</option>
+                              <option value="20">{t.inactivity20y}</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] sm:text-xs font-bold text-red-400 uppercase tracking-widest mb-1.5 sm:mb-2">{t.heirAddressLabel}</label>
+                            <input
+                              type="text"
+                              value={heirAddress}
+                              onChange={(e) => setHeirAddress(e.target.value)}
+                              placeholder="0x..."
+                              className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm text-white focus:border-red-500 outline-none font-mono"
+                              required
+                            />
+                            <p className="text-[9px] sm:text-[10px] text-neutral-500 mt-1.5">{t.heirNote}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-1.5 sm:space-y-2">
+                          <label className="block text-[10px] sm:text-xs font-bold text-cyan-500 uppercase tracking-widest">{t.timeLockLabel}</label>
+                          <div className="relative">
+                            <Clock className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500 pointer-events-none" />
+                            <input
+                              type="datetime-local"
+                              value={unlockDate}
+                              onChange={(e) => setUnlockDate(e.target.value)}
+                              min={getMinUnlockDatetimeLocal()}
+                              className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl pl-10 sm:pl-12 pr-4 sm:pr-5 py-3 sm:py-4 text-xs sm:text-sm text-white focus:border-cyan-500 outline-none font-mono transition-all"
+                              style={{ colorScheme: 'dark' }}
+                              required
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={!isConnected || isSealing || isWrongNetwork}
+                      className={`w-full font-bold py-3 sm:py-4 rounded-full flex justify-center items-center gap-1.5 sm:gap-2 transition-all text-xs sm:text-sm mt-2 sm:mt-4 ${isConnected && !isSealing && !isWrongNetwork ? 'bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white shadow-[0_0_25px_-3px_rgba(168,85,247,0.5),0_0_15px_-3px_rgba(34,211,238,0.4)] cursor-pointer' : 'bg-[#0B0817] text-neutral-600 cursor-not-allowed border border-neutral-800'}`}
+                    >
+                      {isSealing ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                      {isSealing ? t.processingBtn : isWrongNetwork ? t.switchToChainFirstBtn.replace('{chain}', TARGET_CHAIN_NAME) : (isConnected ? t.sealButton : t.connectToSeal)}
+                    </button>
+                  </form>
+                </div>
               )}
 
-              {/* ⭐ MEMANGGIL KOMPONEN VAULT LIST */}
+              {/* TAB: BRANKAS SAYA */}
               {activeTab === 'vaults' && (
-                <VaultsList
-                  t={t}
-                  isLoadingCapsules={isLoadingCapsules}
-                  myCapsules={myCapsules}
-                  setActiveTab={setActiveTab}
-                  handlePingAlive={handlePingAlive}
-                  isPinging={isPinging}
-                  isWrongNetwork={isWrongNetwork}
-                  handleDeleteOpenedContent={handleDeleteOpenedContent}
-                  isDeletingContent={isDeletingContent}
-                  handleOpenVault={handleOpenVault}
-                  handleViewCertificate={handleViewCertificate}
-                  formatUnlockDateTime={formatUnlockDateTime}
-                />
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="bg-[#0B0817] border border-neutral-900 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl">
+                    <h3 className="font-display text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">{t.vaultsTitle}</h3>
+                    <p className="text-xs sm:text-sm text-neutral-400">{t.vaultsDesc}</p>
+                  </div>
+
+                  {isLoadingCapsules ? (
+                    <div className="text-center py-16 sm:py-24 bg-[#0B0817] rounded-2xl sm:rounded-3xl border border-dashed border-neutral-800">
+                      <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-3 animate-spin" />
+                    </div>
+                  ) : myCapsules.length === 0 ? (
+                    <div className="text-center py-16 sm:py-24 bg-[#0B0817] rounded-2xl sm:rounded-3xl border border-dashed border-neutral-800">
+                      <Layers className="w-10 h-10 sm:w-12 sm:h-12 text-neutral-700 mx-auto mb-3 sm:mb-4" />
+                      <p className="text-neutral-300 font-bold mb-1 text-sm sm:text-base">{t.noVaultsTitle}</p>
+                      <button onClick={() => setActiveTab('create')} className="bg-cyan-500 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-[10px] sm:text-xs font-bold cursor-pointer mt-4 shadow-[0_0_20px_-3px_rgba(6,182,212,0.4)]">
+                        {t.createNowBtn}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 sm:space-y-4">
+                      {myCapsules.map((cap) => {
+                        const canPingAlive = cap.isLegacy && !cap.asHeir && !cap.isClaimedOrRevealed;
+                        const canDeleteContent = cap.isClaimedOrRevealed && !cap.contentDeleted;
+                        const isOwnUnclaimableLegacy = canPingAlive;
+                        const canOpen = !cap.contentDeleted && !isOwnUnclaimableLegacy && (cap.isReady || cap.isClaimedOrRevealed);
+
+                        return (
+                        <div key={cap.id} className="bg-[#0B0817] border border-neutral-900 hover:border-cyan-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6 shadow-lg transition-colors">
+                          <div className="space-y-2 w-full md:w-auto">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                              <span className="text-[9px] sm:text-[10px] font-bold text-cyan-400 bg-cyan-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-cyan-500/20 font-mono">{cap.tierLabel}{cap.asHeir ? t.asHeirSuffix : ''}</span>
+                              <span className="text-[9px] sm:text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-amber-500/20 font-mono flex items-center gap-1 sm:gap-1.5">
+                                <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {cap.status}
+                              </span>
+                            </div>
+                            <h4 className="text-sm sm:text-base font-bold text-white truncate">{cap.title}</h4>
+                            <div className="flex items-center gap-3">
+                              <p className="text-[9px] sm:text-[10px] text-neutral-500 font-mono flex items-center gap-1.5">
+                                <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
+                                {cap.isLegacy ? `${t.lastPingLabel} ${formatUnlockDateTime(cap.lastPingAlive)}` : `${t.unlockLabel} ${formatUnlockDateTime(cap.unlockTimestamp)}`}
+                              </p>
+                              {/* ⭐ TOMBOL LIHAT SERTIFIKAT AETHER PROOF */}
+                              <button 
+                                onClick={() => handleViewCertificate(cap.id)} 
+                                className="text-[9px] sm:text-[10px] text-amber-500 hover:text-amber-400 font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                              >
+                                <Award className="w-3 h-3" /> {t.viewProofBtn || "View Proof"}
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
+                            {canPingAlive && (
+                              <button
+                                onClick={() => handlePingAlive(cap)}
+                                disabled={isPinging === cap.id || isWrongNetwork}
+                                className="w-full md:w-auto bg-transparent hover:bg-green-500/10 disabled:opacity-40 text-green-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-green-500/50 transition-all"
+                              >
+                                {isPinging === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
+                                {t.btnPingAlive}
+                              </button>
+                            )}
+                            {canDeleteContent && (
+                              <button
+                                onClick={() => handleDeleteOpenedContent(cap)}
+                                disabled={isDeletingContent === cap.id || isWrongNetwork}
+                                className="w-full md:w-auto bg-transparent hover:bg-red-500/10 disabled:opacity-40 text-red-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-red-500/50 transition-all"
+                              >
+                                {isDeletingContent === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
+                                {t.btnDeleteContent}
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleOpenVault(cap)}
+                              disabled={!canOpen || isWrongNetwork}
+                              className="w-full md:w-auto bg-transparent hover:bg-cyan-500/10 disabled:opacity-40 disabled:cursor-not-allowed text-cyan-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-cyan-500/50 transition-all"
+                            >
+                              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              {cap.contentDeleted
+                                ? t.statusAlreadyDeleted
+                                : isOwnUnclaimableLegacy
+                                  ? (cap.isReady ? t.statusWaitingHeir : t.statusNotReady)
+                                  : cap.isClaimedOrRevealed
+                                    ? t.btnViewAgain
+                                    : (cap.isReady ? t.openVaultBtn : t.statusNotReady)}
+                            </button>
+                          </div>
+                        </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               )}
 
-              {/* TAB: HISTORY PRIBADI (Dibiarkan inline karena tidak terlalu panjang) */}
+              {/* TAB: HISTORY PRIBADI */}
               {activeTab === 'history' && (
                 <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl space-y-4 sm:space-y-6">
                   <h3 className="font-display text-lg sm:text-xl font-bold text-white">{t.historyTitle}</h3>
@@ -1110,39 +1419,152 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* ⭐ MEMANGGIL KOMPONEN GLOBAL STATS */}
+              {/* TAB: STATS GLOBAL */}
               {activeTab === 'stats' && (
-                <GlobalStats
-                  t={t}
-                  isFetchingGlobalStats={isFetchingGlobalStats}
-                  platformStats={platformStats}
-                />
+                <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-4 sm:space-y-6 shadow-xl">
+                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">{t.statsTitle}</h3>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
+                    <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-5 rounded-xl sm:rounded-2xl flex flex-col justify-center">
+                      <span className="text-[9px] sm:text-[10px] uppercase text-neutral-500 block mb-1.5 font-bold font-mono">{t.totalSupplyLabel || "Total Supply"}</span>
+                      <span className="text-base sm:text-xl font-extrabold font-mono text-purple-400 flex items-center gap-1.5">
+                        {isFetchingGlobalStats ? <Loader2 className="w-4 h-4 animate-spin" /> : (platformStats.supply / 1000000).toFixed(2)}
+                        {!isFetchingGlobalStats && <span className="text-[9px] sm:text-[10px] text-neutral-500">M</span>}
+                      </span>
+                    </div>
+
+                    <div className="bg-[#05030F] border border-red-900/20 p-4 sm:p-5 rounded-xl sm:rounded-2xl flex flex-col justify-center shadow-[inset_0_0_20px_rgba(239,68,68,0.05)]">
+                      <span className="text-[9px] sm:text-[10px] uppercase text-red-500 block mb-1.5 font-bold font-mono">{t.totalBurnedLabel}</span>
+                      <span className="text-base sm:text-xl font-extrabold font-mono text-red-400 flex items-center gap-1.5">
+                        {isFetchingGlobalStats ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flame className="w-4 h-4" />} 
+                        {platformStats.burned.toFixed(2)}
+                      </span>
+                    </div>
+
+                    <div className="bg-[#05030F] border border-cyan-900/20 p-4 sm:p-5 rounded-xl sm:rounded-2xl flex flex-col justify-center shadow-[inset_0_0_20px_rgba(6,182,212,0.05)]">
+                      <span className="text-[9px] sm:text-[10px] uppercase text-cyan-500 block mb-1.5 font-bold font-mono">{t.activeCapsulesLabel || "Total Capsules"}</span>
+                      <span className="text-base sm:text-xl font-extrabold font-mono text-cyan-400 flex items-center gap-1.5">
+                        {isFetchingGlobalStats ? <Loader2 className="w-4 h-4 animate-spin" /> : platformStats.capsules} 
+                        {!isFetchingGlobalStats && <span className="text-[9px] sm:text-[10px] text-neutral-500">{t.unit}</span>}
+                      </span>
+                    </div>
+
+                    <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-5 rounded-xl sm:rounded-2xl flex flex-col justify-center">
+                      <span className="text-[9px] sm:text-[10px] uppercase text-neutral-500 block mb-1.5 font-bold font-mono">{t.totalUsersLabel || "Active Users"}</span>
+                      <span className="text-base sm:text-xl font-extrabold font-mono text-white flex items-center gap-1.5">
+                        {isFetchingGlobalStats ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserX className="w-4 h-4" />} 
+                        {platformStats.users}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               )}
 
-              {/* ⭐ MEMANGGIL KOMPONEN STAKING */}
+              {/* TAB: STAKING */}
               {activeTab === 'staking' && (
-                <StakingPanel
-                  t={t}
-                  apyPercent={apyPercent}
-                  stakingGlobalStats={stakingGlobalStats}
-                  isFetchingGlobalStats={isFetchingGlobalStats}
-                  aethBalance={aethBalance}
-                  stakeInput={stakeInput}
-                  setStakeInput={setStakeInput}
-                  handleStake={handleStake}
-                  isStaking={isStaking}
-                  isWrongNetwork={isWrongNetwork}
-                  stakedBalance={stakedBalance}
-                  pendingReward={pendingReward}
-                  unstakeInput={unstakeInput}
-                  setUnstakeInput={setUnstakeInput}
-                  handleWithdrawStake={handleWithdrawStake}
-                  isWithdrawingStake={isWithdrawingStake}
-                  handleClaimReward={handleClaimReward}
-                />
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="bg-gradient-to-r from-cyan-900/30 via-violet-900/25 to-fuchsia-900/20 border border-violet-500/30 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
+                    <div>
+                      <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2 flex items-center gap-2">
+                        <Coins className="text-cyan-400 w-5 h-5 sm:w-6 sm:h-6" /> {t.stakingTitle}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-neutral-400 max-w-md leading-relaxed">{t.stakingDesc}</p>
+                      
+                      {/* STATISTIK STAKING GLOBAL */}
+                      <div className="flex gap-4 mt-4 text-[10px] sm:text-xs font-mono text-neutral-300">
+                         <span className="bg-neutral-900/50 px-3 py-1.5 rounded-lg border border-neutral-800">TVL: {isFetchingGlobalStats ? '...' : stakingGlobalStats.totalStaked.toFixed(2)} AETH</span>
+                         <span className="bg-neutral-900/50 px-3 py-1.5 rounded-lg border border-neutral-800">Stakers: {isFetchingGlobalStats ? '...' : stakingGlobalStats.stakers}</span>
+                      </div>
+                    </div>
+                    <div className="bg-[#05030F]/80 backdrop-blur-sm p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-violet-500/30 min-w-full md:min-w-[200px] text-center md:text-left shadow-[0_0_25px_-8px_rgba(168,85,247,0.4)]">
+                      <p className="text-[10px] sm:text-xs text-neutral-400 uppercase tracking-widest font-bold mb-0.5 sm:mb-1">{t.currentApy}</p>
+                      <p className="font-display text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
+                        {apyPercent !== null ? `${apyPercent}%` : '...'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg">
+                      <h4 className="text-[11px] sm:text-sm font-bold text-white mb-3 sm:mb-4 uppercase tracking-widest">{t.stakeAethTitle}</h4>
+                      <div className="space-y-3 sm:space-y-4">
+                        <div className="bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+                          <div className="flex justify-between text-[9px] sm:text-xs text-neutral-500 mb-1.5 sm:mb-2">
+                            <span>{t.stakeAmountLabel}</span>
+                            <span>{t.balanceLabel} <span className="font-bold text-white">{aethBalance.toFixed(2)}</span> AETH</span>
+                          </div>
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <input
+                              type="number"
+                              value={stakeInput}
+                              onChange={(e) => setStakeInput(e.target.value)}
+                              placeholder="0.0"
+                              className="w-full bg-transparent text-lg sm:text-2xl font-mono text-white outline-none"
+                            />
+                            <button onClick={() => setStakeInput(aethBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-cyan-500/10 text-cyan-400 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-cyan-500/20 cursor-pointer hover:bg-cyan-500/20">{t.maxBtn}</button>
+                          </div>
+                        </div>
+                        <button onClick={handleStake} disabled={isStaking || isWrongNetwork} className="w-full py-3 sm:py-4 bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm text-white shadow-lg cursor-pointer flex items-center justify-center gap-2">
+                          {isStaking && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                          {t.stakeBtn}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-lg flex flex-col justify-between">
+                      <div>
+                        <h4 className="text-[11px] sm:text-sm font-bold text-white mb-3 sm:mb-4 uppercase tracking-widest">{t.positionTitle}</h4>
+                        <div className="space-y-2 sm:space-y-3">
+                          <div className="flex justify-between items-center border-b border-neutral-800 pb-2 sm:pb-3">
+                            <span className="text-neutral-400 text-[10px] sm:text-sm">{t.totalStaked}</span>
+                            <span className="text-white font-mono font-bold text-[11px] sm:text-base">{stakedBalance.toFixed(2)} AETH</span>
+                          </div>
+                          <div className="flex justify-between items-center pb-2 sm:pb-3">
+                            <span className="text-neutral-400 text-[10px] sm:text-sm">{t.pendingRewards}</span>
+                            <span className="text-green-400 font-mono font-bold text-[11px] sm:text-base">+{pendingReward.toFixed(4)} AETH</span>
+                          </div>
+                        </div>
+
+                        {stakedBalance > 0 && (
+                          <div className="mt-3 sm:mt-4 bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+                            <div className="flex justify-between text-[9px] sm:text-xs text-neutral-500 mb-1.5 sm:mb-2">
+                              <span>{t.unstakeAmountLabel}</span>
+                              <span>Staked: <span className="font-bold text-white">{stakedBalance.toFixed(2)}</span> AETH</span>
+                            </div>
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <input
+                                type="number"
+                                value={unstakeInput}
+                                onChange={(e) => setUnstakeInput(e.target.value)}
+                                placeholder="0.0"
+                                className="w-full bg-transparent text-lg sm:text-2xl font-mono text-white outline-none"
+                              />
+                              <button onClick={() => setUnstakeInput(stakedBalance.toString())} className="text-[9px] sm:text-xs font-bold bg-red-500/10 text-red-300 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg border border-red-500/20 cursor-pointer hover:bg-red-500/20">{t.maxBtn}</button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2 mt-4">
+                        {stakedBalance > 0 && (
+                          <button
+                            onClick={handleWithdrawStake}
+                            disabled={isWithdrawingStake || isWrongNetwork}
+                            className="w-full py-3 sm:py-4 border border-red-500/40 text-red-300 hover:bg-red-500/10 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
+                          >
+                            {isWithdrawingStake && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                            {t.unstakeBtn}
+                          </button>
+                        )}
+                        <button onClick={handleClaimReward} disabled={isWrongNetwork} className="w-full py-3 sm:py-4 border border-green-500/40 text-green-400 hover:bg-green-500/10 disabled:opacity-50 rounded-xl sm:rounded-full font-bold text-xs sm:text-sm transition-colors cursor-pointer">
+                          {t.claimRewardsBtn}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
 
-              {/* TAB: KEAMANAN & SETTINGS (Dibiarkan inline karena ini sekadar teks) */}
+              {/* TAB: KEAMANAN & SETTINGS */}
               {activeTab === 'security' && (
                 <div className="space-y-4 sm:space-y-6">
                   <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1232,7 +1654,7 @@ export default function DashboardPage() {
         </div>
       </footer>
 
-      {/* ⭐ MEMANGGIL KOMPONEN MODAL SERTIFIKAT */}
+      {/* ⭐ MEMANGGIL KOMPONEN MODAL SERTIFIKAT YANG BARU */}
       <CertificateModal 
         selectedCertificate={selectedCertificate}
         setSelectedCertificate={setSelectedCertificate}

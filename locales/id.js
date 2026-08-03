@@ -444,6 +444,38 @@ export const id = {
     statusNotReady: "Belum Siap",
     openVaultBtn: "Buka Brankas",
     btnDeleteContent: "Hapus Konten",
-    attachmentTag: "Lampiran"
+    attachmentTag: "Lampiran",
+    // --- SMART ERROR HANDLING ---
+    errUserRejected: "Transaksi dibatalkan oleh pengguna (User Rejected).",
+    errInsufficientFunds: "Saldo POL (Gas) atau AETH tidak mencukupi untuk transaksi ini.",
+    errNetworkIssue: "Gangguan koneksi RPC/Jaringan. Silakan coba beberapa saat lagi.",
+    errContractReverted: "Ditolak Jaringan:",
+    
+    // --- STAKING STATS ---
+    tvlLabel: "TVL:",
+    stakersLabel: "Stakers:",
+
+    // --- AETHER PROOF CERTIFICATE ---
+    totalSupplyLabel: "Total Pasokan",
+    totalUsersLabel: "Pengguna Aktif",
+    viewProofBtn: "Lihat Bukti",
+    certFetchFail: "Gagal memuat sertifikat: ",
+    certTitle: "Aether Proof™",
+    certSub: "Sertifikat Keberadaan Kriptografi",
+    certPreparing: "Mempersiapkan Sertifikat PDF...",
+    certDownloaded: "Sertifikat berhasil diunduh!",
+    certFail: "Gagal membuat PDF.",
+    certClose: "Tutup Sertifikat",
+    certDownloadBtn: "Unduh Bukti PDF",
+    certVerified: "TERVERIFIKASI ON-CHAIN ✓",
+    certHash: "Hash Bukti (Keccak256)",
+    certId: "ID Sertifikat",
+    certBlock: "Blok Ditambang",
+    certCreator: "Pembuat / Pemilik",
+    certNetwork: "Jaringan",
+    certTier: "Tingkat Keamanan",
+    certScan: "Pindai untuk Verifikasi On-Chain",
+    certFooter: "Sertifikat ini mengonfirmasi bahwa aset digital telah disegel secara kriptografi di blockchain. Sertifikat ini tidak mengungkapkan isi pesan. Konten tetap terenkripsi dan hanya dapat diakses oleh pemilik yang sah.",
+    certCertifiedBy: "Disertifikasi On-Chain oleh AetherVault™"
   }
 };
