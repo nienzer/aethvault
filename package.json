@@ -24,6 +24,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.x",
     "react-dom": "^19.x",
+    "react-qr-code": "^2.2.0",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
