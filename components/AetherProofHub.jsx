@@ -4,38 +4,26 @@ import { ethers } from 'ethers';
 import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import AetherVaultV3ABI from './AetherVaultV3ABI.json';
 
-// ⭐ ALAMAT SMART CONTRACT BARU BOS DI POLYGON AMOY
 const AETHER_VAULT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B";
 
-// ⭐ ABI STANDAR UNTUK FUNGSI CREATEPROOF & MINTING
-const AETHER_VAULT_ABI = [
-  "function createProof(uint8 _tier, string memory _category, bytes32 _fileHash, string memory _tokenURI, bool _isPublic) external",
-  "function getProofDetails(uint256 _tokenId) external view returns (tuple(string category, bytes32 fileHash, bool isPublic, uint256 timestamp))",
-  "function totalProofs() external view returns (uint256)"
-];
-
 export default function AetherProofHub({ t, handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
-  const [view, setView] = useState('hub'); // 'hub' | 'form' | 'minting' | 'success'
+  const [view, setView] = useState('hub');
   const certificateRef = useRef(null);
 
-  // Form State
   const [category, setCategory] = useState('Software');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [creatorName, setCreatorName] = useState('');
-  const [tier, setTier] = useState(0); // 0: Basic, 1: Premium, 2: Eternal, 3: Legacy
+  const [tier, setTier] = useState(0);
   const [file, setFile] = useState(null);
   
-  // Hashing & Metadata State
   const [isHashing, setIsHashing] = useState(false);
   const [fileHash, setFileHash] = useState('0x0000000000000000000000000000000000000000000000000000000000000000');
   const [metadataHash, setMetadataHash] = useState('0x...');
 
-  // Minting Animation State
   const [mintStep, setMintStep] = useState(0);
-
-  // Data Result
   const [generatedProof, setGeneratedProof] = useState(null);
 
   const categoryConfig = {
@@ -55,7 +43,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '0xA5E3...7Fa2';
   const realAddress = address || "0xA5E3000000000000000000000000000000007Fa2";
 
-  // ⭐ REAL KECCAK-256 HASHING ENGINE
   const generateKeccak256 = async (dataBuffer) => {
     try {
       const uint8Array = new Uint8Array(dataBuffer);
@@ -81,7 +68,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
     }, 800);
   };
 
-  // Live Metadata Hash Update
   useEffect(() => {
     const updateMetadataHash = async () => {
       const metadata = JSON.stringify({
@@ -100,31 +86,29 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
     updateMetadataHash();
   }, [title, description, category, creatorName, fileHash, realAddress]);
 
-  // ⭐ ENTERPRISE MINTING SEQUENCE DENGAN SMART CONTRACT ASLI
   const handleMintSequence = async (e) => {
     e.preventDefault();
     setView('minting');
     
     try {
-      setMintStep(1); // Uploading Metadata
+      setMintStep(1);
       await new Promise(res => setTimeout(res, 1000));
       
-      setMintStep(2); // Generating Hash
+      setMintStep(2);
       await new Promise(res => setTimeout(res, 1000));
       
-      setMintStep(3); // Signing Transaction with Wallet
+      setMintStep(3);
       if (!window.ethereum) throw new Error("MetaMask not found!");
       
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AETHER_VAULT_ABI, signer);
+      const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, signer);
 
-      setMintStep(4); // Waiting Blockchain Confirmation
-      // Panggil fungsi createProof asli dari smart contract Bos
-      const tokenURIParam = `https://gateway.pinata.cloud/ipfs/bafybeig...preview`; // URI Metadata
+      setMintStep(4);
+      const tokenURIParam = `https://gateway.pinata.cloud/ipfs/bafybeig...preview`;
       const tx = await contract.createProof(tier, category, fileHash, tokenURIParam, true);
       
-      setMintStep(5); // Minting NFT & Waiting Receipt
+      setMintStep(5);
       const receipt = await tx.wait();
 
       const mockTokenId = Math.floor(8000 + Math.random() * 2000);
@@ -156,7 +140,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
     }
   };
 
-  // ⭐ HIGH-RES PNG DOWNLOAD
   const handleDownloadPNG = async () => {
     if (!certificateRef.current) return;
     try {
@@ -171,7 +154,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
     }
   };
 
-  // ⭐ VECTOR-READY PDF WRAPPER
   const handleDownloadPDF = async () => {
     if (!certificateRef.current) return;
     try {
@@ -187,32 +169,23 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
     }
   };
 
-  // ==========================================
-  // KOMPONEN DESAIN SERTIFIKAT (REUSABLE)
-  // ==========================================
   const CertificateTemplate = ({ proofData }) => (
     <div ref={certificateRef} className="w-[842px] h-[595px] bg-[#fdfbf7] text-neutral-900 rounded-sm p-10 relative overflow-hidden shadow-2xl font-serif border border-neutral-300 mx-auto flex flex-col justify-between shrink-0">
-      
-      {/* 🟢 Verified Status */}
       <div className="absolute top-8 right-8 flex items-center gap-2 z-20 bg-white/90 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
         <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
         <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">Verified on Polygon Amoy</span>
       </div>
 
-      {/* ⭐ WATERMARK AETHERVAULT LOGO ⭐ */}
       <img src="/whatermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-[0.05] pointer-events-none grayscale mix-blend-multiply p-20" />
 
-      {/* Inner Borders */}
       <div className="absolute inset-4 border-[4px] border-double border-amber-900/30 pointer-events-none rounded-sm"></div>
       <div className="absolute inset-6 border-[1px] border-amber-900/10 pointer-events-none rounded-sm"></div>
       
-      {/* Header */}
       <div className="relative z-10 text-center mb-4 pt-4 border-b-2 border-amber-900/10 pb-4">
         <h4 className="text-4xl font-black tracking-[0.25em] text-amber-900 mb-2 font-display drop-shadow-sm">AETHER PROOF™</h4>
         <p className="text-xs font-bold tracking-[0.3em] text-amber-700 uppercase">Cryptographic Certificate of Authenticity</p>
       </div>
 
-      {/* Body */}
       <div className="relative z-10 space-y-6 flex-1 flex flex-col justify-center px-4">
         <div className="text-center mb-2">
           <p className="text-[10px] uppercase tracking-widest text-neutral-500 mb-2">This unalterable document officially certifies the registration of</p>
@@ -266,7 +239,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
         </div>
       </div>
 
-      {/* Footer */}
       <div className="relative z-10 mt-6 pt-4 border-t-2 border-amber-900/20 flex flex-row items-end justify-between px-6 pb-2">
         <div className="text-left mb-2">
           <p className="text-[8px] font-bold text-amber-900 uppercase tracking-widest leading-relaxed">
