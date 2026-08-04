@@ -68,16 +68,22 @@ export default function LandingPage() {
         </div>
       )}
 
+      {/* CSS Animasi Kustom */}
       <style jsx global>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
         }
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.2); }
+          50% { box-shadow: 0 0 30px rgba(6, 182, 212, 0.6); }
+        }
         .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-glow { animation: pulse-glow 3s ease-in-out infinite; }
       `}</style>
 
-      {/* ⭐ NAVBAR TUNGGAL FINAL */}
-      <nav className="sticky top-0 z-50 bg-[#030208]/90 backdrop-blur-xl border-b border-neutral-900 py-4 px-4 sm:px-6">
+      {/* ⭐ NAVBAR TUNGGAL FINAL (TIDAK DOBEL) */}
+      <nav className="sticky top-0 z-50 bg-[#030208]/95 backdrop-blur-xl border-b border-neutral-900 py-4 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
             <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-xl object-cover" />
@@ -119,7 +125,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ⭐ 1. HERO SECTION */}
+      {/* ⭐ 1. HERO SECTION & ANIMASI FLOW LENGKAP */}
       <section id="home" className="pt-20 pb-16 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 items-center relative">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-600/10 blur-[150px] rounded-full pointer-events-none"></div>
 
@@ -150,7 +156,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* HERO ANIMATION FLOW */}
+        {/* HERO ANIMATION FLOW LENGKAP (TIDAK ADA YANG HILANG) */}
         <div className="lg:col-span-5 relative z-10 hidden lg:flex flex-col items-center justify-center h-[500px]">
            <div className="w-full max-w-sm space-y-4">
               <div className="bg-[#0B0817]/80 backdrop-blur-md border border-neutral-800 p-4 rounded-2xl flex items-center gap-4 shadow-xl transform translate-x-4 animate-float">
@@ -165,9 +171,15 @@ export default function LandingPage() {
               </div>
               <div className="w-0.5 h-6 bg-gradient-to-b from-purple-500 to-cyan-500 mx-auto"></div>
 
-              <div className="bg-cyan-900/20 backdrop-blur-md border border-cyan-500/30 p-4 rounded-2xl flex items-center gap-4 shadow-[0_0_30px_rgba(6,182,212,0.15)] transform translate-x-6 animate-float" style={{ animationDelay: '2s' }}>
+              <div className="bg-cyan-900/20 backdrop-blur-md border border-cyan-500/30 p-4 rounded-2xl flex items-center gap-4 shadow-[0_0_30px_rgba(6,182,212,0.15)] transform translate-x-6 animate-float animate-glow" style={{ animationDelay: '2s' }}>
                  <div className="w-12 h-12 bg-cyan-500/20 border border-cyan-500/50 rounded-xl flex items-center justify-center shadow-inner"><Clock className="w-6 h-6 text-cyan-400"/></div>
                  <div><p className="text-white font-bold text-sm">Time-Lock Target</p><p className="text-[10px] text-cyan-400 font-mono">Unlock Year 2045</p></div>
+              </div>
+              <div className="w-0.5 h-6 bg-gradient-to-b from-cyan-500 to-green-500 mx-auto"></div>
+
+              <div className="bg-green-900/20 backdrop-blur-md border border-green-500/30 p-4 rounded-2xl flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(34,197,94,0.15)] transform mx-auto w-fit animate-float" style={{ animationDelay: '3s' }}>
+                 <CheckCircle2 className="w-5 h-5 text-green-400"/>
+                 <p className="text-green-400 font-bold text-xs uppercase tracking-widest">Verified On-Chain</p>
               </div>
            </div>
         </div>
@@ -194,45 +206,45 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR (LENGKAP DENGAN CHAINLINK & OPENZEPPELIN) */}
-        <section className="py-12 bg-[#020106] border-b border-neutral-900">
+      {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR (LENGKAP 6 LOGO) */}
+      <section className="py-12 bg-[#020106] border-b border-neutral-900">
         <div className="max-w-7xl mx-auto px-4 text-center space-y-6">
-        <p className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Secured, Audited & Powered By</p>
-        <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 opacity-80 hover:opacity-100 transition-all">
-        
-        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
-           <img src="/polygon.png" alt="Polygon" className="w-5 h-5 object-contain" />
-           <span className="text-xs font-bold font-mono text-white tracking-wider">POLYGON AMOY</span>
-        </div>
+           <p className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Secured, Audited & Powered By</p>
+           <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 opacity-80 hover:opacity-100 transition-all">
+              
+              <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+                 <img src="/polygon.png" alt="Polygon" className="w-5 h-5 object-contain" />
+                 <span className="text-xs font-bold font-mono text-white tracking-wider">POLYGON AMOY</span>
+              </div>
 
-        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
-           <Hexagon className="w-5 h-5 text-cyan-400" />
-           <span className="text-xs font-bold font-mono text-white tracking-wider">CHAINLINK</span>
-        </div>
+              <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+                 <Hexagon className="w-5 h-5 text-cyan-400" />
+                 <span className="text-xs font-bold font-mono text-white tracking-wider">CHAINLINK</span>
+              </div>
 
-        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
-           <ShieldCheck className="w-5 h-5 text-purple-400" />
-           <span className="text-xs font-bold font-mono text-white tracking-wider">OPENZEPPELIN</span>
-        </div>
+              <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+                 <ShieldCheck className="w-5 h-5 text-purple-400" />
+                 <span className="text-xs font-bold font-mono text-white tracking-wider">OPENZEPPELIN</span>
+              </div>
 
-        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
-           <img src="/uniswap.png" alt="Uniswap" className="w-5 h-5 object-contain" />
-           <span className="text-xs font-bold font-mono text-white tracking-wider">UNISWAP V3</span>
-        </div>
+              <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+                 <img src="/uniswap.png" alt="Uniswap" className="w-5 h-5 object-contain" />
+                 <span className="text-xs font-bold font-mono text-white tracking-wider">UNISWAP V3</span>
+              </div>
 
-        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
-           <img src="/pinksale.png" alt="Pinksale" className="w-5 h-5 object-contain" />
-           <span className="text-xs font-bold font-mono text-white tracking-wider">PINKSALE LAUNCH</span>
-        </div>
+              <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+                 <img src="/pinksale.png" alt="Pinksale" className="w-5 h-5 object-contain" />
+                 <span className="text-xs font-bold font-mono text-white tracking-wider">PINKSALE LAUNCH</span>
+              </div>
 
-        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
-           <img src="/gecko.png" alt="GeckoTerminal" className="w-5 h-5 object-contain" />
-           <span className="text-xs font-bold font-mono text-white tracking-wider">GECKOTERMINAL</span>
-        </div>
+              <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+                 <img src="/gecko.png" alt="GeckoTerminal" className="w-5 h-5 object-contain" />
+                 <span className="text-xs font-bold font-mono text-white tracking-wider">GECKOTERMINAL</span>
+              </div>
 
-     </div>
-  </div>
-</section>
+           </div>
+        </div>
+      </section>
 
       {/* ⭐ PILAR UTAMA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
