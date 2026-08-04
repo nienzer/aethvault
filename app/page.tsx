@@ -229,6 +229,52 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ⭐ HALL OF PROOF SHOWCASE (APPLE STYLE UI PREVIEW) */}
+      <section className="bg-[#0A0713] py-24 border-y border-neutral-900 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-cyan-600/5 blur-[150px] rounded-full pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-12 relative z-10">
+           
+           <div className="space-y-4">
+             <h2 className="text-3xl sm:text-5xl font-black text-white font-display">Experience The Protocol</h2>
+             <p className="text-neutral-400 max-w-2xl mx-auto">A seamless Web3 terminal designed for both everyday users and advanced crypto natives.</p>
+           </div>
+
+           <div className="w-full max-w-5xl mx-auto bg-[#030208] border border-neutral-800 rounded-t-3xl rounded-b-xl shadow-[0_-20px_60px_rgba(6,182,212,0.1)] overflow-hidden flex flex-col pt-4 px-4 pb-0">
+             <div className="flex gap-2 px-2 mb-4">
+               <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+               <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+               <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+             </div>
+             
+             {/* Mock Dashboard UI */}
+             <div className="bg-[#0A0713] border border-neutral-800 border-b-0 rounded-t-2xl w-full h-[300px] sm:h-[500px] p-6 flex flex-col gap-6 relative overflow-hidden">
+                <div className="flex justify-between items-center pb-4 border-b border-neutral-800/80">
+                   <div className="flex items-center gap-3"><Globe className="w-5 h-5 text-cyan-400"/><span className="text-white font-bold font-display">Hall of Proof™</span></div>
+                   <div className="w-32 h-8 bg-neutral-900 rounded-lg border border-neutral-800"></div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 flex-1">
+                   <div className="bg-[#05030F] border border-neutral-800 rounded-xl p-4 space-y-3">
+                     <div className="w-full h-24 bg-neutral-900 rounded-lg"></div>
+                     <div className="w-3/4 h-4 bg-neutral-800 rounded"></div>
+                     <div className="w-1/2 h-3 bg-neutral-800 rounded"></div>
+                   </div>
+                   <div className="bg-[#05030F] border border-cyan-500/30 rounded-xl p-4 space-y-3 relative overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+                     <div className="absolute inset-0 bg-cyan-500/5"></div>
+                     <div className="w-full h-24 bg-cyan-900/20 border border-cyan-500/30 rounded-lg flex items-center justify-center"><Award className="w-8 h-8 text-cyan-400"/></div>
+                     <div className="w-3/4 h-4 bg-cyan-500/40 rounded"></div>
+                     <div className="w-1/2 h-3 bg-cyan-500/20 rounded"></div>
+                   </div>
+                   <div className="bg-[#05030F] border border-neutral-800 rounded-xl p-4 space-y-3 hidden sm:block">
+                     <div className="w-full h-24 bg-neutral-900 rounded-lg"></div>
+                     <div className="w-3/4 h-4 bg-neutral-800 rounded"></div>
+                     <div className="w-1/2 h-3 bg-neutral-800 rounded"></div>
+                   </div>
+                </div>
+             </div>
+           </div>
+        </div>
+      </section>
+
       {/* ⭐ INFRASTRUCTURE SECTION */}
       <section id="infrastructure" className="max-w-7xl mx-auto px-4 sm:px-6 py-20 border-t border-neutral-900">
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -333,38 +379,38 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ TEAM / DEV SECTION */}
-      <section id="team" className="max-w-5xl mx-auto px-4 sm:px-6 py-20 border-t border-neutral-900">
-        <div className="bg-gradient-to-br from-[#0B0817] to-[#040308] border border-neutral-800 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center gap-8 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-3xl rounded-full pointer-events-none"></div>
+      {/* ⭐ TEAM / DEV SECTION (DIPERKETAT, DIPERKECH & DI TENGAH) */}
+      <section id="team" className="max-w-4xl mx-auto px-4 sm:px-6 py-20 border-t border-neutral-900">
+        <div className="bg-gradient-to-br from-[#0B0817] to-[#040308] border border-neutral-800 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 shadow-2xl relative overflow-hidden mx-auto max-w-2xl">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/5 blur-3xl rounded-full pointer-events-none"></div>
           
           <div className="relative shrink-0">
-            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 p-1 shadow-2xl">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 p-1 shadow-xl">
               <div className="w-full h-full bg-neutral-900 rounded-2xl flex items-center justify-center overflow-hidden relative">
                 <img src="/dev-avatar.png" alt="Nienzer" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
-                <div className="absolute inset-0 bg-neutral-900 hidden items-center justify-center text-cyan-400 font-mono font-black text-2xl">
+                <div className="absolute inset-0 bg-neutral-900 hidden items-center justify-center text-cyan-400 font-mono font-black text-xl">
                   NZ
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-green-500 text-black text-[9px] font-mono font-black px-2.5 py-1 rounded-full uppercase tracking-widest border-2 border-[#0B0817]">
+            <div className="absolute -bottom-2 -right-2 bg-green-500 text-black text-[8px] font-mono font-black px-2 py-0.5 rounded-full uppercase tracking-widest border-2 border-[#0B0817]">
               Core Dev
             </div>
           </div>
 
-          <div className="space-y-4 text-center md:text-left flex-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-widest font-mono">
+          <div className="space-y-3 text-center md:text-left flex-1">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[9px] font-bold uppercase tracking-widest font-mono">
               {globalT.team.tag}
             </div>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-white font-display">{globalT.team.name}</h3>
-            <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
+            <h3 className="text-xl sm:text-2xl font-extrabold text-white font-display">{globalT.team.name}</h3>
+            <p className="text-neutral-400 text-xs leading-relaxed">
               {globalT.team.bio}
             </p>
           </div>
         </div>
       </section>
 
-      {/* ⭐ FOOTER */}
+      {/* ⭐ FOOTER (DIPERJELAS & SEDIKIT LEBIH BESAR) */}
       <footer className="bg-[#020106] pt-20 pb-12 border-t border-neutral-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-16">
           <div className="lg:col-span-2 space-y-4">
