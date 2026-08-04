@@ -194,35 +194,45 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR */}
-      <section className="py-10 bg-[#020106] border-b border-neutral-900">
-        <div className="max-w-7xl mx-auto px-4 text-center space-y-5">
-           <p className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Supported Networks & Ecosystem Partners</p>
-           <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 opacity-80 hover:opacity-100 transition-all">
-              
-              <div className="flex items-center gap-2 bg-neutral-900/60 border border-neutral-800 px-4 py-2 rounded-xl shadow-inner">
-                 <img src="/polygon.png" alt="Polygon" className="w-5 h-5 object-contain" />
-                 <span className="text-xs font-bold font-mono text-white">POLYGON AMOY</span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-neutral-900/60 border border-neutral-800 px-4 py-2 rounded-xl shadow-inner">
-                 <img src="/uniswap.png" alt="Uniswap" className="w-5 h-5 object-contain" />
-                 <span className="text-xs font-bold font-mono text-white">UNISWAP V3</span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-neutral-900/60 border border-neutral-800 px-4 py-2 rounded-xl shadow-inner">
-                 <img src="/pinksale.png" alt="Pinksale" className="w-5 h-5 object-contain" />
-                 <span className="text-xs font-bold font-mono text-white">PINKSALE LAUNCH</span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-neutral-900/60 border border-neutral-800 px-4 py-2 rounded-xl shadow-inner">
-                 <img src="/gecko.png" alt="GeckoTerminal" className="w-5 h-5 object-contain" />
-                 <span className="text-xs font-bold font-mono text-white">GECKOTERMINAL</span>
-              </div>
-
-           </div>
+      {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR (LENGKAP DENGAN CHAINLINK & OPENZEPPELIN) */}
+        <section className="py-12 bg-[#020106] border-b border-neutral-900">
+        <div className="max-w-7xl mx-auto px-4 text-center space-y-6">
+        <p className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Secured, Audited & Powered By</p>
+        <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 opacity-80 hover:opacity-100 transition-all">
+        
+        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+           <img src="/polygon.png" alt="Polygon" className="w-5 h-5 object-contain" />
+           <span className="text-xs font-bold font-mono text-white tracking-wider">POLYGON AMOY</span>
         </div>
-      </section>
+
+        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+           <Hexagon className="w-5 h-5 text-cyan-400" />
+           <span className="text-xs font-bold font-mono text-white tracking-wider">CHAINLINK</span>
+        </div>
+
+        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+           <ShieldCheck className="w-5 h-5 text-purple-400" />
+           <span className="text-xs font-bold font-mono text-white tracking-wider">OPENZEPPELIN</span>
+        </div>
+
+        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+           <img src="/uniswap.png" alt="Uniswap" className="w-5 h-5 object-contain" />
+           <span className="text-xs font-bold font-mono text-white tracking-wider">UNISWAP V3</span>
+        </div>
+
+        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+           <img src="/pinksale.png" alt="Pinksale" className="w-5 h-5 object-contain" />
+           <span className="text-xs font-bold font-mono text-white tracking-wider">PINKSALE LAUNCH</span>
+        </div>
+
+        <div className="flex items-center gap-2.5 bg-neutral-900/60 border border-neutral-800 px-5 py-2.5 rounded-2xl shadow-inner">
+           <img src="/gecko.png" alt="GeckoTerminal" className="w-5 h-5 object-contain" />
+           <span className="text-xs font-bold font-mono text-white tracking-wider">GECKOTERMINAL</span>
+        </div>
+
+     </div>
+  </div>
+</section>
 
       {/* ⭐ PILAR UTAMA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
