@@ -1057,6 +1057,7 @@ export default function DashboardPage() {
                   handleCancelStagedUpload={handleCancelStagedUpload}
                   handleFileSelected={handleFileSelected}
                   getMinUnlockDatetimeLocal={getMinUnlockDatetimeLocal}
+                  aethBalance={aethBalance}
                 />
               )}
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Lock, Shield, UserX, Flame, UploadCloud, FileImage, X, Loader2, Clock, Check } from 'lucide-react';
+import { Sparkles, Lock, Shield, UserX, Flame, UploadCloud, FileImage, X, Loader2, Clock, Check, Coins } from 'lucide-react';
 
 export default function CreateCapsule({
   t,
@@ -17,7 +17,8 @@ export default function CreateCapsule({
   selectedFile, setSelectedFile,
   isPreparingUpload, stagedUpload, isUploading,
   handleConfirmArweaveUpload, handleCancelStagedUpload, handleFileSelected,
-  getMinUnlockDatetimeLocal
+  getMinUnlockDatetimeLocal,
+  aethBalance // ⭐ DITAMBAHKAN PROP SALDO ASLI AGAR SINKRON
 }) {
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
@@ -92,7 +93,6 @@ export default function CreateCapsule({
                           : 'border-neutral-900 bg-[#05030F] hover:border-neutral-700'
                       }`}
                     >
-                      {/* Badge Most Popular */}
                       {isPopular && (
                         <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[8px] font-mono font-bold px-3 py-1 rounded-bl-xl uppercase tracking-widest shadow-md">
                           Most Popular
@@ -142,7 +142,7 @@ export default function CreateCapsule({
                 {!isPermanentTier ? (
                   <div>
                     <Lock className="w-7 h-7 text-neutral-600 mx-auto mb-2" />
-                    <p className="text-xs text-neutral-500 font-mono">IPFS Attachment available for Eternal & Legacy tiers</p>
+                    <p className="text-xs text-neutral-500 font-mono">IPFS/Arweave Attachment available for Eternal & Legacy tiers</p>
                   </div>
                 ) : uploadedCid ? (
                   <div className="flex items-center justify-between bg-cyan-500/10 border border-cyan-500/30 p-3 rounded-xl">
@@ -198,7 +198,7 @@ export default function CreateCapsule({
                     <input type="file" onChange={handleFileSelected} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf,.zip" />
                     <UploadCloud className="w-8 h-8 text-cyan-400/70 mx-auto mb-2" />
                     <p className="text-xs text-white font-bold mb-1">Drop your file here <span className="text-neutral-500 font-normal">or</span> <span className="text-cyan-400 underline">Browse Files</span></p>
-                    <p className="text-[10px] text-neutral-500 font-mono">Supported: PNG, JPG, PDF, ZIP, MP4 • Max size: 100 MB</p>
+                    <p className="text-[10px] text-neutral-500 font-mono">Supported: PNG, JPG, PDF, ZIP • Max size: 10 MB</p>
                   </div>
                 )}
               </div>
@@ -283,41 +283,41 @@ export default function CreateCapsule({
           </form>
         </div>
 
-        {/* KOLOM KANAN: WIDGET INFORMASI & SALDO */}
+        {/* KOLOM KANAN: WIDGET INFORMASI & SALDO ASLI */}
         <div className="lg:col-span-4 space-y-6">
           
-          {/* APA ITU KAPSUL */}
+          {/* APA ITU AETHERVAULT CAPSULE */}
           <div className="bg-[#0B0817] border border-neutral-900 rounded-3xl p-6 shadow-xl space-y-4">
             <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
               <Shield className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-white text-sm uppercase tracking-wider font-mono">What is a Capsule?</h4>
+            <h4 className="font-bold text-white text-sm uppercase tracking-wider font-mono">What is AetherVault?</h4>
             <p className="text-xs text-neutral-400 leading-relaxed">
-              A secured container for your important messages or files. Only you (or your heir) can unlock it at the right time.
+              A decentralized cryptographic vault for time-lock messages, dead-man's switch legacy transfer, and permanent IP proof-of-ownership.
             </p>
             <div className="space-y-3 pt-2 border-t border-neutral-900 text-xs">
               <div className="flex items-center gap-2.5 text-neutral-300">
                 <Lock className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                <span>Military-Grade Encryption (ECIES + AES-256)</span>
+                <span>Client-Side ECIES Encryption</span>
               </div>
               <div className="flex items-center gap-2.5 text-neutral-300">
-                <Sparkles className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-                <span>Decentralized Storage on Polygon</span>
+                <Flame className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                <span>Deflationary $AETH Token Burn</span>
               </div>
               <div className="flex items-center gap-2.5 text-neutral-300">
                 <Shield className="w-3.5 h-3.5 text-green-400 shrink-0" />
-                <span>Tamper Proof & Verifiable</span>
+                <span>Polygon On-Chain Immutability</span>
               </div>
             </div>
           </div>
 
-          {/* SALDO WALLET */}
+          {/* SALDO ASLI WALLET ($AETH) */}
           <div className="bg-[#0B0817] border border-neutral-900 rounded-3xl p-6 shadow-xl space-y-3">
-            <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20 uppercase tracking-widest">Your Balance</span>
-            <div className="text-2xl font-black text-white font-mono">
-              125.48 AETH
+            <span className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20 uppercase tracking-widest">Your $AETH Balance</span>
+            <div className="text-2xl font-black text-white font-mono truncate">
+              {Number(aethBalance).toLocaleString()} AETH
             </div>
-            <p className="text-[10px] text-neutral-500 font-mono">≈ $62.34 USD • Polygon Amoy</p>
+            <p className="text-[10px] text-neutral-500 font-mono">Secured by Polygon Amoy Testnet</p>
           </div>
 
         </div>
