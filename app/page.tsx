@@ -76,10 +76,10 @@ export default function LandingPage() {
         .animate-float { animation: float 6s ease-in-out infinite; }
       `}</style>
 
-      {/* ⭐ NAVBAR LENGKAP DENGAN MENU & TRANSLATE */}
-      <nav className="sticky top-0 z-50 bg-[#030208]/80 backdrop-blur-xl border-b border-neutral-900 py-4 px-4 sm:px-6">
+      {/* ⭐ NAVBAR TUNGGAL FINAL */}
+      <nav className="sticky top-0 z-50 bg-[#030208]/90 backdrop-blur-xl border-b border-neutral-900 py-4 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
             <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-xl object-cover" />
             <span className="text-lg font-black tracking-widest text-white font-display">AETHERVAULT</span>
           </div>
@@ -94,12 +94,21 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setLang(lang === 'en' ? 'id' : 'en')}
-              className="px-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs font-mono font-bold text-cyan-400 cursor-pointer hover:border-cyan-500/50 transition-all"
-            >
-              {lang === 'en' ? '🇮🇩 ID' : '🇬🇧 EN'}
-            </button>
+            <div className="flex items-center gap-1 bg-neutral-900 border border-neutral-800 p-1 rounded-xl">
+              <button 
+                onClick={() => setLang('id')}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${lang === 'id' ? 'bg-cyan-500 text-black shadow-md' : 'text-neutral-400 hover:text-white'}`}
+              >
+                ID
+              </button>
+              <button 
+                onClick={() => setLang('en')}
+                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${lang === 'en' ? 'bg-cyan-500 text-black shadow-md' : 'text-neutral-400 hover:text-white'}`}
+              >
+                EN
+              </button>
+            </div>
+
             <button 
               onClick={() => router.push("/dashboard")}
               className="bg-white hover:bg-neutral-200 text-black px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg transition-all cursor-pointer"
@@ -185,10 +194,40 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR */}
+      <section className="py-10 bg-[#020106] border-b border-neutral-900">
+        <div className="max-w-7xl mx-auto px-4 text-center space-y-5">
+           <p className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Supported Networks & Ecosystem Partners</p>
+           <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 opacity-80 hover:opacity-100 transition-all">
+              
+              <div className="flex items-center gap-2 bg-neutral-900/60 border border-neutral-800 px-4 py-2 rounded-xl shadow-inner">
+                 <img src="/polygon.png" alt="Polygon" className="w-5 h-5 object-contain" />
+                 <span className="text-xs font-bold font-mono text-white">POLYGON AMOY</span>
+              </div>
+
+              <div className="flex items-center gap-2 bg-neutral-900/60 border border-neutral-800 px-4 py-2 rounded-xl shadow-inner">
+                 <img src="/uniswap.png" alt="Uniswap" className="w-5 h-5 object-contain" />
+                 <span className="text-xs font-bold font-mono text-white">UNISWAP V3</span>
+              </div>
+
+              <div className="flex items-center gap-2 bg-neutral-900/60 border border-neutral-800 px-4 py-2 rounded-xl shadow-inner">
+                 <img src="/pinksale.png" alt="Pinksale" className="w-5 h-5 object-contain" />
+                 <span className="text-xs font-bold font-mono text-white">PINKSALE LAUNCH</span>
+              </div>
+
+              <div className="flex items-center gap-2 bg-neutral-900/60 border border-neutral-800 px-4 py-2 rounded-xl shadow-inner">
+                 <img src="/gecko.png" alt="GeckoTerminal" className="w-5 h-5 object-contain" />
+                 <span className="text-xs font-bold font-mono text-white">GECKOTERMINAL</span>
+              </div>
+
+           </div>
+        </div>
+      </section>
+
       {/* ⭐ PILAR UTAMA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
         <div className="grid md:grid-cols-3 gap-6">
-           <div className="bg-gradient-to-b from-[#0A0713] to-[#030208] border border-neutral-800 p-8 rounded-3xl hover:border-cyan-500/55 transition-colors group">
+           <div className="bg-gradient-to-b from-[#0A0713] to-[#030208] border border-neutral-800 p-8 rounded-3xl hover:border-cyan-500/50 transition-colors group">
               <div className="w-14 h-14 bg-cyan-500/10 border border-cyan-500/30 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                  <Award className="w-7 h-7 text-cyan-400"/>
               </div>
@@ -372,10 +411,10 @@ export default function LandingPage() {
           </div>
         </div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 border-t border-neutral-900 pt-8 flex flex-col sm:flex-row items-center justify-between text-[10px] text-neutral-600 font-mono gap-4">
-          <p>{globalT.footer.copyright.replace('{year}', new Date().getFullYear())}</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 border-t border-neutral-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm text-neutral-300 font-mono gap-4">
+          <p>© {new Date().getFullYear()} Nienzer. Hak Cipta Dilindungi. Email: admin@aethvault.xyz</p>
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Polygon Mainnet Operational
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Polygon Mainnet Operational
           </div>
         </div>
       </footer>
