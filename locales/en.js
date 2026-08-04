@@ -9,15 +9,146 @@ export const en = {
     back: "Back"
   },
   hero: {
-    badge: "Live on Polygon Mainnet",
-    titleLine1: "The Next Generation",
-    titleHighlight: "Decentralized Time Capsule",
-    desc: "The first decentralized protocol to secure your digital legacy. Equipped with Web3 encryption, Dead Man's Switch systems, Liquid Staking, and Aether Proof™ Certificates for absolute on-chain verification.",
-    exploreBtn: "Explore Ecosystem",
-    whitepaperBtn: "Whitepaper",
-    builtOn: "Built on",
+    badge: "Web3 Digital Legacy Protocol",
+    titleLine1: "Preserve Your",
+    titleHighlight: "Digital Legacy Forever",
+    desc: "Secure messages, memories, contracts, certificates, and intellectual property on the Polygon blockchain forever using military-grade ECIES cryptography.",
+    exploreBtn: "Explore App",
+    whitepaperBtn: "Read Whitepaper",
+    builtOn: "Secured by",
     polygon: "Polygon",
-    chainlink: "Chainlink Ready"
+    chainlink: "Chainlink"
+  },
+  landing: {
+    liveData: {
+      status: "Network Status",
+      online: "Online",
+      block: "Current Block",
+      capsules: "Capsules Stored",
+      certs: "Certificates",
+      burned: "AETH Burned"
+    },
+    pillars: {
+      proofTitle: "Aether Proof™",
+      proofDesc: "Mint immutable ownership certificates for any digital creation, artwork, software, or intellectual property on the blockchain.",
+      legacyTitle: "Legacy Vault™",
+      legacyDesc: "Leave an encrypted digital inheritance. Dead-man's switch logic ensures your wealth and secrets transfer safely to the next generation.",
+      capsuleTitle: "Time Capsule™",
+      capsuleDesc: "Lock a message or file today, and make it cryptographically impossible to open until a specific date years into the future."
+    },
+    showcase: {
+      title: "Experience The Protocol",
+      desc: "A seamless Web3 terminal designed for both everyday users and advanced crypto natives."
+    },
+    howItWorks: {
+      title: "How AetherVault Works",
+      desc: "Four simple steps to eternal cryptographic security.",
+      step1Title: "Create Content",
+      step1Desc: "Write a secret message, upload an intellectual property file, or set up a dead-man's switch.",
+      step2Title: "Client-Side ECIES Encryption",
+      step2Desc: "Your content is encrypted directly in your browser using secp256k1 keys. No plain text ever reaches our servers.",
+      step3Title: "Mint to Blockchain",
+      step3Desc: "A smart contract records your ciphertext, hash, and unlock conditions immutably on the Polygon network.",
+      step4Title: "Future Unlock",
+      step4Desc: "When the block timestamp passes your target date, you or your heir decrypt the vault via MetaMask signature."
+    },
+    metrics: {
+      supply: "Token Supply",
+      blocks: "Polygon Blocks",
+      encryption: "Military Encryption",
+      onchain: "On-Chain Protocol"
+    }
+  },
+  hallOfProof: {
+    galleryBadge: "Immutable On-Chain Gallery",
+    title: "Hall of Proof™",
+    desc: "The World's Permanent Registry for Verified Intellectual Property. Explore authentic digital assets secured directly on the Polygon blockchain.",
+    totalProofs: "Total Proofs",
+    creators: "Creators",
+    categories: "Categories",
+    blocks: "Polygon Blocks",
+    searchPlaceholder: "Search proofs or owner wallet...",
+    syncing: "Syncing Registry...",
+    reading: "Reading Polygon...",
+    verifying: "Verifying Hashes...",
+    loading: "Loading Certificates...",
+    emptyTitle: "The Registry Awaits",
+    emptyDesc: "No public proofs have been found in this category. Become the first verified creator to permanently register your work.",
+    mintFirst: "Mint First Proof",
+    creator: "Creator",
+    hash: "SHA-256",
+    viewCert: "VIEW CERTIFICATE",
+    timelineTitle: "Live Registry Timeline Feed",
+    activeStream: "Active Stream",
+    recentActivity: "RECENT ON-CHAIN ACTIVITY",
+    verifiedPolygon: "Verified On Polygon Amoy →"
+  },
+  globalStats: {
+    title: "Protocol Statistics",
+    networkHealthy: "Network Healthy",
+    totalSupply: "Total Supply",
+    burn: "Deflationary Burn",
+    capsules: "Capsules",
+    immutable: "Immutable",
+    proofs: "Verified Proofs",
+    onChain: "On-Chain",
+    wallets: "Active Wallets",
+    tracked: "Tracked",
+    tvl: "Staked TVL",
+    locked: "Total $AETH",
+    stakers: "Total Stakers",
+    active: "Active",
+    height: "Polygon Network Height",
+    liveSync: "Live Sync",
+    targetChain: "Target Chain:",
+    activityTitle: "Recent Ecosystem Activity",
+    noActivity: "No recent activity found on the network."
+  },
+  stakingUi: {
+    title: "AETH STAKING",
+    subtitle: "Secure the Network • Earn Rewards",
+    currentApy: "Current APY",
+    tvl: "Total Locked (TVL)",
+    health: "Network Health",
+    stakeNew: "Stake AETH",
+    amountToStake: "Amount to Stake",
+    available: "Available:",
+    estRewards: "Estimated Staking Rewards",
+    perDay: "Per Day",
+    perWeek: "Per Week",
+    perMonth: "Per Month",
+    btnLocking: "Locking AETH...",
+    btnConfirm: "Confirm & Stake",
+    yourPosition: "Your Position",
+    active: "Active",
+    totalStaked: "Total Staked",
+    portfolioShare: "Portfolio Share:",
+    pendingRewards: "Pending Rewards",
+    estDaily: "Est. Daily",
+    nextReward: "Next Reward",
+    claimReady: "Ready",
+    noRewards: "No Rewards to Claim",
+    withdraw: "Withdraw",
+    howItWorks: "How Staking Works",
+    yourAeth: "Your $AETH",
+    stakingPool: "Staking Pool",
+    validators: "Polygon Validators",
+    dailyRewards: "Daily Rewards",
+    emptyTitle: "No Active Stake",
+    emptyDesc: "Lock AETH to secure the protocol and receive passive rewards continuously."
+  },
+  vaultsUi: {
+    decrypting: "Decrypting Vault Records...",
+    emptyTitle: "Your Vault is Empty",
+    emptyDesc: "You haven't sealed any cryptographic capsules yet. Secure your legacy or secret files on-chain now.",
+    btnCreate: "Create New Capsule",
+    title: "Your Secured Vaults",
+    desc: "Manage your cryptographic capsules and digital legacy.",
+    totalVaults: "Total Vaults",
+    unlocks: "Unlocks",
+    lastPing: "Last Ping",
+    limit: "Limit",
+    heirAccess: "Heir Access"
   },
   infrastructure: {
     tag: "Infrastructure",
@@ -97,69 +228,198 @@ export const en = {
   },
   whitepaper: {
     backBtn: "Back to Home",
-    tableOfContent: "Table of Contents",
-    officialDoc: "Official Document",
-    title: "AetherVault (AETH) \n Whitepaper V1.0",
-    subtitle: "Decentralized Time Capsule & Legacy Protocol on Polygon Network",
-    authorRole: "Lead Developer & Founder",
-    abstractTitle: "Abstract",
-    abstractText: "In the modern digital era, billions of dollars in crypto assets and confidential data are lost forever each year due to lost access (forgotten seed phrases) or owners passing away without passing down access. AetherVault emerges as the first decentralized Web3 solution combining Time Capsule concepts and Dead Man's Switch protocols on the blockchain network. Utilizing Smart Contracts and IPFS storage, AetherVault ensures your data remains secure, time-locked, and accessible exclusively to authorized parties in the future.",
-    sec1Title: "1. Introduction",
-    sec1Text: "Traditional Web2 infrastructure relies on centralized servers vulnerable to hacking, censorship, or corporate bankruptcy. If a cloud storage company shuts down, your data vanishes. AetherVault solves this with a '100% On-Chain & Zero-Knowledge' approach. The protocol does not store data on private servers, encrypting it directly onto the Polygon blockchain network and distributing supporting files to the IPFS (InterPlanetary File System) network.",
-    sec2Title: "2. Core Architecture & Security",
-    sec2Box1Title: "Time-Lock Protocol",
-    sec2Box1Text: "Messages are encrypted and sealed using Smart Contracts. Timestamp parameters are embedded directly into network blocks. No one—not even developers—has access to decrypt messages before the designated time limit is reached.",
-    sec2Box2Title: "Dead Man's Switch (Legacy System)",
-    sec2Box2Text: "An exclusive feature allowing users to register an Heir's wallet. If the primary wallet fails to perform a ping activity within a specific timeframe (e.g., 5 years), the Smart Contract automatically transfers capsule access rights to the Heir.",
-    sec2Box3Title: "IPFS Pinata Integration",
-    sec2Box3Text: "Supporting files (images, PDF documents, ZIP archives) are uploaded to the decentralized IPFS network, receiving a unique immutable Content Identifier (CID).",
-    sec2Box4Title: "Anti-Reentrancy Guard",
-    sec2Box4Text: "AetherVault Staking and Vault contracts are equipped with high-tier multi-layered Solidity security guards to prevent chain manipulation attacks (Reentrancy or Flash Loan Attacks).",
-    sec3Title: "3. Tokenomics ($AETH)",
-    sec3Text: "AETH is an ERC-20 utility token serving as the fuel for the AetherVault ecosystem. Every capsule creation transaction requires users to pay using AETH, with a portion of the tokens permanently burned to create deflation.",
-    totalSupplyLabel: "Total Supply",
-    tableAlloc: "Allocation",
-    tablePerc: "Percentage",
-    tableAmount: "Token Amount",
-    tableDesc: "Description",
-    t1Name: "Liquidity Pool (DEX)", t1Desc: "Open market liquidity availability.",
-    t2Name: "Staking Rewards", t2Desc: "Smart Contract allocation for staker APY.",
-    t3Name: "Initial Sale", t3Desc: "Initial liquidity fundraising.",
-    t4Name: "Team Wallet", t4Desc: "Development allocation (Vested).",
-    t5Name: "Treasury & Mktg", t5Desc: "Protocol operational reserve fund.",
-    sec4Title: "4. Deflationary Mechanism (Auto-Burn)",
-    sec4Text: "To maintain the scarcity of the AETH token, AetherVault implements an automatic burn mechanism every time a capsule is created. Higher security levels chosen result in more AETH permanently removed from circulation.",
-    tier1: "Tier 1 (Basic)",
-    tier2: "Tier 2 (VIP Vault)",
-    tier3: "Tier 3 (Eternal)",
-    tier4: "Tier 4 (Legacy)",
-    sec5Title: "5. Liquid Staking",
-    sec5Text: "AetherVault provides a Liquid Staking feature allowing users to lock their AETH tokens into network vaults to earn a real-time yield of 12.5% APY. The system is flexible, meaning users face no mandatory lock-up periods and can withdraw their principal and rewards on-chain at any time.",
-    sec6Title: "6. Ecosystem Roadmap",
-    phase1Title: "Phase 1 (Genesis)",
-    phase1Desc: "Token & Staking Smart Contract development, IPFS Integration, DApp Dashboard launch on Polygon Mainnet.",
-    phase2Title: "Phase 2 (Expansion)",
-    phase2Desc: "Independent contract security audit, official Whitepaper release, global community marketing.",
-    phase3Title: "Phase 3 (Cross-Chain)",
-    phase3Desc: "Integration of other Layer-2 networks (such as Arbitrum or Optimism) to lower user gas fees.",
-    phase4Title: "Phase 4 (DAO)",
-    phase4Desc: "Full ownership transition to the token holder community (AETH Holders).",
-    sec7Title: "7. Conclusion",
-    sec7Text: "AetherVault is more than just data storage; it is a cross-dimensional digital asset inheritance protocol. By combining military-grade cryptographic security, decentralized storage, and a sound token economic model (deflation), AetherVault sets a new standard for how humanity passes down secrets and digital wealth to future generations."
+    tableOfContent: "Executive Summary",
+    officialDoc: "Official Protocol Document",
+    title: "AetherVault (AETH)",
+    subtitle: "Decentralized Time Capsule & Permanent Intellectual Property Registry",
+    authorRole: "Whitepaper V2.0",
+    
+    sec1Title: "1. Abstract",
+    sec1Text: "AetherVault is a decentralized protocol that enables anyone to permanently preserve digital information and cryptographically prove ownership using blockchain technology. Unlike traditional cloud storage, AetherVault never stores plaintext data on-chain. All messages, documents, images, and certificates are encrypted locally inside the user's browser using military-grade ECIES encryption before interacting with the blockchain. The protocol introduces two core primitives: Time Capsules and Aether Proof™. Together they create a permanent decentralized registry for digital ownership, future communication, and intellectual property authentication.",
+    
+    sec2Title: "2. Problem Statement",
+    sec2Text: "Today, digital ownership is difficult to prove. Creators can lose authorship. Files can be modified. Cloud providers can censor data. Emails disappear. Domains expire. Servers fail. There is no universal, immutable registry for intellectual property. Centralized entities hold the keys to humanity's digital history, creating single points of failure. AetherVault solves this.",
+    
+    sec3Title: "3. Solution",
+    sec3Text: "AetherVault introduces two core products:\n\n**Aether Capsule**\nTime-locked encrypted message. Features:\n• Browser encryption\n• Blockchain timestamp\n• Unlock date\n• Permanent storage\n• Auto-burn mechanism\n\n**Aether Proof™**\nBlockchain certificate. Supports:\n• Writing • Music • Research • Video • Photography • Software • Business • Legal documents • Design • Patent • Trademark • Academic Paper • AI Model • Source Code • Dataset",
+    
+    sec4Title: "4. Architecture",
+    sec4Text: "The protocol operates on a trustless, transparent pipeline:\nUser → Browser (Local Processing) → ECIES Encryption → IPFS / Arweave → Polygon Smart Contract → NFT Certificate → Hall of Proof.",
+    
+    sec5Title: "5. Cryptography",
+    sec5Text: "AetherVault relies on enterprise-grade cryptographic standards to ensure absolute zero-knowledge security:\n• ECIES (Elliptic Curve Integrated Encryption Scheme)\n• AES-256 (Advanced Encryption Standard)\n• SHA-256 & Keccak256 (Hashing algorithms)\n• ECDSA Signatures (Wallet authentication)\n• Merkle Proofs (Data integrity validation)",
+    
+    sec6Title: "6. Aether Proof™",
+    sec6Text: "What is Aether Proof™?\nAether Proof™ is a decentralized certificate protocol that permanently registers ownership of digital assets. Every certificate contains:\n• Owner Wallet\n• Hash (Keccak256)\n• Timestamp\n• Category\n• Metadata\n• Blockchain Tx Hash\n• Certificate ID\n• Verification URL",
+    
+    sec7Title: "7. Hall of Proof",
+    sec7Text: "Hall of Proof is a public decentralized registry serving as the ultimate source of truth. Users can search and verify intellectual property by:\n• Wallet Address\n• Document Hash\n• Category\n• Creator Name\n• Certificate ID\n• Transaction Hash",
+    
+    sec8Title: "8. Security",
+    sec8Text: "Security is our foundational pillar. The protocol guarantees:\n• Client-side encryption\n• No plaintext leaves the device\n• Non-custodial architecture\n• Immutable records\n• Open verification\n• Polygon PoS consensus\n• Hash verification",
+    
+    sec9Title: "9. Token Utility",
+    sec9Text: "The $AETH token powers the entire ecosystem. Its utilities include:\n• Mint Capsule\n• Mint Proof\n• Premium Storage\n• Legacy Vault (Dead-man's switch)\n• Protocol Governance\n• Liquid Staking\n• Gas Subsidy\n• Protocol Rewards",
+    
+    sec10Title: "10. Deflationary Mechanism",
+    sec10Text: "Every protocol interaction permanently destroys part of the supply. This creates long-term scarcity.\n\nTier | Cost | Burn\nBasic | 10 AETH | 2 AETH\nVIP | 50 AETH | 10 AETH\nEternal | 200 AETH | 40 AETH\nLegacy | 500 AETH | 100 AETH",
+    
+    sec11Title: "11. Staking",
+    sec11Text: "AetherVault provides real-yield staking. Rewards are not generated from endless token inflation, but are sustained by actual platform revenue originating from:\n• Protocol Fees\n• Mint Fees\n• Proof Certification Fees\n• Marketplace Fees (Future integration)",
+    
+    sec12Title: "12. Roadmap",
+    sec12Text: "• Phase 1: Core Protocol, Web3 Wallet Integration, Time Capsule, ECIES Encryption.\n• Phase 2: Aether Proof™ Implementation, Certificate Generation, Hall of Proof, Blockchain Explorer.\n• Phase 3: DAO Transition, Public API, Developer SDK, Developer Portal.\n• Phase 4: Mobile App, Cross-chain Integration, Enterprise Solutions, Institutional Partnerships.",
+    
+    sec13Title: "13. Future Ecosystem",
+    sec13Text: "The AetherVault protocol will expand to support a suite of decentralized services:\n• Aether Mail\n• Aether Identity\n• Aether DNS\n• Aether Archive\n• Aether AI Memory\n• Enterprise Vaults\n• Government Archives\n• University Certificates\n• Medical Records",
+    
+    sec14Title: "14. Conclusion",
+    sec14Text: "AetherVault is building the permanent memory layer of the decentralized internet. By combining military-grade cryptographic security, decentralized storage, and a sound deflationary economic model, AetherVault sets a new standard for how humanity proves ownership and passes down secrets to future generations.",
+    
+    disclaimerTitle: "Disclaimer & Legal License",
+    disclaimerText: "This whitepaper is for informational purposes only and does not constitute financial or investment advice. The AetherVault protocol is provided 'as is' without warranties of any kind."
   },
   terms: {
-    legalDoc: "Legal Document",
+    legalDoc: "Official Legal Document",
     title: "Terms of Service",
-    updatedPrefix: "Last Updated: ",
+    subtitle: "Please read these terms carefully before interacting with the AetherVault protocol.",
+    updatedPrefix: "Effective Date: ",
+    jurisdiction: "Polygon Decentralized Network",
     backBtn: "Back",
-    sec1Title: "1. Non-Custodial Nature",
-    sec1Text: "AetherVault is a non-custodial platform. We provide the user interface to interact with Smart Contracts on the Polygon network. We never hold, store, or have control over your $AETH tokens or other digital assets in your wallet. Losing access to your wallet is entirely your responsibility.",
-    sec2Title: "2. Time Capsule & Dead Man's Switch System",
-    sec2Text: "When you create a Time Capsule, you agree that the Smart Contract will lock the message based on your specified time parameters. For 'Legacy' Tier users (Inheritance System), the responsibility for entering the correct heir wallet address rests entirely in your hands. Typos in the heir wallet address are irreversible On-Chain.",
-    sec3Title: "3. Network Gas Fees and Auto-Burn",
-    sec3Text: "Every transaction within the AetherVault ecosystem (creating capsules, staking, or claiming rewards) requires network Gas Fees in the form of POL coins. Additionally, you agree that creating a capsule will trigger the Auto-Burn protocol, where a portion of the $AETH tokens you pay will be permanently burned and destroyed from the total network supply. These fees are non-refundable.",
-    sec4Title: "4. Smart Contract Risk",
-    sec4Text: "Although our Smart Contract code is equipped with an Anti-Reentrancy Guard and designed with the highest security standards, interacting with blockchain technology always carries inherent risks regarding undiscovered coding vulnerabilities. Users agree to use this dApp at their own risk (as is)."
+    
+    // Bab 1-17
+    sec1Title: "1. Acceptance of Terms",
+    sec1Text1: "By accessing or using AetherVault, you agree to these Terms of Service.",
+    sec1Text2: "AetherVault is a decentralized blockchain protocol providing cryptographic timestamping, encrypted time capsules, and immutable digital ownership certificates.",
+    sec1Warning: "If you do not agree with these terms, do not use the protocol.",
+    
+    sec2Title: "2. Description of the Protocol",
+    sec2Text: "AetherVault provides the following decentralized primitives:",
+    sec2Capsule: "Encrypted blockchain time capsule.",
+    sec2Proof: "Digital ownership certificate.",
+    sec2Hall: "Public verification registry.",
+    sec2Token: "Protocol utility token.",
+    sec2Footer: "The protocol operates autonomously on the Polygon blockchain.",
+    
+    sec3Title: "3. Non-Custodial Service",
+    sec3Warning: "This is extremely important.",
+    sec3Text1: "AetherVault is non-custodial and never stores:",
+    sec3Items: ["Private Keys", "Seed Phrases", "Wallet Credentials", "Plaintext Messages", "Passwords"],
+    sec3Text2: "Users remain solely responsible for their wallets.",
+    
+    sec4Title: "4. Client-side Encryption",
+    sec4Text1: "All data is encrypted inside your browser before submission. AetherVault cannot decrypt your files.",
+    sec4Text2: "Loss of encryption keys (or wallet access) may result in permanent loss of access.",
+    
+    sec5Title: "5. Blockchain Permanence",
+    sec5Text1: "Users acknowledge that blockchain transactions are irreversible. Once a certificate or capsule has been minted, it cannot be:",
+    sec5Items: ["Modified", "Deleted (from historical nodes)", "Reversed"],
+    
+    sec6Title: "6. Intellectual Property",
+    sec6Text1: "Users retain ownership of all submitted content. Minting a certificate does not automatically transfer legal copyright.",
+    sec6Text2: "AetherVault only provides cryptographic timestamping and mathematical ownership verification.",
+    
+    sec7Title: "7. Prohibited Uses",
+    sec7Text: "Users may not use the protocol for the following activities:",
+    sec7Items: ["Illegal content", "Malware", "Copyright infringement", "Fraud", "Money laundering", "Terrorism", "Child exploitation", "Sanctioned activities"],
+    
+    sec8Title: "8. Wallet Responsibility",
+    sec8Text1: "Users are exclusively responsible for:",
+    sec8Items: ["Private keys", "Wallet security", "Network Gas fees", "Inputting wrong addresses", "Lost assets"],
+    sec8Warning: "AetherVault cannot recover lost wallets.",
+    
+    sec9Title: "9. AETH Token",
+    sec9Text1: "AETH is a utility token. It is used for: Minting Capsules, Minting Aether Proof™, Premium storage, Protocol staking, and Governance (future).",
+    sec9Disclaimer: "Disclaimer: AETH does not represent equity, shares, or legal ownership in any corporate entity.",
+    
+    sec10Title: "10. Burn Mechanism",
+    sec10Text: "Some protocol operations permanently destroy AETH tokens to maintain deflationary mechanics. Burned tokens are sent to a null address and cannot be recovered.",
+    
+    sec11Title: "11. Fees",
+    sec11Text: "Users are responsible for paying:",
+    sec11Items: ["Polygon Network Gas Fee", "Protocol Minting Fee (in AETH)", "Decentralized Storage Fee (where applicable via Arweave/IPFS)"],
+    sec11Footer: "Fees may change in the future through decentralized governance voting.",
+    
+    sec12Title: "12. Disclaimer",
+    sec12Warning: "The protocol is provided 'AS IS' without warranties of any kind.",
+    sec12Text: "AetherVault does not guarantee:",
+    sec12Items: ["Continuous availability", "Future profitability", "Token value", "Market price", "Uninterrupted service"],
+    
+    sec13Title: "13. Limitation of Liability",
+    sec13Text: "To the fullest extent permitted by law, AetherVault shall not be liable for:",
+    sec13Items: ["Wallet loss", "Private key loss", "Smart contract exploits", "Network congestion", "Force majeure", "Third-party network failures"],
+    
+    sec14Title: "14. Open Source",
+    sec14Text: "Parts of the protocol may be open source. Anyone may audit the contracts. Smart contract addresses are publicly verifiable on the Polygon blockchain explorer.",
+    
+    sec15Title: "15. Governing Law",
+    sec15Text: "Unless otherwise required, these Terms shall be interpreted under international digital commerce principles. For disputes, decentralized arbitration is preferred before litigation.",
+    
+    sec16Title: "16. Changes to Terms",
+    sec16Text: "AetherVault may update these Terms. The latest version will always be published on this page. Continued use of the protocol constitutes acceptance of the new terms.",
+    
+    sec17Title: "17. Official Contact",
+    contactWeb: "Official Website",
+    contactEmail: "Official Email",
+    contactX: "Official X",
+    contactTg: "Official Telegram",
+    contactGithub: "Official GitHub"
+  },
+  privacy: {
+    legalDoc: "Official Privacy Document",
+    title: "Privacy Policy",
+    subtitle: "Absolute zero-knowledge protocol. We protect your privacy by simply not collecting your data.",
+    updatedPrefix: "Effective Date: ",
+    architecture: "Architecture",
+    clientSide: "100% Client-Side",
+    criticalNotice: "CRITICAL SECURITY NOTICE",
+    criticalDesc: "AetherVault developers will NEVER ask for your Private Key, Seed Phrase, or Password. Anyone claiming to be AetherVault Support asking for these is a scammer.",
+    backBtn: "Back",
+
+    // Bab 1-7
+    sec1Title: "1. Zero-Knowledge Philosophy",
+    sec1Text1: "AetherVault operates on a strict zero-knowledge architecture. We believe that privacy is a fundamental human right.",
+    sec1Text2: "We do not request, collect, or store your traditional personal data (such as Name, Email Address, Phone Number, or KYC identity). We do not know who you are, and we cannot read the contents of the capsules you create.",
+    
+    sec2Title: "2. No Private Key Access",
+    sec2Text: "AetherVault and its developers do NOT collect, transmit, store, or have any backdoor access to your wallet's Private Keys or Seed Phrases.",
+    sec2Items: [
+      "All cryptographic signatures are processed securely within your own Web3 wallet provider (e.g., MetaMask).",
+      "The protocol only requests permission to sign messages and broadcast transactions.",
+      "If you lose your wallet access or your wallet is compromised by a third-party phishing attack, AetherVault developers bear zero liability and cannot recover your funds or encrypted data."
+    ],
+    
+    sec3Title: "3. Client-Side Encryption",
+    sec3Text1: "Before any secret message or file leaves your device, it is encrypted locally inside your browser using Military-Grade ECIES (Elliptic Curve Integrated Encryption Scheme) via the secp256k1 curve.",
+    sec3Text2: "This means only encrypted mathematical gibberish (ciphertext) is ever sent to the blockchain. We have no master key to decrypt your data.",
+    
+    sec4Title: "4. Public Blockchain Data",
+    sec4Text1: "Because AetherVault is a decentralized Web3 application, your interactions are recorded on the public Polygon blockchain. You must understand that the following metadata is PUBLIC and visible to anyone:",
+    sec4Items: ["Your Public Wallet Address", "Capsule ID & Security Tier", "Creation & Unlock Timestamps", "Heir's Wallet Address (if Legacy)", "Encrypted Ciphertext Blobs", "Cryptographic Hashes (SHA-256)"],
+    sec4Text2: "Do not place plain-text secrets in the 'Capsule Title' if you wish to remain entirely anonymous, as titles may not be encrypted by default depending on the tier chosen.",
+    
+    sec5Title: "5. Decentralized Storage (IPFS)",
+    sec5Text1: "Any files or images attached to your Time Capsule are uploaded to the decentralized InterPlanetary File System (IPFS) or Arweave network.",
+    sec5Text2: "AetherVault does not host these files on centralized servers (like AWS or Google Cloud). Once uploaded to these decentralized networks, the encrypted files are distributed globally and cannot be taken down or deleted by AetherVault developers.",
+    
+    sec6Title: "6. No Tracking or KYC",
+    sec6Text1: "The protocol does not employ invasive traditional tracking tools.",
+    sec6Items: [
+      "No IP Address logging.",
+      "No Google Analytics injecting third-party cookies.",
+      "No 'Know Your Customer' (KYC) identity verification."
+    ],
+    
+    sec7Title: "7. Developer Immunity",
+    sec7Text1: "AetherVault is open-source-inspired software providing a user interface to decentralized Smart Contracts on Polygon.",
+    sec7Text2: "By using this protocol, you acknowledge that the developers, contributors, and founders of AetherVault are NOT liable for any damages, financial losses, data leaks, or unrecoverable funds resulting from:",
+    sec7Items: [
+      "Loss of your wallet's private keys.",
+      "Mistyping the heir's wallet address in the Legacy Vault.",
+      "Smart contract exploits or unforeseen blockchain network failures.",
+      "Phishing attacks conducted by third parties."
+    ],
+    sec7Footer: "You interact with the blockchain entirely at your own risk."
   },
   roadmap: {
     badge: "Vision Ecosystem",
@@ -181,23 +441,6 @@ export const en = {
     phase3Title: "Phase 3: Cross-Chain Ecosystem",
     phase3Item1: "Multi-chain expansion to Arbitrum and Optimism.",
     phase3Item2: "Cross-network capsule exchange feature launch."
-  },
-  privacy: {
-    legalDoc: "Legal Document",
-    title: "Privacy Policy",
-    updatedPrefix: "Last Updated: ",
-    backBtn: "Back",
-    sec1Title: "1. Our Zero-Knowledge Philosophy",
-    sec1Text: "AetherVault is built on Web3 decentralization principles. We do not request, collect, or store your traditional personal data such as Name, Email Address, Phone Number, or Physical Identity (KYC). Your privacy is your absolute right.",
-    sec2Title: "2. Data Interacting with the Protocol",
-    item1Strong: "Public Wallet Address:",
-    item1Text: " When you connect a wallet (such as MetaMask), we only read your public address to display your $AETH balance and Time Capsule history on the dashboard screen.",
-    item2Strong: "Blockchain Data (On-Chain Data):",
-    item2Text: " All transactions, capsule encryption, and staking interactions are executed and recorded permanently on the public Polygon network. This data is public yet anonymously encrypted by default from the blockchain.",
-    sec3Title: "3. Secret Message Storage & IPFS",
-    sec3Text: "Secret messages or seed phrases you input into the Time Capsule are encrypted directly on the client-side using Web3 infrastructure. Uploaded attachments are pinned via the IPFS (InterPlanetary File System) network. Due to the decentralized nature of the network, AetherVault as the developer entity possesses no keys or backdoor access to decrypt your data before your calendar Time-Lock deadline is reached.",
-    sec4Title: "4. Financial Security",
-    sec4Text: "We never have administrative access to your crypto wallet. The AetherVault protocol runs using non-custodial Smart Contracts. The responsibility of securing your MetaMask wallet's recovery phrase (seed phrase) rests entirely in your hands."
   },
   docsPage: {
     sidebarTitle: "Documentation",
@@ -229,6 +472,7 @@ export const en = {
     forumDesc: "DAO Voting & Proposals"
   },
   dashboard: {
+    // Basic Errors & Messages
     consoleTierConfigFail: "Failed to load tier configuration.",
     consoleCapsuleFail: "Failed to load capsule data.",
     consoleHistoryFail: "Failed to load transaction history.",
@@ -236,14 +480,10 @@ export const en = {
     consoleWalletFail: "An error occurred while reading the wallet.",
     consoleStakingFail: "Failed to read staking contract.",
     tiersList: {
-      basicName: "Basic",
-      basicDesc: "Short message storage.",
-      vipName: "VIP",
-      vipDesc: "Larger capacity.",
-      eternalName: "Eternal",
-      eternalDesc: "Permanent storage.",
-      legacyName: "Legacy",
-      legacyDesc: "Heirloom system."
+      basicName: "Basic", basicDesc: "Short message storage.",
+      vipName: "VIP", vipDesc: "Larger capacity.",
+      eternalName: "Eternal", eternalDesc: "Permanent storage.",
+      legacyName: "Legacy", legacyDesc: "Heirloom system."
     },
     defaultTxErrorMessage: "Transaction failed. Please try again.",
     errNetworkSwitchSuccess: "Successfully switched to {chain} network.",
@@ -252,6 +492,8 @@ export const en = {
     tierLabelLegacy: "Legacy",
     tierLabelTimeLock: "Time Lock",
     dateLocale: "en-US",
+    
+    // Transactions
     txSealTitle: "Sealing {tier}",
     txSealDetail: "Cost {cost} AETH | ID: {id}",
     txRevealTitle: "Capsule Revealed",
@@ -266,6 +508,7 @@ export const en = {
     txWithdrawDetail: "Tokens withdrawn from staking.",
     txRewardClaimTitle: "Reward Claimed",
     txRewardClaimDetail: "Staking reward successfully claimed.",
+    
     connectWalletFirst: "Please connect your wallet first.",
     switchNetworkFirst: "Please switch to the {chain} network.",
     registeringKey: "Registering encryption key...",
@@ -306,6 +549,8 @@ export const en = {
     noRewardAvailable: "No rewards available.",
     claimRewardSuccess: "Reward claimed successfully!",
     claimRewardFailPrefix: "Failed to claim reward: ",
+    
+    // Menus
     menuCreate: "Create Capsule",
     menuVaults: "My Vaults",
     menuHistory: "History",
@@ -323,9 +568,13 @@ export const en = {
     wrongNetworkDesc: "You must connect to {chain} to use this dApp.",
     switchToChainBtn: "Switch to {chain}",
     switchToChainFirstBtn: "Switch Network First",
+    
+    // Settings
     keyNotRegisteredTitle: "Encryption Key Not Registered",
     keyNotRegisteredDesc: "Register your public key on the blockchain to receive encrypted messages.",
     registerKeyBtn: "Register Key",
+    
+    // Create UI
     createTitle: "Create New Capsule",
     createDesc: "Secure your messages or files with military-grade encryption.",
     encryptionNotice: "Messages are encrypted (ECIES) directly in your browser before being sent to the blockchain.",
@@ -364,6 +613,8 @@ export const en = {
     processingBtn: "Processing...",
     sealButton: "Seal Capsule Now",
     connectToSeal: "Connect Wallet to Seal",
+    
+    // Vaults UI
     vaultsTitle: "My Capsule Vaults",
     vaultsDesc: "Manage all your active and legacy capsules here.",
     noVaultsTitle: "No Capsules Yet",
@@ -379,28 +630,24 @@ export const en = {
     notReady: "Not Ready",
     openVault: "Open Vault",
     deleteBtn: "Delete",
+    btnViewOpened: "View Opened",
+    btnClaimLegacy: "Claim Legacy",
+    btnReveal: "Reveal Capsule",
+    btnLocked: "Locked",
+    
+    // History
     historyTitle: "Transaction History",
     historyEmpty: "No transaction history found yet.",
     loadFullHistory: "Load Full History (from genesis block)",
     fullSyncNote: "Full sync may take a while depending on RPC rate limits.",
+    
+    // Stats
     statsTitle: "Protocol Statistics",
     totalBurnedLabel: "Total AETH Burned",
     activeCapsulesLabel: "Your Active Capsules",
     unit: "Units",
-    stakingTitle: "AETH Staking",
-    stakingDesc: "Lock your AETH tokens to earn passive yields and secure the network.",
-    currentApy: "Current Est. APY",
-    stakeAethTitle: "Stake New Tokens",
-    stakeAmountLabel: "Stake Amount",
-    balanceLabel: "Your Balance:",
-    maxBtn: "MAX",
-    stakeBtn: "Confirm Stake",
-    positionTitle: "Your Position",
-    totalStaked: "Total Staked:",
-    pendingRewards: "Pending Rewards:",
-    unstakeAmountLabel: "Unstake Amount",
-    unstakeBtn: "Withdraw Stake (Unstake)",
-    claimRewardsBtn: "Claim Rewards Only",
+    
+    // Security UI
     securityTitle: "Security Infrastructure",
     securityDesc: "Learn how your data and funds are protected.",
     secHowProtected: "How Your Data is Protected",
@@ -426,6 +673,8 @@ export const en = {
     storageLabel: "Storage Provider",
     storageDesc: "Where your secret file attachments are decentrally stored.",
     permanentStatus: "Permanent Mode",
+    
+    // Modal
     modalDecryptedTitle: "Decrypted Capsule Content",
     closeVaultBtn: "Close & Lock Again",
     decryptingDownloading: "Decrypting & Downloading...",
@@ -445,19 +694,14 @@ export const en = {
     openVaultBtn: "Open Vault",
     btnDeleteContent: "Delete Content",
     attachmentTag: "Attachment",
-    // --- SMART ERROR HANDLING ---
+    
+    // Errors
     errUserRejected: "Transaction cancelled by user (User Rejected).",
     errInsufficientFunds: "Insufficient POL (Gas) or AETH balance for this transaction.",
     errNetworkIssue: "Network/RPC connection issue. Please try again later.",
     errContractReverted: "Network Rejected:",
     
-    // --- STAKING STATS ---
-    tvlLabel: "TVL:",
-    stakersLabel: "Stakers:",
-
-    // --- AETHER PROOF CERTIFICATE ---
-    totalSupplyLabel: "Total Supply",
-    totalUsersLabel: "Active Users",
+    // Certificates
     viewProofBtn: "View Proof",
     certFetchFail: "Failed to load certificate: ",
     certTitle: "Aether Proof™",
@@ -476,6 +720,18 @@ export const en = {
     certTier: "Security Tier",
     certScan: "Scan to Verify On-Chain",
     certFooter: "This certificate confirms that a digital asset was cryptographically sealed on the blockchain. The certificate does not disclose the content. Content remains encrypted and accessible only by the rightful owner.",
-    certCertifiedBy: "Certified On-Chain by AetherVault™"
+    certCertifiedBy: "Certified On-Chain by AetherVault™",
+    certBadgePolygon: "Verified on Polygon Amoy",
+    certOfficialCert: "Cryptographic Certificate of Authenticity",
+    certImmutableBadge: "IMMUTABLE • ON-CHAIN",
+    certSignature: "Digital Signature",
+    certOfficialLabel: "On-Chain Certificate",
+    certProvenance: "Immutable Provenance Record",
+    certExportPng: "Export as PNG",
+    certCertifies: "This unalterable document officially certifies the registration of",
+    certVaultId: "Vault ID",
+    certTimestamp: "Timestamp",
+    certSmartContract: "Smart Contract",
+    certRegisteredBy: "Certified & Permanently Registered by"
   }
 };

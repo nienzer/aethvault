@@ -18,7 +18,7 @@ export default function CreateCapsule({
   isPreparingUpload, stagedUpload, isUploading,
   handleConfirmArweaveUpload, handleCancelStagedUpload, handleFileSelected,
   getMinUnlockDatetimeLocal,
-  aethBalance // ⭐ DITAMBAHKAN PROP SALDO ASLI AGAR SINKRON
+  aethBalance
 }) {
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
@@ -311,13 +311,16 @@ export default function CreateCapsule({
             </div>
           </div>
 
-          {/* SALDO ASLI WALLET ($AETH) */}
+          {/* SALDO ASLI WALLET ($AETH) - SUDAH DIPERBAIKI AGAR TIDAK TERPOTONG */}
           <div className="bg-[#0B0817] border border-neutral-900 rounded-3xl p-6 shadow-xl space-y-3">
             <span className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20 uppercase tracking-widest">Your $AETH Balance</span>
-            <div className="text-2xl font-black text-white font-mono truncate">
-              {Number(aethBalance).toLocaleString()} AETH
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-2xl font-black text-white font-mono">
+                {Number(aethBalance).toLocaleString()}
+              </span>
+              <span className="text-lg font-bold text-cyan-400 font-mono">AETH</span>
             </div>
-            <p className="text-[10px] text-neutral-500 font-mono">Secured by Polygon Amoy Testnet</p>
+            <p className="text-[10px] text-neutral-500 font-mono">Secured by Polygon</p>
           </div>
 
         </div>

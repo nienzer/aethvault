@@ -606,8 +606,24 @@ export default function DashboardPage() {
       if (encryptedMessage.length > selectedTierData.maxLength) throw new Error(t.messageCapacityExceeded);
       const plainTitle = title || t.defaultCapsuleTitle;
       const encryptedTitle = await encryptForPublicKey(recipientPublicKey, plainTitle);
+      
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
+
+      // ⭐ TAMBAHAN OTOMATIS APPROVE TOKEN $AETH KE KONTRAK VAULT V3
+      const requiredCostWei = ethers.parseUnits(selectedTierData.cost.toString(), 18);
+      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
+      
+      showToast("Memeriksa izin (Allowance) token $AETH...", "info");
+      const currentAllowance = await tokenContract.allowance(address, CONTRACT_ADDRESS);
+
+      if (currentAllowance < requiredCostWei) {
+        showToast("Meminta persetujuan (Approve) pemotongan $AETH...", "info");
+        const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, requiredCostWei);
+        await approveTx.wait();
+        showToast("Approve berhasil! Melanjutkan pembuatan kapsul...", "success");
+      }
+
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
       showToast(t.preparingOnChainTx, 'info');
 

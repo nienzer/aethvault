@@ -1,112 +1,188 @@
 import React from 'react';
-import { Layers, Lock, Clock, Award, Loader2, Activity, X, Eye } from 'lucide-react';
+import { Lock, Unlock, Clock, AlertTriangle, Shield, Trash2, Award, Activity, Eye, Loader2, KeyRound, Sparkles, Box, FileText } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function VaultsList({
-  t,
-  isLoadingCapsules,
-  myCapsules,
-  setActiveTab,
-  handlePingAlive,
-  isPinging,
-  isWrongNetwork,
-  handleDeleteOpenedContent,
-  isDeletingContent,
-  handleOpenVault,
-  handleViewCertificate,
-  formatUnlockDateTime
+  isLoadingCapsules, myCapsules, setActiveTab,
+  handlePingAlive, isPinging, isWrongNetwork,
+  handleDeleteOpenedContent, isDeletingContent,
+  handleOpenVault, handleViewCertificate, formatUnlockDateTime
 }) {
-  return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="bg-[#0B0817] border border-neutral-900 p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl">
-        <h3 className="font-display text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">{t.vaultsTitle}</h3>
-        <p className="text-xs sm:text-sm text-neutral-400">{t.vaultsDesc}</p>
-      </div>
+  // Panggil context bahasa
+  const { t: globalT } = useLanguage();
+  const vaultT = globalT.vaultsUi;
+  const dashT = globalT.dashboard;
 
-      {isLoadingCapsules ? (
-        <div className="text-center py-16 sm:py-24 bg-[#0B0817] rounded-2xl sm:rounded-3xl border border-dashed border-neutral-800">
-          <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-3 animate-spin" />
+  if (isLoadingCapsules) {
+    return (
+      <div className="py-24 flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="w-12 h-12 text-cyan-500 animate-spin drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
+        <p className="text-xs text-cyan-300 font-mono font-bold tracking-widest uppercase">{vaultT.decrypting}</p>
+      </div>
+    );
+  }
+
+  if (myCapsules.length === 0) {
+    return (
+      <div className="py-24 px-4 bg-[#0B0817]/80 backdrop-blur-md border border-neutral-900 rounded-3xl text-center space-y-5 shadow-2xl max-w-2xl mx-auto mt-8">
+        <div className="w-20 h-20 bg-neutral-900 border border-neutral-800 rounded-full flex items-center justify-center mx-auto text-neutral-500 shadow-inner">
+          <Box className="w-8 h-8 opacity-50" />
         </div>
-      ) : myCapsules.length === 0 ? (
-        <div className="text-center py-16 sm:py-24 bg-[#0B0817] rounded-2xl sm:rounded-3xl border border-dashed border-neutral-800">
-          <Layers className="w-10 h-10 sm:w-12 sm:h-12 text-neutral-700 mx-auto mb-3 sm:mb-4" />
-          <p className="text-neutral-300 font-bold mb-1 text-sm sm:text-base">{t.noVaultsTitle}</p>
-          <button onClick={() => setActiveTab('create')} className="bg-cyan-500 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-[10px] sm:text-xs font-bold cursor-pointer mt-4 shadow-[0_0_20px_-3px_rgba(6,182,212,0.4)]">
-            {t.createNowBtn}
+        <div>
+          <h3 className="text-2xl font-black text-white font-display mb-2">{vaultT.emptyTitle}</h3>
+          <p className="text-sm text-neutral-400 leading-relaxed max-w-sm mx-auto">
+            {vaultT.emptyDesc}
+          </p>
+        </div>
+        <div className="pt-4">
+          <button
+            onClick={() => setActiveTab('create')}
+            className="bg-white hover:bg-neutral-200 text-black font-bold px-8 py-3.5 rounded-xl text-xs shadow-[0_0_30px_rgba(255,255,255,0.15)] cursor-pointer transition-all hover:scale-105"
+          >
+            {vaultT.btnCreate}
           </button>
         </div>
-      ) : (
-        <div className="space-y-3 sm:space-y-4">
-          {myCapsules.map((cap) => {
-            const canPingAlive = cap.isLegacy && !cap.asHeir && !cap.isClaimedOrRevealed;
-            const canDeleteContent = cap.isClaimedOrRevealed && !cap.contentDeleted;
-            const isOwnUnclaimableLegacy = canPingAlive;
-            const canOpen = !cap.contentDeleted && !isOwnUnclaimableLegacy && (cap.isReady || cap.isClaimedOrRevealed);
+      </div>
+    );
+  }
 
-            return (
-            <div key={cap.id} className="bg-[#0B0817] border border-neutral-900 hover:border-cyan-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6 shadow-lg transition-colors">
-              <div className="space-y-2 w-full md:w-auto">
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <span className="text-[9px] sm:text-[10px] font-bold text-cyan-400 bg-cyan-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-cyan-500/20 font-mono">{cap.tierLabel}{cap.asHeir ? t.asHeirSuffix : ''}</span>
-                  <span className="text-[9px] sm:text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 sm:px-3 py-1 rounded-md sm:rounded-lg uppercase border border-amber-500/20 font-mono flex items-center gap-1 sm:gap-1.5">
-                    <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {cap.status}
+  return (
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 pb-16">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0B0817] border border-neutral-900 p-6 rounded-3xl shadow-xl">
+        <div>
+          <h3 className="font-display text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+            <Lock className="text-cyan-400 w-5 h-5 sm:w-6 sm:h-6" /> {vaultT.title}
+          </h3>
+          <p className="text-xs sm:text-sm text-neutral-400 mt-1">{vaultT.desc}</p>
+        </div>
+        <div className="bg-[#05030F] border border-neutral-800 px-4 py-2 rounded-xl flex items-center gap-3 shadow-inner">
+          <span className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">{vaultT.totalVaults}</span>
+          <span className="text-lg font-black text-white font-mono">{myCapsules.length}</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {myCapsules.map((capsule) => (
+          <div key={capsule.id} className="bg-[#0B0817] border border-neutral-800 rounded-3xl p-5 hover:border-cyan-500/40 transition-all duration-300 shadow-lg group hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)] flex flex-col">
+            
+            {/* Header Card */}
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-2">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-inner ${
+                  capsule.status === dashT.statusOpened ? 'bg-green-500/10 border-green-500/30 text-green-400' :
+                  capsule.status === dashT.statusReady ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
+                  capsule.status === dashT.statusDeleted ? 'bg-red-500/10 border-red-500/30 text-red-400' :
+                  'bg-cyan-500/10 border-cyan-500/30 text-cyan-400'
+                }`}>
+                  {capsule.status === dashT.statusOpened ? <Unlock className="w-5 h-5" /> : 
+                   capsule.status === dashT.statusDeleted ? <Trash2 className="w-5 h-5" /> : 
+                   <Lock className="w-5 h-5" />}
+                </div>
+                <div>
+                  <span className="text-[9px] font-mono text-neutral-500 uppercase font-bold tracking-widest block mb-0.5">ID: #{capsule.id}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest border ${
+                    capsule.status === dashT.statusOpened ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                    capsule.status === dashT.statusReady ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                    capsule.status === dashT.statusDeleted ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                    'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+                  }`}>
+                    {capsule.status}
                   </span>
                 </div>
-                <h4 className="text-sm sm:text-base font-bold text-white truncate">{cap.title}</h4>
-                <div className="flex items-center gap-3">
-                  <p className="text-[9px] sm:text-[10px] text-neutral-500 font-mono flex items-center gap-1.5">
-                    <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
-                    {cap.isLegacy ? `${t.lastPingLabel} ${formatUnlockDateTime(cap.lastPingAlive)}` : `${t.unlockLabel} ${formatUnlockDateTime(cap.unlockTimestamp)}`}
-                  </p>
-                  <button 
-                    onClick={() => handleViewCertificate(cap.id)} 
-                    className="text-[9px] sm:text-[10px] text-amber-500 hover:text-amber-400 font-bold flex items-center gap-1 transition-colors cursor-pointer"
-                  >
-                    <Award className="w-3 h-3" /> {t.viewProofBtn || "View Proof"}
-                  </button>
-                </div>
               </div>
-              
-              <div className="w-full md:w-auto flex flex-col sm:flex-row gap-2">
-                {canPingAlive && (
-                  <button
-                    onClick={() => handlePingAlive(cap)}
-                    disabled={isPinging === cap.id || isWrongNetwork}
-                    className="w-full md:w-auto bg-transparent hover:bg-green-500/10 disabled:opacity-40 text-green-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-green-500/50 transition-all"
-                  >
-                    {isPinging === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
-                    {t.btnPingAlive}
-                  </button>
+              <div className="text-right">
+                <span className="text-[9px] uppercase tracking-widest text-neutral-400 bg-neutral-900 px-2 py-1 rounded-md border border-neutral-800 font-bold">
+                  {capsule.tierLabel}
+                </span>
+                {capsule.asHeir && (
+                  <span className="block mt-1 text-[9px] font-bold text-purple-400 uppercase tracking-widest">{vaultT.heirAccess}</span>
                 )}
-                {canDeleteContent && (
-                  <button
-                    onClick={() => handleDeleteOpenedContent(cap)}
-                    disabled={isDeletingContent === cap.id || isWrongNetwork}
-                    className="w-full md:w-auto bg-transparent hover:bg-red-500/10 disabled:opacity-40 text-red-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-red-500/50 transition-all"
-                  >
-                    {isDeletingContent === cap.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <X className="w-3.5 h-3.5" />}
-                    {t.btnDeleteContent}
-                  </button>
-                )}
-                <button
-                  onClick={() => handleOpenVault(cap)}
-                  disabled={!canOpen || isWrongNetwork}
-                  className="w-full md:w-auto bg-transparent hover:bg-cyan-500/10 disabled:opacity-40 disabled:cursor-not-allowed text-cyan-400 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-full text-[10px] sm:text-xs font-bold flex items-center justify-center gap-2 cursor-pointer border border-cyan-500/50 transition-all"
-                >
-                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  {cap.contentDeleted
-                    ? t.statusAlreadyDeleted
-                    : isOwnUnclaimableLegacy
-                      ? (cap.isReady ? t.statusWaitingHeir : t.statusNotReady)
-                      : cap.isClaimedOrRevealed
-                        ? t.btnViewAgain
-                        : (cap.isReady ? t.openVaultBtn : t.statusNotReady)}
-                </button>
               </div>
             </div>
-            );
-          })}
-        </div>
-      )}
+
+            {/* Title */}
+            <div className="mb-5">
+              <h4 className="font-bold text-white text-lg flex items-center gap-2 group-hover:text-cyan-300 transition-colors">
+                {capsule.titleIsLocked ? <Lock className="w-4 h-4 text-neutral-500" /> : <FileText className="w-4 h-4 text-cyan-500" />}
+                <span className="truncate">{capsule.title}</span>
+              </h4>
+            </div>
+
+            {/* Details */}
+            <div className="bg-[#05030F] border border-neutral-800/80 rounded-2xl p-4 space-y-3 mb-5 mt-auto shadow-inner">
+              {!capsule.isLegacy ? (
+                <div className="flex justify-between items-center text-[10px] sm:text-xs">
+                  <span className="text-neutral-500 font-mono uppercase tracking-widest flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> {vaultT.unlocks}</span>
+                  <span className="font-mono font-bold text-neutral-300">{formatUnlockDateTime(capsule.unlockTimestamp)}</span>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-[10px] sm:text-xs">
+                    <span className="text-neutral-500 font-mono uppercase tracking-widest flex items-center gap-1.5"><Activity className="w-3.5 h-3.5"/> {vaultT.lastPing}</span>
+                    <span className="font-mono font-bold text-neutral-300">{formatUnlockDateTime(capsule.lastPingAlive)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] sm:text-xs border-t border-neutral-800/50 pt-2">
+                    <span className="text-neutral-500 font-mono uppercase tracking-widest">{vaultT.limit}</span>
+                    <span className="font-mono font-bold text-red-400">{capsule.inactivityLimit / (365*24*60*60)} Years</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              {!capsule.contentDeleted && (
+                <button
+                  onClick={() => handleOpenVault(capsule)}
+                  disabled={!capsule.isReady && !capsule.isClaimedOrRevealed}
+                  className={`w-full py-3 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer ${
+                    capsule.isClaimedOrRevealed 
+                      ? 'bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700' 
+                      : capsule.isReady 
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]'
+                        : 'bg-[#05030F] text-neutral-600 border border-neutral-800 cursor-not-allowed'
+                  }`}
+                >
+                  {capsule.isClaimedOrRevealed ? <Eye className="w-4 h-4"/> : capsule.isReady ? <KeyRound className="w-4 h-4"/> : <Lock className="w-4 h-4"/>}
+                  {capsule.isClaimedOrRevealed ? dashT.btnViewOpened : capsule.isReady ? (capsule.asHeir ? dashT.btnClaimLegacy : dashT.btnReveal) : dashT.btnLocked}
+                </button>
+              )}
+
+              {capsule.isLegacy && !capsule.asHeir && !capsule.isClaimedOrRevealed && !capsule.contentDeleted && (
+                <button
+                  onClick={() => handlePingAlive(capsule)}
+                  disabled={isPinging === capsule.id || isWrongNetwork}
+                  className="w-full py-3 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  {isPinging === capsule.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Activity className="w-4 h-4" />}
+                  {dashT.btnPingAlive}
+                </button>
+              )}
+
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <button
+                  onClick={() => handleViewCertificate(capsule.id)}
+                  className="py-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800 hover:border-neutral-600 font-bold rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Award className="w-3 h-3" /> Cert
+                </button>
+
+                {capsule.isClaimedOrRevealed && !capsule.contentDeleted && !capsule.asHeir && (
+                  <button
+                    onClick={() => handleDeleteOpenedContent(capsule)}
+                    disabled={isDeletingContent === capsule.id || isWrongNetwork}
+                    className="py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    {isDeletingContent === capsule.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                    {dashT.deleteBtn}
+                  </button>
+                )}
+              </div>
+            </div>
+
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

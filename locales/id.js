@@ -1,26 +1,157 @@
 export const id = {
   nav: {
-    home: "Home",
+    home: "Beranda",
     infra: "Infra",
     tiers: "Tiers",
     tokenomics: "Tokenomics",
-    team: "Team",
-    launchApp: "Luncurkan App",
+    team: "Tim",
+    launchApp: "Buka DApp",
     back: "Kembali"
   },
   hero: {
-    badge: "Live on Polygon Mainnet",
-    titleLine1: "The Next Generation",
-    titleHighlight: "Decentralized Time Capsule",
-    desc: "Protokol desentralisasi pertama yang mengamankan warisan digital Anda. Dilengkapi dengan enkripsi Web3, sistem Dead Man's Switch, Liquid Staking, dan Sertifikat Aether Proof™ untuk verifikasi on-chain yang absolut.",
-    exploreBtn: "Explore Ecosystem",
-    whitepaperBtn: "Whitepaper",
-    builtOn: "Built on",
+    badge: "Protokol Warisan Digital Web3",
+    titleLine1: "Lestarikan",
+    titleHighlight: "Warisan Digital Anda Selamanya",
+    desc: "Amankan pesan, kenangan, kontrak, sertifikat, dan kekayaan intelektual di blockchain Polygon selamanya menggunakan kriptografi ECIES tingkat militer.",
+    exploreBtn: "Eksplor Aplikasi",
+    whitepaperBtn: "Baca Whitepaper",
+    builtOn: "Didukung oleh",
     polygon: "Polygon",
-    chainlink: "Chainlink Ready"
+    chainlink: "Chainlink"
+  },
+  landing: {
+    liveData: {
+      status: "Status Jaringan",
+      online: "Online",
+      block: "Blok Saat Ini",
+      capsules: "Kapsul Tersimpan",
+      certs: "Sertifikat",
+      burned: "AETH Terbakar"
+    },
+    pillars: {
+      proofTitle: "Aether Proof™",
+      proofDesc: "Cetak sertifikat kepemilikan abadi untuk kreasi digital, karya seni, perangkat lunak, atau kekayaan intelektual di blockchain.",
+      legacyTitle: "Legacy Vault™",
+      legacyDesc: "Tinggalkan warisan digital terenkripsi. Logika dead-man's switch memastikan kekayaan dan rahasia Anda berpindah dengan aman ke generasi berikutnya.",
+      capsuleTitle: "Time Capsule™",
+      capsuleDesc: "Kunci pesan atau file hari ini, dan buatnya mustahil secara kriptografi untuk dibuka hingga tanggal tertentu di masa depan."
+    },
+    showcase: {
+      title: "Rasakan Protokol Kami",
+      desc: "Terminal Web3 yang mulus, dirancang untuk pengguna sehari-hari maupun ahli kripto tingkat lanjut."
+    },
+    howItWorks: {
+      title: "Cara Kerja AetherVault",
+      desc: "Empat langkah sederhana menuju keamanan kriptografi abadi.",
+      step1Title: "Buat Konten",
+      step1Desc: "Tulis pesan rahasia, unggah file kekayaan intelektual, atau atur sistem warisan otomatis (dead-man's switch).",
+      step2Title: "Enkripsi ECIES Sisi Klien",
+      step2Desc: "Konten Anda dienkripsi langsung di browser menggunakan kunci secp256k1. Teks asli tidak pernah menyentuh server kami.",
+      step3Title: "Cetak ke Blockchain",
+      step3Desc: "Smart contract mencatat ciphertext, hash, dan kondisi pembukaan secara permanen di jaringan Polygon.",
+      step4Title: "Buka di Masa Depan",
+      step4Desc: "Saat waktu blok melewati tanggal target, Anda atau ahli waris dapat mendekripsi brankas melalui tanda tangan MetaMask."
+    },
+    metrics: {
+      supply: "Pasokan Token",
+      blocks: "Blok Polygon",
+      encryption: "Enkripsi Militer",
+      onchain: "Protokol On-Chain"
+    }
+  },
+  hallOfProof: {
+    galleryBadge: "Galeri On-Chain Abadi",
+    title: "Hall of Proof™",
+    desc: "Registri Permanen Dunia untuk Kekayaan Intelektual Terverifikasi. Jelajahi aset digital otentik yang diamankan langsung di blockchain Polygon.",
+    totalProofs: "Total Bukti",
+    creators: "Kreator",
+    categories: "Kategori",
+    blocks: "Blok Polygon",
+    searchPlaceholder: "Cari bukti atau dompet pemilik...",
+    syncing: "Menyinkronkan Registri...",
+    reading: "Membaca Polygon...",
+    verifying: "Memverifikasi Hash...",
+    loading: "Memuat Sertifikat...",
+    emptyTitle: "Registri Menanti",
+    emptyDesc: "Belum ada bukti publik di kategori ini. Jadilah kreator terverifikasi pertama yang mendaftarkan karya Anda secara permanen.",
+    mintFirst: "Cetak Bukti Pertama",
+    creator: "Kreator",
+    hash: "SHA-256",
+    viewCert: "LIHAT SERTIFIKAT",
+    timelineTitle: "Umpan Linimasa Registri Langsung",
+    activeStream: "Aliran Aktif",
+    recentActivity: "AKTIVITAS ON-CHAIN TERBARU",
+    verifiedPolygon: "Terverifikasi di Polygon Amoy →"
+  },
+  globalStats: {
+    title: "Statistik Protokol",
+    networkHealthy: "Jaringan Sehat",
+    totalSupply: "Total Pasokan",
+    burn: "Pembakaran Deflasi",
+    capsules: "Kapsul",
+    immutable: "Abadi",
+    proofs: "Bukti Terverifikasi",
+    onChain: "On-Chain",
+    wallets: "Dompet Aktif",
+    tracked: "Terlacak",
+    tvl: "TVL Di-stake",
+    locked: "Total $AETH",
+    stakers: "Total Staker",
+    active: "Aktif",
+    height: "Ketinggian Jaringan Polygon",
+    liveSync: "Sinkronisasi Langsung",
+    targetChain: "Rantai Target:",
+    activityTitle: "Aktivitas Ekosistem Terbaru",
+    noActivity: "Belum ada aktivitas terbaru di jaringan."
+  },
+  stakingUi: {
+    title: "STAKING AETH",
+    subtitle: "Amankan Jaringan • Dapatkan Hadiah",
+    currentApy: "APY Saat Ini",
+    tvl: "Total Terkunci (TVL)",
+    health: "Kesehatan Jaringan",
+    stakeNew: "Stake AETH",
+    amountToStake: "Jumlah Stake",
+    available: "Tersedia:",
+    estRewards: "Estimasi Hadiah Staking",
+    perDay: "Per Hari",
+    perWeek: "Per Minggu",
+    perMonth: "Per Bulan",
+    btnLocking: "Mengunci AETH...",
+    btnConfirm: "Konfirmasi & Stake",
+    yourPosition: "Posisi Anda",
+    active: "Aktif",
+    totalStaked: "Total Di-stake",
+    portfolioShare: "Porsi Portofolio:",
+    pendingRewards: "Hadiah Tertunda",
+    estDaily: "Est. Harian",
+    nextReward: "Hadiah Berikutnya",
+    claimReady: "Siap Diklaim",
+    noRewards: "Tidak Ada Hadiah",
+    withdraw: "Tarik Modal",
+    howItWorks: "Cara Kerja Staking",
+    yourAeth: "$AETH Anda",
+    stakingPool: "Kolam Staking",
+    validators: "Validator Polygon",
+    dailyRewards: "Hadiah Harian",
+    emptyTitle: "Belum Ada Staking",
+    emptyDesc: "Kunci AETH untuk mengamankan protokol dan terima hadiah pasif secara terus-menerus."
+  },
+  vaultsUi: {
+    decrypting: "Mendekripsi Rekaman Brankas...",
+    emptyTitle: "Brankas Anda Kosong",
+    emptyDesc: "Anda belum menyegel kapsul kriptografi apa pun. Amankan file warisan atau rahasia Anda secara on-chain sekarang.",
+    btnCreate: "Buat Kapsul Baru",
+    title: "Brankas Aman Anda",
+    desc: "Kelola kapsul kriptografi dan warisan digital Anda.",
+    totalVaults: "Total Brankas",
+    unlocks: "Terbuka",
+    lastPing: "Ping Terakhir",
+    limit: "Batas",
+    heirAccess: "Akses Ahli Waris"
   },
   infrastructure: {
-    tag: "Infrastructure",
+    tag: "Infrastruktur",
     title: "Modular.\nScalable.\nDecentralized.",
     desc: "Infrastruktur tingkat lanjut dengan bukti kriptografi yang tidak dapat dimanipulasi untuk mengamankan data lintas waktu.",
     nodesTitle: "Decentralized Nodes",
@@ -43,41 +174,41 @@ export const id = {
     tier4Title: "Tier 4: Legacy",
     tier4Desc: "Sistem Dead Man Switch. Terbuka otomatis KHUSUS untuk Dompet Ahli Waris jika Anda tidak aktif (5+ tahun).",
     autoBurn: "Auto-Burn",
-    popular: "Popular",
+    popular: "Populer",
     warisan: "Warisan",
     burnUnit: "Terbakar"
   },
   tokenomics: {
     tag: "Tokenomics",
     totalSupply: "Total Supply",
-    viewDetails: "View Details",
+    viewDetails: "Lihat Detail",
     liquidity: "Liquidity Pool",
-    staking: "Staking Rewards",
-    initialSale: "Initial Sale",
-    teamWallet: "Team Wallet",
-    treasury: "Treasury"
+    staking: "Hadiah Staking",
+    initialSale: "Penjualan Awal",
+    teamWallet: "Dompet Tim",
+    treasury: "Perbendaharaan"
   },
   docs: {
     whitepaperTitle: "Whitepaper",
     whitepaperDesc: "Pelajari visi, teknologi, dan arsitektur protokol kami.",
     roadmapTitle: "Roadmap",
     roadmapDesc: "Pantau pencapaian dan rencana pengembangan ke depan.",
-    docsTitle: "Documentation",
+    docsTitle: "Dokumentasi",
     docsDesc: "Akses sumber daya teknis dan smart contract.",
-    communityTitle: "Join Community",
+    communityTitle: "Gabung Komunitas",
     communityDesc: "Terhubung dan berdiskusi dengan ekosistem AetherVault.",
-    explore: "Explore"
+    explore: "Eksplor"
   },
   team: {
-    tag: "The Contributor",
-    title: "Built by Visionary",
+    tag: "Kontributor",
+    title: "Dibangun oleh Visioner",
     name: "Nienzer",
     role: "Lead Developer & Founder",
     bio: "Arsitek utama di balik Smart Contract AetherVault. Berfokus pada inovasi kriptografi, privasi data, dan arsitektur Web3 tanpa celah keamanan."
   },
   partners: {
-    tag: "Ecosystem",
-    title: "Partners & Integrations",
+    tag: "Ekosistem",
+    title: "Kemitraan & Integrasi",
     p1Desc: "Verified Contract",
     p2Desc: "Decentralized Exchange",
     p3Desc: "Live Chart Tracking",
@@ -85,81 +216,210 @@ export const id = {
   },
   footer: {
     desc: "Menghubungkan masa depan dengan aman melalui infrastruktur desentralisasi enkripsi waktu nyata.",
-    quickLinks: "Quick Links",
-    community: "Community",
-    privacy: "Privacy Policy",
-    terms: "Terms of Service",
+    quickLinks: "Tautan Cepat",
+    community: "Komunitas",
+    privacy: "Kebijakan Privasi",
+    terms: "Syarat Ketentuan",
     navInfrastructure: "Infrastruktur",
     navRoadmap: "Peta Jalan",
     navWhitepaper: "Whitepaper",
-    navLaunchApp: "Buka Aplikasi",
+    navLaunchApp: "Buka DApp",
     copyright: "© {year} Nienzer. Hak Cipta Dilindungi. Email: admin@aethvault.xyz."
   },
   whitepaper: {
-    backBtn: "Kembali ke Home",
-    tableOfContent: "Daftar Isi",
-    officialDoc: "Official Document",
-    title: "AetherVault (AETH) \n Whitepaper V1.0",
-    subtitle: "Decentralized Time Capsule & Legacy Protocol on Polygon Network",
-    authorRole: "Lead Developer & Founder",
-    abstractTitle: "Abstract",
-    abstractText: "Di era digital modern, miliaran dolar aset kripto dan data rahasia hilang selamanya setiap tahun karena hilangnya akses (lupa seed phrase) atau pemilik yang meninggal dunia tanpa mewariskan aksesnya. AetherVault hadir sebagai solusi Web3 terdesentralisasi pertama yang menggabungkan konsep Kapsul Waktu (Time Capsule) dan Surat Wasiat Otomatis (Dead Man Switch) di atas jaringan blockchain. Dengan memanfaatkan Smart Contract dan penyimpanan IPFS, AetherVault memastikan data Anda aman, terkunci oleh waktu, dan hanya bisa diakses oleh pihak yang berhak di masa depan.",
-    sec1Title: "1. Pendahuluan",
-    sec1Text: "Infrastruktur Web2 tradisional bergantung pada server terpusat yang rentan terhadap peretasan, penyensoran, atau kebangkrutan perusahaan. Jika perusahaan cloud storage tutup, data Anda lenyap. AetherVault memecahkan masalah ini dengan pendekatan '100% On-Chain & Zero-Knowledge'. Protokol ini tidak menyimpan data di server pribadi, melainkan mengenkripsinya langsung ke dalam jaringan blockchain Polygon dan mendistribusikan file pendukungnya ke jaringan Arweave (permanent decentralized storage).",
-    sec2Title: "2. Arsitektur Inti & Keamanan",
-    sec2Box1Title: "Time-Lock Protocol",
-    sec2Box1Text: "Pesan dienkripsi dan disegel menggunakan Smart Contract. Parameter waktu (timestamp) dimasukkan ke dalam blok jaringan. Tidak ada seorang pun—bahkan developer—yang memiliki akses untuk mendekripsi pesan sebelum batas waktu yang ditentukan tercapai.",
-    sec2Box2Title: "Dead Man Switch (Sistem Warisan)",
-    sec2Box2Text: "Fitur eksklusif di mana user dapat mendaftarkan dompet Ahli Waris. Jika dompet utama tidak melakukan aktivitas ping dalam batas waktu tertentu (misal: 5 tahun), Smart Contract akan secara otomatis memindahkan hak akses kapsul kepada Ahli Waris.",
-    sec2Box3Title: "Arweave Permanent Storage via Irys",
-    sec2Box3Text: "File pendukung (gambar, dokumen PDF, arsip ZIP) dienkripsi di sisi klien dan diunggah ke Arweave untuk penyimpanan permanen via Irys. Pengguna membayar sekali langsung dari dompetnya — tanpa biaya bulanan, tanpa ketergantungan server terpusat. ID Arweave yang dihasilkan bersifat immutable dan dapat diambil selamanya.",
-    sec2Box4Title: "Anti-Reentrancy Guard",
-    sec2Box4Text: "Kontrak Staking dan Brankas AetherVault dilengkapi dengan pengaman berlapis tingkat tinggi dari Solidity untuk mencegah serangan manipulasi berantai (Reentrancy Attack atau Flash Loan Attack).",
-    sec3Title: "3. Tokenomics ($AETH)",
-    sec3Text: "AETH adalah token utilitas (ERC-20) yang digunakan sebagai bahan bakar ekosistem AetherVault. Setiap transaksi pembuatan kapsul mewajibkan pengguna untuk membayar menggunakan AETH, di mana sebagian token tersebut akan dibakar (Burn) untuk menciptakan deflasi.",
-    totalSupplyLabel: "Total Supply",
-    tableAlloc: "Alokasi",
-    tablePerc: "Persentase",
-    tableAmount: "Jumlah Token",
-    tableDesc: "Keterangan",
-    t1Name: "Liquidity Pool (DEX)", t1Desc: "Ketersediaan likuiditas pasar bebas.",
-    t2Name: "Staking Rewards", t2Desc: "Alokasi Smart Contract untuk APY staker.",
-    t3Name: "Initial Sale", t3Desc: "Penggalangan dana likuiditas awal.",
-    t4Name: "Team Wallet", t4Desc: "Alokasi pengembangan (Vested).",
-    t5Name: "Treasury & Mktg", t5Desc: "Dana cadangan operasional protokol.",
-    sec4Title: "4. Mekanisme Deflasi (Auto-Burn)",
-    sec4Text: "Untuk menjaga nilai token AETH tetap langka, AetherVault menerapkan mekanisme pembakaran otomatis setiap kali kapsul dibuat. Semakin tinggi tingkat keamanan yang dipilih, semakin banyak AETH yang dihilangkan permanen dari peredaran.",
-    tier1: "Tier 1 (Basic)",
-    tier2: "Tier 2 (VIP Vault)",
-    tier3: "Tier 3 (Eternal)",
-    tier4: "Tier 4 (Legacy)",
-    sec5Title: "5. Liquid Staking",
-    sec5Text: "AetherVault menyediakan fitur Liquid Staking di mana pengguna dapat mengunci token AETH mereka ke dalam brankas jaringan untuk mendapatkan Bagi Hasil (Yield) sebesar 12.5% APY secara real-time. Sistem ini bersifat fleksibel, artinya pengguna tidak dikenakan periode penguncian paksa (Lock-up period) dan dapat mencairkan modal serta bunga mereka kapan saja secara On-Chain.",
-    sec6Title: "6. Roadmap Ekosistem",
-    phase1Title: "Fase 1 (Genesis)",
-    phase1Desc: "Pengembangan Smart Contract Token & Staking, Integrasi IPFS, Peluncuran Dashboard DApp di Polygon Mainnet.",
-    phase2Title: "Fase 2 (Expansion)",
-    phase2Desc: "Audit keamanan kontrak secara independen, Peluncuran Whitepaper resmi, Pemasaran komunitas global.",
-    phase3Title: "Fase 3 (Cross-Chain)",
-    phase3Desc: "Integrasi jaringan Layer-2 lainnya (seperti Arbitrum atau Optimism) untuk menekan biaya gas fee pengguna.",
-    phase4Title: "Fase 4 (DAO)",
-    phase4Desc: "Transisi kepemilikan penuh kepada komunitas pemegang token (AETH Holders).",
-    sec7Title: "7. Kesimpulan",
-    sec7Text: "AetherVault bukan sekadar tempat penyimpanan data; ini adalah protokol pewarisan aset digital lintas dimensi waktu. Dengan menggabungkan keamanan kriptografi tingkat militer, penyimpanan terdesentralisasi, dan sistem ekonomi token yang sehat (deflasi), AetherVault menetapkan standar baru tentang bagaimana manusia mewariskan rahasia dan harta digital mereka kepada generasi berikutnya."
+    backBtn: "Kembali ke Beranda",
+    tableOfContent: "Ringkasan Eksekutif",
+    officialDoc: "Dokumen Resmi Protokol",
+    title: "AetherVault (AETH)",
+    subtitle: "Kapsul Waktu Terdesentralisasi & Registri Kekayaan Intelektual Permanen",
+    authorRole: "Whitepaper V2.0",
+    
+    sec1Title: "1. Abstrak",
+    sec1Text: "AetherVault adalah protokol terdesentralisasi yang memungkinkan siapa saja melestarikan informasi digital secara permanen dan membuktikan kepemilikan kriptografi menggunakan teknologi blockchain. Berbeda dengan penyimpanan cloud tradisional, AetherVault tidak pernah menyimpan data plaintext on-chain. Semua pesan, dokumen, gambar, dan sertifikat dienkripsi secara lokal di browser pengguna menggunakan enkripsi ECIES tingkat militer sebelum berinteraksi dengan blockchain. Protokol ini memperkenalkan dua produk utama: Time Capsules (Kapsul Waktu) dan Aether Proof™. Bersama-sama, mereka menciptakan registri terdesentralisasi permanen untuk kepemilikan digital, komunikasi masa depan, dan autentikasi kekayaan intelektual.",
+    
+    sec2Title: "2. Pernyataan Masalah",
+    sec2Text: "Saat ini, kepemilikan digital sangat sulit dibuktikan. Kreator dapat kehilangan hak cipta. File dapat dimodifikasi. Penyedia cloud dapat menyensor data. Email menghilang. Domain kedaluwarsa. Server mati. Tidak ada registri universal yang tidak dapat diubah untuk kekayaan intelektual. Entitas terpusat memegang kunci sejarah digital umat manusia, menciptakan titik kegagalan tunggal (single point of failure). AetherVault memecahkan masalah ini.",
+    
+    sec3Title: "3. Solusi",
+    sec3Text: "AetherVault memperkenalkan dua produk inti:\n\n**Aether Capsule**\nPesan terenkripsi dengan kunci waktu. Fitur:\n• Enkripsi browser\n• Timestamp blockchain\n• Tanggal buka (Unlock date)\n• Penyimpanan permanen\n• Mekanisme auto-burn\n\n**Aether Proof™**\nSertifikat Blockchain. Mendukung:\n• Tulisan • Musik • Riset • Video • Fotografi • Perangkat Lunak • Bisnis • Dokumen Hukum • Desain • Paten • Merek Dagang • Makalah Akademik • Model AI • Kode Sumber • Dataset",
+    
+    sec4Title: "4. Arsitektur",
+    sec4Text: "Protokol beroperasi pada jalur pipa yang tanpa kepercayaan (trustless) dan transparan:\nPengguna → Browser (Pemrosesan Lokal) → Enkripsi ECIES → IPFS / Arweave → Smart Contract Polygon → Sertifikat NFT → Hall of Proof.",
+    
+    sec5Title: "5. Kriptografi",
+    sec5Text: "AetherVault mengandalkan standar kriptografi tingkat perusahaan untuk memastikan keamanan zero-knowledge absolut:\n• ECIES (Elliptic Curve Integrated Encryption Scheme)\n• AES-256 (Advanced Encryption Standard)\n• SHA-256 & Keccak256 (Algoritma Hashing)\n• Tanda Tangan ECDSA (Autentikasi dompet)\n• Merkle Proofs (Validasi integritas data)",
+    
+    sec6Title: "6. Aether Proof™",
+    sec6Text: "Apa itu Aether Proof™?\nAether Proof™ adalah protokol sertifikat terdesentralisasi yang secara permanen mendaftarkan kepemilikan aset digital. Setiap sertifikat berisi:\n• Dompet Pemilik\n• Hash (Keccak256)\n• Timestamp (Stempel Waktu)\n• Kategori\n• Metadata\n• Hash Tx Blockchain\n• ID Sertifikat\n• URL Verifikasi",
+    
+    sec7Title: "7. Hall of Proof",
+    sec7Text: "Hall of Proof adalah registri publik terdesentralisasi yang berfungsi sebagai sumber kebenaran tertinggi. Pengguna dapat mencari dan memverifikasi kekayaan intelektual berdasarkan:\n• Alamat Dompet\n• Hash Dokumen\n• Kategori\n• Nama Kreator\n• ID Sertifikat\n• Hash Transaksi",
+    
+    sec8Title: "8. Keamanan",
+    sec8Text: "Keamanan adalah pilar dasar kami. Protokol menjamin:\n• Enkripsi sisi klien (Client-side encryption)\n• Tidak ada teks asli (plaintext) yang meninggalkan perangkat\n• Arsitektur non-custodial\n• Catatan yang tidak dapat diubah (Immutable)\n• Verifikasi terbuka\n• Konsensus Polygon PoS\n• Verifikasi Hash",
+    
+    sec9Title: "9. Utilitas Token",
+    sec9Text: "Token $AETH adalah penggerak seluruh ekosistem. Utilitasnya mencakup:\n• Mencetak (Mint) Kapsul\n• Mencetak Bukti (Aether Proof)\n• Pembayaran Penyimpanan Premium\n• Legacy Vault (Dead-man's switch)\n• Tata Kelola Protokol (DAO)\n• Liquid Staking\n• Subsidi Gas\n• Hadiah Protokol",
+    
+    sec10Title: "10. Mekanisme Deflasi",
+    sec10Text: "Setiap interaksi protokol secara permanen menghancurkan sebagian dari pasokan. Hal ini menciptakan kelangkaan jangka panjang.\n\nTier | Biaya | Dibakar\nBasic | 10 AETH | 2 AETH\nVIP | 50 AETH | 10 AETH\nEternal | 200 AETH | 40 AETH\nLegacy | 500 AETH | 100 AETH",
+    
+    sec11Title: "11. Staking",
+    sec11Text: "AetherVault menyediakan staking dengan imbal hasil nyata (real-yield). Hadiah tidak dihasilkan dari inflasi token tanpa akhir, melainkan dipertahankan oleh pendapatan platform aktual yang berasal dari:\n• Biaya Protokol\n• Biaya Pencetakan (Minting)\n• Biaya Sertifikasi Bukti\n• Biaya Marketplace (Integrasi masa depan)",
+    
+    sec12Title: "12. Roadmap",
+    sec12Text: "• Fase 1: Protokol Inti, Integrasi Dompet Web3, Kapsul Waktu, Enkripsi ECIES.\n• Fase 2: Implementasi Aether Proof™, Pembuatan Sertifikat, Hall of Proof, Blockchain Explorer.\n• Fase 3: Transisi DAO, API Publik, SDK Pengembang, Portal Pengembang.\n• Fase 4: Aplikasi Seluler, Integrasi Lintas-Rantai, Solusi Perusahaan, Kemitraan Institusional.",
+    
+    sec13Title: "13. Ekosistem Masa Depan",
+    sec13Text: "Protokol AetherVault akan berekspansi untuk mendukung serangkaian layanan terdesentralisasi:\n• Aether Mail\n• Aether Identity\n• Aether DNS\n• Aether Archive\n• Aether AI Memory\n• Brankas Perusahaan (Enterprise Vaults)\n• Arsip Pemerintah\n• Sertifikat Universitas\n• Rekam Medis",
+    
+    sec14Title: "14. Kesimpulan",
+    sec14Text: "AetherVault sedang membangun lapisan memori permanen dari internet terdesentralisasi. Dengan menggabungkan keamanan kriptografi tingkat militer, penyimpanan terdesentralisasi, dan model ekonomi deflasi yang sehat, AetherVault menetapkan standar baru tentang bagaimana umat manusia membuktikan kepemilikan dan mewariskan rahasia kepada generasi mendatang.",
+    
+    disclaimerTitle: "Penafian & Lisensi Hukum",
+    disclaimerText: "Whitepaper ini hanya untuk tujuan informasi dan bukan merupakan nasihat keuangan atau investasi. Protokol AetherVault disediakan 'apa adanya' tanpa jaminan dalam bentuk apa pun."
   },
   terms: {
-    legalDoc: "Legal Document",
-    title: "Terms of Service",
-    updatedPrefix: "Terakhir Diperbarui: ",
+    legalDoc: "Dokumen Hukum Resmi",
+    title: "Syarat dan Ketentuan",
+    subtitle: "Harap baca ketentuan ini dengan saksama sebelum berinteraksi dengan protokol AetherVault.",
+    updatedPrefix: "Tanggal Berlaku: ",
+    jurisdiction: "Jaringan Terdesentralisasi Polygon",
     backBtn: "Kembali",
-    sec1Title: "1. Sifat Non-Custodial",
-    sec1Text: "AetherVault adalah platform non-custodial. Kami menyediakan antarmuka (antarmuka pengguna) untuk berinteraksi dengan Smart Contract pada jaringan Polygon. Kami tidak pernah memegang, menyimpan, atau memiliki kendali atas token $AETH atau aset digital lainnya di dompet Anda. Kehilangan akses ke dompet Anda adalah tanggung jawab Anda sepenuhnya.",
-    sec2Title: "2. Kapsul Waktu & Sistem Dead Man Switch",
-    sec2Text: "Saat Anda membuat Kapsul Waktu, Anda menyetujui bahwa Smart Contract akan mengunci pesan tersebut berdasarkan parameter waktu yang Anda tentukan sendiri. Untuk pengguna Tier 'Legacy' (Sistem Warisan), tanggung jawab untuk memasukkan alamat dompet ahli waris yang benar sepenuhnya berada di tangan Anda. Kesalahan pengetikan alamat ahli waris tidak dapat dibatalkan (irreversible) secara On-Chain.",
-    sec3Title: "3. Biaya Jaringan (Gas Fees) dan Auto-Burn",
-    sec3Text: "Setiap transaksi di ekosistem AetherVault (membuat kapsul, staking, atau klaim hadiah) memerlukan biaya jaringan (Gas Fee) dalam bentuk koin POL. Selain itu, Anda menyetujui bahwa pembuatan kapsul akan memicu protokol Auto-Burn, di mana sebagian token $AETH yang Anda bayarkan akan dibakar dan dihancurkan secara permanen dari total supply jaringan. Biaya ini tidak dapat dikembalikan (non-refundable).",
-    sec4Title: "4. Risiko Smart Contract",
-    sec4Text: "Meskipun kode Smart Contract kami telah dilengkapi dengan Anti-Reentrancy Guard dan dirancang dengan standar keamanan tertinggi, berinteraksi dengan teknologi blockchain selalu membawa risiko bawaan terkait kerentanan coding yang belum diketahui. Pengguna setuju untuk menggunakan dApp ini dengan risiko sendiri (as is)."
+    
+    // Bab 1-17
+    sec1Title: "1. Penerimaan Ketentuan",
+    sec1Text1: "Dengan mengakses atau menggunakan AetherVault, Anda menyetujui Syarat dan Ketentuan ini.",
+    sec1Text2: "AetherVault adalah protokol blockchain terdesentralisasi yang menyediakan stempel waktu kriptografi, kapsul waktu terenkripsi, dan sertifikat kepemilikan digital yang abadi.",
+    sec1Warning: "Jika Anda tidak menyetujui ketentuan ini, jangan gunakan protokol ini.",
+    
+    sec2Title: "2. Deskripsi Protokol",
+    sec2Text: "AetherVault menyediakan primitif terdesentralisasi berikut:",
+    sec2Capsule: "Kapsul waktu blockchain terenkripsi.",
+    sec2Proof: "Sertifikat kepemilikan digital.",
+    sec2Hall: "Registri verifikasi publik.",
+    sec2Token: "Token utilitas protokol.",
+    sec2Footer: "Protokol ini beroperasi secara otonom di blockchain Polygon.",
+    
+    sec3Title: "3. Layanan Non-Kustodial",
+    sec3Warning: "Ini sangat penting.",
+    sec3Text1: "AetherVault bersifat non-kustodial dan tidak pernah menyimpan:",
+    sec3Items: ["Private Keys", "Seed Phrases", "Kredensial Dompet", "Pesan Teks Terbuka", "Kata Sandi"],
+    sec3Text2: "Pengguna bertanggung jawab sepenuhnya atas dompet mereka sendiri.",
+    
+    sec4Title: "4. Enkripsi Sisi Klien",
+    sec4Text1: "Semua data dienkripsi di dalam browser Anda sebelum dikirim. AetherVault tidak dapat mendekripsi file Anda.",
+    sec4Text2: "Kehilangan kunci enkripsi (atau akses dompet) dapat mengakibatkan hilangnya akses secara permanen.",
+    
+    sec5Title: "5. Permanensi Blockchain",
+    sec5Text1: "Pengguna mengakui bahwa transaksi blockchain tidak dapat diubah. Setelah sertifikat atau kapsul dicetak, ia tidak dapat:",
+    sec5Items: ["Dimodifikasi", "Dihapus (dari node historis)", "Dibatalkan"],
+    
+    sec6Title: "6. Kekayaan Intelektual",
+    sec6Text1: "Pengguna memegang kepemilikan atas semua konten yang dikirimkan. Mencetak sertifikat tidak secara otomatis mentransfer hak cipta hukum.",
+    sec6Text2: "AetherVault hanya menyediakan stempel waktu kriptografi dan verifikasi kepemilikan matematis.",
+    
+    sec7Title: "7. Penggunaan Terlarang",
+    sec7Text: "Pengguna tidak diperbolehkan menggunakan protokol untuk aktivitas berikut:",
+    sec7Items: ["Konten ilegal", "Malware", "Pelanggaran hak cipta", "Penipuan", "Pencucian uang", "Terorisme", "Eksploitasi anak", "Aktivitas yang terkena sanksi"],
+    
+    sec8Title: "8. Tanggung Jawab Dompet",
+    sec8Text1: "Pengguna bertanggung jawab secara eksklusif atas:",
+    sec8Items: ["Private keys", "Keamanan dompet", "Biaya gas jaringan", "Kesalahan input alamat", "Aset yang hilang"],
+    sec8Warning: "AetherVault tidak dapat memulihkan dompet yang hilang.",
+    
+    sec9Title: "9. Token AETH",
+    sec9Text1: "AETH adalah token utilitas. Digunakan untuk: Mencetak Kapsul, Mencetak Aether Proof™, Penyimpanan premium, Staking protokol, dan Tata Kelola (masa depan).",
+    sec9Disclaimer: "Penafian: AETH tidak mewakili ekuitas, saham, atau kepemilikan hukum di entitas perusahaan mana pun.",
+    
+    sec10Title: "10. Mekanisme Burn",
+    sec10Text: "Beberapa operasi protokol secara permanen menghancurkan token AETH untuk mempertahankan mekanisme deflasi. Token yang dibakar dikirim ke alamat nol (null) dan tidak dapat dipulihkan.",
+    
+    sec11Title: "11. Biaya",
+    sec11Text: "Pengguna bertanggung jawab untuk membayar:",
+    sec11Items: ["Biaya Gas Jaringan Polygon", "Biaya Pencetakan Protokol (dalam AETH)", "Biaya Penyimpanan Terdesentralisasi (jika berlaku via Arweave/IPFS)"],
+    sec11Footer: "Biaya dapat berubah di masa mendatang melalui pemungutan suara tata kelola terdesentralisasi.",
+    
+    sec12Title: "12. Penafian",
+    sec12Warning: "Protokol ini disediakan 'APA ADANYA' tanpa jaminan dalam bentuk apa pun.",
+    sec12Text: "AetherVault tidak menjamin:",
+    sec12Items: ["Ketersediaan terus-menerus", "Profitabilitas masa depan", "Nilai token", "Harga pasar", "Layanan tanpa gangguan"],
+    
+    sec13Title: "13. Batasan Tanggung Jawab",
+    sec13Text: "Sejauh yang diizinkan oleh hukum, AetherVault tidak akan bertanggung jawab atas:",
+    sec13Items: ["Kehilangan dompet", "Kehilangan private key", "Eksploitasi smart contract", "Kepadatan jaringan", "Force majeure", "Kegagalan jaringan pihak ketiga"],
+    
+    sec14Title: "14. Sumber Terbuka",
+    sec14Text: "Bagian dari protokol mungkin bersifat open source. Siapa pun dapat mengaudit kontrak. Alamat smart contract dapat diverifikasi secara publik di Polygon blockchain explorer.",
+    
+    sec15Title: "15. Hukum yang Berlaku",
+    sec15Text: "Kecuali diharuskan lain, Ketentuan ini akan ditafsirkan berdasarkan prinsip-prinsip perdagangan digital internasional. Untuk perselisihan, arbitrase terdesentralisasi lebih diutamakan daripada litigasi.",
+    
+    sec16Title: "16. Perubahan Ketentuan",
+    sec16Text: "AetherVault dapat memperbarui Ketentuan ini. Versi terbaru akan selalu dipublikasikan di halaman ini. Terus menggunakan protokol merupakan bentuk persetujuan terhadap ketentuan baru.",
+    
+    sec17Title: "17. Kontak Resmi",
+    contactWeb: "Situs Web Resmi",
+    contactEmail: "Email Resmi",
+    contactX: "X Resmi",
+    contactTg: "Telegram Resmi",
+    contactGithub: "GitHub Resmi"
+  },
+  privacy: {
+    legalDoc: "Dokumen Privasi Resmi",
+    title: "Kebijakan Privasi",
+    subtitle: "Protokol zero-knowledge absolut. Kami melindungi privasi Anda dengan tidak mengumpulkan data Anda.",
+    updatedPrefix: "Tanggal Berlaku: ",
+    architecture: "Arsitektur",
+    clientSide: "100% Sisi Klien",
+    criticalNotice: "PEMBERITAHUAN KEAMANAN KRITIS",
+    criticalDesc: "Pengembang AetherVault TIDAK AKAN PERNAH meminta Private Key, Seed Phrase, atau Kata Sandi Anda. Siapa pun yang mengaku sebagai Dukungan AetherVault dan meminta hal ini adalah penipu.",
+    backBtn: "Kembali",
+
+    // Bab 1-7
+    sec1Title: "1. Filosofi Zero-Knowledge",
+    sec1Text1: "AetherVault beroperasi dengan arsitektur zero-knowledge yang ketat. Kami percaya bahwa privasi adalah hak asasi manusia yang mendasar.",
+    sec1Text2: "Kami tidak meminta, mengumpulkan, atau menyimpan data pribadi tradisional Anda (seperti Nama, Email, Nomor Telepon, atau identitas KYC). Kami tidak tahu siapa Anda, dan kami tidak dapat membaca isi kapsul yang Anda buat.",
+    
+    sec2Title: "2. Tidak Ada Akses Private Key",
+    sec2Text: "AetherVault dan pengembangnya TIDAK mengumpulkan, mengirimkan, menyimpan, atau memiliki akses belakang ke Private Key atau Seed Phrase dompet Anda.",
+    sec2Items: [
+      "Semua tanda tangan kriptografi diproses secara aman di dalam penyedia dompet Web3 Anda sendiri (misalnya, MetaMask).",
+      "Protokol hanya meminta izin untuk menandatangani pesan dan menyiarkan transaksi.",
+      "Jika Anda kehilangan akses dompet atau dompet Anda disusupi oleh serangan phishing pihak ketiga, pengembang AetherVault tidak menanggung tanggung jawab dan tidak dapat memulihkan dana atau data terenkripsi Anda."
+    ],
+    
+    sec3Title: "3. Enkripsi Sisi Klien",
+    sec3Text1: "Sebelum pesan atau file rahasia apa pun meninggalkan perangkat Anda, data tersebut dienkripsi secara lokal di dalam browser Anda menggunakan ECIES (Elliptic Curve Integrated Encryption Scheme) Tingkat Militer melalui kurva secp256k1.",
+    sec3Text2: "Ini berarti hanya teks matematis terenkripsi (ciphertext) yang dikirim ke blockchain. Kami tidak memiliki kunci master untuk mendekripsi data Anda.",
+    
+    sec4Title: "4. Data Blockchain Publik",
+    sec4Text1: "Karena AetherVault adalah aplikasi Web3 terdesentralisasi, interaksi Anda direkam di blockchain Polygon publik. Anda harus memahami bahwa metadata berikut ini bersifat PUBLIK dan dapat dilihat oleh siapa saja:",
+    sec4Items: ["Alamat Dompet Publik Anda", "ID Kapsul & Tingkat Keamanan", "Stempel Waktu Pembuatan & Buka", "Alamat Dompet Ahli Waris (jika Warisan)", "Gumpalan Ciphertext Terenkripsi", "Hash Kriptografi (SHA-256)"],
+    sec4Text2: "Jangan meletakkan rahasia teks biasa di 'Judul Kapsul' jika Anda ingin tetap sepenuhnya anonim, karena judul mungkin tidak dienkripsi secara default tergantung pada tingkat (tier) yang dipilih.",
+    
+    sec5Title: "5. Penyimpanan Terdesentralisasi (IPFS)",
+    sec5Text1: "File atau gambar apa pun yang dilampirkan ke Kapsul Waktu Anda diunggah ke jaringan InterPlanetary File System (IPFS) atau Arweave yang terdesentralisasi.",
+    sec5Text2: "AetherVault tidak menghosting file-file ini di server terpusat (seperti AWS atau Google Cloud). Setelah diunggah ke jaringan terdesentralisasi ini, file terenkripsi didistribusikan secara global dan tidak dapat dihapus atau diturunkan oleh pengembang AetherVault.",
+    
+    sec6Title: "6. Tidak Ada Pelacakan atau KYC",
+    sec6Text1: "Protokol tidak menggunakan alat pelacakan tradisional yang invasif.",
+    sec6Items: [
+      "Tidak ada pencatatan Alamat IP.",
+      "Tidak ada Google Analytics yang menyuntikkan cookie pihak ketiga.",
+      "Tidak ada verifikasi identitas 'Know Your Customer' (KYC)."
+    ],
+    
+    sec7Title: "7. Kekebalan Pengembang",
+    sec7Text1: "AetherVault adalah perangkat lunak yang terinspirasi open-source yang menyediakan antarmuka pengguna ke Smart Contract terdesentralisasi di Polygon.",
+    sec7Text2: "Dengan menggunakan protokol ini, Anda mengakui bahwa pengembang, kontributor, dan pendiri AetherVault TIDAK bertanggung jawab atas kerugian apa pun, kerugian finansial, kebocoran data, atau dana yang tidak dapat dipulihkan akibat:",
+    sec7Items: [
+      "Hilangnya private key dompet Anda.",
+      "Kesalahan mengetik alamat dompet ahli waris di Legacy Vault.",
+      "Eksploitasi smart contract atau kegagalan jaringan blockchain yang tak terduga.",
+      "Serangan Phishing yang dilakukan oleh pihak ketiga."
+    ],
+    sec7Footer: "Anda berinteraksi dengan blockchain sepenuhnya dengan risiko Anda sendiri."
   },
   roadmap: {
     badge: "Ekosistem Visi",
@@ -182,36 +442,19 @@ export const id = {
     phase3Item1: "Ekspansi multi-chain ke Arbitrum dan Optimism.",
     phase3Item2: "Peluncuran fitur pertukaran kapsul lintas jaringan."
   },
-  privacy: {
-    legalDoc: "Legal Document",
-    title: "Privacy Policy",
-    updatedPrefix: "Terakhir Diperbarui: ",
-    backBtn: "Kembali",
-    sec1Title: "1. Filosofi Zero-Knowledge Kami",
-    sec1Text: "AetherVault dibangun di atas prinsip desentralisasi Web3. Kami tidak meminta, tidak mengumpulkan, dan tidak menyimpan data pribadi tradisional Anda seperti Nama, Alamat Email, Nomor Telepon, atau Identitas Fisik (KYC). Privasi Anda adalah hak mutlak Anda.",
-    sec2Title: "2. Data yang Berinteraksi dengan Protokol",
-    item1Strong: "Alamat Dompet Publik (Public Wallet Address):",
-    item1Text: " Saat Anda menghubungkan dompet (seperti MetaMask), kami hanya membaca alamat publik Anda untuk menampilkan saldo $AETH dan riwayat Kapsul Waktu Anda di layar dashboard.",
-    item2Strong: "Data Blockchain (On-Chain Data):",
-    item2Text: " Semua transaksi, enkripsi kapsul, dan interaksi staking dieksekusi dan dicatat secara permanen di jaringan publik Polygon. Data ini bersifat publik namun terenkripsi anonim bawaan dari blockchain.",
-    sec3Title: "3. Penyimpanan Pesan Rahasia & IPFS",
-    sec3Text: "Pesan rahasia atau seed phrase yang Anda masukkan ke dalam Kapsul Waktu dienkripsi langsung dari sisi klien (client-side) menggunakan infrastruktur Web3. File lampiran yang Anda unggah disematkan (pinned) melalui jaringan Arweave (permanent decentralized storage). Karena sifat jaringan terdesentralisasi, AetherVault sebagai entitas pengembang tidak memiliki kunci atau akses belakang (backdoor) untuk mendekripsi data Anda sebelum batas waktu Time-Lock kalender Anda tercapai.",
-    sec4Title: "4. Keamanan Keuangan",
-    sec4Text: "Kami tidak pernah memiliki akses administratif ke dompet kripto Anda. Protokol AetherVault berjalan menggunakan Smart Contract yang bersifat non-custodial. Tanggung jawab pengamanan frasa pemulihan (seed phrase) dompet MetaMask Anda berada sepenuhnya di tangan Anda."
-  },
   docsPage: {
-    sidebarTitle: "Documentation",
-    navContracts: "Contract Addresses",
-    navApi: "IPFS Integration",
-    navGithub: "Source Code",
+    sidebarTitle: "Dokumentasi",
+    navContracts: "Alamat Kontrak",
+    navApi: "Integrasi IPFS",
+    navGithub: "Kode Sumber",
     backBtn: "Kembali",
-    contractsTitle: "Network & Contracts",
+    contractsTitle: "Jaringan & Kontrak",
     contractsDesc: "AetherVault beroperasi sepenuhnya secara On-Chain. Berikut adalah parameter teknis dan alamat resmi untuk berinteraksi dengan protokol kami.",
-    rpcLabel: "Network RPC",
+    rpcLabel: "RPC Jaringan",
     networkVal: "Polygon Mainnet (Chain ID: 137)",
-    tokenLabel: "Token Contract ($AETH)",
-    stakingLabel: "Staking Contract",
-    abiTitle: "ABI Configuration",
+    tokenLabel: "Kontrak Token ($AETH)",
+    stakingLabel: "Kontrak Staking",
+    abiTitle: "Konfigurasi ABI",
     abiDesc: "Pengembang dapat menggunakan ABI publik untuk membangun antarmuka pihak ketiga."
   },
   communityPage: {
@@ -229,6 +472,7 @@ export const id = {
     forumDesc: "Voting DAO & Proposal"
   },
   dashboard: {
+    // Basic Errors & Messages
     consoleTierConfigFail: "Gagal memuat konfigurasi tier.",
     consoleCapsuleFail: "Gagal memuat data kapsul.",
     consoleHistoryFail: "Gagal memuat riwayat transaksi.",
@@ -236,14 +480,10 @@ export const id = {
     consoleWalletFail: "Terjadi kesalahan saat membaca dompet.",
     consoleStakingFail: "Gagal membaca kontrak staking.",
     tiersList: {
-      basicName: "Dasar",
-      basicDesc: "Penyimpanan pesan singkat.",
-      vipName: "VIP",
-      vipDesc: "Kapasitas lebih besar.",
-      eternalName: "Abadi",
-      eternalDesc: "Penyimpanan permanen.",
-      legacyName: "Warisan",
-      legacyDesc: "Sistem ahli waris."
+      basicName: "Dasar", basicDesc: "Penyimpanan pesan singkat.",
+      vipName: "VIP", vipDesc: "Kapasitas lebih besar.",
+      eternalName: "Abadi", eternalDesc: "Penyimpanan permanen.",
+      legacyName: "Warisan", legacyDesc: "Sistem ahli waris."
     },
     defaultTxErrorMessage: "Transaksi gagal. Silakan coba lagi.",
     errNetworkSwitchSuccess: "Berhasil pindah ke jaringan {chain}.",
@@ -252,6 +492,8 @@ export const id = {
     tierLabelLegacy: "Warisan",
     tierLabelTimeLock: "Kunci Waktu",
     dateLocale: "id-ID",
+    
+    // Transactions
     txSealTitle: "Menyegel {tier}",
     txSealDetail: "Biaya {cost} AETH | ID: {id}",
     txRevealTitle: "Kapsul Dibuka",
@@ -266,6 +508,7 @@ export const id = {
     txWithdrawDetail: "Token ditarik dari staking.",
     txRewardClaimTitle: "Klaim Hadiah",
     txRewardClaimDetail: "Hadiah staking berhasil diklaim.",
+    
     connectWalletFirst: "Harap hubungkan dompet Anda terlebih dahulu.",
     switchNetworkFirst: "Harap pindah ke jaringan {chain}.",
     registeringKey: "Mendaftarkan kunci enkripsi...",
@@ -306,6 +549,8 @@ export const id = {
     noRewardAvailable: "Tidak ada hadiah yang tersedia.",
     claimRewardSuccess: "Hadiah berhasil diklaim!",
     claimRewardFailPrefix: "Gagal mengklaim hadiah: ",
+    
+    // Menus
     menuCreate: "Buat Kapsul",
     menuVaults: "Brankas Saya",
     menuHistory: "Riwayat",
@@ -323,9 +568,13 @@ export const id = {
     wrongNetworkDesc: "Anda harus terhubung ke {chain} untuk menggunakan dApp ini.",
     switchToChainBtn: "Beralih ke {chain}",
     switchToChainFirstBtn: "Beralih Jaringan Dahulu",
+    
+    // Settings
     keyNotRegisteredTitle: "Kunci Enkripsi Belum Terdaftar",
     keyNotRegisteredDesc: "Daftarkan kunci publik Anda di blockchain agar dapat menerima pesan terenkripsi.",
     registerKeyBtn: "Daftarkan Kunci",
+    
+    // Create UI
     createTitle: "Buat Kapsul Baru",
     createDesc: "Amankan pesan atau file Anda dengan enkripsi tingkat militer.",
     encryptionNotice: "Pesan akan dienkripsi (ECIES) langsung di browser Anda sebelum dikirim ke blockchain.",
@@ -364,6 +613,8 @@ export const id = {
     processingBtn: "Memproses...",
     sealButton: "Segel Kapsul Sekarang",
     connectToSeal: "Hubungkan Dompet untuk Menyegel",
+    
+    // Vaults UI
     vaultsTitle: "Brankas Kapsul Saya",
     vaultsDesc: "Kelola semua kapsul aktif dan warisan Anda di sini.",
     noVaultsTitle: "Belum Ada Kapsul",
@@ -379,28 +630,24 @@ export const id = {
     notReady: "Belum Siap",
     openVault: "Buka Brankas",
     deleteBtn: "Hapus",
+    btnViewOpened: "Lihat Terbuka",
+    btnClaimLegacy: "Klaim Warisan",
+    btnReveal: "Buka Kapsul",
+    btnLocked: "Terkunci",
+    
+    // History
     historyTitle: "Riwayat Transaksi",
     historyEmpty: "Belum ada riwayat transaksi ditemukan.",
     loadFullHistory: "Muat Riwayat Penuh (dari blok awal)",
     fullSyncNote: "Sinkronisasi penuh mungkin memakan waktu tergantung batasan laju RPC.",
+    
+    // Stats
     statsTitle: "Statistik Protokol",
     totalBurnedLabel: "Total AETH Terbakar",
     activeCapsulesLabel: "Kapsul Aktif Anda",
     unit: "Unit",
-    stakingTitle: "Staking AETH",
-    stakingDesc: "Kunci token AETH Anda untuk mendapatkan hasil pasif dan mengamankan jaringan.",
-    currentApy: "Estimasi APY Saat Ini",
-    stakeAethTitle: "Stake Token Baru",
-    stakeAmountLabel: "Jumlah Stake",
-    balanceLabel: "Saldo Anda:",
-    maxBtn: "MAKS",
-    stakeBtn: "Konfirmasi Stake",
-    positionTitle: "Posisi Anda",
-    totalStaked: "Total Di-stake:",
-    pendingRewards: "Hadiah Tertunda:",
-    unstakeAmountLabel: "Jumlah Penarikan",
-    unstakeBtn: "Tarik Stake (Unstake)",
-    claimRewardsBtn: "Klaim Hadiah Saja",
+    
+    // Security UI
     securityTitle: "Infrastruktur Keamanan",
     securityDesc: "Pelajari bagaimana data dan dana Anda dilindungi.",
     secHowProtected: "Bagaimana Data Anda Dilindungi",
@@ -426,6 +673,8 @@ export const id = {
     storageLabel: "Penyedia Penyimpanan",
     storageDesc: "Di mana lampiran file rahasia Anda disimpan secara terdesentralisasi.",
     permanentStatus: "Mode Permanen",
+    
+    // Modal
     modalDecryptedTitle: "Isi Kapsul Terbuka",
     closeVaultBtn: "Tutup & Kunci Kembali",
     decryptingDownloading: "Mendekripsi & Mengunduh...",
@@ -445,19 +694,14 @@ export const id = {
     openVaultBtn: "Buka Brankas",
     btnDeleteContent: "Hapus Konten",
     attachmentTag: "Lampiran",
-    // --- SMART ERROR HANDLING ---
+    
+    // Errors
     errUserRejected: "Transaksi dibatalkan oleh pengguna (User Rejected).",
     errInsufficientFunds: "Saldo POL (Gas) atau AETH tidak mencukupi untuk transaksi ini.",
     errNetworkIssue: "Gangguan koneksi RPC/Jaringan. Silakan coba beberapa saat lagi.",
     errContractReverted: "Ditolak Jaringan:",
     
-    // --- STAKING STATS ---
-    tvlLabel: "TVL:",
-    stakersLabel: "Stakers:",
-
-    // --- AETHER PROOF CERTIFICATE ---
-    totalSupplyLabel: "Total Pasokan",
-    totalUsersLabel: "Pengguna Aktif",
+    // Certificates
     viewProofBtn: "Lihat Bukti",
     certFetchFail: "Gagal memuat sertifikat: ",
     certTitle: "Aether Proof™",
@@ -476,6 +720,18 @@ export const id = {
     certTier: "Tingkat Keamanan",
     certScan: "Pindai untuk Verifikasi On-Chain",
     certFooter: "Sertifikat ini mengonfirmasi bahwa aset digital telah disegel secara kriptografi di blockchain. Sertifikat ini tidak mengungkapkan isi pesan. Konten tetap terenkripsi dan hanya dapat diakses oleh pemilik yang sah.",
-    certCertifiedBy: "Disertifikasi On-Chain oleh AetherVault™"
+    certCertifiedBy: "Disertifikasi On-Chain oleh AetherVault™",
+    certBadgePolygon: "Terverifikasi di Polygon Amoy",
+    certOfficialCert: "Sertifikat Keaslian Kriptografi",
+    certImmutableBadge: "ABADI • ON-CHAIN",
+    certSignature: "Tanda Tangan Digital",
+    certOfficialLabel: "Sertifikat On-Chain",
+    certProvenance: "Rekam Jejak Bukti Abadi",
+    certExportPng: "Ekspor sebagai PNG",
+    certCertifies: "Dokumen yang tak dapat diubah ini secara resmi mensertifikasi pendaftaran dari",
+    certVaultId: "ID Brankas",
+    certTimestamp: "Stempel Waktu",
+    certSmartContract: "Smart Contract",
+    certRegisteredBy: "Disertifikasi & Terdaftar Permanen oleh"
   }
 };
