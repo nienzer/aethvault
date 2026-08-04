@@ -14,9 +14,8 @@ const STAKING_ABI = ["function getStakingStats() view returns (uint256 currentTo
 
 export default function LandingPage() {
   const router = useRouter();
-  const { t: globalT, lang, setLang } = useLanguage();
+  const { t: globalT, lang, changeLanguage } = useLanguage();
   const t = globalT.landing;
-  const navT = globalT.nav;
 
   const [toast, setToast] = useState(null);
   const [liveStats, setLiveStats] = useState({ block: 0, proofs: 0, tvl: 0, stakers: 0 });
@@ -56,7 +55,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-16 sm:pt-20">
       
       {/* Toast Notification */}
       {toast && (
@@ -82,51 +81,8 @@ export default function LandingPage() {
         .animate-glow { animation: pulse-glow 3s ease-in-out infinite; }
       `}</style>
 
-      {/* ⭐ NAVBAR TUNGGAL FINAL (TIDAK DOBEL) */}
-      <nav className="sticky top-0 z-50 bg-[#030208]/95 backdrop-blur-xl border-b border-neutral-900 py-4 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
-            <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-xl object-cover" />
-            <span className="text-lg font-black tracking-widest text-white font-display">AETHERVAULT</span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-8 text-xs font-bold font-mono text-neutral-400">
-            <a href="#home" className="hover:text-cyan-400 transition-colors">{navT.home}</a>
-            <a href="#infra" className="hover:text-cyan-400 transition-colors">{navT.infra}</a>
-            <a href="#tiers" className="hover:text-cyan-400 transition-colors">{navT.tiers}</a>
-            <a href="#tokenomics" className="hover:text-cyan-400 transition-colors">{navT.tokenomics}</a>
-            <a href="#team" className="hover:text-cyan-400 transition-colors">{navT.team}</a>
-            <button onClick={() => router.push('/whitepaper')} className="hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">Whitepaper</button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 bg-neutral-900 border border-neutral-800 p-1 rounded-xl">
-              <button 
-                onClick={() => setLang('id')}
-                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${lang === 'id' ? 'bg-cyan-500 text-black shadow-md' : 'text-neutral-400 hover:text-white'}`}
-              >
-                ID
-              </button>
-              <button 
-                onClick={() => setLang('en')}
-                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${lang === 'en' ? 'bg-cyan-500 text-black shadow-md' : 'text-neutral-400 hover:text-white'}`}
-              >
-                EN
-              </button>
-            </div>
-
-            <button 
-              onClick={() => router.push("/dashboard")}
-              className="bg-white hover:bg-neutral-200 text-black px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg transition-all cursor-pointer"
-            >
-              {navT.launchApp}
-            </button>
-          </div>
-        </div>
-      </nav>
-
       {/* ⭐ 1. HERO SECTION & ANIMASI FLOW LENGKAP */}
-      <section id="home" className="pt-20 pb-16 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 items-center relative">
+      <section id="home" className="pt-10 pb-16 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-12 items-center relative">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-600/10 blur-[150px] rounded-full pointer-events-none"></div>
 
         <div className="lg:col-span-7 relative z-10 text-center lg:text-left flex flex-col items-center lg:items-start">
@@ -156,7 +112,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* HERO ANIMATION FLOW LENGKAP (TIDAK ADA YANG HILANG) */}
+        {/* HERO ANIMATION FLOW LENGKAP */}
         <div className="lg:col-span-5 relative z-10 hidden lg:flex flex-col items-center justify-center h-[500px]">
            <div className="w-full max-w-sm space-y-4">
               <div className="bg-[#0B0817]/80 backdrop-blur-md border border-neutral-800 p-4 rounded-2xl flex items-center gap-4 shadow-xl transform translate-x-4 animate-float">
@@ -274,7 +230,7 @@ export default function LandingPage() {
       </section>
 
       {/* ⭐ INFRASTRUCTURE SECTION */}
-      <section id="infra" className="max-w-7xl mx-auto px-4 sm:px-6 py-20 border-t border-neutral-900">
+      <section id="infrastructure" className="max-w-7xl mx-auto px-4 sm:px-6 py-20 border-t border-neutral-900">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="w-fit mx-auto px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-widest mb-4 font-mono">
             {globalT.infrastructure.tag}
@@ -421,7 +377,7 @@ export default function LandingPage() {
           
           <div className="flex flex-col space-y-4">
             <h4 className="text-white font-bold text-xs uppercase tracking-widest font-mono mb-2">{globalT.footer.quickLinks}</h4>
-            <a href="#infra" className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors">{globalT.footer.navInfrastructure}</a>
+            <a href="#infrastructure" className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors">{globalT.footer.navInfrastructure}</a>
             <button onClick={() => router.push('/dashboard')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{globalT.footer.navLaunchApp}</button>
             <button onClick={() => router.push('/whitepaper')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{globalT.footer.navWhitepaper}</button>
           </div>
