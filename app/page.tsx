@@ -19,6 +19,7 @@ export default function LandingPage() {
 
   const [toast, setToast] = useState(null);
   const [liveStats, setLiveStats] = useState({ block: 0, proofs: 0, tvl: 0, stakers: 0 });
+  const [onChainStatus, setOnChainStatus] = useState("Connecting to Polygon Amoy...");
 
   const showToast = (msg, type = 'info') => {
     setToast({ msg, type });
@@ -44,8 +45,10 @@ export default function LandingPage() {
           tvl: parseFloat(ethers.formatUnits(stakingData[0] || 0, 18)),
           stakers: Number(stakingData[2] || 0)
         });
+        setOnChainStatus("Verified On-Chain & Synced");
       } catch (e) {
-        console.error("Gagal menarik data on-chain landing page:", e);
+        console.error("Gagal menarik data on-chain:", e);
+        setOnChainStatus("RPC Connection Error");
       }
     };
 
@@ -229,49 +232,67 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ HALL OF PROOF SHOWCASE (APPLE STYLE UI PREVIEW) */}
+      {/* ⭐ HALL OF PROOF™ 100% REAL ON-CHAIN DATA */}
       <section className="bg-[#0A0713] py-24 border-y border-neutral-900 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-cyan-600/5 blur-[150px] rounded-full pointer-events-none"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-12 relative z-10">
            
            <div className="space-y-4">
-             <h2 className="text-3xl sm:text-5xl font-black text-white font-display">Experience The Protocol</h2>
-             <p className="text-neutral-400 max-w-2xl mx-auto">A seamless Web3 terminal designed for both everyday users and advanced crypto natives.</p>
+             <div className="w-fit mx-auto px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-widest font-mono">
+               100% On-Chain Verified
+             </div>
+             <h2 className="text-3xl sm:text-5xl font-black text-white font-display">Hall of Proof™ Live Records</h2>
+             <p className="text-neutral-400 max-w-2xl mx-auto text-sm sm:text-base">Real-time smart contract state directly queried from Polygon Amoy blockchain.</p>
            </div>
 
-           <div className="w-full max-w-5xl mx-auto bg-[#030208] border border-neutral-800 rounded-t-3xl rounded-b-xl shadow-[0_-20px_60px_rgba(6,182,212,0.1)] overflow-hidden flex flex-col pt-4 px-4 pb-0">
-             <div className="flex gap-2 px-2 mb-4">
-               <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-               <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-               <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+           {/* Real On-Chain Metrics Card */}
+           <div className="w-full max-w-4xl mx-auto bg-[#030208] border border-neutral-800 rounded-2xl shadow-[0_20px_60px_rgba(6,182,212,0.15)] overflow-hidden text-left p-6 sm:p-8">
+             <div className="flex justify-between items-center pb-6 border-b border-neutral-800 mb-6">
+               <div className="flex items-center gap-3">
+                 <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-ping"></span>
+                 <span className="text-xs font-mono text-white font-bold tracking-wider">AETHERVAULT CONTRACT: 0xb273...a56B</span>
+               </div>
+               <span className="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-lg border border-cyan-500/20">
+                 {onChainStatus}
+               </span>
              </div>
-             
-             {/* Mock Dashboard UI */}
-             <div className="bg-[#0A0713] border border-neutral-800 border-b-0 rounded-t-2xl w-full h-[300px] sm:h-[500px] p-6 flex flex-col gap-6 relative overflow-hidden">
-                <div className="flex justify-between items-center pb-4 border-b border-neutral-800/80">
-                   <div className="flex items-center gap-3"><Globe className="w-5 h-5 text-cyan-400"/><span className="text-white font-bold font-display">Hall of Proof™</span></div>
-                   <div className="w-32 h-8 bg-neutral-900 rounded-lg border border-neutral-800"></div>
-                </div>
-                <div className="grid grid-cols-3 gap-4 flex-1">
-                   <div className="bg-[#05030F] border border-neutral-800 rounded-xl p-4 space-y-3">
-                     <div className="w-full h-24 bg-neutral-900 rounded-lg"></div>
-                     <div className="w-3/4 h-4 bg-neutral-800 rounded"></div>
-                     <div className="w-1/2 h-3 bg-neutral-800 rounded"></div>
-                   </div>
-                   <div className="bg-[#05030F] border border-cyan-500/30 rounded-xl p-4 space-y-3 relative overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.1)]">
-                     <div className="absolute inset-0 bg-cyan-500/5"></div>
-                     <div className="w-full h-24 bg-cyan-900/20 border border-cyan-500/30 rounded-lg flex items-center justify-center"><Award className="w-8 h-8 text-cyan-400"/></div>
-                     <div className="w-3/4 h-4 bg-cyan-500/40 rounded"></div>
-                     <div className="w-1/2 h-3 bg-cyan-500/20 rounded"></div>
-                   </div>
-                   <div className="bg-[#05030F] border border-neutral-800 rounded-xl p-4 space-y-3 hidden sm:block">
-                     <div className="w-full h-24 bg-neutral-900 rounded-lg"></div>
-                     <div className="w-3/4 h-4 bg-neutral-800 rounded"></div>
-                     <div className="w-1/2 h-3 bg-neutral-800 rounded"></div>
-                   </div>
-                </div>
+
+             <div className="grid sm:grid-cols-3 gap-6 font-mono text-xs">
+               <div className="bg-[#080808] border border-neutral-800 p-5 rounded-xl space-y-2">
+                 <p className="text-neutral-500 uppercase tracking-widest text-[9px]">Total On-Chain Proofs</p>
+                 <p className="text-cyan-400 text-xl font-bold">{liveStats.proofs.toLocaleString()} Records</p>
+                 <p className="text-[10px] text-neutral-600">Immutable L2 State</p>
+               </div>
+               <div className="bg-[#080808] border border-neutral-800 p-5 rounded-xl space-y-2">
+                 <p className="text-neutral-500 uppercase tracking-widest text-[9px]">Staking Pool TVL</p>
+                 <p className="text-purple-400 text-xl font-bold">{liveStats.tvl.toLocaleString()} AETH</p>
+                 <p className="text-[10px] text-neutral-600">Active Smart Contract TVL</p>
+               </div>
+               <div className="bg-[#080808] border border-neutral-800 p-5 rounded-xl space-y-2">
+                 <p className="text-neutral-500 uppercase tracking-widest text-[9px]">Polygon Block Sync</p>
+                 <p className="text-green-400 text-xl font-bold">#{liveStats.block > 0 ? liveStats.block.toLocaleString() : "Syncing"}</p>
+                 <p className="text-[10px] text-neutral-600">Polygon Amoy Network</p>
+               </div>
+             </div>
+
+             <div className="mt-8 text-center flex flex-col sm:flex-row justify-center items-center gap-4">
+               <button 
+                 onClick={() => router.push('/dashboard')}
+                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-black px-6 py-3 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-lg shadow-cyan-500/20"
+               >
+                 Open dApp Terminal & Submit Proof <ArrowRight className="w-4 h-4" />
+               </button>
+               <a 
+                 href={`https://amoy.polygonscan.com/address/${AETHER_VAULT_ADDRESS}`}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 px-6 py-3 rounded-xl font-bold text-xs border border-neutral-800 transition-all cursor-pointer"
+               >
+                 View Contract on Polygonscan <Globe className="w-4 h-4 text-cyan-400" />
+               </a>
              </div>
            </div>
+
         </div>
       </section>
 
@@ -379,7 +400,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ TEAM / DEV SECTION (DIPERKETAT, DIPERKECH & DI TENGAH) */}
+      {/* ⭐ TEAM / DEV SECTION (COMPACT & CENTERED) */}
       <section id="team" className="max-w-4xl mx-auto px-4 sm:px-6 py-20 border-t border-neutral-900">
         <div className="bg-gradient-to-br from-[#0B0817] to-[#040308] border border-neutral-800 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 shadow-2xl relative overflow-hidden mx-auto max-w-2xl">
           <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/5 blur-3xl rounded-full pointer-events-none"></div>
@@ -410,7 +431,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ FOOTER (DIPERJELAS & SEDIKIT LEBIH BESAR) */}
+      {/* ⭐ FOOTER (JELAS & BESAR) */}
       <footer className="bg-[#020106] pt-20 pb-12 border-t border-neutral-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-16">
           <div className="lg:col-span-2 space-y-4">
