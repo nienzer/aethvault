@@ -57,9 +57,8 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, provider);
 
-      // Ambil event ProofCreated dari blockchain
       const filter = contract.filters.ProofCreated();
-      const DEPLOY_BLOCK = 43345845; // Blok deploy kontrak
+      const DEPLOY_BLOCK = 43345845; 
       const currentBlock = await provider.getBlockNumber();
       const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 100000);
 
@@ -69,11 +68,10 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
         events.map(async (ev) => {
           const block = await provider.getBlock(ev.blockNumber);
           const args = ev.args;
-          // args: [capsuleId, owner, proofHash]
           return {
             id: args[0].toString(),
             title: `Aether Proof #${args[0].toString()}`,
-            category: "Software", // Default kategori on-chain
+            category: "Software",
             owner: `${args[1].substring(0, 6)}...${args[1].substring(args[1].length - 4)}`,
             ownerFull: args[1],
             date: new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
@@ -86,11 +84,11 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
         })
       );
 
-      parsedProofs.reverse(); // Urutkan dari yang terbaru
+      parsedProofs.reverse();
       setOnChainProofs(parsedProofs);
       setGlobalProtocolStats({
         totalProofs: parsedProofs.length,
-        burnedTotal: parsedProofs.length * 50 // Estimasi burn berdasarkan rata-rata tier
+        burnedTotal: parsedProofs.length * 50
       });
     } catch (err) {
       console.error("Gagal memuat Hall of Proof on-chain:", err);
@@ -171,7 +169,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
       setMintStep(5);
       const receipt = await tx.wait();
 
-      // Ambil ID dari event log asli transaksi
       let realTokenId = Math.floor(8000 + Math.random() * 2000);
       for (const log of receipt.logs) {
         try {
@@ -203,7 +200,7 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
       });
       
       setView('success');
-      fetchOnChainHallOfProof(); // Refresh data on-chain setelah mint sukses
+      fetchOnChainHallOfProof();
     } catch (error) {
       console.error("Minting failed:", error);
       alert("Transaction failed or rejected: " + (error.reason || error.message));
@@ -340,7 +337,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
       
       {view === 'hub' && (
         <>
-          {/* HERO SECTION ON-CHAIN */}
           <div className="bg-gradient-to-br from-[#0B0817] via-neutral-900 to-[#05030F] border border-neutral-800/80 p-6 sm:p-10 rounded-3xl shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-amber-500/10 via-cyan-500/10 to-purple-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
             
@@ -391,7 +387,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
             </div>
           </div>
 
-          {/* STATS REAL ON-CHAIN */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { label: "On-Chain Proofs", value: globalProtocolStats.totalProofs, icon: Award, color: "text-amber-400" },
@@ -410,7 +405,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
             ))}
           </div>
 
-          {/* CATEGORY CARDS */}
           <div className="bg-[#0B0817] border border-neutral-900 p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
@@ -451,7 +445,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
             </div>
           </div>
 
-          {/* ⭐ HALL OF PROOF ON-CHAIN (DATA NYATA DARI BLOCKCHAIN) */}
           <div className="bg-[#0B0817] border border-neutral-900 p-6 sm:p-8 rounded-3xl shadow-xl space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
@@ -591,6 +584,8 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
               </div>
             </div>
           </div>
+
+        </div>
       )}
 
       {view === 'minting' && (
