@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
 
-const RPC_URL = "https://rpc-amoy.polygon.technology/";
+const RPC_URL = "https://polygon-amoy-bor-rpc.publicnode.com";
 const AETHER_VAULT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B";
 const STAKING_CONTRACT_ADDRESS = "0xc72433e176F2935965cbf595d6f30a70A89F702c";
 
-const VAULT_ABI = ["function totalProofs() view returns (uint256)"];
+const VAULT_ABI = ["function totalCapsulesCreated() view returns (uint256)"];
 const STAKING_ABI = ["function getStakingStats() view returns (uint256 currentTotalStaked, uint256 totalRewardsPaid, uint256 stakersCount, uint256 rewardPoolAvailable)"];
 
 export default function LandingPage() {
@@ -35,7 +35,7 @@ export default function LandingPage() {
 
         const [currentBlock, totalProofs, stakingData] = await Promise.all([
           provider.getBlockNumber(),
-          vaultContract.totalProofs().catch(() => 0),
+          vaultContract.totalCapsulesCreated().catch(() => 0),
           stakingContract.getStakingStats().catch(() => [0, 0, 0, 0])
         ]);
 
