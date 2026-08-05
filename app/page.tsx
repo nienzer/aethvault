@@ -58,7 +58,6 @@ export default function LandingPage() {
   }, []);
 
   return (
-    /* pt-20 untuk memastikan tidak tertutup navbar absolute/fixed */
     <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-20">
       
       {/* Background Orbs Global */}
@@ -90,10 +89,9 @@ export default function LandingPage() {
       `}</style>
 
       {/* ⭐ 1. HERO SECTION */}
-      {/* items-start ditambahkan agar elemen tidak dipaksa turun ke tengah tinggi animasi 500px */}
       <section id="home" className="pb-6 sm:pb-10 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-8 items-start lg:items-center relative z-10">
         
-        {/* lg:-mt-24 ADALAH KUNCI UNTUK MENARIK TEKS NAIK MELET KE NAVBAR DI DESKTOP */}
+        {/* lg:-mt-24 & sm:-mt-10 UNTUK MENARIK TEKS NAIK MELET KE NAVBAR DI DESKTOP & HP */}
         <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start -mt-8 sm:-mt-10 lg:-mt-24">
           <div className="w-fit flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-4 font-mono shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
@@ -359,41 +357,90 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ TOKENOMICS SECTION (GLASSMORPHISM) */}
+      {/* ⭐ TOKENOMICS SECTION (DIAGRAM LINGKARAN & GLASSMORPHISM) */}
       <section id="tokenomics" className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 border-t border-white/5 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-16">
           <div className="w-fit mx-auto px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 backdrop-blur-md text-purple-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-3 font-mono">
-            {globalT.tokenomics.tag}
+            {globalT.tokenomics.tag || "TOKENOMICS"}
           </div>
           <h2 className="text-2xl sm:text-4xl font-black text-white font-display mb-3 drop-shadow-lg">Designed for Scarcity</h2>
           <p className="text-neutral-300 text-xs sm:text-base drop-shadow-md">100,000,000 total fixed supply with robust utility and automated deflationary burn mechanisms.</p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-1.5 sm:space-y-2 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-center sm:text-left">
-            <span className="text-[8px] sm:text-[10px] font-mono text-cyan-300 font-bold uppercase">{globalT.tokenomics.liquidity}</span>
-            <div className="text-xl sm:text-3xl font-black text-white font-mono drop-shadow-md">30%</div>
-            <p className="text-[9px] sm:text-xs text-neutral-400 hidden sm:block">Open market liquidity availability on DEXs.</p>
+        {/* BUNGKUS KIRI (DIAGRAM) DAN KANAN (KARTU) */}
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-20">
+          
+          {/* KIRI: DONUT CHART PURE CSS */}
+          <div className="relative shrink-0 animate-float">
+            {/* Efek Cahaya di belakang diagram */}
+            <div className="absolute inset-0 bg-cyan-500/20 blur-[60px] rounded-full"></div>
+            
+            {/* Diagram Lingkaran (Conic Gradient) */}
+            <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-full relative shadow-[0_0_40px_rgba(0,0,0,0.5)] flex items-center justify-center"
+                 style={{
+                   background: "conic-gradient(#06b6d4 0% 30%, #a855f7 30% 55%, #f59e0b 55% 75%, #3b82f6 75% 85%, #22c55e 85% 100%)"
+                 }}>
+               {/* Lubang Tengah Donut */}
+               <div className="w-40 h-40 sm:w-52 sm:h-52 bg-[#040209] rounded-full flex flex-col items-center justify-center absolute border border-white/5 shadow-inner">
+                 <span className="text-white font-black text-3xl sm:text-4xl font-mono drop-shadow-lg">100M</span>
+                 <span className="text-neutral-400 text-[10px] sm:text-xs tracking-widest mt-1">TOTAL AETH</span>
+               </div>
+            </div>
           </div>
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-1.5 sm:space-y-2 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-center sm:text-left">
-            <span className="text-[8px] sm:text-[10px] font-mono text-purple-300 font-bold uppercase">{globalT.tokenomics.staking}</span>
-            <div className="text-xl sm:text-3xl font-black text-white font-mono drop-shadow-md">25%</div>
-            <p className="text-[9px] sm:text-xs text-neutral-400 hidden sm:block">Smart contract pool allocated for staker APY.</p>
-          </div>
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-1.5 sm:space-y-2 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-center sm:text-left">
-            <span className="text-[8px] sm:text-[10px] font-mono text-amber-300 font-bold uppercase">{globalT.tokenomics.initialSale}</span>
-            <div className="text-xl sm:text-3xl font-black text-white font-mono drop-shadow-md">20%</div>
-            <p className="text-[9px] sm:text-xs text-neutral-400 hidden sm:block">Initial liquidity fundraising and bootstrap.</p>
-          </div>
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-1.5 sm:space-y-2 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-center sm:text-left">
-            <span className="text-[8px] sm:text-[10px] font-mono text-blue-300 font-bold uppercase">{globalT.tokenomics.treasury}</span>
-            <div className="text-xl sm:text-3xl font-black text-white font-mono drop-shadow-md">25%</div>
-            <p className="text-[9px] sm:text-xs text-neutral-400 hidden sm:block">Vested development allocation and reserve.</p>
+
+          {/* KANAN: 5 KARTU ALOKASI WALLET (GRID 2 KOLOM) */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 w-full max-w-lg">
+            
+            {/* 1. Liquidity */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
+              <div className="flex items-center gap-2 mb-1.5">
+                 <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></div>
+                 <span className="text-[8px] sm:text-[10px] font-mono text-cyan-300 font-bold uppercase">{globalT.tokenomics.liquidity || "LIQUIDITY POOL"}</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">30%</div>
+            </div>
+
+            {/* 2. Staking */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
+              <div className="flex items-center gap-2 mb-1.5">
+                 <div className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></div>
+                 <span className="text-[8px] sm:text-[10px] font-mono text-purple-300 font-bold uppercase">{globalT.tokenomics.staking || "STAKING REWARDS"}</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">25%</div>
+            </div>
+
+            {/* 3. Initial Sale */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
+              <div className="flex items-center gap-2 mb-1.5">
+                 <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></div>
+                 <span className="text-[8px] sm:text-[10px] font-mono text-amber-300 font-bold uppercase">{globalT.tokenomics.initialSale || "INITIAL SALE"}</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">20%</div>
+            </div>
+
+            {/* 4. Treasury (Dikoreksi jadi 10%) */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
+              <div className="flex items-center gap-2 mb-1.5">
+                 <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div>
+                 <span className="text-[8px] sm:text-[10px] font-mono text-blue-300 font-bold uppercase">{globalT.tokenomics.treasury || "TREASURY"}</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">10%</div>
+            </div>
+
+            {/* 5. Team & Advisors (Dikoreksi jadi 15%) */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left col-span-2 sm:col-span-1">
+              <div className="flex items-center gap-2 mb-1.5">
+                 <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
+                 <span className="text-[8px] sm:text-[10px] font-mono text-green-300 font-bold uppercase">TEAM & DEV</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">15%</div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* ⭐ TEAM / DEV SECTION DENGAN LINK SOSIAL (GLASSMORPHISM) */}
+      {/* ⭐ TEAM / DEV SECTION */}
       <section id="team" className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-20 border-t border-white/5 relative z-10">
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-8 shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative overflow-hidden mx-auto max-w-xl text-center sm:text-left hover:bg-white/10 transition-colors">
           <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full pointer-events-none"></div>
