@@ -155,7 +155,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ 2. LIVE DATA TICKER */}
+      {/* ⭐ 2. LIVE DATA TICKER. */}
       <div className="border-y border-white/5 bg-white/5 backdrop-blur-xl py-3 relative z-20 shadow-[0_4px_30px_rgba(0,0,0,0.1)] mt-4 lg:mt-0">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-3 sm:gap-12 text-[9px] sm:text-xs font-mono">
           <div className="flex items-center gap-1.5 text-neutral-300">
