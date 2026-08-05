@@ -58,7 +58,8 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-20">
+    /* pt-16 sm:pt-20 agar di HP tidak ada ruang kosong di atas */
+    <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-16 sm:pt-20">
       
       {/* Background Orbs Global */}
       <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
@@ -91,8 +92,8 @@ export default function LandingPage() {
       {/* ⭐ 1. HERO SECTION */}
       <section id="home" className="pb-6 sm:pb-10 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-8 items-start lg:items-center relative z-10">
         
-        {/* lg:-mt-24 & sm:-mt-10 UNTUK MENARIK TEKS NAIK MELET KE NAVBAR DI DESKTOP & HP */}
-        <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start -mt-8 sm:-mt-10 lg:-mt-24">
+        {/* -mt-24 sm:-mt-20 lg:-mt-24 UNTUK MENARIK TEKS NAIK MELET KE NAVBAR DI DESKTOP & HP */}
+        <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start -mt-24 sm:-mt-20 lg:-mt-24">
           <div className="w-fit flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-4 font-mono shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
             {globalT.hero.badge}
@@ -119,7 +120,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* HERO ANIMATION FLOW (LENGKAP 4 BOX & GLASSMORPHISM) */}
+        {/* HERO ANIMATION FLOW */}
         <div className="lg:col-span-5 relative z-10 hidden lg:flex flex-col items-center justify-center h-[500px]">
            <div className="w-full max-w-sm space-y-3">
               <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 rounded-2xl flex items-center gap-3 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transform translate-x-4 animate-float">
@@ -148,7 +149,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ 2. LIVE DATA TICKER (GLASSMORPHISM) */}
+      {/* ⭐ 2. LIVE DATA TICKER */}
       <div className="border-y border-white/5 bg-white/5 backdrop-blur-xl py-3 relative z-20 shadow-[0_4px_30px_rgba(0,0,0,0.1)] mt-4 lg:mt-0">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-3 sm:gap-12 text-[9px] sm:text-xs font-mono">
           <div className="flex items-center gap-1.5 text-neutral-300">
@@ -169,47 +170,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR (GLASSMORPHISM) */}
-      <section className="py-6 sm:py-8 border-b border-white/5 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 text-center space-y-3 sm:space-y-4">
-           <p className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-neutral-400 drop-shadow-md">Secured, Audited & Powered By</p>
-           <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-8 opacity-90">
-              
-              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/10 transition-colors">
-                 <img src="/polygon.png" alt="Polygon" className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain" />
-                 <span className="text-[9px] sm:text-xs font-bold font-mono text-white">POLYGON</span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/10 transition-colors">
-                 <Hexagon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
-                 <span className="text-[9px] sm:text-xs font-bold font-mono text-white">CHAINLINK</span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/10 transition-colors">
-                 <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
-                 <span className="text-[9px] sm:text-xs font-bold font-mono text-white">ZEPPELIN</span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/10 transition-colors">
-                 <img src="/uniswap.png" alt="Uniswap" className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain" />
-                 <span className="text-[9px] sm:text-xs font-bold font-mono text-white">UNISWAP</span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/10 transition-colors">
-                 <img src="/pinksale.png" alt="Pinksale" className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain" />
-                 <span className="text-[9px] sm:text-xs font-bold font-mono text-white">PINKSALE</span>
-              </div>
-
-              <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/10 transition-colors">
-                 <img src="/gecko.png" alt="Gecko" className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain" />
-                 <span className="text-[9px] sm:text-xs font-bold font-mono text-white">GECKO</span>
-              </div>
-
-           </div>
-        </div>
-      </section>
-
-      {/* ⭐ PILAR UTAMA (GLASSMORPHISM) */}
+      {/* ⭐ PILAR UTAMA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all group">
@@ -236,87 +197,91 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ HALL OF PROOF™ ON-CHAIN LIVE FEED (GLASSMORPHISM) */}
-      <section className="py-10 sm:py-24 border-y border-white/5 relative overflow-hidden z-10 bg-black/20 backdrop-blur-3xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-6 sm:space-y-12 relative z-10">
+      {/* ⭐ GABUNGAN: HALL OF PROOF & INFRASTRUCTURE (BERJEJER KIRI KANAN) */}
+      <section className="py-12 sm:py-20 border-y border-white/5 relative overflow-hidden z-10 bg-black/20 backdrop-blur-3xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
            
-           <div className="space-y-3">
-             <div className="w-fit mx-auto px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/30 backdrop-blur-md text-cyan-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+           {/* KOLOM KIRI: HALL OF PROOF */}
+           <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
+             <div className="w-fit px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/30 backdrop-blur-md text-cyan-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                100% On-Chain Verified
              </div>
-             <h2 className="text-2xl sm:text-5xl font-black text-white font-display drop-shadow-lg">Hall of Proof™ Live Records</h2>
-             <p className="text-neutral-300 max-w-xl mx-auto text-xs sm:text-base drop-shadow-md">Real-time smart contract state directly queried from Polygon Amoy blockchain.</p>
+             <div>
+               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">Hall of Proof™ Live Records</h2>
+               <p className="text-neutral-300 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">Real-time smart contract state directly queried from Polygon Amoy blockchain.</p>
+             </div>
+
+             <div className="w-full bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 sm:p-6 text-left shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
+               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 mb-4 border-b border-white/10 gap-3">
+                 <div className="flex items-center gap-2.5">
+                   <span className="w-2 h-2 rounded-full bg-green-400 animate-ping shadow-[0_0_10px_rgba(74,222,128,0.8)]"></span>
+                   <span className="text-[10px] sm:text-xs font-mono text-white font-bold tracking-wider drop-shadow-md">CONTRACT: 0xb273...a56B</span>
+                 </div>
+                 <span className="text-[9px] sm:text-[10px] font-mono text-cyan-300 bg-cyan-500/20 backdrop-blur-md px-2 py-1 rounded-md border border-cyan-500/30">
+                   {onChainStatus}
+                 </span>
+               </div>
+
+               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono text-xs">
+                 <div className="bg-black/40 backdrop-blur-md border border-white/10 p-3 rounded-xl space-y-1.5 shadow-inner">
+                   <p className="text-neutral-400 uppercase tracking-widest text-[7px] sm:text-[8px]">Total Proofs</p>
+                   <p className="text-cyan-300 text-sm sm:text-base font-bold">{liveStats.proofs.toLocaleString()} Rec</p>
+                 </div>
+                 <div className="bg-black/40 backdrop-blur-md border border-white/10 p-3 rounded-xl space-y-1.5 shadow-inner">
+                   <p className="text-neutral-400 uppercase tracking-widest text-[7px] sm:text-[8px]">Staking Pool TVL</p>
+                   <p className="text-purple-300 text-sm sm:text-base font-bold">{liveStats.tvl.toLocaleString()} AETH</p>
+                 </div>
+                 <div className="bg-black/40 backdrop-blur-md border border-white/10 p-3 rounded-xl space-y-1.5 col-span-2 sm:col-span-1 shadow-inner">
+                   <p className="text-neutral-400 uppercase tracking-widest text-[7px] sm:text-[8px]">Polygon Block</p>
+                   <p className="text-green-400 text-sm sm:text-base font-bold">#{liveStats.block > 0 ? liveStats.block.toLocaleString() : "Syncing"}</p>
+                 </div>
+               </div>
+
+               <div className="mt-5 text-center flex justify-center">
+                 <button 
+                   onClick={() => router.push('/dashboard')}
+                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-5 py-2.5 rounded-xl font-bold text-[10px] sm:text-xs border border-white/20 transition-all cursor-pointer shadow-[0_8px_30px_rgb(255,255,255,0.1)]"
+                 >
+                   Open dApp Terminal <ArrowRight className="w-3.5 h-3.5" />
+                 </button>
+               </div>
+             </div>
            </div>
 
-           <div className="w-full max-w-4xl mx-auto bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 sm:p-8 text-left shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
-             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 mb-4 sm:mb-6 border-b border-white/10 gap-3">
-               <div className="flex items-center gap-2.5">
-                 <span className="w-2 h-2 rounded-full bg-green-400 animate-ping shadow-[0_0_10px_rgba(74,222,128,0.8)]"></span>
-                 <span className="text-[10px] sm:text-xs font-mono text-white font-bold tracking-wider drop-shadow-md">CONTRACT: 0xb273...a56B</span>
-               </div>
-               <span className="text-[9px] sm:text-[10px] font-mono text-cyan-300 bg-cyan-500/20 backdrop-blur-md px-2 py-1 rounded-md border border-cyan-500/30">
-                 {onChainStatus}
-               </span>
+           {/* KOLOM KANAN: INFRASTRUCTURE */}
+           <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
+             <div className="w-fit px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 backdrop-blur-md text-cyan-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono">
+               {globalT.infrastructure.tag}
+             </div>
+             <div>
+               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">{globalT.infrastructure.title}</h2>
+               <p className="text-neutral-300 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">{globalT.infrastructure.desc}</p>
              </div>
 
-             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 font-mono text-xs">
-               <div className="bg-black/40 backdrop-blur-md border border-white/10 p-3 sm:p-4 rounded-xl space-y-1.5 shadow-inner">
-                 <p className="text-neutral-400 uppercase tracking-widest text-[7px] sm:text-[8px]">Total Proofs</p>
-                 <p className="text-cyan-300 text-sm sm:text-lg font-bold">{liveStats.proofs.toLocaleString()} Rec</p>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full">
+               <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
+                 <Server className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 mb-2 drop-shadow-md"/>
+                 <h4 className="text-sm sm:text-base font-bold text-white mb-1">{globalT.infrastructure.nodesTitle}</h4>
+                 <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed">{globalT.infrastructure.nodesDesc}</p>
                </div>
-               <div className="bg-black/40 backdrop-blur-md border border-white/10 p-3 sm:p-4 rounded-xl space-y-1.5 shadow-inner">
-                 <p className="text-neutral-400 uppercase tracking-widest text-[7px] sm:text-[8px]">Staking Pool TVL</p>
-                 <p className="text-purple-300 text-sm sm:text-lg font-bold">{liveStats.tvl.toLocaleString()} AETH</p>
+               <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
+                 <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 mb-2 drop-shadow-md"/>
+                 <h4 className="text-sm sm:text-base font-bold text-white mb-1">{globalT.infrastructure.interopTitle}</h4>
+                 <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed">{globalT.infrastructure.interopDesc}</p>
                </div>
-               <div className="bg-black/40 backdrop-blur-md border border-white/10 p-3 sm:p-4 rounded-xl space-y-1.5 col-span-2 sm:col-span-1 shadow-inner">
-                 <p className="text-neutral-400 uppercase tracking-widest text-[7px] sm:text-[8px]">Polygon Block</p>
-                 <p className="text-green-400 text-sm sm:text-lg font-bold">#{liveStats.block > 0 ? liveStats.block.toLocaleString() : "Syncing"}</p>
+               <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left col-span-1 sm:col-span-2">
+                 <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 mb-2 drop-shadow-md"/>
+                 <h4 className="text-sm sm:text-base font-bold text-white mb-1">{globalT.infrastructure.securityTitle}</h4>
+                 <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed">{globalT.infrastructure.securityDesc}</p>
                </div>
-             </div>
-
-             <div className="mt-6 text-center flex flex-col sm:flex-row justify-center items-center gap-3">
-               <button 
-                 onClick={() => router.push('/dashboard')}
-                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs border border-white/20 transition-all cursor-pointer shadow-[0_8px_30px_rgb(255,255,255,0.1)]"
-               >
-                 Open dApp Terminal <ArrowRight className="w-3.5 h-3.5" />
-               </button>
              </div>
            </div>
 
         </div>
       </section>
 
-      {/* ⭐ INFRASTRUCTURE SECTION (GLASSMORPHISM) */}
-      <section id="infrastructure" className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 border-t border-white/5 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-          <div className="w-fit mx-auto px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 backdrop-blur-md text-cyan-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-3 font-mono">
-            {globalT.infrastructure.tag}
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-white font-display mb-3 drop-shadow-lg">{globalT.infrastructure.title}</h2>
-          <p className="text-neutral-300 text-xs sm:text-base drop-shadow-md">{globalT.infrastructure.desc}</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-8 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-3 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all">
-            <Server className="w-5 h-5 sm:w-7 sm:h-7 text-cyan-400 drop-shadow-md"/>
-            <h4 className="text-sm sm:text-lg font-bold text-white">{globalT.infrastructure.nodesTitle}</h4>
-            <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed hidden sm:block">{globalT.infrastructure.nodesDesc}</p>
-          </div>
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-8 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-3 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all">
-            <Cpu className="w-5 h-5 sm:w-7 sm:h-7 text-purple-400 drop-shadow-md"/>
-            <h4 className="text-sm sm:text-lg font-bold text-white">{globalT.infrastructure.interopTitle}</h4>
-            <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed hidden sm:block">{globalT.infrastructure.interopDesc}</p>
-          </div>
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-8 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-3 col-span-2 md:col-span-1 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all">
-            <Shield className="w-5 h-5 sm:w-7 sm:h-7 text-amber-400 drop-shadow-md"/>
-            <h4 className="text-sm sm:text-lg font-bold text-white">{globalT.infrastructure.securityTitle}</h4>
-            <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed hidden sm:block">{globalT.infrastructure.securityDesc}</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ⭐ TIERS ARCHITECTURE SECTION (GLASSMORPHISM) */}
-      <section id="tiers" className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 border-t border-white/5 relative z-10">
+      {/* ⭐ TIERS ARCHITECTURE SECTION */}
+      <section id="tiers" className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
           <div className="w-fit mx-auto px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 backdrop-blur-md text-amber-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-3 font-mono">
             {globalT.tiers.tag}
@@ -357,7 +322,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ TOKENOMICS SECTION (DIAGRAM LINGKARAN & GLASSMORPHISM) */}
+      {/* ⭐ TOKENOMICS SECTION */}
       <section id="tokenomics" className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 border-t border-white/5 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-16">
           <div className="w-fit mx-auto px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 backdrop-blur-md text-purple-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-3 font-mono">
@@ -367,20 +332,13 @@ export default function LandingPage() {
           <p className="text-neutral-300 text-xs sm:text-base drop-shadow-md">100,000,000 total fixed supply with robust utility and automated deflationary burn mechanisms.</p>
         </div>
 
-        {/* BUNGKUS KIRI (DIAGRAM) DAN KANAN (KARTU) */}
         <div className="flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-20">
-          
-          {/* KIRI: DONUT CHART PURE CSS */}
           <div className="relative shrink-0 animate-float">
-            {/* Efek Cahaya di belakang diagram */}
             <div className="absolute inset-0 bg-cyan-500/20 blur-[60px] rounded-full"></div>
-            
-            {/* Diagram Lingkaran (Conic Gradient) */}
             <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-full relative shadow-[0_0_40px_rgba(0,0,0,0.5)] flex items-center justify-center"
                  style={{
                    background: "conic-gradient(#06b6d4 0% 30%, #a855f7 30% 55%, #f59e0b 55% 75%, #3b82f6 75% 85%, #22c55e 85% 100%)"
                  }}>
-               {/* Lubang Tengah Donut */}
                <div className="w-40 h-40 sm:w-52 sm:h-52 bg-[#040209] rounded-full flex flex-col items-center justify-center absolute border border-white/5 shadow-inner">
                  <span className="text-white font-black text-3xl sm:text-4xl font-mono drop-shadow-lg">100M</span>
                  <span className="text-neutral-400 text-[10px] sm:text-xs tracking-widest mt-1">TOTAL AETH</span>
@@ -388,10 +346,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* KANAN: 5 KARTU ALOKASI WALLET (GRID 2 KOLOM) */}
           <div className="grid grid-cols-2 gap-3 sm:gap-5 w-full max-w-lg">
-            
-            {/* 1. Liquidity */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
               <div className="flex items-center gap-2 mb-1.5">
                  <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></div>
@@ -399,8 +354,6 @@ export default function LandingPage() {
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">30%</div>
             </div>
-
-            {/* 2. Staking */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
               <div className="flex items-center gap-2 mb-1.5">
                  <div className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></div>
@@ -408,8 +361,6 @@ export default function LandingPage() {
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">25%</div>
             </div>
-
-            {/* 3. Initial Sale */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
               <div className="flex items-center gap-2 mb-1.5">
                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></div>
@@ -417,8 +368,6 @@ export default function LandingPage() {
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">20%</div>
             </div>
-
-            {/* 4. Treasury (Dikoreksi jadi 10%) */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
               <div className="flex items-center gap-2 mb-1.5">
                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div>
@@ -426,8 +375,6 @@ export default function LandingPage() {
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">10%</div>
             </div>
-
-            {/* 5. Team & Advisors (Dikoreksi jadi 15%) */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left col-span-2 sm:col-span-1">
               <div className="flex items-center gap-2 mb-1.5">
                  <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
@@ -435,7 +382,6 @@ export default function LandingPage() {
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">15%</div>
             </div>
-
           </div>
         </div>
       </section>
@@ -468,7 +414,6 @@ export default function LandingPage() {
               {globalT.team.bio}
             </p>
             
-            {/* SOCIAL LINKS (Menggunakan SVG Native Anti-Error) */}
             <div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 pt-2">
               <a href="https://t.me/nienzer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
                  <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -484,8 +429,48 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ FOOTER (GLASSMORPHISM) */}
-      <footer className="bg-black/20 backdrop-blur-2xl pt-12 sm:pt-16 pb-8 sm:pb-10 border-t border-white/5 relative z-10">
+      {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR (DIPINDAH KE BAWAH TEAM & DIPERJELAS) */}
+      <section className="py-12 sm:py-16 border-y border-white/10 bg-white/[0.02] relative z-10 shadow-[0_0_30px_rgba(255,255,255,0.02)]">
+        <div className="max-w-7xl mx-auto px-4 text-center space-y-5 sm:space-y-8">
+           <p className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white font-bold drop-shadow-md">Secured, Audited & Powered By</p>
+           <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-6 opacity-100">
+              
+              <div className="flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:scale-105 transition-all">
+                 <img src="/polygon.png" alt="Polygon" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                 <span className="text-[10px] sm:text-sm font-bold font-mono text-white tracking-wide">POLYGON</span>
+              </div>
+
+              <div className="flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:scale-105 transition-all">
+                 <Hexagon className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400" />
+                 <span className="text-[10px] sm:text-sm font-bold font-mono text-white tracking-wide">CHAINLINK</span>
+              </div>
+
+              <div className="flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:scale-105 transition-all">
+                 <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                 <span className="text-[10px] sm:text-sm font-bold font-mono text-white tracking-wide">ZEPPELIN</span>
+              </div>
+
+              <div className="flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:scale-105 transition-all">
+                 <img src="/uniswap.png" alt="Uniswap" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                 <span className="text-[10px] sm:text-sm font-bold font-mono text-white tracking-wide">UNISWAP</span>
+              </div>
+
+              <div className="flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:scale-105 transition-all">
+                 <img src="/pinksale.png" alt="Pinksale" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                 <span className="text-[10px] sm:text-sm font-bold font-mono text-white tracking-wide">PINKSALE</span>
+              </div>
+
+              <div className="flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:scale-105 transition-all">
+                 <img src="/gecko.png" alt="Gecko" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                 <span className="text-[10px] sm:text-sm font-bold font-mono text-white tracking-wide">GECKO</span>
+              </div>
+
+           </div>
+        </div>
+      </section>
+
+      {/* ⭐ FOOTER */}
+      <footer className="bg-black/20 backdrop-blur-2xl pt-12 sm:pt-16 pb-8 sm:pb-10 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8 sm:mb-12">
           
           <div className="lg:col-span-2 space-y-3">
