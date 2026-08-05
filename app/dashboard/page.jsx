@@ -169,26 +169,37 @@ export default function DashboardPage() {
     setIsFetchingGlobalStats(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
-      const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-      const stats = await vaultContract.getPlatformStats();
-      setPlatformStats({
-        capsules: Number(stats[0]),
-        burned: parseFloat(ethers.formatUnits(stats[1], 18)),
-        users: Number(stats[2]),
-        supply: parseFloat(ethers.formatUnits(stats[3], 18))
-      });
-
-      if (IS_STAKING_ADDRESS_CONFIGURED) {
-        const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-        const sStats = await stakingContract.getStakingStats();
-        setStakingGlobalStats({
-          totalStaked: parseFloat(ethers.formatUnits(sStats[0], 18)),
-          totalRewards: parseFloat(ethers.formatUnits(sStats[1], 18)),
-          stakers: Number(sStats[2])
+      
+      // ⭐ PERBAIKAN 3: Pisahkan Try-Catch khusus untuk Vault (Platform Stats)
+      try {
+        const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+        const stats = await vaultContract.getPlatformStats();
+        setPlatformStats({
+          capsules: Number(stats[0]),
+          burned: parseFloat(ethers.formatUnits(stats[1], 18)),
+          users: Number(stats[2]),
+          supply: parseFloat(ethers.formatUnits(stats[3], 18))
         });
+      } catch (vaultErr) {
+        console.error("Gagal muat Platform Stats:", vaultErr);
+      }
+
+      // ⭐ PERBAIKAN 4: Pisahkan Try-Catch khusus untuk Staking Stats
+      if (IS_STAKING_ADDRESS_CONFIGURED) {
+        try {
+          const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
+          const sStats = await stakingContract.getStakingStats();
+          setStakingGlobalStats({
+            totalStaked: parseFloat(ethers.formatUnits(sStats[0], 18)),
+            totalRewards: parseFloat(ethers.formatUnits(sStats[1], 18)),
+            stakers: Number(sStats[2])
+          });
+        } catch (stakeErr) {
+          console.error("Gagal muat Staking Stats:", stakeErr);
+        }
       }
     } catch (err) {
-      console.error("Gagal memuat statistik global:", err);
+      console.error("Error inisialisasi RPC Global Stats:", err);
     } finally {
       setIsFetchingGlobalStats(false);
     }
@@ -366,12 +377,12 @@ export default function DashboardPage() {
   const fetchOnChainHistory = useCallback(async (userAddress) => {
     setIsLoadingHistory(true);
     try {
-      // 🚀 MENGGUNAKAN DRPC YANG JAUH LEBIH STABIL
-      const provider = new ethers.JsonRpcProvider("https://polygon-amoy.drpc.org");
+      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
       
       const currentBlock = await provider.getBlockNumber();
-      const startBlock = Math.max(0, currentBlock - 500); // Aman dan stabil di DRPC
+      // ⭐ PERBAIKAN 1: Naikkan ke 20.000 blok (~11 jam ke belakang) agar transaksi lama terbaca
+      const startBlock = Math.max(0, currentBlock - 20000); 
       
       const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
         vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"),
@@ -387,6 +398,9 @@ export default function DashboardPage() {
         ...pingEvents.map((e) => ({ e, kind: 'ping' })),
       ];
 
+      // ⭐ PERBAIKAN 2: Urutkan data berdasarkan nomor blok supaya yang terbaru tampil di atas
+      allLogs.sort((a, b) => b.e.blockNumber - a.e.blockNumber);
+
       const built = allLogs.map(({ e, kind }) => ({
         id: `${kind}-${e.transactionHash}`,
         date: 'Baru saja',
@@ -399,7 +413,7 @@ export default function DashboardPage() {
       setTransactions(built);
     } catch (err) {
       console.warn("Gagal memuat riwayat:", err);
-      setTransactions([]); // Aman, tidak bikin aplikasi error/crash putih
+      setTransactions([]); 
     } finally {
       setIsLoadingHistory(false);
     }
@@ -669,8 +683,10 @@ export default function DashboardPage() {
   const handleViewCertificate = async (capsuleId) => {
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     try {
-      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+      // ⭐ PERBAIKAN: Gunakan 'signer' agar smart contract mengenali identitas dompet Bos
+      const signer = await getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      
       const cert = await contract.getCertificate(capsuleId);
       setSelectedCertificate({
         capsuleId: cert.capsuleId.toString(),
@@ -1163,27 +1179,40 @@ export default function DashboardPage() {
                   <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                       <h3 className="font-display text-lg sm:text-xl font-bold text-white mb-1 flex items-center gap-2">
-                        <Shield className="text-green-500 w-4 h-4 sm:w-5 sm:h-5" /> {t.securityTitle}
+                        <Shield className="text-green-500 w-4 h-4 sm:w-5 sm:h-5" /> 
+                        {/* ⭐ Tambahkan fallback teks di sini */}
+                        {t.securityTitle || 'Security Infrastructure'}
                       </h3>
-                      <p className="text-xs sm:text-sm text-neutral-400">{t.securityDesc}</p>
+                      <p className="text-xs sm:text-sm text-neutral-400">
+                        {t.securityDesc || 'Learn how your data and funds are protected.'}
+                      </p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="bg-[#0B0817] border border-cyan-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
                       <div className="absolute top-0 right-0 bg-cyan-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Active</div>
-                      <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2"><Lock className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400"/> ReentrancyGuard</h5>
-                      <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">{t.reentrancyDesc}</p>
+                      <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2">
+                        <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400"/> ReentrancyGuard
+                      </h5>
+                      <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">
+                        {t.reentrancyDesc || 'Mekanisme keamanan tingkat tinggi yang mencegah serangan manipulasi berulang (re-entrancy attacks) saat proses eksekusi smart contract.'}
+                      </p>
                       <a href={`https://amoy.polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
-                        {t.viewCodeBtn} <ArrowUpRight className="w-3 h-3" />
+                        {t.viewCodeBtn || 'View Source Code'} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
 
                     <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
-                      <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2"><Coins className="w-4 h-4 sm:w-5 h-5 text-yellow-500"/> {t.vaultReserveTitle}</h5>
-                      <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">{t.vaultReserveDesc}</p>
+                      <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2">
+                        <Coins className="w-4 h-4 sm:w-5 h-5 text-yellow-500"/> 
+                        {t.vaultReserveTitle || 'Vault Reserve'}
+                      </h5>
+                      <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">
+                        {t.vaultReserveDesc || 'Dana diamankan di dalam brankas terisolasi (isolated vault) yang terverifikasi on-chain sepenuhnya.'}
+                      </p>
                       <a href={`https://amoy.polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-yellow-400 bg-yellow-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-all border border-yellow-500/30">
-                        {t.checkVaultBtn} <ArrowUpRight className="w-3 h-3" />
+                        {t.checkVaultBtn || 'Check Reserve'} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
                   </div>

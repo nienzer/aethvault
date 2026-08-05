@@ -12,14 +12,14 @@ const AETHER_VAULT_ABI = [
   "event ProofCreated(uint256 indexed capsuleId, address indexed owner, bytes32 proofHash)"
 ];
 
-export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) {
+export default function HallOfProof({ t = {}, handleViewCertificate, setActiveTab }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedId, setCopiedId] = useState(null);
 
   // Web3 & Data States
   const [isLoading, setIsLoading] = useState(true);
-  const [loadingStepText, setLoadingStepText] = useState('Syncing Registry...');
+  const [loadingStepText, setLoadingStepText] = useState(t.hopSyncing || 'Syncing Registry...');
   const [publicProofs, setPublicProofs] = useState([]);
   const [stats, setStats] = useState({ totalProofs: 0, creators: 0, burned: 0, blocks: "0", filesTb: 0 });
   const [latestBlocks, setLatestBlocks] = useState([]);
@@ -34,10 +34,10 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
   useEffect(() => {
     if (!isLoading) return;
     const steps = [
-      "Syncing Polygon Registry...",
-      "Reading On-Chain Blocks...",
-      "Verifying SHA-256 Hashes...",
-      "Loading Immutable Certificates..."
+      t.hopStep1 || "Syncing Polygon Registry...",
+      t.hopStep2 || "Reading On-Chain Blocks...",
+      t.hopStep3 || "Verifying SHA-256 Hashes...",
+      t.hopStep4 || "Loading Immutable Certificates..."
     ];
     let index = 0;
     const interval = setInterval(() => {
@@ -45,7 +45,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
       setLoadingStepText(steps[index]);
     }, 1000);
     return () => clearInterval(interval);
-  }, [isLoading]);
+  }, [isLoading, t]);
 
   // ⭐ AMBIL DATA REAL ON-CHAIN 100%
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
           blocksTimeline.push({
             blockNumber: (blockNum - (b * Math.floor(Math.random() * 5 + 1))).toLocaleString(),
             proofsCount: b === 0 ? Math.floor(Math.random() * 3 + 1) : Math.floor(Math.random() * 5),
-            timeAgo: b === 0 ? "Just now" : `${b * 2} mins ago`
+            timeAgo: b === 0 ? (t.hopJustNow || "Just now") : `${b * 2} ${t.hopMinsAgo || "mins ago"}`
           });
         }
         setLatestBlocks(blocksTimeline);
@@ -115,18 +115,18 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
             const diffMs = Date.now() - timestampMs;
             const diffMins = Math.floor(diffMs / (1000 * 60));
             const diffHours = Math.floor(diffMins / 60);
-            const timeAgoStr = diffMins < 1 ? "Just now" : diffMins < 60 ? `${diffMins} mins ago` : diffHours < 24 ? `${diffHours} hours ago` : `${Math.floor(diffHours / 24)} days ago`;
+            const timeAgoStr = diffMins < 1 ? (t.hopJustNow || "Just now") : diffMins < 60 ? `${diffMins} ${t.hopMinsAgo || "mins ago"}` : diffHours < 24 ? `${diffHours} ${t.hopHoursAgo || "hours ago"}` : `${Math.floor(diffHours / 24)} ${t.hopDaysAgo || "days ago"}`;
 
             const ownerAddress = ownerMap[i.toString()] || "0xUnknown";
             if (ownerAddress !== "0xUnknown") uniqueOwners.add(ownerAddress);
 
             // Assignment Badges Dinamis & Eksklusif
-            const badges = ["Verified"];
-            if (i <= 100) badges.push("Genesis");
-            if (i === totalNum) badges.push("Newest");
-            if (ownerAddress.startsWith("0x5") || i % 7 === 0) badges.push("Top Creator");
-            if (cost >= 200) badges.push("Premium");
-            if (details.isPublic) badges.push("Public");
+            const badges = [t.hopBadgeVerified || "Verified"];
+            if (i <= 100) badges.push(t.hopBadgeGenesis || "Genesis");
+            if (i === totalNum) badges.push(t.hopBadgeNewest || "Newest");
+            if (ownerAddress.startsWith("0x5") || i % 7 === 0) badges.push(t.hopBadgeTop || "Top Creator");
+            if (cost >= 200) badges.push(t.hopBadgePremium || "Premium");
+            if (details.isPublic) badges.push(t.hopBadgePublic || "Public");
 
             fetchedProofs.push({
               id: i,
@@ -134,7 +134,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
               title: `Aether Proof #${i}`,
               category: rawCat,
               ownerFull: ownerAddress,
-              owner: ownerAddress !== "0xUnknown" ? `${ownerAddress.substring(0, 6)}...${ownerAddress.substring(ownerAddress.length - 4)}` : "Verified Creator",
+              owner: ownerAddress !== "0xUnknown" ? `${ownerAddress.substring(0, 6)}...${ownerAddress.substring(ownerAddress.length - 4)}` : (t.hopVerifiedCreator || "Verified Creator"),
               date: new Date(timestampMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
               timeAgo: timeAgoStr,
               badges: badges,
@@ -167,12 +167,12 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
     };
 
     fetchOnChainData();
-  }, []);
+  }, [t]);
 
-  const categories = ['All', 'Music', 'Software', 'Design', 'Writing', 'Video', 'Research', 'Business'];
+  const categories = [t.hopCatAll || 'All', 'Music', 'Software', 'Design', 'Writing', 'Video', 'Research', 'Business'];
 
   const filteredProofs = publicProofs.filter(item => {
-    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+    const matchesCategory = selectedCategory === (t.hopCatAll || 'All') || item.category === selectedCategory;
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || item.ownerFull.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
@@ -197,25 +197,25 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
         {/* HERO HEADER */}
         <div className="text-center pt-8 pb-4 space-y-3">
           <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-neutral-900 border border-neutral-700 text-neutral-300 text-[10px] font-mono font-bold uppercase tracking-widest shadow-lg">
-            <Globe className="w-3.5 h-3.5 text-cyan-400" /> Web3 Global Registry
+            <Globe className="w-3.5 h-3.5 text-cyan-400" /> {t.hopWeb3Global || 'Web3 Global Registry'}
           </div>
           <h2 className="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400 font-display tracking-tight drop-shadow-sm">
-            Hall of Proof
+            {t.hopHeroTitle || 'Hall of Proof'}
           </h2>
           <p className="text-sm sm:text-base text-neutral-400 max-w-2xl mx-auto leading-relaxed">
-            The immutable timeline of human creativity. Every file, code, and idea permanently etched onto the Polygon blockchain.
+            {t.hopHeroDesc || 'The immutable timeline of human creativity. Every file, code, and idea permanently etched onto the Polygon blockchain.'}
           </p>
         </div>
 
         {/* ⭐ 6. ADVANCED STATISTICS */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            { label: "Total Registered", value: stats.totalProofs.toLocaleString(), icon: Database, color: "text-cyan-400" },
-            { label: "Files Protected", value: `${stats.filesTb} TB`, icon: HardDrive, color: "text-blue-400" },
-            { label: "AETH Burned", value: stats.burned.toLocaleString(), icon: Flame, color: "text-orange-400" },
-            { label: "Active Creators", value: stats.creators.toLocaleString(), icon: Users, color: "text-purple-400" },
-            { label: "Categories", value: stats.categories, icon: Layers, color: "text-pink-400" },
-            { label: "Network Blocks", value: stats.blocks, icon: Blocks, color: "text-green-400" }
+            { label: t.hopStatRegistered || "Total Registered", value: stats.totalProofs.toLocaleString(), icon: Database, color: "text-cyan-400" },
+            { label: t.hopStatProtected || "Files Protected", value: `${stats.filesTb} TB`, icon: HardDrive, color: "text-blue-400" },
+            { label: t.hopStatBurned || "AETH Burned", value: stats.burned.toLocaleString(), icon: Flame, color: "text-orange-400" },
+            { label: t.hopStatCreators || "Active Creators", value: stats.creators.toLocaleString(), icon: Users, color: "text-purple-400" },
+            { label: t.hopStatCat || "Categories", value: stats.categories || 8, icon: Layers, color: "text-pink-400" },
+            { label: t.hopStatBlocks || "Network Blocks", value: stats.blocks, icon: Blocks, color: "text-green-400" }
           ].map((stat, idx) => (
             <div key={idx} className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl hover:border-neutral-600 transition-colors shadow-lg flex flex-col justify-between">
               <div className="flex items-center justify-between mb-3">
@@ -239,7 +239,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
             {/* ⭐ 5. BLOCKCHAIN TIMELINE (LATEST BLOCKS) */}
             <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 rounded-3xl p-6 shadow-xl">
               <h4 className="font-display text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2 mb-6 border-b border-neutral-800 pb-4">
-                <Activity className="w-4 h-4 text-green-400" /> Latest Blocks
+                <Activity className="w-4 h-4 text-green-400" /> {t.hopLatestBlocks || 'Latest Blocks'}
               </h4>
               <div className="space-y-4">
                 {isLoading ? (
@@ -256,7 +256,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
                         <span className="text-[9px] text-neutral-500 font-mono">{block.timeAgo}</span>
                       </div>
                       <div className="text-[10px] text-neutral-400 bg-neutral-900/50 px-2 py-1 rounded inline-block border border-neutral-800/50">
-                        {block.proofsCount} proofs minted
+                        {block.proofsCount} {t.hopProofsMinted || 'proofs minted'}
                       </div>
                     </div>
                   </div>
@@ -272,7 +272,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
             {!isLoading && featuredProof && (
               <div className="bg-[#0A0713]/80 backdrop-blur-xl border border-amber-500/30 rounded-3xl p-1 shadow-[0_0_40px_rgba(245,158,11,0.1)] relative overflow-hidden group">
                 <div className="absolute top-0 right-0 bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl rounded-tr-2xl z-20 flex items-center gap-1.5">
-                  <Crown className="w-3 h-3"/> Featured Proof
+                  <Crown className="w-3 h-3"/> {t.hopFeaturedProof || 'Featured Proof'}
                 </div>
                 
                 <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden">
@@ -302,7 +302,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
                       onClick={() => handleViewCertificate(featuredProof.id)}
                       className="shrink-0 bg-white hover:bg-neutral-200 text-black font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                     >
-                      View Certificate <ArrowUpRight className="w-4 h-4"/>
+                      {t.hopViewCert || 'View Certificate'} <ArrowUpRight className="w-4 h-4"/>
                     </button>
                   </div>
                 </div>
@@ -328,7 +328,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search proofs..."
+                  placeholder={t.hopSearchPlaceholder || "Search proofs..."}
                   className="w-full bg-[#030208] border border-neutral-800 rounded-xl pl-11 pr-12 py-2.5 text-xs text-white outline-none focus:border-cyan-500/50 font-mono transition-colors shadow-inner"
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 bg-neutral-800 border border-neutral-700 text-[9px] font-mono text-neutral-400 rounded">
@@ -351,9 +351,9 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
                   <ShieldCheck className="w-8 h-8 opacity-50" />
                 </div>
                 <div className="relative z-10">
-                  <h3 className="text-2xl font-black text-white font-display mb-2">No Proof Registered Yet</h3>
+                  <h3 className="text-2xl font-black text-white font-display mb-2">{t.hopEmptyTitle || 'No Proof Registered Yet'}</h3>
                   <p className="text-sm text-neutral-400 leading-relaxed max-w-sm mx-auto">
-                    Be the first creator to permanently register intellectual property on the Polygon Blockchain.
+                    {t.hopEmptyDesc || 'Be the first creator to permanently register intellectual property on the Polygon Blockchain.'}
                   </p>
                 </div>
                 <div className="pt-4 relative z-10">
@@ -361,7 +361,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
                     onClick={() => setActiveTab && setActiveTab('proof')}
                     className="bg-white hover:bg-neutral-200 text-black font-bold px-8 py-3.5 rounded-xl text-xs shadow-[0_0_30px_rgba(255,255,255,0.15)] cursor-pointer transition-all hover:scale-105"
                   >
-                    Mint First Proof
+                    {t.hopEmptyBtn || 'Mint First Proof'}
                   </button>
                 </div>
               </div>
@@ -383,14 +383,14 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
                       <div className="absolute top-3 left-3 flex flex-wrap gap-2 pr-12">
                         {proof.badges.map(b => (
                           <div key={b} className={`backdrop-blur-md border text-[8px] font-bold px-2 py-1 rounded-md flex items-center gap-1 uppercase tracking-widest shadow-md
-                            ${b === 'Verified' ? 'bg-black/50 border-cyan-500/30 text-cyan-300' : 
-                              b === 'Genesis' ? 'bg-amber-500/20 border-amber-500/50 text-amber-300' :
-                              b === 'Top Creator' ? 'bg-purple-500/20 border-purple-500/50 text-purple-300' :
-                              b === 'Premium' ? 'bg-rose-500/20 border-rose-500/50 text-rose-300' :
+                            ${b === (t.hopBadgeVerified || 'Verified') ? 'bg-black/50 border-cyan-500/30 text-cyan-300' : 
+                              b === (t.hopBadgeGenesis || 'Genesis') ? 'bg-amber-500/20 border-amber-500/50 text-amber-300' :
+                              b === (t.hopBadgeTop || 'Top Creator') ? 'bg-purple-500/20 border-purple-500/50 text-purple-300' :
+                              b === (t.hopBadgePremium || 'Premium') ? 'bg-rose-500/20 border-rose-500/50 text-rose-300' :
                               'bg-black/50 border-neutral-600 text-neutral-300'}`}>
-                            {b === 'Verified' && <Check className="w-2.5 h-2.5" />}
-                            {b === 'Genesis' && <Crown className="w-2.5 h-2.5" />}
-                            {b === 'Top Creator' && <Gem className="w-2.5 h-2.5" />}
+                            {b === (t.hopBadgeVerified || 'Verified') && <Check className="w-2.5 h-2.5" />}
+                            {b === (t.hopBadgeGenesis || 'Genesis') && <Crown className="w-2.5 h-2.5" />}
+                            {b === (t.hopBadgeTop || 'Top Creator') && <Gem className="w-2.5 h-2.5" />}
                             {b}
                           </div>
                         ))}
@@ -421,7 +421,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
 
                       <div className="bg-[#030208] border border-neutral-800/80 rounded-xl p-3 space-y-2 mb-5 shadow-inner">
                         <div className="flex justify-between items-center text-[10px] font-mono">
-                          <span className="text-neutral-500">Creator</span>
+                          <span className="text-neutral-500">{t.hopCardCreator || 'Creator'}</span>
                           <span className="text-neutral-300 bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800" title={proof.ownerFull}>{proof.owner}</span>
                         </div>
                         <div className="flex justify-between items-center text-[10px] font-mono border-t border-neutral-800/50 pt-2">
@@ -439,7 +439,7 @@ export default function HallOfProof({ t, handleViewCertificate, setActiveTab }) 
                         onClick={() => handleViewCertificate(proof.id)}
                         className="w-full bg-neutral-900 hover:bg-white border border-neutral-800 hover:border-white text-white hover:text-black font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-all mt-auto group/btn"
                       >
-                        VIEW CERTIFICATE <ArrowUpRight className="w-3.5 h-3.5 opacity-50 group-hover/btn:opacity-100" />
+                        {t.hopCardViewCert || 'VIEW CERTIFICATE'} <ArrowUpRight className="w-3.5 h-3.5 opacity-50 group-hover/btn:opacity-100" />
                       </button>
                     </div>
 
