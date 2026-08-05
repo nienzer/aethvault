@@ -444,7 +444,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* KOLOM KANAN: COMMUNITY GRID (Diambil dari Community Page) */}
+          {/* KOLOM KANAN: COMMUNITY GRID (Diambil dari Community Page). */}
           <div className="w-full flex flex-col justify-center gap-3 h-full">
             <div className="grid grid-cols-2 gap-3 w-full">
               {/* Telegram */}
