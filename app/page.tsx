@@ -88,17 +88,18 @@ export default function LandingPage() {
         .animate-glow { animation: pulse-glow 3s ease-in-out infinite; }
       `}</style>
 
-      {/* ⭐ 1. HERO SECTION */}
+      {/* ⭐ 1. HERO SECTION (Teks diperkecil, Animasi digeser kiri atas) */}
       <section id="home" className="pb-6 sm:pb-10 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-8 items-start lg:items-center relative z-10">
         
-        {/* PENYESUAIAN MARGIN ATAS HP (-mt-16 sm:-mt-20) AGAR MELEKAT KE NAVBAR */}
-        <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start -mt-16 sm:-mt-20 lg:-mt-24">
+        {/* Kolom Teks: Porsi diubah jadi lg:col-span-6 agar seimbang */}
+        <div className="lg:col-span-6 relative text-center lg:text-left flex flex-col items-center lg:items-start -mt-16 sm:-mt-20 lg:-mt-24">
           <div className="w-fit flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-4 font-mono shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
             {globalT.hero.badge}
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-[4rem] font-extrabold tracking-tight mb-3 sm:mb-6 text-white leading-[1.15] drop-shadow-xl">
+          {/* Teks diperkecil sedikit: dari lg:text-[4rem] menjadi lg:text-5xl xl:text-6xl */}
+          <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight mb-3 sm:mb-6 text-white leading-[1.15] drop-shadow-xl">
             {globalT.hero.titleLine1} <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-500">
               {globalT.hero.titleHighlight}
@@ -119,9 +120,15 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* HERO ANIMATION FLOW */}
-        <div className="lg:col-span-5 relative z-10 hidden lg:flex flex-col items-center justify-center h-[500px]">
-           <div className="w-full max-w-sm space-y-3">
+        {/* Kolom Animasi: Porsi diubah jadi lg:col-span-6, ditambah lg:-ml-10 lg:-mt-12 agar bergeser */}
+        <div className="lg:col-span-6 relative z-10 hidden lg:flex flex-col items-center justify-center h-[500px] lg:-ml-10 lg:-mt-12">
+           <div className="w-full max-w-sm space-y-3 relative">
+              
+              {/* Teks Kecil Label Skema di Kiri Animasi */}
+              <div className="absolute -left-12 top-1/2 -translate-y-1/2 -rotate-90 text-[8px] font-mono text-neutral-500 tracking-[0.3em] uppercase opacity-70">
+                Architecture Diagram
+              </div>
+
               <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 rounded-2xl flex items-center gap-3 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transform translate-x-4 animate-float">
                  <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center"><Lock className="w-5 h-5 text-neutral-300"/></div>
                  <div><p className="text-white font-bold text-xs">Encrypted Capsule</p><p className="text-[9px] text-neutral-400 font-mono">ECIES-secp256k1</p></div>
@@ -196,7 +203,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ GABUNGAN 1: HALL OF PROOF & INFRASTRUCTURE (KIRI KANAN) */}
+      {/* ⭐ GABUNGAN 1: HALL OF PROOF & INFRASTRUCTURE */}
       <section className="py-12 sm:py-20 border-y border-white/5 relative overflow-hidden z-10 bg-black/20 backdrop-blur-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
            
@@ -279,7 +286,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ GABUNGAN 2: TIERS ARCHITECTURE & TOKENOMICS (KIRI KANAN) */}
+      {/* ⭐ GABUNGAN 2: TIERS ARCHITECTURE & TOKENOMICS */}
       <section className="py-12 sm:py-20 border-t border-white/5 relative overflow-hidden z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
            
@@ -327,6 +334,17 @@ export default function LandingPage() {
                   </div>
                   <div className="pt-2 mt-2 border-t border-cyan-500/30 text-[9px] sm:text-[10px] font-mono text-cyan-200 font-bold">500 AETH (100 Burn)</div>
                 </div>
+
+                {/* Tambahan Kotak Keamanan (Agar Sejajar dengan Tokenomics di Kanan) */}
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] col-span-2 flex items-start gap-3 mt-1 border-l-4 border-l-green-500">
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 shrink-0 mt-0.5" />
+                  <div className="text-left">
+                    <h4 className="text-xs sm:text-sm font-bold text-white mb-1">{lang === 'en' ? 'Military-Grade Security' : 'Keamanan Tingkat Militer'}</h4>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-300 leading-relaxed">
+                      {lang === 'en' ? 'All capsules are cryptographically secured using ECIES-secp256k1 on-chain. Zero-knowledge architecture ensures absolute privacy.' : 'Semua kapsul diamankan secara mutlak menggunakan kriptografi ECIES-secp256k1. Arsitektur zero-knowledge memastikan privasi data terjamin.'}
+                    </p>
+                  </div>
+                </div>
              </div>
            </div>
 
@@ -341,7 +359,7 @@ export default function LandingPage() {
              </div>
 
              <div className="w-full flex flex-col items-center justify-center gap-6 mt-2">
-                {/* Donut Chart Diperkecil Sedikit Agar Pas di Kolom Kanan */}
+                {/* Donut Chart Diperkecil */}
                 <div className="relative shrink-0 animate-float">
                   <div className="absolute inset-0 bg-cyan-500/10 blur-[40px] rounded-full"></div>
                   <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full relative shadow-[0_0_30px_rgba(0,0,0,0.4)] flex items-center justify-center"
@@ -444,7 +462,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* KOLOM KANAN: COMMUNITY GRID (Diambil dari Community Page). */}
+          {/* KOLOM KANAN: COMMUNITY GRID */}
           <div className="w-full flex flex-col justify-center gap-3 h-full">
             <div className="grid grid-cols-2 gap-3 w-full">
               {/* Telegram */}
@@ -452,22 +470,22 @@ export default function LandingPage() {
                 <Send className="w-6 h-6 text-blue-400 group-hover:scale-110 transition-transform" />
                 <div className="text-center">
                   <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.telegramTitle || "Telegram Official"}</h3>
-                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{globalT.communityPage?.telegramDesc || "Real-time discussion group"}</p>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{(globalT.communityPage?.telegramDesc || "Real-time discussion group").replace('(Coming Soon)', '').trim()}</p>
                 </div>
               </a>
               
-              {/* Twitter */}
+              {/* Twitter (Ikon SVG Asli) */}
               <a href="https://twitter.com/AethVault" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all group">
-                <MessageSquare className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
                 <div className="text-center">
                   <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.twitterTitle || "Twitter / X"}</h3>
-                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{globalT.communityPage?.twitterDesc || "Technical announcements"}</p>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{(globalT.communityPage?.twitterDesc || "Technical announcements").replace('(Coming Soon)', '').trim()}</p>
                 </div>
               </a>
               
-              {/* GitHub */}
+              {/* GitHub (Ikon SVG Asli) */}
               <a href="https://github.com/nienzer" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all group">
-                <Code className="w-6 h-6 text-neutral-400 group-hover:scale-110 transition-transform" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-neutral-400 group-hover:scale-110 transition-transform"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
                 <div className="text-center">
                   <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.githubTitle || "Github Open Source"}</h3>
                   <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{globalT.communityPage?.githubDesc || "Protocol code repository"}</p>
@@ -479,7 +497,7 @@ export default function LandingPage() {
                 <Globe className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
                 <div className="text-center">
                   <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.forumTitle || "Web3 Forum"}</h3>
-                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{globalT.communityPage?.forumDesc || "DAO Voting & Proposals"}</p>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{(globalT.communityPage?.forumDesc || "DAO Voting & Proposals").replace('(Coming Soon)', '').trim()}</p>
                 </div>
               </a>
             </div>
@@ -499,7 +517,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR (DIPINDAH KE BAWAH TEAM & DIPERJELAS) */}
+      {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR */}
       <section className="py-12 sm:py-16 border-y border-white/10 bg-white/[0.02] relative z-10 shadow-[0_0_30px_rgba(255,255,255,0.02)]">
         <div className="max-w-7xl mx-auto px-4 text-center space-y-5 sm:space-y-8">
            <p className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white font-bold drop-shadow-md">Secured, Audited & Powered By</p>
