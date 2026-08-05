@@ -381,8 +381,8 @@ export default function DashboardPage() {
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
       
       const currentBlock = await provider.getBlockNumber();
-      // ⭐ PERBAIKAN 1: Naikkan ke 20.000 blok (~11 jam ke belakang) agar transaksi lama terbaca
-      const startBlock = Math.max(0, currentBlock - 20000); 
+      // 🚀 FIX: Turunkan ke 3000 blok saja agar RPC gratisan tidak memblokir (Error -32080)
+      const startBlock = Math.max(0, currentBlock - 3000); 
       
       const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
         vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"),
@@ -398,7 +398,6 @@ export default function DashboardPage() {
         ...pingEvents.map((e) => ({ e, kind: 'ping' })),
       ];
 
-      // ⭐ PERBAIKAN 2: Urutkan data berdasarkan nomor blok supaya yang terbaru tampil di atas
       allLogs.sort((a, b) => b.e.blockNumber - a.e.blockNumber);
 
       const built = allLogs.map(({ e, kind }) => ({
@@ -683,7 +682,7 @@ export default function DashboardPage() {
   const handleViewCertificate = async (capsuleId) => {
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     try {
-      // ⭐ PERBAIKAN: Gunakan 'signer' agar smart contract mengenali identitas dompet Bos
+      // 🚀 FIX: Wajib pakai SIGNER. Jika pakai provider (anonim), Smart Contract akan menolak dengan require(false)
       const signer = await getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
       

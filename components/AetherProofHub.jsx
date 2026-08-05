@@ -64,7 +64,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const filter = contract.filters.ProofCreated();
       const DEPLOY_BLOCK = 43345845; 
       const currentBlock = await provider.getBlockNumber();
-      const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 100000);
+      const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 3000);
 
       const events = await contract.queryFilter(filter, startBlock, "latest");
       

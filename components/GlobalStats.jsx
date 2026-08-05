@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Flame, UserX, Loader2, Database, ShieldCheck, Activity, Award, Wallet, Coins, Clock, Blocks, Zap } from 'lucide-react';
+// 🚀 FIX 1: 'Users' sudah ditambahkan di sini agar tidak crash
+import { Flame, UserX, Users, Loader2, Database, ShieldCheck, Activity, Award, Wallet, Coins, Clock, Blocks, Zap } from 'lucide-react';
 import { ethers } from 'ethers';
 
 const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology/";
@@ -49,7 +50,8 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
         });
 
         const DEPLOY_BLOCK = 43345845;
-        const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 50000); 
+        // 🚀 FIX 2: Turunkan ke 3000 blok agar server RPC tidak menolak (error HTTP)
+        const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 3000); 
 
         const [sealedLogs, proofLogs, stakedLogs] = await Promise.all([
           vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(), startBlock, "latest"),
@@ -114,10 +116,10 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-10 font-sans">
-
+      
       <div className="bg-gradient-to-br from-[#0B0817] via-[#05030F] to-[#0A0713] border border-neutral-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col md:flex-row justify-between gap-6">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none"></div>
-
+        
         <div className="space-y-6 flex-1 z-10">
           <div className="flex items-center gap-3">
             <h3 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight">{t.title || "Protocol Statistics"}</h3>
@@ -126,7 +128,7 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
                <span className="text-[10px] font-bold text-green-400 uppercase tracking-widest">{t.networkHealthy || "Network Healthy"}</span>
             </div>
           </div>
-
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-[#030208] border border-neutral-800/80 p-4 rounded-2xl shadow-inner">
                <div className="flex justify-between items-center mb-2">
@@ -161,7 +163,7 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-
+        
         <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-cyan-500/50 hover:shadow-[0_10px_20px_-10px_rgba(6,182,212,0.3)] hover:-translate-y-1 transition-all">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] uppercase text-neutral-500 font-bold font-mono tracking-widest">{t.capsules || "Capsules"}</span>

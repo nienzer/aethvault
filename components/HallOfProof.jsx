@@ -72,7 +72,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
         setLatestBlocks(blocksTimeline);
 
         const DEPLOY_BLOCK = 43345845;
-        const startBlock = Math.max(DEPLOY_BLOCK, blockNum - 100000);
+        const startBlock = Math.max(DEPLOY_BLOCK, blockNum - 3000);
         const events = await contract.queryFilter(contract.filters.ProofCreated(), startBlock, "latest");
         
         const ownerMap = {};
