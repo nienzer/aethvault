@@ -11,9 +11,7 @@ export default function CommunityPage() {
   return (
     <div className="min-h-screen bg-[#030508] text-gray-200 font-sans overflow-x-hidden relative flex flex-col items-center">
       
-      {/* KODE <nav> SUDAH DIHAPUS KARENA SUDAH ADA DI LAYOUT GLOBAL */}
-
-      {/* MAIN CONTENT (Jarak atas disesuaikan jadi pt-8 sm:pt-12) */}
+      {/* MAIN CONTENT */}
       <div className="pt-8 sm:pt-12 pb-12 sm:pb-20 w-full max-w-4xl px-4 sm:px-6 text-center">
         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
           <Users className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400" />
@@ -23,6 +21,8 @@ export default function CommunityPage() {
 
         {/* GRID SOCIAL MEDIA */}
         <div className="grid grid-cols-2 gap-3 sm:gap-6 max-w-2xl mx-auto mb-6 sm:mb-8">
+          
+          {/* 1. KARTU TELEGRAM */}
           <a href="https://t.me/AethVault" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-5 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center gap-3 sm:gap-4 transition-all group">
             <Send className="w-7 h-7 sm:w-10 sm:h-10 text-blue-400 group-hover:scale-110 transition-transform" />
             <div className="text-center">
@@ -30,6 +30,8 @@ export default function CommunityPage() {
               <p className="text-[9px] sm:text-xs text-neutral-500 mt-1">{t.telegramDesc}</p>
             </div>
           </a>
+          
+          {/* 2. KARTU TWITTER / X */}
           <a href="https://twitter.com/AethVault" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-5 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center gap-3 sm:gap-4 transition-all group">
             <MessageSquare className="w-7 h-7 sm:w-10 sm:h-10 text-cyan-400 group-hover:scale-110 transition-transform" />
             <div className="text-center">
@@ -37,6 +39,8 @@ export default function CommunityPage() {
               <p className="text-[9px] sm:text-xs text-neutral-500 mt-1">{t.twitterDesc}</p>
             </div>
           </a>
+          
+          {/* 3. KARTU GITHUB */}
           <a href="https://github.com/nienzer" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-5 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center gap-3 sm:gap-4 transition-all group">
             <Code className="w-7 h-7 sm:w-10 sm:h-10 text-neutral-400 group-hover:scale-110 transition-transform" />
             <div className="text-center">
@@ -44,13 +48,16 @@ export default function CommunityPage() {
               <p className="text-[9px] sm:text-xs text-neutral-500 mt-1">{t.githubDesc}</p>
             </div>
           </a>
-          <a href="#" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-5 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center gap-3 sm:gap-4 transition-all group">
+          
+          {/* 4. KARTU WEB3 DAO FORUM (SIAP DIISI LINK) */}
+          <a href="LINK_WEB3_DAO_BOS_DISINI" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-5 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center gap-3 sm:gap-4 transition-all group">
             <Globe className="w-7 h-7 sm:w-10 sm:h-10 text-purple-400 group-hover:scale-110 transition-transform" />
             <div className="text-center">
               <h3 className="text-white font-bold text-sm sm:text-lg">{t.forumTitle}</h3>
               <p className="text-[9px] sm:text-xs text-neutral-500 mt-1">{t.forumDesc}</p>
             </div>
           </a>
+
         </div>
 
         {/* OFFICIAL EMAIL SUPPORT CARD */}
