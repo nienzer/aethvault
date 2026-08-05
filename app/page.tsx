@@ -58,7 +58,6 @@ export default function LandingPage() {
   }, []);
 
   return (
-    /* pt-16 sm:pt-20 agar di HP tidak ada ruang kosong di atas */
     <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-16 sm:pt-20">
       
       {/* Background Orbs Global */}
@@ -92,8 +91,8 @@ export default function LandingPage() {
       {/* ⭐ 1. HERO SECTION */}
       <section id="home" className="pb-6 sm:pb-10 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-8 items-start lg:items-center relative z-10">
         
-        {/* -mt-24 sm:-mt-20 lg:-mt-24 UNTUK MENARIK TEKS NAIK MELET KE NAVBAR DI DESKTOP & HP */}
-        <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start -mt-24 sm:-mt-20 lg:-mt-24">
+        {/* PENYESUAIAN MARGIN ATAS HP (-mt-16 sm:-mt-20) AGAR MELEKAT KE NAVBAR */}
+        <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start -mt-16 sm:-mt-20 lg:-mt-24">
           <div className="w-fit flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-4 font-mono shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
             {globalT.hero.badge}
@@ -197,11 +196,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ GABUNGAN: HALL OF PROOF & INFRASTRUCTURE (BERJEJER KIRI KANAN) */}
+      {/* ⭐ GABUNGAN 1: HALL OF PROOF & INFRASTRUCTURE (KIRI KANAN) */}
       <section className="py-12 sm:py-20 border-y border-white/5 relative overflow-hidden z-10 bg-black/20 backdrop-blur-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
            
-           {/* KOLOM KIRI: HALL OF PROOF */}
+           {/* KIRI: HALL OF PROOF */}
            <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
              <div className="w-fit px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/30 backdrop-blur-md text-cyan-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                100% On-Chain Verified
@@ -248,7 +247,7 @@ export default function LandingPage() {
              </div>
            </div>
 
-           {/* KOLOM KANAN: INFRASTRUCTURE */}
+           {/* KANAN: INFRASTRUCTURE */}
            <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
              <div className="w-fit px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 backdrop-blur-md text-cyan-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono">
                {globalT.infrastructure.tag}
@@ -280,152 +279,223 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ TIERS ARCHITECTURE SECTION */}
-      <section id="tiers" className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-          <div className="w-fit mx-auto px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 backdrop-blur-md text-amber-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-3 font-mono">
-            {globalT.tiers.tag}
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-white font-display mb-3 drop-shadow-lg">{globalT.tiers.title}</h2>
-          <p className="text-neutral-300 text-xs sm:text-base drop-shadow-md">{globalT.tiers.desc}</p>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-3 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all">
-            <div>
-              <h4 className="text-sm sm:text-base font-bold text-white mb-1.5">{globalT.tiers.tier1Title}</h4>
-              <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed">{globalT.tiers.tier1Desc}</p>
-            </div>
-            <div className="pt-3 border-t border-white/10 text-[10px] sm:text-xs font-mono text-cyan-300">10 AETH (2 Burn)</div>
-          </div>
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-3 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all">
-            <div>
-              <h4 className="text-sm sm:text-base font-bold text-white mb-1.5">{globalT.tiers.tier2Title}</h4>
-              <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed">{globalT.tiers.tier2Desc}</p>
-            </div>
-            <div className="pt-3 border-t border-white/10 text-[10px] sm:text-xs font-mono text-cyan-300">50 AETH (10 Burn)</div>
-          </div>
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-3 flex flex-col justify-between shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all">
-            <div>
-              <h4 className="text-sm sm:text-base font-bold text-white mb-1.5">{globalT.tiers.tier3Title}</h4>
-              <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed">{globalT.tiers.tier3Desc}</p>
-            </div>
-            <div className="pt-3 border-t border-white/10 text-[10px] sm:text-xs font-mono text-cyan-300">200 AETH (40 Burn)</div>
-          </div>
-          <div className="bg-cyan-500/10 backdrop-blur-2xl border border-cyan-500/30 p-4 sm:p-6 rounded-2xl sm:rounded-3xl space-y-2 sm:space-y-3 flex flex-col justify-between relative shadow-[0_0_30px_rgba(6,182,212,0.2)] hover:bg-cyan-500/20 transition-all">
-            <div>
-              <span className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 text-[7px] sm:text-[8px] bg-cyan-500/30 backdrop-blur-md text-white px-1.5 py-0.5 rounded font-mono uppercase font-bold border border-cyan-500/50">Ultimate</span>
-              <h4 className="text-sm sm:text-base font-bold text-white mb-1.5 mt-2 sm:mt-0 drop-shadow-md">{globalT.tiers.tier4Title}</h4>
-              <p className="text-[10px] sm:text-xs text-neutral-200 leading-relaxed">{globalT.tiers.tier4Desc}</p>
-            </div>
-            <div className="pt-3 border-t border-cyan-500/30 text-[10px] sm:text-xs font-mono text-cyan-200 font-bold">500 AETH (100 Burn)</div>
-          </div>
+      {/* ⭐ GABUNGAN 2: TIERS ARCHITECTURE & TOKENOMICS (KIRI KANAN) */}
+      <section className="py-12 sm:py-20 border-t border-white/5 relative overflow-hidden z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
+           
+           {/* KIRI: 4-TIER VAULT ARCHITECTURE */}
+           <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
+             <div className="w-fit px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 backdrop-blur-md text-amber-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono">
+               {globalT.tiers.tag}
+             </div>
+             <div>
+               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">{globalT.tiers.title}</h2>
+               <p className="text-neutral-300 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">{globalT.tiers.desc}</p>
+             </div>
+
+             <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
+                {/* Tier 1 */}
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all flex flex-col justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-white mb-1">{globalT.tiers.tier1Title}</h4>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-300 leading-relaxed">{globalT.tiers.tier1Desc}</p>
+                  </div>
+                  <div className="pt-2 mt-2 border-t border-white/10 text-[9px] sm:text-[10px] font-mono text-cyan-300">10 AETH (2 Burn)</div>
+                </div>
+                {/* Tier 2 */}
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all flex flex-col justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-white mb-1">{globalT.tiers.tier2Title}</h4>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-300 leading-relaxed">{globalT.tiers.tier2Desc}</p>
+                  </div>
+                  <div className="pt-2 mt-2 border-t border-white/10 text-[9px] sm:text-[10px] font-mono text-cyan-300">50 AETH (10 Burn)</div>
+                </div>
+                {/* Tier 3 */}
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all flex flex-col justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-white mb-1">{globalT.tiers.tier3Title}</h4>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-300 leading-relaxed">{globalT.tiers.tier3Desc}</p>
+                  </div>
+                  <div className="pt-2 mt-2 border-t border-white/10 text-[9px] sm:text-[10px] font-mono text-cyan-300">200 AETH (40 Burn)</div>
+                </div>
+                {/* Tier 4 (Ultimate) */}
+                <div className="bg-cyan-500/10 backdrop-blur-2xl border border-cyan-500/30 p-4 sm:p-5 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.2)] hover:bg-cyan-500/20 transition-all flex flex-col justify-between relative">
+                  <div>
+                    <span className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[6px] sm:text-[7px] bg-cyan-500/30 backdrop-blur-md text-white px-1.5 py-0.5 rounded font-mono uppercase font-bold border border-cyan-500/50">Ultimate</span>
+                    <h4 className="text-sm font-bold text-white mb-1 mt-2 sm:mt-0">{globalT.tiers.tier4Title}</h4>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-200 leading-relaxed">{globalT.tiers.tier4Desc}</p>
+                  </div>
+                  <div className="pt-2 mt-2 border-t border-cyan-500/30 text-[9px] sm:text-[10px] font-mono text-cyan-200 font-bold">500 AETH (100 Burn)</div>
+                </div>
+             </div>
+           </div>
+
+           {/* KANAN: TOKENOMICS & TOTAL SUPPLY */}
+           <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:pl-4">
+             <div className="w-fit px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 backdrop-blur-md text-purple-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono">
+               {globalT.tokenomics.tag || "TOKENOMICS"}
+             </div>
+             <div>
+               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">Designed for Scarcity</h2>
+               <p className="text-neutral-300 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">100,000,000 total fixed supply with robust utility and automated deflationary burn mechanisms.</p>
+             </div>
+
+             <div className="w-full flex flex-col items-center justify-center gap-6 mt-2">
+                {/* Donut Chart Diperkecil Sedikit Agar Pas di Kolom Kanan */}
+                <div className="relative shrink-0 animate-float">
+                  <div className="absolute inset-0 bg-cyan-500/10 blur-[40px] rounded-full"></div>
+                  <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-full relative shadow-[0_0_30px_rgba(0,0,0,0.4)] flex items-center justify-center"
+                       style={{
+                         background: "conic-gradient(#06b6d4 0% 30%, #a855f7 30% 55%, #f59e0b 55% 75%, #3b82f6 75% 85%, #22c55e 85% 100%)"
+                       }}>
+                     <div className="w-32 h-32 sm:w-40 sm:h-40 bg-[#040209] rounded-full flex flex-col items-center justify-center absolute border border-white/5 shadow-inner">
+                       <span className="text-white font-black text-2xl sm:text-3xl font-mono drop-shadow-lg">100M</span>
+                       <span className="text-neutral-400 text-[8px] sm:text-[9px] tracking-widest mt-1">TOTAL AETH</span>
+                     </div>
+                  </div>
+                </div>
+
+                {/* 5 Kartu Wallet Tokenomics */}
+                <div className="grid grid-cols-2 gap-3 w-full max-w-md">
+                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-left">
+                    <div className="flex items-center gap-1.5 mb-1">
+                       <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]"></div>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-cyan-300 font-bold uppercase">{globalT.tokenomics.liquidity || "LIQUIDITY POOL"}</span>
+                    </div>
+                    <div className="text-sm sm:text-lg font-black text-white font-mono">30%</div>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-left">
+                    <div className="flex items-center gap-1.5 mb-1">
+                       <div className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_6px_#a855f7]"></div>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-purple-300 font-bold uppercase">{globalT.tokenomics.staking || "STAKING REWARDS"}</span>
+                    </div>
+                    <div className="text-sm sm:text-lg font-black text-white font-mono">25%</div>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-left">
+                    <div className="flex items-center gap-1.5 mb-1">
+                       <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_6px_#f59e0b]"></div>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-amber-300 font-bold uppercase">{globalT.tokenomics.initialSale || "INITIAL SALE"}</span>
+                    </div>
+                    <div className="text-sm sm:text-lg font-black text-white font-mono">20%</div>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-left">
+                    <div className="flex items-center gap-1.5 mb-1">
+                       <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_6px_#3b82f6]"></div>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-blue-300 font-bold uppercase">{globalT.tokenomics.treasury || "TREASURY"}</span>
+                    </div>
+                    <div className="text-sm sm:text-lg font-black text-white font-mono">10%</div>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-left col-span-2 sm:col-span-1">
+                    <div className="flex items-center gap-1.5 mb-1">
+                       <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_6px_#22c55e]"></div>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-green-300 font-bold uppercase">TEAM & DEV</span>
+                    </div>
+                    <div className="text-sm sm:text-lg font-black text-white font-mono">15%</div>
+                  </div>
+                </div>
+             </div>
+           </div>
+
         </div>
       </section>
 
-      {/* ⭐ TOKENOMICS SECTION */}
-      <section id="tokenomics" className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 border-t border-white/5 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-16">
-          <div className="w-fit mx-auto px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 backdrop-blur-md text-purple-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-3 font-mono">
-            {globalT.tokenomics.tag || "TOKENOMICS"}
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-white font-display mb-3 drop-shadow-lg">Designed for Scarcity</h2>
-          <p className="text-neutral-300 text-xs sm:text-base drop-shadow-md">100,000,000 total fixed supply with robust utility and automated deflationary burn mechanisms.</p>
-        </div>
-
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-20">
-          <div className="relative shrink-0 animate-float">
-            <div className="absolute inset-0 bg-cyan-500/20 blur-[60px] rounded-full"></div>
-            <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-full relative shadow-[0_0_40px_rgba(0,0,0,0.5)] flex items-center justify-center"
-                 style={{
-                   background: "conic-gradient(#06b6d4 0% 30%, #a855f7 30% 55%, #f59e0b 55% 75%, #3b82f6 75% 85%, #22c55e 85% 100%)"
-                 }}>
-               <div className="w-40 h-40 sm:w-52 sm:h-52 bg-[#040209] rounded-full flex flex-col items-center justify-center absolute border border-white/5 shadow-inner">
-                 <span className="text-white font-black text-3xl sm:text-4xl font-mono drop-shadow-lg">100M</span>
-                 <span className="text-neutral-400 text-[10px] sm:text-xs tracking-widest mt-1">TOTAL AETH</span>
-               </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 w-full max-w-lg">
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
-              <div className="flex items-center gap-2 mb-1.5">
-                 <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></div>
-                 <span className="text-[8px] sm:text-[10px] font-mono text-cyan-300 font-bold uppercase">{globalT.tokenomics.liquidity || "LIQUIDITY POOL"}</span>
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">30%</div>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
-              <div className="flex items-center gap-2 mb-1.5">
-                 <div className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_#a855f7]"></div>
-                 <span className="text-[8px] sm:text-[10px] font-mono text-purple-300 font-bold uppercase">{globalT.tokenomics.staking || "STAKING REWARDS"}</span>
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">25%</div>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
-              <div className="flex items-center gap-2 mb-1.5">
-                 <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></div>
-                 <span className="text-[8px] sm:text-[10px] font-mono text-amber-300 font-bold uppercase">{globalT.tokenomics.initialSale || "INITIAL SALE"}</span>
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">20%</div>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left">
-              <div className="flex items-center gap-2 mb-1.5">
-                 <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></div>
-                 <span className="text-[8px] sm:text-[10px] font-mono text-blue-300 font-bold uppercase">{globalT.tokenomics.treasury || "TREASURY"}</span>
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">10%</div>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 sm:p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all text-left col-span-2 sm:col-span-1">
-              <div className="flex items-center gap-2 mb-1.5">
-                 <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>
-                 <span className="text-[8px] sm:text-[10px] font-mono text-green-300 font-bold uppercase">TEAM & DEV</span>
-              </div>
-              <div className="text-xl sm:text-2xl font-black text-white font-mono drop-shadow-md">15%</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ⭐ TEAM / DEV SECTION */}
-      <section id="team" className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-20 border-t border-white/5 relative z-10">
-        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-8 shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative overflow-hidden mx-auto max-w-xl text-center sm:text-left hover:bg-white/10 transition-colors">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full pointer-events-none"></div>
+      {/* ⭐ GABUNGAN 3: TEAM / DEV & COMMUNITY HUB (KIRI KANAN) */}
+      <section id="team" className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 border-t border-white/5 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
           
-          <div className="relative shrink-0">
-            <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-cyan-500/50 to-blue-600/50 p-0.5 shadow-xl">
-              <div className="w-full h-full bg-black/50 backdrop-blur-md rounded-2xl flex items-center justify-center overflow-hidden relative">
-                <img src="/dev.jpg" alt="Nienzer" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
-                <div className="absolute inset-0 bg-black/50 hidden items-center justify-center text-cyan-300 font-mono font-black text-lg">
-                  NZ
+          {/* KOLOM KIRI: PROFIL DEV */}
+          <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-6 shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative overflow-hidden w-full hover:bg-white/10 transition-colors h-full">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full pointer-events-none"></div>
+            
+            <div className="relative shrink-0">
+              <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-cyan-500/50 to-blue-600/50 p-0.5 shadow-xl">
+                <div className="w-full h-full bg-black/50 backdrop-blur-md rounded-2xl flex items-center justify-center overflow-hidden relative">
+                  <img src="/dev.jpg" alt="Nienzer" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                  <div className="absolute inset-0 bg-black/50 hidden items-center justify-center text-cyan-300 font-mono font-black text-lg">
+                    NZ
+                  </div>
                 </div>
               </div>
+              <div className="absolute -bottom-2 -right-2 bg-green-500 text-black text-[6px] sm:text-[8px] font-mono font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-widest border-2 border-[#0B0817] shadow-md">
+                Core Dev
+              </div>
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-green-500 text-black text-[6px] sm:text-[8px] font-mono font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-widest border-2 border-[#0B0817] shadow-md">
-              Core Dev
+
+            <div className="space-y-2.5 sm:space-y-3 flex-1 relative z-10 flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 backdrop-blur-sm border border-cyan-500/30 text-cyan-300 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest font-mono shadow-inner">
+                {globalT.team.tag || "THE CONTRIBUTOR"}
+              </div>
+              <h3 className="text-lg sm:text-2xl font-extrabold text-white font-display drop-shadow-md">{globalT.team.name || "Nienzer"}</h3>
+              <p className="text-neutral-300 text-[10px] sm:text-xs leading-relaxed">
+                {globalT.team.bio || "Lead architect behind AetherVault Smart Contracts. Focused on cryptographic innovation, data privacy, and secure Web3 architecture."}
+              </p>
+              
+              <div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 pt-2">
+                <a href="https://t.me/nienzer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
+                   <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </a>
+                <a href="https://github.com/nienzer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 sm:w-4 sm:h-4"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                </a>
+                <a href="https://twitter.com/nien_zer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 sm:w-4 sm:h-4"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                </a>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-2.5 sm:space-y-3 flex-1 relative z-10 flex flex-col items-center sm:items-start">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 backdrop-blur-sm border border-cyan-500/30 text-cyan-300 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest font-mono shadow-inner">
-              {globalT.team.tag}
+          {/* KOLOM KANAN: COMMUNITY GRID (Diambil dari Community Page) */}
+          <div className="w-full flex flex-col justify-center gap-3 h-full">
+            <div className="grid grid-cols-2 gap-3 w-full">
+              {/* Telegram */}
+              <a href="https://t.me/AethVault" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all group">
+                <Send className="w-6 h-6 text-blue-400 group-hover:scale-110 transition-transform" />
+                <div className="text-center">
+                  <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.telegramTitle || "Telegram Official"}</h3>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{globalT.communityPage?.telegramDesc || "Real-time discussion group"}</p>
+                </div>
+              </a>
+              
+              {/* Twitter */}
+              <a href="https://twitter.com/AethVault" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all group">
+                <MessageSquare className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+                <div className="text-center">
+                  <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.twitterTitle || "Twitter / X"}</h3>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{globalT.communityPage?.twitterDesc || "Technical announcements"}</p>
+                </div>
+              </a>
+              
+              {/* GitHub */}
+              <a href="https://github.com/nienzer" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all group">
+                <Code className="w-6 h-6 text-neutral-400 group-hover:scale-110 transition-transform" />
+                <div className="text-center">
+                  <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.githubTitle || "Github Open Source"}</h3>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{globalT.communityPage?.githubDesc || "Protocol code repository"}</p>
+                </div>
+              </a>
+              
+              {/* Web3 Forum */}
+              <a href="LINK_WEB3_DAO_BOS_DISINI" target="_blank" rel="noreferrer" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all group">
+                <Globe className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
+                <div className="text-center">
+                  <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.forumTitle || "Web3 Forum"}</h3>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5">{globalT.communityPage?.forumDesc || "DAO Voting & Proposals"}</p>
+                </div>
+              </a>
             </div>
-            <h3 className="text-lg sm:text-2xl font-extrabold text-white font-display drop-shadow-md">{globalT.team.name}</h3>
-            <p className="text-neutral-300 text-[10px] sm:text-xs leading-relaxed max-w-[250px] sm:max-w-none">
-              {globalT.team.bio}
-            </p>
-            
-            <div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 pt-2">
-              <a href="https://t.me/nienzer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
-                 <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </a>
-              <a href="https://github.com/nienzer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 sm:w-4 sm:h-4"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-              </a>
-              <a href="https://twitter.com/nien_zer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 sm:w-4 sm:h-4"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-              </a>
-            </div>
+
+            {/* Email Support Card */}
+            <a href="mailto:admin@aethvault.xyz" className="bg-gradient-to-r from-cyan-900/20 to-blue-900/20 border border-cyan-500/30 hover:border-cyan-400 p-4 sm:p-5 rounded-2xl flex flex-row items-center justify-center gap-4 transition-all group shadow-[0_0_15px_rgba(6,182,212,0.1)] w-full">
+              <div className="w-10 h-10 bg-cyan-500/10 rounded-full flex items-center justify-center shrink-0">
+                <Mail className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-white font-bold text-sm">{lang === 'en' ? 'Official Email Support' : 'Dukungan Email Resmi'}</h3>
+                <p className="text-[10px] sm:text-xs text-cyan-400 mt-0.5 font-mono tracking-wide">admin@aethvault.xyz</p>
+              </div>
+            </a>
           </div>
+
         </div>
       </section>
 
