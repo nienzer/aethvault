@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
 
-const RPC_URL = "https://polygon-amoy-bor-rpc.publicnode.com";
+const RPC_URL = "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM";
 const AETHER_VAULT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B";
 const STAKING_CONTRACT_ADDRESS = "0xc72433e176F2935965cbf595d6f30a70A89F702c";
 
