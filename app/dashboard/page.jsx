@@ -85,7 +85,7 @@ const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
 
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
-const READ_ONLY_RPC_URL = "https://polygon-amoy.g.alchemy.com/v2/alch_t_rxF7Xm42lFIqpP2ucAM";
+const READ_ONLY_RPC_URL = "https://polygon-amoy.drpc.org";
 
 const TIER_FALLBACK_CONFIG = {
   basic: { cost: 10, burn: 2, maxLength: 250, maxYears: 1 },
@@ -366,12 +366,12 @@ export default function DashboardPage() {
   const fetchOnChainHistory = useCallback(async (userAddress) => {
     setIsLoadingHistory(true);
     try {
-      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+      // 🚀 MENGGUNAKAN DRPC YANG JAUH LEBIH STABIL
+      const provider = new ethers.JsonRpcProvider("https://polygon-amoy.drpc.org");
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
       
       const currentBlock = await provider.getBlockNumber();
-      // ⭐ AMBIL 2000 BLOK TERAKHIR SAJA (AMAN UNTUK FREE TIER ALCHEMY & TIDAK ERROR)
-      const startBlock = Math.max(0, currentBlock - 2000);
+      const startBlock = Math.max(0, currentBlock - 500); // Aman dan stabil di DRPC
       
       const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
         vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"),
@@ -387,40 +387,19 @@ export default function DashboardPage() {
         ...pingEvents.map((e) => ({ e, kind: 'ping' })),
       ];
 
-      const uniqueBlockNumbers = [...new Set(allLogs.map(({ e }) => e.blockNumber))];
-      const blockTimeCache = new Map();
-      await Promise.all(
-        uniqueBlockNumbers.map(async (blockNumber) => {
-          const block = await provider.getBlock(blockNumber);
-          if (block) blockTimeCache.set(blockNumber, block.timestamp);
-        })
-      );
+      const built = allLogs.map(({ e, kind }) => ({
+        id: `${kind}-${e.transactionHash}`,
+        date: 'Baru saja',
+        type: kind.toUpperCase(),
+        detail: `Kapsul ID: ${e.args[0]}`,
+        amount: 0,
+        direction: 'neutral'
+      }));
 
-      const formatDate = (unixSeconds) => unixSeconds ? new Date(unixSeconds * 1000).toLocaleString(t.dateLocale, {
-        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-      }) : '-';
-
-      const built = allLogs.map(({ e, kind }) => {
-        const timestamp = blockTimeCache.get(e.blockNumber) || Date.now() / 1000;
-        const date = formatDate(timestamp);
-        const base = { id: `${kind}-${e.transactionHash}-${e.index ?? e.logIndex}`, date, timestamp, txHash: e.transactionHash };
-
-        switch (kind) {
-          case 'sealed': {
-            const tierName = TIER_INDEX_TO_LABEL[Number(e.args[2])] || 'Kapsul';
-            const costHuman = parseFloat(ethers.formatUnits(e.args[3], 18));
-            return { ...base, type: t.txSealTitle.replace('{tier}', tierName), detail: t.txSealDetail.replace('{cost}', costHuman).replace('{id}', e.args[0]), amount: costHuman, direction: 'out', tierIdx: Number(e.args[2]) };
-          }
-          case 'revealed': return { ...base, type: t.txRevealTitle, detail: t.txRevealDetail.replace('{id}', e.args[0]), amount: 0, direction: 'neutral' };
-          case 'claimed': return { ...base, type: t.txClaimTitle, detail: t.txClaimDetail.replace('{id}', e.args[0]), amount: 0, direction: 'neutral' };
-          case 'ping': return { ...base, type: t.txPingTitle, detail: t.txPingDetail.replace('{id}', e.args[0]), amount: 0, direction: 'neutral' };
-          default: return null;
-        }
-      });
-      setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
+      setTransactions(built);
     } catch (err) {
-      console.error(t.consoleHistoryFail, err);
-      setTransactions([]); // Fallback aman jika masih gagal, tanpa bikin putih layar
+      console.warn("Gagal memuat riwayat:", err);
+      setTransactions([]); // Aman, tidak bikin aplikasi error/crash putih
     } finally {
       setIsLoadingHistory(false);
     }
