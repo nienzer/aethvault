@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Wallet, Shield, Lock, Clock, Database, Activity, ArrowRight, Server, Cpu, Globe, CheckCircle2, MessageSquare, Send, Code, Zap, Flame, UserX, Layers, FileText, Map, Users, ChevronRight, Bell, AlertTriangle, RefreshCcw, LineChart, Mail, Award, ShieldCheck, Fingerprint, Box, Network, TerminalSquare, Eye, KeyRound, Hexagon, Unlock } from "lucide-react";
+import { Wallet, Shield, Lock, Clock, Database, Activity, ArrowRight, Server, Cpu, Globe, CheckCircle2, MessageSquare, Send, Code, Zap, Flame, UserX, Layers, FileText, Map, Users, ChevronRight, Bell, AlertTriangle, RefreshCcw, LineChart, Mail, Award, ShieldCheck, Fingerprint, Box, Network, TerminalSquare, Eye, KeyRound, Hexagon, Unlock, Github, Twitter } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
@@ -117,8 +117,8 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* HERO ANIMATION FLOW (GLASSMORPHISM) */}
-        <div className="lg:col-span-5 relative z-10 hidden lg:flex flex-col items-center justify-center h-[450px]">
+        {/* HERO ANIMATION FLOW (LENGKAP 4 BOX & GLASSMORPHISM) */}
+        <div className="lg:col-span-5 relative z-10 hidden lg:flex flex-col items-center justify-center h-[500px]">
            <div className="w-full max-w-sm space-y-3">
               <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-3.5 rounded-2xl flex items-center gap-3 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transform translate-x-4 animate-float">
                  <div className="w-10 h-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center"><Lock className="w-5 h-5 text-neutral-300"/></div>
@@ -135,6 +135,12 @@ export default function LandingPage() {
               <div className="bg-cyan-500/10 backdrop-blur-xl border border-cyan-500/20 p-3.5 rounded-2xl flex items-center gap-3 shadow-[0_8px_30px_rgb(6,182,212,0.15)] transform translate-x-6 animate-float animate-glow" style={{ animationDelay: '2s' }}>
                  <div className="w-10 h-10 bg-cyan-500/20 border border-cyan-500/30 rounded-xl flex items-center justify-center"><Clock className="w-5 h-5 text-cyan-300"/></div>
                  <div><p className="text-white font-bold text-xs">Time-Lock Target</p><p className="text-[9px] text-cyan-300 font-mono">Unlock Year 2045</p></div>
+              </div>
+              <div className="w-0.5 h-5 bg-gradient-to-b from-cyan-500/50 to-green-500/50 mx-auto"></div>
+
+              <div className="bg-green-500/10 backdrop-blur-xl border border-green-500/20 p-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgb(34,197,94,0.15)] transform mx-auto w-fit animate-float" style={{ animationDelay: '3s' }}>
+                 <CheckCircle2 className="w-4 h-4 text-green-400"/>
+                 <p className="text-green-400 font-bold text-[10px] uppercase tracking-widest">Verified On-Chain</p>
               </div>
            </div>
         </div>
@@ -383,13 +389,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ⭐ TEAM / DEV SECTION (GLASSMORPHISM) */}
+      {/* ⭐ TEAM / DEV SECTION DENGAN LINK SOSIAL (GLASSMORPHISM) */}
       <section id="team" className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-20 border-t border-white/5 relative z-10">
-        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative overflow-hidden mx-auto max-w-xl text-center sm:text-left hover:bg-white/10 transition-colors">
+        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col sm:flex-row items-center gap-5 sm:gap-8 shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative overflow-hidden mx-auto max-w-xl text-center sm:text-left hover:bg-white/10 transition-colors">
           <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full pointer-events-none"></div>
           
           <div className="relative shrink-0">
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr from-cyan-500/50 to-blue-600/50 p-0.5 shadow-xl">
+            <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-cyan-500/50 to-blue-600/50 p-0.5 shadow-xl">
               <div className="w-full h-full bg-black/50 backdrop-blur-md rounded-2xl flex items-center justify-center overflow-hidden relative">
                 <img src="/dev-avatar.png" alt="Nienzer" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
                 <div className="absolute inset-0 bg-black/50 hidden items-center justify-center text-cyan-300 font-mono font-black text-lg">
@@ -397,19 +403,32 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-1.5 -right-1.5 bg-green-500 text-black text-[6px] sm:text-[7px] font-mono font-black px-1.5 sm:px-2 py-0.5 rounded-full uppercase tracking-widest border-2 border-[#0B0817] shadow-md">
+            <div className="absolute -bottom-2 -right-2 bg-green-500 text-black text-[6px] sm:text-[8px] font-mono font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-widest border-2 border-[#0B0817] shadow-md">
               Core Dev
             </div>
           </div>
 
-          <div className="space-y-1.5 sm:space-y-2 flex-1 relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-cyan-500/20 backdrop-blur-sm border border-cyan-500/30 text-cyan-300 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest font-mono shadow-inner">
+          <div className="space-y-2.5 sm:space-y-3 flex-1 relative z-10 flex flex-col items-center sm:items-start">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 backdrop-blur-sm border border-cyan-500/30 text-cyan-300 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest font-mono shadow-inner">
               {globalT.team.tag}
             </div>
-            <h3 className="text-base sm:text-xl font-extrabold text-white font-display drop-shadow-md">{globalT.team.name}</h3>
-            <p className="text-neutral-300 text-[10px] sm:text-xs leading-relaxed">
+            <h3 className="text-lg sm:text-2xl font-extrabold text-white font-display drop-shadow-md">{globalT.team.name}</h3>
+            <p className="text-neutral-300 text-[10px] sm:text-xs leading-relaxed max-w-[250px] sm:max-w-none">
               {globalT.team.bio}
             </p>
+            
+            {/* SOCIAL LINKS */}
+            <div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 pt-2">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
+                 <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </a>
+              <a href="#" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
+                 <Github className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </a>
+              <a href="#" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
+                 <Twitter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </a>
+            </div>
           </div>
         </div>
       </section>
