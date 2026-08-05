@@ -58,7 +58,8 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-14 sm:pt-20">
+    /* padding top diturunkan agar jarak ke navbar pas */
+    <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-12 sm:pt-16">
       
       {/* Background Orbs Global */}
       <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
@@ -88,8 +89,8 @@ export default function LandingPage() {
         .animate-glow { animation: pulse-glow 3s ease-in-out infinite; }
       `}</style>
 
-      {/* ⭐ 1. HERO SECTION */}
-      <section id="home" className="pt-4 sm:pt-6 pb-6 sm:pb-10 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-8 items-center relative z-10">
+      {/* ⭐ 1. HERO SECTION (Padding atas di-nol-kan agar naik mepet navbar) */}
+      <section id="home" className="pt-0 sm:pt-2 pb-6 sm:pb-10 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-8 items-center relative z-10">
         <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start">
           <div className="w-fit flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-4 font-mono shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
@@ -397,7 +398,7 @@ export default function LandingPage() {
           <div className="relative shrink-0">
             <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-cyan-500/50 to-blue-600/50 p-0.5 shadow-xl">
               <div className="w-full h-full bg-black/50 backdrop-blur-md rounded-2xl flex items-center justify-center overflow-hidden relative">
-                <img src="/dev-avatar.png" alt="Nienzer" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                <img src="/dev.jpg" alt="Nienzer" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
                 <div className="absolute inset-0 bg-black/50 hidden items-center justify-center text-cyan-300 font-mono font-black text-lg">
                   NZ
                 </div>
@@ -419,22 +420,15 @@ export default function LandingPage() {
             
             {/* SOCIAL LINKS (Menggunakan SVG Native Anti-Error) */}
             <div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 pt-2">
-              
-              {/* 1. Link Telegram */}
               <a href="https://t.me/nienzer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
                  <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </a>
-              
-              {/* 2. Link GitHub */}
               <a href="https://github.com/nienzer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 sm:w-4 sm:h-4"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
               </a>
-              
-              {/* 3. Link Twitter / X */}
-              <a href="https://twitter.com/nien-zer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
+              <a href="https://twitter.com/nien_zer" target="_blank" rel="noopener noreferrer" className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-neutral-400 transition-all shadow-md">
                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 sm:w-4 sm:h-4"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
               </a>
-              
             </div>
           </div>
         </div>
@@ -462,12 +456,9 @@ export default function LandingPage() {
             
             <div className="flex flex-col space-y-3">
               <h4 className="text-white font-bold text-xs uppercase tracking-widest font-mono mb-1 drop-shadow-md">{globalT.footer.community}</h4>
-              
-              {/* TOMBOL PENGHUBUNG KE HALAMAN KOMUNITAS BOS */}
               <button onClick={() => router.push('/community')} className="text-xs text-cyan-400 hover:text-cyan-300 font-bold transition-colors text-left bg-transparent border-none p-0 cursor-pointer drop-shadow-sm flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5" /> Community Hub
               </button>
-
               <button onClick={() => router.push('/terms')} className="text-xs text-neutral-400 hover:text-cyan-300 transition-colors text-left bg-transparent border-none p-0 cursor-pointer drop-shadow-sm">{globalT.footer.terms}</button>
               <button onClick={() => router.push('/privacy')} className="text-xs text-neutral-400 hover:text-cyan-300 transition-colors text-left bg-transparent border-none p-0 cursor-pointer drop-shadow-sm">{globalT.footer.privacy}</button>
             </div>
