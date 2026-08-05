@@ -204,7 +204,7 @@ export default function LandingPage() {
       </section>
 
       {/* ⭐ GABUNGAN 1: HALL OF PROOF & INFRASTRUCTURE */}
-      <section className="py-12 sm:py-20 border-y border-white/5 relative overflow-hidden z-10 bg-black/20 backdrop-blur-3xl">
+      <section id="infrastructure" className="py-12 sm:py-20 border-y border-white/5 relative overflow-hidden z-10 bg-black/20 backdrop-blur-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
            
            {/* KIRI: HALL OF PROOF */}
@@ -287,7 +287,7 @@ export default function LandingPage() {
       </section>
 
       {/* ⭐ GABUNGAN 2: TIERS ARCHITECTURE & TOKENOMICS */}
-      <section className="py-12 sm:py-20 border-t border-white/5 relative overflow-hidden z-10">
+      <section id="tiers" className="py-12 sm:py-20 border-t border-white/5 relative overflow-hidden z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
            
            {/* KIRI: 4-TIER VAULT ARCHITECTURE */}
@@ -349,7 +349,7 @@ export default function LandingPage() {
            </div>
 
            {/* KANAN: TOKENOMICS & TOTAL SUPPLY */}
-           <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:pl-4">
+           <div id="tokenomics" className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:pl-4">
              <div className="w-fit px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 backdrop-blur-md text-purple-300 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono">
                {globalT.tokenomics.tag || "TOKENOMICS"}
              </div>
