@@ -369,9 +369,9 @@ export default function DashboardPage() {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
       
-      const DEPLOY_BLOCK_NUMBER = 43345845;
       const currentBlock = await provider.getBlockNumber();
-      const startBlock = Math.max(DEPLOY_BLOCK_NUMBER, currentBlock - 50000);
+      // ⭐ AMBIL 2000 BLOK TERAKHIR SAJA (AMAN UNTUK FREE TIER ALCHEMY & TIDAK ERROR)
+      const startBlock = Math.max(0, currentBlock - 2000);
       
       const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
         vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"),
@@ -392,16 +392,16 @@ export default function DashboardPage() {
       await Promise.all(
         uniqueBlockNumbers.map(async (blockNumber) => {
           const block = await provider.getBlock(blockNumber);
-          blockTimeCache.set(blockNumber, block.timestamp);
+          if (block) blockTimeCache.set(blockNumber, block.timestamp);
         })
       );
 
-      const formatDate = (unixSeconds) => new Date(unixSeconds * 1000).toLocaleString(t.dateLocale, {
+      const formatDate = (unixSeconds) => unixSeconds ? new Date(unixSeconds * 1000).toLocaleString(t.dateLocale, {
         day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
-      });
+      }) : '-';
 
       const built = allLogs.map(({ e, kind }) => {
-        const timestamp = blockTimeCache.get(e.blockNumber);
+        const timestamp = blockTimeCache.get(e.blockNumber) || Date.now() / 1000;
         const date = formatDate(timestamp);
         const base = { id: `${kind}-${e.transactionHash}-${e.index ?? e.logIndex}`, date, timestamp, txHash: e.transactionHash };
 
@@ -420,6 +420,7 @@ export default function DashboardPage() {
       setTransactions(built.filter(Boolean).sort((a, b) => b.timestamp - a.timestamp));
     } catch (err) {
       console.error(t.consoleHistoryFail, err);
+      setTransactions([]); // Fallback aman jika masih gagal, tanpa bikin putih layar
     } finally {
       setIsLoadingHistory(false);
     }
