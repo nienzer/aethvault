@@ -98,7 +98,11 @@ export const id = {
     liveRecords: "Rekam Jejak Langsung Hall of Proof™",
     liveRecordsDesc: "Status smart contract real-time yang ditarik langsung dari blockchain Polygon Amoy.",
     contractLabel: "KONTRAK:",
-    openTerminal: "Buka Terminal dApp"
+    openTerminal: "Buka Terminal dApp",
+    hopJustNow: "Baru saja",
+    hopMinsAgo: "menit lalu",
+    hopHoursAgo: "jam lalu",
+    hopDaysAgo: "hari lalu"
   },
   globalStats: {
     title: "Statistik Protokol",
@@ -152,7 +156,8 @@ export const id = {
     validators: "Validator Polygon",
     dailyRewards: "Hadiah Harian",
     emptyTitle: "Belum Ada Staking",
-    emptyDesc: "Kunci AETH untuk mengamankan protokol dan terima hadiah pasif secara terus-menerus."
+    emptyDesc: "Kunci AETH untuk mengamankan protokol dan terima hadiah pasif secara terus-menerus.",
+    maxBtn: "MAKS"
   },
   vaultsUi: {
     decrypting: "Mendekripsi Rekaman Brankas...",
@@ -697,6 +702,24 @@ export const id = {
     certVaultId: "ID Brankas",
     certTimestamp: "Stempel Waktu",
     certSmartContract: "Smart Contract",
-    certRegisteredBy: "Disertifikasi & Terdaftar Permanen oleh"
+    certRegisteredBy: "Disertifikasi & Terdaftar Permanen oleh",
+    step1Label: "DOMPET",
+    step1Desc: "Hubungkan dompet",
+    step2Label: "TIER",
+    step2Desc: "Pilih keamanan",
+    step3Label: "ENKRIPSI",
+    step3Desc: "Masukkan konten",
+    step4Label: "SEGEL",
+    step4Desc: "Konfirmasi segel",
+    mintingTitle: "Memproses Transaksi Polygon Amoy...",
+    mintStep1: "1. Menyiapkan Metadata",
+    mintStep2: "2. Menghasilkan Hash Keccak256",
+    mintStep3: "3. Meminta Tanda Tangan Dompet",
+    mintStep4: "4. Mengirim ke Smart Contract",
+    mintStep5: "5. Konfirmasi di Blockchain",
+    mintDone: "SELESAI",
+    mintWorking: "PROSES",
+    mintWaiting: "MENUNGGU",
+    mintSuccess: "SUKSES"
   }
 };

@@ -98,7 +98,11 @@ export const en = {
     liveRecords: "Hall of Proof™ Live Records",
     liveRecordsDesc: "Real-time smart contract state directly queried from Polygon Amoy blockchain.",
     contractLabel: "CONTRACT:",
-    openTerminal: "Open dApp Terminal"
+    openTerminal: "Open dApp Terminal",
+    hopJustNow: "Just now",
+    hopMinsAgo: "mins ago",
+    hopHoursAgo: "hours ago",
+    hopDaysAgo: "days ago"
   },
   globalStats: {
     title: "Protocol Statistics",
@@ -152,7 +156,8 @@ export const en = {
     validators: "Polygon Validators",
     dailyRewards: "Daily Rewards",
     emptyTitle: "No Active Stake",
-    emptyDesc: "Lock AETH to secure the protocol and receive passive rewards continuously."
+    emptyDesc: "Lock AETH to secure the protocol and receive passive rewards continuously.",
+    maxBtn: "MAX"
   },
   vaultsUi: {
     decrypting: "Decrypting Vault Records...",
@@ -697,6 +702,24 @@ export const en = {
     certVaultId: "Vault ID",
     certTimestamp: "Timestamp",
     certSmartContract: "Smart Contract",
-    certRegisteredBy: "Certified & Permanently Registered by"
+    certRegisteredBy: "Certified & Permanently Registered by",
+    step1Label: "WALLET",
+    step1Desc: "Connect your wallet",
+    step2Label: "TIER",
+    step2Desc: "Choose security tier",
+    step3Label: "ENCRYPT",
+    step3Desc: "Add your content",
+    step4Label: "SEAL",
+    step4Desc: "Confirm & seal",
+    mintingTitle: "Processing Polygon Amoy Transaction...",
+    mintStep1: "1. Preparing Metadata",
+    mintStep2: "2. Generating Keccak256 Hash",
+    mintStep3: "3. Requesting Wallet Signature",
+    mintStep4: "4. Sending to Smart Contract",
+    mintStep5: "5. Confirming on Blockchain",
+    mintDone: "DONE",
+    mintWorking: "WORKING",
+    mintWaiting: "WAITING",
+    mintSuccess: "SUCCESS"
   }
 };
