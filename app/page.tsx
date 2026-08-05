@@ -58,8 +58,8 @@ export default function LandingPage() {
   }, []);
 
   return (
-    /* padding top diturunkan agar jarak ke navbar pas */
-    <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-12 sm:pt-16">
+    /* pt-20 untuk memastikan tidak tertutup navbar absolute/fixed */
+    <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-20">
       
       {/* Background Orbs Global */}
       <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
@@ -89,9 +89,12 @@ export default function LandingPage() {
         .animate-glow { animation: pulse-glow 3s ease-in-out infinite; }
       `}</style>
 
-      {/* ⭐ 1. HERO SECTION (Padding atas di-nol-kan agar naik mepet navbar) */}
-      <section id="home" className="pt-0 sm:pt-2 pb-6 sm:pb-10 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-8 items-center relative z-10">
-        <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start">
+      {/* ⭐ 1. HERO SECTION */}
+      {/* items-start ditambahkan agar elemen tidak dipaksa turun ke tengah tinggi animasi 500px */}
+      <section id="home" className="pb-6 sm:pb-10 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-8 items-start lg:items-center relative z-10">
+        
+        {/* lg:-mt-24 ADALAH KUNCI UNTUK MENARIK TEKS NAIK MELET KE NAVBAR DI DESKTOP */}
+        <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start lg:-mt-24">
           <div className="w-fit flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-4 font-mono shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
             {globalT.hero.badge}
@@ -148,7 +151,7 @@ export default function LandingPage() {
       </section>
 
       {/* ⭐ 2. LIVE DATA TICKER (GLASSMORPHISM) */}
-      <div className="border-y border-white/5 bg-white/5 backdrop-blur-xl py-3 relative z-20 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+      <div className="border-y border-white/5 bg-white/5 backdrop-blur-xl py-3 relative z-20 shadow-[0_4px_30px_rgba(0,0,0,0.1)] mt-4 lg:mt-0">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-3 sm:gap-12 text-[9px] sm:text-xs font-mono">
           <div className="flex items-center gap-1.5 text-neutral-300">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Network: <span className="text-white font-bold">Polygon Amoy</span>
