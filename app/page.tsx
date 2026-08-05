@@ -94,7 +94,7 @@ export default function LandingPage() {
       <section id="home" className="pb-6 sm:pb-10 px-4 sm:px-6 max-w-7xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-8 items-start lg:items-center relative z-10">
         
         {/* lg:-mt-24 ADALAH KUNCI UNTUK MENARIK TEKS NAIK MELET KE NAVBAR DI DESKTOP */}
-        <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start lg:-mt-24">
+        <div className="lg:col-span-7 relative text-center lg:text-left flex flex-col items-center lg:items-start -mt-8 sm:-mt-10 lg:-mt-24">
           <div className="w-fit flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-4 font-mono shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
             {globalT.hero.badge}
