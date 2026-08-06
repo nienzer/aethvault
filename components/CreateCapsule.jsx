@@ -180,7 +180,14 @@ export default function CreateCapsule({
                        <p className="text-xs text-purple-200 font-mono">
                              {tDash.estimatedCostLabel || 'Estimated Storage Cost:'} <span className="font-bold text-white">~{stagedUpload.estimatedCost.toString()} POL</span>
                        </p>
-                  </div>
+                    </div>
+
+                    {/* TAMBAHAN PETUNJUK AMAN UNTUK MENCEGAH USER BINGUNG */}
+                    <div className="bg-cyan-500/10 border border-cyan-500/20 p-2.5 rounded-xl flex items-center gap-2 text-cyan-300 text-[11px] font-mono">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0"></span>
+                      <span>Jika MetaMask sudah sukses konfirmasi bayar fee, abaikan tombol di bawah dan langsung klik <strong className="text-white">"Seal Capsule Now"</strong>.</span>
+                    </div>
+
                     <div className="flex gap-2">
                       {isUploading ? (
                         <div className="flex-1 flex items-center justify-center gap-2 py-2 text-cyan-400 text-xs font-bold font-mono">
