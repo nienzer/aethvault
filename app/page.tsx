@@ -428,7 +428,7 @@ export default function LandingPage() {
             <div className="relative shrink-0">
               <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-cyan-500/50 to-blue-600/50 p-0.5 shadow-xl">
                 <div className="w-full h-full bg-black/50 backdrop-blur-md rounded-2xl flex items-center justify-center overflow-hidden relative">
-                  <img src="/dev.jpg" alt="Nienzer" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                  <img src="/dev.png" alt="Nienzer" className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
                   <div className="absolute inset-0 bg-black/50 hidden items-center justify-center text-cyan-300 font-mono font-black text-lg">
                     NZ
                   </div>
