@@ -176,8 +176,8 @@ export default function DashboardPage() {
         const stats = await vaultContract.getPlatformStats();
         setPlatformStats({
           capsules: Number(stats[0]),
-          burned: parseFloat(ethers.formatUnits(stats[1], 18)),
-          users: Number(stats[2]),
+          users: Number(stats[1]), // <-- INI YANG BENAR: Index 1 adalah users
+          burned: parseFloat(ethers.formatUnits(stats[2], 18)), // <-- INI YANG BENAR: Index 2 adalah burned dalam format Wei
           supply: parseFloat(ethers.formatUnits(stats[3], 18))
         });
       } catch (vaultErr) {
@@ -1179,7 +1179,6 @@ export default function DashboardPage() {
                     <div>
                       <h3 className="font-display text-lg sm:text-xl font-bold text-white mb-1 flex items-center gap-2">
                         <Shield className="text-green-500 w-4 h-4 sm:w-5 sm:h-5" /> 
-                        {/* ⭐ Tambahkan fallback teks di sini */}
                         {t.securityTitle || 'Security Infrastructure'}
                       </h3>
                       <p className="text-xs sm:text-sm text-neutral-400">
@@ -1189,6 +1188,21 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    {/* 🚀 KOTAK 1: ECIES ENCRYPTION (Full Width & Konek Translate) */}
+                    <div className="bg-[#0B0817] border border-fuchsia-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden sm:col-span-2">
+                      <div className="absolute top-0 right-0 bg-fuchsia-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Military Grade</div>
+                      <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-4 flex items-center gap-2">
+                        <KeyRound className="w-4 h-4 sm:w-5 sm:h-5 text-fuchsia-400"/> {t.secHowProtected || 'ECIES secp256k1 Encryption'}
+                      </h5>
+                      <div className="space-y-3 text-[10px] sm:text-sm text-neutral-400 leading-relaxed">
+                        <p>{t.secDesc1}</p>
+                        <p>{t.secDesc2}</p>
+                        <p className="text-neutral-500 font-bold">{t.secDesc3}</p>
+                        <p className="text-fuchsia-500/80 italic">{t.secDesc4}</p>
+                      </div>
+                    </div>
+
+                    {/* KOTAK 2: REENTRANCY */}
                     <div className="bg-[#0B0817] border border-cyan-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
                       <div className="absolute top-0 right-0 bg-cyan-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Active</div>
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2">
@@ -1202,6 +1216,7 @@ export default function DashboardPage() {
                       </a>
                     </div>
 
+                    {/* KOTAK 3: VAULT RESERVE */}
                     <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2">
                         <Coins className="w-4 h-4 sm:w-5 h-5 text-yellow-500"/> 
