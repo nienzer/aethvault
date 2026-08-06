@@ -218,16 +218,28 @@ export default function DashboardPage() {
           ? new ethers.BrowserProvider(walletProvider)
           : new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-        const results = await Promise.all([0, 1, 2, 3].map((idx) => contract.tierConfigs(idx)));
+        const results = [];
+        for (let idx = 0; idx <= 3; idx++) {
+          try {
+            const r = await contract.tierConfigs(idx);
+            results.push(r);
+          } catch (e) {
+            console.warn(`Gagal memuat config tier ${idx}`, e);
+            results.push(null); 
+          }
+        }
         if (cancelled) return;
+        
         const parsed = {};
         results.forEach((r, idx) => {
-          parsed[idx] = {
-            cost: parseFloat(ethers.formatUnits(r.cost, 18)),
-            burn: parseFloat(ethers.formatUnits(r.burnPart, 18)),
-            maxDurationSeconds: Number(r.maxDuration),
-            maxLength: Number(r.maxMessageLength),
-          };
+          if (r) { // Cek agar tidak error jika r adalah null
+            parsed[idx] = {
+              cost: parseFloat(ethers.formatUnits(r.cost, 18)),
+              burn: parseFloat(ethers.formatUnits(r.burnPart, 18)),
+              maxDurationSeconds: Number(r.maxDuration),
+              maxLength: Number(r.maxMessageLength),
+            };
+          }
         });
         setOnChainTierConfig(parsed);
         setIsTierConfigLoaded(true);
@@ -327,10 +339,13 @@ export default function DashboardPage() {
     setIsLoadingCapsules(true);
     try {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+      
+      // Ambil daftar ID kapsul
       const [ownedIds, heirIds] = await Promise.all([
         contract.getUserCapsules(userAddress),
         contract.getHeirCapsules(userAddress),
       ]);
+      
       const allIdsMap = new Map();
       ownedIds.forEach((id) => allIdsMap.set(id.toString(), { id, asHeir: false }));
       heirIds.forEach((id) => {
@@ -340,12 +355,17 @@ export default function DashboardPage() {
         }
       });
       const allIds = Array.from(allIdsMap.values());
-      const results = await Promise.all(
-        allIds.map(async ({ id, asHeir }) => {
+
+      // ⭐ PERBAIKAN: Ubah Promise.all menjadi for-of (Sequential Antrean) 
+      // agar RPC tidak kehabisan napas dan memblokir request!
+      const results = [];
+      for (const { id, asHeir } of allIds) {
+        try {
           const meta = await contract.getCapsuleMeta(id);
           const ready = await contract.isCapsuleReady(id);
           const decryptedTitle = await tryDecryptTitle(meta.title, privateKeyForTitles);
-          return {
+          
+          results.push({
             id: id.toString(),
             title: decryptedTitle ?? t.lockedTitleFallback,
             titleIsLocked: decryptedTitle === null,
@@ -362,9 +382,13 @@ export default function DashboardPage() {
             asHeir,
             tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? t.tierLabelLegacy : t.tierLabelTimeLock),
             status: meta.contentDeleted ? t.statusDeleted : meta.isClaimedOrRevealed ? t.statusOpened : ready ? t.statusReady : t.statusLocked,
-          };
-        })
-      );
+          });
+        } catch (itemErr) {
+          console.warn(`Gagal memuat detail Kapsul ID ${id}, di-skip sementara:`, itemErr);
+          // Jika 1 kapsul gagal karena RPC sibuk, kapsul sisanya tetap akan tampil!
+        }
+      }
+
       results.sort((a, b) => Number(b.id) - Number(a.id));
       setMyCapsules(results);
     } catch (err) {
@@ -381,15 +405,30 @@ export default function DashboardPage() {
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
       
       const currentBlock = await provider.getBlockNumber();
-      // 🚀 FIX: Turunkan ke 3000 blok saja agar RPC gratisan tidak memblokir (Error -32080)
+      // Turunkan ke 3000 blok saja agar RPC gratisan tidak memblokir
       const startBlock = Math.max(0, currentBlock - 3000); 
       
-      const [sealedEvents, revealedEvents, claimedEvents, pingEvents] = await Promise.all([
-        vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), startBlock, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), startBlock, "latest"),
-        vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), startBlock, "latest"),
-      ]);
+      // ⭐ PERBAIKAN: Ubah Promise.all menjadi antrean satu per satu dengan pelindung!
+      let sealedEvents = [];
+      let revealedEvents = [];
+      let claimedEvents = [];
+      let pingEvents = [];
+
+      try {
+        sealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest");
+      } catch(e) { console.warn("Gagal muat log Sealed", e); }
+      
+      try {
+        revealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), startBlock, "latest");
+      } catch(e) { console.warn("Gagal muat log Revealed", e); }
+      
+      try {
+        claimedEvents = await vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), startBlock, "latest");
+      } catch(e) { console.warn("Gagal muat log Claimed", e); }
+      
+      try {
+        pingEvents = await vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), startBlock, "latest");
+      } catch(e) { console.warn("Gagal muat log Ping", e); }
 
       const allLogs = [
         ...sealedEvents.map((e) => ({ e, kind: 'sealed' })),
@@ -436,11 +475,12 @@ export default function DashboardPage() {
         try {
           if (STAKING_CONTRACT_ADDRESS) {
             const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-            const [rawStaked, rawReward, rawRate] = await Promise.all([
-              stakingContract.stakedBalance(address),
-              stakingContract.calculateReward(address),
-              stakingContract.rewardRate(),
-            ]);
+            
+            // Pengambilan data staking dibuat antre (sequential)
+            const rawStaked = await stakingContract.stakedBalance(address);
+            const rawReward = await stakingContract.calculateReward(address);
+            const rawRate = await stakingContract.rewardRate();
+            
             setStakedBalance(parseFloat(ethers.formatUnits(rawStaked, 18)));
             setPendingReward(parseFloat(ethers.formatUnits(rawReward, 18)));
             setApyPercent(Number(rawRate) / 10);
