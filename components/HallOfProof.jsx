@@ -93,7 +93,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
             
             let iconComponent = <Box className="w-8 h-8" />;
             
-            // Gambar fallback (jika belum pakai Base64 / NFT lama)
+            // Gambar fallback ini (jika belum pakai Base64 / NFT lama)
             let imageBg = "https://images.unsplash.com/photo-1639322537504-6427a16b0a28?auto=format&fit=crop&q=80&w=600&h=400";
             let cost = 10;
 
