@@ -71,7 +71,7 @@ const StakingABI = [
 ];
 
 // ⭐ ALAMAT KONTRAK DIPISAH DENGAN JELAS
-const AETH_TOKEN_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9"; // Kontrak Token $AETH Lama (Penyimpan Saldo)[cite: 4]
+const AETH_TOKEN_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9"; // Kontrak Token $AETH Lama (Penyimpan Saldo)
 const CONTRACT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B"; // Kontrak Vault V3 Baru (Pencetak Sertifikat)
 const STAKING_CONTRACT_ADDRESS = "0xc72433e176F2935965cbf595d6f30a70A89F702c"; 
 
@@ -170,21 +170,21 @@ export default function DashboardPage() {
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       
-      // ⭐ PERBAIKAN 3: Pisahkan Try-Catch khusus untuk Vault (Platform Stats)
+      // ⭐ Pisahkan Try-Catch khusus untuk Vault (Platform Stats)
       try {
         const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
         const stats = await vaultContract.getPlatformStats();
         setPlatformStats({
           capsules: Number(stats[0]),
-          users: Number(stats[1]), // <-- INI YANG BENAR: Index 1 adalah users
-          burned: parseFloat(ethers.formatUnits(stats[2], 18)), // <-- INI YANG BENAR: Index 2 adalah burned dalam format Wei
+          users: Number(stats[1]), 
+          burned: parseFloat(ethers.formatUnits(stats[2], 18)),
           supply: parseFloat(ethers.formatUnits(stats[3], 18))
         });
       } catch (vaultErr) {
         console.error("Gagal muat Platform Stats:", vaultErr);
       }
 
-      // ⭐ PERBAIKAN 4: Pisahkan Try-Catch khusus untuk Staking Stats
+      // ⭐ Pisahkan Try-Catch khusus untuk Staking Stats
       if (IS_STAKING_ADDRESS_CONFIGURED) {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
@@ -232,7 +232,7 @@ export default function DashboardPage() {
         
         const parsed = {};
         results.forEach((r, idx) => {
-          if (r) { // Cek agar tidak error jika r adalah null
+          if (r) { 
             parsed[idx] = {
               cost: parseFloat(ethers.formatUnits(r.cost, 18)),
               burn: parseFloat(ethers.formatUnits(r.burnPart, 18)),
@@ -340,7 +340,6 @@ export default function DashboardPage() {
     try {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
       
-      // Ambil daftar ID kapsul
       const [ownedIds, heirIds] = await Promise.all([
         contract.getUserCapsules(userAddress),
         contract.getHeirCapsules(userAddress),
@@ -356,37 +355,47 @@ export default function DashboardPage() {
       });
       const allIds = Array.from(allIdsMap.values());
 
-      // ⭐ PERBAIKAN: Ubah Promise.all menjadi for-of (Sequential Antrean) 
-      // agar RPC tidak kehabisan napas dan memblokir request!
+      // ⭐ KODE MAINNET: BATCHING (Keroyokan Terkendali)
+      const chunkSize = 5; // Proses 5 kapsul sekaligus
       const results = [];
-      for (const { id, asHeir } of allIds) {
-        try {
-          const meta = await contract.getCapsuleMeta(id);
-          const ready = await contract.isCapsuleReady(id);
-          const decryptedTitle = await tryDecryptTitle(meta.title, privateKeyForTitles);
-          
-          results.push({
-            id: id.toString(),
-            title: decryptedTitle ?? t.lockedTitleFallback,
-            titleIsLocked: decryptedTitle === null,
-            unlockTimestamp: Number(meta.unlockTimestamp),
-            owner: meta.owner,
-            isLegacy: meta.isLegacy,
-            heirAddress: meta.heirAddress,
-            lastPingAlive: Number(meta.lastPingAlive),
-            inactivityLimit: Number(meta.inactivityLimit),
-            isClaimedOrRevealed: meta.isClaimedOrRevealed,
-            contentDeleted: meta.contentDeleted,
-            tierIndex: Number(meta.tier),
-            isReady: ready,
-            asHeir,
-            tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? t.tierLabelLegacy : t.tierLabelTimeLock),
-            status: meta.contentDeleted ? t.statusDeleted : meta.isClaimedOrRevealed ? t.statusOpened : ready ? t.statusReady : t.statusLocked,
-          });
-        } catch (itemErr) {
-          console.warn(`Gagal memuat detail Kapsul ID ${id}, di-skip sementara:`, itemErr);
-          // Jika 1 kapsul gagal karena RPC sibuk, kapsul sisanya tetap akan tampil!
-        }
+
+      for (let i = 0; i < allIds.length; i += chunkSize) {
+        const batch = allIds.slice(i, i + chunkSize);
+        
+        const batchResults = await Promise.all(
+          batch.map(async ({ id, asHeir }) => {
+            try {
+              const meta = await contract.getCapsuleMeta(id);
+              const ready = await contract.isCapsuleReady(id);
+              const decryptedTitle = await tryDecryptTitle(meta.title, privateKeyForTitles);
+              
+              return {
+                id: id.toString(),
+                title: decryptedTitle ?? t.lockedTitleFallback,
+                titleIsLocked: decryptedTitle === null,
+                unlockTimestamp: Number(meta.unlockTimestamp),
+                owner: meta.owner,
+                isLegacy: meta.isLegacy,
+                heirAddress: meta.heirAddress,
+                lastPingAlive: Number(meta.lastPingAlive),
+                inactivityLimit: Number(meta.inactivityLimit),
+                isClaimedOrRevealed: meta.isClaimedOrRevealed,
+                contentDeleted: meta.contentDeleted,
+                tierIndex: Number(meta.tier),
+                isReady: ready,
+                asHeir,
+                tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? t.tierLabelLegacy : t.tierLabelTimeLock),
+                status: meta.contentDeleted ? t.statusDeleted : meta.isClaimedOrRevealed ? t.statusOpened : ready ? t.statusReady : t.statusLocked,
+              };
+            } catch (err) {
+              console.warn(`Gagal memuat Kapsul ID ${id}:`, err);
+              return null; // Abaikan jika error agar tidak merusak batch
+            }
+          })
+        );
+        
+        // Masukkan hasil yang sukses (bukan null) ke array utama
+        results.push(...batchResults.filter(item => item !== null));
       }
 
       results.sort((a, b) => Number(b.id) - Number(a.id));

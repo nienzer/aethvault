@@ -20,6 +20,12 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const [view, setView] = useState('hub');
   const certificateRef = useRef(null);
 
+  // ⭐ STATE UNTUK ZOOM & DRAG PREVIEW
+  const previewScrollRef = useRef(null);
+  const [previewZoom, setPreviewZoom] = useState(0.6);
+  const [isDraggingPreview, setIsDraggingPreview] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
+
   const [category, setCategory] = useState('Software');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -54,6 +60,28 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const currentConfig = categoryConfig[category];
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '0xA5E3...7Fa2';
   const realAddress = address || "0xA5E3000000000000000000000000000000007Fa2";
+
+  // ⭐ FUNGSI DRAG-TO-PAN UNTUK MOUSE DI DESKTOP
+  const handleMouseDown = (e) => {
+    setIsDraggingPreview(true);
+    setDragStart({
+      x: e.pageX - previewScrollRef.current.offsetLeft,
+      y: e.pageY - previewScrollRef.current.offsetTop,
+      scrollLeft: previewScrollRef.current.scrollLeft,
+      scrollTop: previewScrollRef.current.scrollTop
+    });
+  };
+  const handleMouseLeaveOrUp = () => setIsDraggingPreview(false);
+  const handleMouseMove = (e) => {
+    if (!isDraggingPreview) return;
+    e.preventDefault();
+    const x = e.pageX - previewScrollRef.current.offsetLeft;
+    const y = e.pageY - previewScrollRef.current.offsetTop;
+    const walkX = (x - dragStart.x) * 1.5; 
+    const walkY = (y - dragStart.y) * 1.5;
+    previewScrollRef.current.scrollLeft = dragStart.scrollLeft - walkX;
+    previewScrollRef.current.scrollTop = dragStart.scrollTop - walkY;
+  };
 
   const fetchOnChainHallOfProof = useCallback(async () => {
     setIsLoadingHall(true);
@@ -134,7 +162,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
     const updateMetadataHash = async () => {
       const metadata = JSON.stringify({
         name: title || "Aether Proof",
-        description: description || "Blockchain Certificate",
+        description: "Blockchain Certificate",
         attributes: [
           { trait_type: "Category", value: category },
           { trait_type: "Creator", value: creatorName || realAddress },
@@ -167,7 +195,29 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, signer);
 
       setMintStep(4);
-      const tokenURIParam = `https://gateway.pinata.cloud/ipfs/bafybeig...preview`;
+      
+      // ⭐ KODE BARU: 100% ON-CHAIN BASE64 DATA URI (PENGGANTI PINATA)
+      // Teks SVG sederhana yang akan muncul sebagai gambar NFT di OpenSea
+      const svgImage = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#0B0817"/><text x="50%" y="50%" font-family="monospace" font-size="24" font-weight="bold" fill="#e4a329" text-anchor="middle" dy=".3em">AETHER PROOF</text></svg>`;
+      const base64Svg = btoa(unescape(encodeURIComponent(svgImage)));
+
+      // Meracik Metadata JSON
+      const metadataJSON = {
+        name: title || "Aether Proof",
+        description: "Aether Proof Immutable Certificate. 100% On-Chain Verification.",
+        image: `data:image/svg+xml;base64,${base64Svg}`,
+        attributes: [
+          { trait_type: "Category", value: category },
+          { trait_type: "Creator", value: creatorName || formatAddress(address) },
+          { trait_type: "File Hash", value: fileHash }
+        ]
+      };
+
+      // Mengubah seluruh JSON menjadi Base64
+      const encodedJSON = btoa(unescape(encodeURIComponent(JSON.stringify(metadataJSON))));
+      const tokenURIParam = `data:application/json;base64,${encodedJSON}`;
+
+      // Eksekusi Smart Contract (Suntik langsung ke Polygon)
       const tx = await contract.createProof(tier, category, fileHash, tokenURIParam, true);
       
       setMintStep(5);
@@ -177,7 +227,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       for (const log of receipt.logs) {
         try {
           const parsed = contract.interface.parseLog(log);
-          if (parsed && parsed.name === 'ProofCreated') {
+          if (parsed && parsed.name === 'ProofMinted') {
             realTokenId = parsed.args[0].toString();
             break;
           }
@@ -560,11 +610,38 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             </form>
           </div>
 
-          <div className="lg:col-span-7 bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-3xl flex flex-col justify-center items-center relative overflow-x-auto shadow-xl">
-            <div className="absolute top-4 left-4 flex items-center gap-2 text-cyan-500 font-mono text-[10px] uppercase tracking-widest"><Eye className="w-3.5 h-3.5"/> Live NFT Preview</div>
+          <div className="lg:col-span-7 bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-3xl flex flex-col relative overflow-hidden shadow-xl">
+            <div className="absolute top-4 left-4 flex items-center gap-2 text-cyan-500 font-mono text-[10px] uppercase tracking-widest z-20">
+              <Eye className="w-3.5 h-3.5"/> Live NFT Preview
+            </div>
             
-            <div className="w-full flex justify-center overflow-x-auto py-6">
-              <div className="transform scale-[0.50] sm:scale-[0.65] lg:scale-[0.58] xl:scale-[0.70] origin-center shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-neutral-800 rounded-xl shrink-0">
+            {/* ⭐ PANEL KONTROL ZOOM */}
+            <div className="absolute top-4 right-4 flex items-center gap-2 z-20 bg-[#0B0817] p-1 border border-neutral-800 rounded-lg shadow-lg">
+              <button type="button" onClick={() => setPreviewZoom(p => Math.max(0.3, p - 0.1))} className="w-7 h-7 flex items-center justify-center text-white bg-neutral-800 hover:bg-neutral-700 rounded-md cursor-pointer font-bold transition-colors">-</button>
+              <span className="text-[10px] text-cyan-400 font-mono w-10 text-center font-bold">{Math.round(previewZoom * 100)}%</span>
+              <button type="button" onClick={() => setPreviewZoom(p => Math.min(2.0, p + 0.1))} className="w-7 h-7 flex items-center justify-center text-white bg-neutral-800 hover:bg-neutral-700 rounded-md cursor-pointer font-bold transition-colors">+</button>
+            </div>
+            
+            {/* ⭐ AREA PREVIEW YANG BISA DI-DRAG */}
+            <div 
+              ref={previewScrollRef}
+              onMouseDown={handleMouseDown}
+              onMouseLeave={handleMouseLeaveOrUp}
+              onMouseUp={handleMouseLeaveOrUp}
+              onMouseMove={handleMouseMove}
+              className={`w-full flex justify-start overflow-auto py-8 mt-10 custom-scrollbar ${isDraggingPreview ? 'cursor-grabbing' : 'cursor-grab'}`}
+              style={{ maxHeight: '600px' }}
+            >
+              <div 
+                className="mx-auto origin-top-left shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-neutral-800 rounded-sm shrink-0 transition-transform duration-200"
+                style={{ 
+                  transform: `scale(${previewZoom})`, 
+                  width: '842px', 
+                  height: '595px',
+                  marginBottom: `${(previewZoom > 1 ? (previewZoom - 1) * 595 : 0)}px`,
+                  marginRight: `${(previewZoom > 1 ? (previewZoom - 1) * 842 : 0)}px` 
+                }}
+              >
                 <CertificateTemplate proofData={{
                   id: 'AETH-PROOF-PREVIEW',
                   category,

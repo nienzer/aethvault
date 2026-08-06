@@ -7,6 +7,7 @@ const AETHER_VAULT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B";
 const AETHER_VAULT_ABI = [
   "function totalProofs() external view returns (uint256)",
   "function getProofDetails(uint256 _tokenId) external view returns (tuple(string category, bytes32 fileHash, bool isPublic, uint256 timestamp))",
+  "function tokenURI(uint256 tokenId) external view returns (string)", // ⭐ TAMBAHAN BARU: Untuk baca Base64
   "event ProofCreated(uint256 indexed capsuleId, address indexed owner, bytes32 proofHash)"
 ];
 
@@ -91,16 +92,38 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
             const rawCat = details.category || "General";
             
             let iconComponent = <Box className="w-8 h-8" />;
+            
+            // Gambar fallback (jika belum pakai Base64 / NFT lama)
             let imageBg = "https://images.unsplash.com/photo-1639322537504-6427a16b0a28?auto=format&fit=crop&q=80&w=600&h=400";
             let cost = 10;
 
-            if (rawCat === "Music") { iconComponent = <Music className="w-8 h-8 text-purple-400" />; imageBg = "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&q=80&w=600&h=400"; cost = 50; }
-            else if (rawCat === "Software") { iconComponent = <Code2 className="w-8 h-8 text-blue-400" />; imageBg = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=600&h=400"; cost = 200; }
-            else if (rawCat === "Design") { iconComponent = <Palette className="w-8 h-8 text-fuchsia-400" />; imageBg = "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&q=80&w=600&h=400"; cost = 10; }
-            else if (rawCat === "Writing") { iconComponent = <BookOpen className="w-8 h-8 text-amber-400" />; imageBg = "https://images.unsplash.com/photo-1455390582262-044cdead27d8?auto=format&fit=crop&q=80&w=600&h=400"; cost = 10; }
-            else if (rawCat === "Video") { iconComponent = <Film className="w-8 h-8 text-rose-400" />; imageBg = "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=600&h=400"; cost = 50; }
-            else if (rawCat === "Research") { iconComponent = <Microscope className="w-8 h-8 text-emerald-400" />; imageBg = "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=600&h=400"; cost = 200; }
-            else if (rawCat === "Business") { iconComponent = <Building2 className="w-8 h-8 text-yellow-400" />; imageBg = "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600&h=400"; cost = 500; }
+            if (rawCat === "Music") { iconComponent = <Music className="w-8 h-8 text-purple-400" />; cost = 50; }
+            else if (rawCat === "Software") { iconComponent = <Code2 className="w-8 h-8 text-blue-400" />; cost = 200; }
+            else if (rawCat === "Design") { iconComponent = <Palette className="w-8 h-8 text-fuchsia-400" />; cost = 10; }
+            else if (rawCat === "Writing") { iconComponent = <BookOpen className="w-8 h-8 text-amber-400" />; cost = 10; }
+            else if (rawCat === "Video") { iconComponent = <Film className="w-8 h-8 text-rose-400" />; cost = 50; }
+            else if (rawCat === "Research") { iconComponent = <Microscope className="w-8 h-8 text-emerald-400" />; cost = 200; }
+            else if (rawCat === "Business") { iconComponent = <Building2 className="w-8 h-8 text-yellow-400" />; cost = 500; }
+
+            // ⭐ KODE BARU: BACA ON-CHAIN BASE64 SVG DARI SMART CONTRACT
+            try {
+              const tokenUri = await contract.tokenURI(i);
+              if (tokenUri.startsWith('data:application/json;base64,')) {
+                // Ekstrak teks base64
+                const base64Data = tokenUri.split(',')[1];
+                // Dekode menjadi string JSON (Browser-native: atob)
+                const decodedJson = atob(base64Data);
+                const metadata = JSON.parse(decodedJson);
+                
+                // Ambil gambar SVG Base64 yang kita simpan di AetherProofHub
+                if (metadata.image) {
+                  imageBg = metadata.image; 
+                }
+              }
+            } catch (uriErr) {
+              // Jika tokenURI tidak ditemukan (misal data lama), biarkan pakai Unsplash
+              console.log(`Menggunakan fallback image untuk Proof #${i}`);
+            }
 
             totalEstimatedCost += (cost * 0.2); 
 
@@ -131,7 +154,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
               timeAgo: timeAgoStr,
               badges: badges,
               txHash: details.fileHash,
-              resolvedImage: imageBg,
+              resolvedImage: imageBg, // <== Di sini gambar On-Chain dipasang!
               icon: iconComponent,
               isPublic: details.isPublic
             });
@@ -257,8 +280,9 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
                   <Crown className="w-3 h-3"/> Featured Proof
                 </div>
                 
-                <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden">
-                  <img src={featuredProof.resolvedImage} alt={featuredProof.title} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+                <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden bg-neutral-900">
+                  {/* ⭐ MENDUKUNG TAMPILAN GAMBAR BASE64/SVG SECARA PROPORSIONAL */}
+                  <img src={featuredProof.resolvedImage} alt={featuredProof.title} className="w-full h-full object-contain sm:object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0A0713] via-[#0A0713]/40 to-transparent"></div>
                   
                   <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
@@ -353,8 +377,9 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
                     style={{ animationDelay: `${idx * 100}ms` }}
                   >
                     
-                    <div className="relative h-56 w-full rounded-2xl overflow-hidden mb-5 bg-neutral-900">
-                      <img src={proof.resolvedImage} alt={proof.title} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
+                    <div className="relative h-56 w-full rounded-2xl overflow-hidden mb-5 bg-neutral-900 border border-neutral-800">
+                      {/* ⭐ MENAMPILKAN GAMBAR DARI ON-CHAIN */}
+                      <img src={proof.resolvedImage} alt={proof.title} className="w-full h-full object-contain sm:object-cover opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0A0713] via-transparent to-transparent opacity-80"></div>
                       
                       <div className="absolute top-3 left-3 flex flex-wrap gap-2 pr-12">
