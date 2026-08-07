@@ -633,6 +633,11 @@ export default function DashboardPage() {
     if (!isConnected) return showToast(t.authRejectedConnectWallet, 'error');
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
+    // 🚀 FIX 1: Cegah Seal jika ada gambar/file yang di-upload tapi belum di-Confirm ke Arweave!
+    if (stagedUpload && !uploadedCid) {
+      return showToast("⚠️ Anda belum mengonfirmasi upload lampiran gambar. Silakan klik 'Confirm & Pay Storage' dulu di kotak gambar!", "error");
+    }
+
     const selectedTierData = tiers[tier];
     const messageByteLength = new TextEncoder().encode(message).length;
     if (messageByteLength > selectedTierData.maxLength) return showToast(t.messageTooLong.replace('{max}', selectedTierData.maxLength), 'error');
@@ -1365,27 +1370,39 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
+                {/* 🚀 FIX 2: Memisahkan Teks Asli dan Kotak Download Gambar secara Cerdas */}
                 <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
-                  {selectedVault.decryptedMessage}
+                  {/* Render teks saja tanpa link mentah Arweave-nya */}
+                  {selectedVault.decryptedMessage 
+                    ? selectedVault.decryptedMessage.replace(/\[(Attachment|Lampiran|Attachment Tag)?:?\s*https:\/\/arweave\.net\/[a-zA-Z0-9_-]+\]/gi, '').trim() || "< Tidak ada pesan teks, hanya gambar >" 
+                    : ""}
                 </div>
+
+                {/* Render Tombol Gambar jika terdeteksi URL Arweave di dalam teks */}
                 {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
-                  <button
-                    onClick={handleDownloadAttachment}
-                    disabled={isDownloadingAttachment === selectedVault.id}
-                    className="w-full py-3 sm:py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-50 border border-cyan-500/40 text-cyan-300 font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all"
-                  >
-                    {isDownloadingAttachment === selectedVault.id ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {t.decryptingDownloading}
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-4 h-4" />
-                        {t.downloadDecryptBtn}
-                      </>
-                    )}
-                  </button>
+                  <div className="mt-4 p-4 border border-cyan-500/30 bg-cyan-500/10 rounded-xl space-y-3 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                    <div className="flex items-center gap-2 text-cyan-300 text-[11px] sm:text-xs font-bold font-mono">
+                      <FileImage className="w-4 h-4" />
+                      <span>Lampiran Terenkripsi Terdeteksi!</span>
+                    </div>
+                    <button
+                      onClick={handleDownloadAttachment}
+                      disabled={isDownloadingAttachment === selectedVault.id}
+                      className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 text-white font-black rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 text-[11px] sm:text-xs cursor-pointer transition-all shadow-lg"
+                    >
+                      {isDownloadingAttachment === selectedVault.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Memproses Dekripsi File...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4" />
+                          Unduh & Buka File Asli
+                        </>
+                      )}
+                    </button>
+                  </div>
                 )}
               </>
             )}
