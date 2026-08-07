@@ -18,7 +18,8 @@ export default function CreateCapsule({
   isPreparingUpload, stagedUpload, isUploading,
   handleConfirmArweaveUpload, handleCancelStagedUpload, handleFileSelected,
   getMinUnlockDatetimeLocal,
-  aethBalance
+  aethBalance,
+  uploadError // 🚀 TAMBAHAN: Menerima prop error dari page.jsx
 }) {
   const { t: globalT } = useLanguage();
   const tDash = globalT.dashboard || {};
@@ -182,11 +183,13 @@ export default function CreateCapsule({
                        </p>
                     </div>
 
-                    {/* TAMBAHAN PETUNJUK AMAN UNTUK MENCEGAH USER BINGUNG */}
-                    <div className="bg-cyan-500/10 border border-cyan-500/20 p-2.5 rounded-xl flex items-center gap-2 text-cyan-300 text-[11px] font-mono">
-                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0"></span>
-                      <span>Jika MetaMask sudah sukses konfirmasi bayar fee, abaikan tombol di bawah dan langsung klik <strong className="text-white">"Seal Capsule Now"</strong>.</span>
-                    </div>
+                    {/* 🚀 TAMBAHAN: Tampilkan Error Merah jika Upload Gagal */}
+                    {uploadError && (
+                      <div className="bg-red-500/10 border border-red-500/20 p-2.5 rounded-xl flex items-start gap-2 text-red-400 text-[11px] font-mono shadow-[0_0_10px_rgba(239,68,68,0.1)]">
+                        <X className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                        <span><strong>Gagal Upload:</strong> {uploadError}</span>
+                      </div>
+                    )}
 
                     <div className="flex gap-2">
                       {isUploading ? (

@@ -71,8 +71,8 @@ const StakingABI = [
 ];
 
 // ⭐ ALAMAT KONTRAK DIPISAH DENGAN JELAS
-const AETH_TOKEN_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9"; // Kontrak Token $AETH Lama (Penyimpan Saldo)
-const CONTRACT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B"; // Kontrak Vault V3 Baru (Pencetak Sertifikat)
+const AETH_TOKEN_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9"; 
+const CONTRACT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B"; 
 const STAKING_CONTRACT_ADDRESS = "0xc72433e176F2935965cbf595d6f30a70A89F702c"; 
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
@@ -124,6 +124,7 @@ export default function DashboardPage() {
   const [uploadedCid, setUploadedCid] = useState('');
   const [stagedUpload, setStagedUpload] = useState(null); 
   const [isPreparingUpload, setIsPreparingUpload] = useState(false);
+  const [uploadError, setUploadError] = useState(''); // 🚀 TAMBAHAN: State Error Upload
 
   const [stakeInput, setStakeInput] = useState('');
   const [unstakeInput, setUnstakeInput] = useState('');
@@ -169,8 +170,6 @@ export default function DashboardPage() {
     setIsFetchingGlobalStats(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
-      
-      // ⭐ Pisahkan Try-Catch khusus untuk Vault (Platform Stats)
       try {
         const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
         const stats = await vaultContract.getPlatformStats();
@@ -180,11 +179,7 @@ export default function DashboardPage() {
           burned: parseFloat(ethers.formatUnits(stats[2], 18)),
           supply: parseFloat(ethers.formatUnits(stats[3], 18))
         });
-      } catch (vaultErr) {
-        console.error("Gagal muat Platform Stats:", vaultErr);
-      }
-
-      // ⭐ Pisahkan Try-Catch khusus untuk Staking Stats
+      } catch (vaultErr) {}
       if (IS_STAKING_ADDRESS_CONFIGURED) {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
@@ -194,13 +189,9 @@ export default function DashboardPage() {
             totalRewards: parseFloat(ethers.formatUnits(sStats[1], 18)),
             stakers: Number(sStats[2])
           });
-        } catch (stakeErr) {
-          console.error("Gagal muat Staking Stats:", stakeErr);
-        }
+        } catch (stakeErr) {}
       }
-    } catch (err) {
-      console.error("Error inisialisasi RPC Global Stats:", err);
-    } finally {
+    } catch (err) {} finally {
       setIsFetchingGlobalStats(false);
     }
   }, []);
@@ -224,7 +215,6 @@ export default function DashboardPage() {
             const r = await contract.tierConfigs(idx);
             results.push(r);
           } catch (e) {
-            console.warn(`Gagal memuat config tier ${idx}`, e);
             results.push(null); 
           }
         }
@@ -355,8 +345,7 @@ export default function DashboardPage() {
       });
       const allIds = Array.from(allIdsMap.values());
 
-      // ⭐ KODE MAINNET: BATCHING (Keroyokan Terkendali)
-      const chunkSize = 5; // Proses 5 kapsul sekaligus
+      const chunkSize = 5; 
       const results = [];
 
       for (let i = 0; i < allIds.length; i += chunkSize) {
@@ -388,20 +377,16 @@ export default function DashboardPage() {
                 status: meta.contentDeleted ? t.statusDeleted : meta.isClaimedOrRevealed ? t.statusOpened : ready ? t.statusReady : t.statusLocked,
               };
             } catch (err) {
-              console.warn(`Gagal memuat Kapsul ID ${id}:`, err);
-              return null; // Abaikan jika error agar tidak merusak batch
+              return null; 
             }
           })
         );
-        
-        // Masukkan hasil yang sukses (bukan null) ke array utama
         results.push(...batchResults.filter(item => item !== null));
       }
 
       results.sort((a, b) => Number(b.id) - Number(a.id));
       setMyCapsules(results);
     } catch (err) {
-      console.error(t.consoleCapsuleFail, err);
     } finally {
       setIsLoadingCapsules(false);
     }
@@ -412,32 +397,18 @@ export default function DashboardPage() {
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
-      
       const currentBlock = await provider.getBlockNumber();
-      // Turunkan ke 3000 blok saja agar RPC gratisan tidak memblokir
       const startBlock = Math.max(0, currentBlock - 3000); 
       
-      // ⭐ PERBAIKAN: Ubah Promise.all menjadi antrean satu per satu dengan pelindung!
       let sealedEvents = [];
       let revealedEvents = [];
       let claimedEvents = [];
       let pingEvents = [];
 
-      try {
-        sealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest");
-      } catch(e) { console.warn("Gagal muat log Sealed", e); }
-      
-      try {
-        revealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), startBlock, "latest");
-      } catch(e) { console.warn("Gagal muat log Revealed", e); }
-      
-      try {
-        claimedEvents = await vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), startBlock, "latest");
-      } catch(e) { console.warn("Gagal muat log Claimed", e); }
-      
-      try {
-        pingEvents = await vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), startBlock, "latest");
-      } catch(e) { console.warn("Gagal muat log Ping", e); }
+      try { sealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"); } catch(e) {}
+      try { revealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), startBlock, "latest"); } catch(e) {}
+      try { claimedEvents = await vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), startBlock, "latest"); } catch(e) {}
+      try { pingEvents = await vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), startBlock, "latest"); } catch(e) {}
 
       const allLogs = [
         ...sealedEvents.map((e) => ({ e, kind: 'sealed' })),
@@ -459,7 +430,6 @@ export default function DashboardPage() {
 
       setTransactions(built);
     } catch (err) {
-      console.warn("Gagal memuat riwayat:", err);
       setTransactions([]); 
     } finally {
       setIsLoadingHistory(false);
@@ -473,23 +443,19 @@ export default function DashboardPage() {
         const rawBalance = await provider.getBalance(address);
         setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
         try {
-          // ⭐ SALDO AETH DIAMBIL DARI KONTRAK TOKEN LAMA
           const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, provider);
           const rawAethBalance = await tokenContract.balanceOf(address);
           setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
           const registeredKey = await tokenContract.encryptionPublicKeys(address);
           setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x');
-        } catch (err) { console.log(t.consoleAetherVaultFail, err); }
+        } catch (err) {}
         
         try {
           if (STAKING_CONTRACT_ADDRESS) {
             const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-            
-            // Pengambilan data staking dibuat antre (sequential)
             const rawStaked = await stakingContract.stakedBalance(address);
             const rawReward = await stakingContract.calculateReward(address);
             const rawRate = await stakingContract.rewardRate();
-            
             setStakedBalance(parseFloat(ethers.formatUnits(rawStaked, 18)));
             setPendingReward(parseFloat(ethers.formatUnits(rawReward, 18)));
             setApyPercent(Number(rawRate) / 10);
@@ -506,7 +472,7 @@ export default function DashboardPage() {
         
         await fetchCapsulesFromChain(provider, address, privateKeyForTitles);
         await fetchOnChainHistory(address);
-      } catch (err) { console.error(t.consoleWalletFail, err); }
+      } catch (err) {}
     } else {
       setNativeBalance('0.0000'); setAethBalance(0); setStakedBalance(0); setPendingReward(0);
       setMyCapsules([]); setTransactions([]); setMyPublicKeyRegistered(false);
@@ -582,9 +548,12 @@ export default function DashboardPage() {
     }
   };
 
+  // 🚀 FIX: Handle error upload Arweave 
   const handleConfirmArweaveUpload = async () => {
     if (!stagedUpload) return;
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    
+    setUploadError(''); // Reset error lama
     setIsUploading(true);
     try {
       const result = await uploadToArweavePermanent(
@@ -598,6 +567,7 @@ export default function DashboardPage() {
       setStagedUpload(null);
     } catch (error) {
       showToast(t.fileUploadFailPrefix + extractErrorMessage(error), "error");
+      setUploadError(extractErrorMessage(error)); // Munculkan error di kotak
     } finally {
       setIsUploading(false);
     }
@@ -606,6 +576,7 @@ export default function DashboardPage() {
   const handleCancelStagedUpload = () => {
     setStagedUpload(null);
     setSelectedFile(null);
+    setUploadError(''); // Reset pesan error saat batal
   };
 
   const fileToBase64 = (file) => new Promise((resolve, reject) => {
@@ -633,7 +604,7 @@ export default function DashboardPage() {
     if (!isConnected) return showToast(t.authRejectedConnectWallet, 'error');
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
-    // 🚀 FIX 1: Cegah Seal jika ada gambar/file yang di-upload tapi belum di-Confirm ke Arweave!
+    // 🚀 FIX: Cegah Seal jika gambar belum di-Confirm ke Arweave!
     if (stagedUpload && !uploadedCid) {
       return showToast("⚠️ Anda belum mengonfirmasi upload lampiran gambar. Silakan klik 'Confirm & Pay Storage' dulu di kotak gambar!", "error");
     }
@@ -657,7 +628,6 @@ export default function DashboardPage() {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
 
-      // ⭐ TAMBAHAN OTOMATIS APPROVE TOKEN $AETH KE KONTRAK VAULT V3
       const requiredCostWei = ethers.parseUnits(selectedTierData.cost.toString(), 18);
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       
@@ -736,7 +706,6 @@ export default function DashboardPage() {
   const handleViewCertificate = async (capsuleId) => {
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     try {
-      // 🚀 FIX: Wajib pakai SIGNER. Jika pakai provider (anonim), Smart Contract akan menolak dengan require(false)
       const signer = await getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
       
@@ -807,7 +776,6 @@ export default function DashboardPage() {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const amountInWei = ethers.parseUnits(amount.toString(), 18);
-      // ⭐ ALLOWANCE & STAKE MENGGUNAKAN KONTRAK TOKEN LAMA
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
 
@@ -1123,6 +1091,7 @@ export default function DashboardPage() {
                   handleFileSelected={handleFileSelected}
                   getMinUnlockDatetimeLocal={getMinUnlockDatetimeLocal}
                   aethBalance={aethBalance}
+                  uploadError={uploadError} // 🚀 TAMBAHAN: Parsing error ke CreateCapsule
                 />
               )}
 
@@ -1242,7 +1211,6 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                    {/* 🚀 KOTAK 1: ECIES ENCRYPTION (Full Width & Konek Translate) */}
                     <div className="bg-[#0B0817] border border-fuchsia-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden sm:col-span-2">
                       <div className="absolute top-0 right-0 bg-fuchsia-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Military Grade</div>
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-4 flex items-center gap-2">
@@ -1256,7 +1224,6 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    {/* KOTAK 2: REENTRANCY */}
                     <div className="bg-[#0B0817] border border-cyan-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
                       <div className="absolute top-0 right-0 bg-cyan-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Active</div>
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2">
@@ -1270,7 +1237,6 @@ export default function DashboardPage() {
                       </a>
                     </div>
 
-                    {/* KOTAK 3: VAULT RESERVE */}
                     <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2">
                         <Coins className="w-4 h-4 sm:w-5 h-5 text-yellow-500"/> 
