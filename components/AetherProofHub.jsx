@@ -8,6 +8,8 @@ import AetherVaultV3ABI from './AetherVaultV3ABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
 const AETHER_VAULT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B";
+// ⭐ TAMBAHAN: Kita butuh alamat token AETH untuk memanggil fungsi Approve
+const AETH_TOKEN_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9"; 
 const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology/";
 
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
@@ -39,6 +41,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
 
   const [mintStep, setMintStep] = useState(0);
   const [generatedProof, setGeneratedProof] = useState(null);
+  const [mintingStatusMsg, setMintingStatusMsg] = useState('Please confirm transaction in MetaMask...'); // 🚀 STATE BARU UNTUK TEXT LOADING
 
   const [onChainProofs, setOnChainProofs] = useState([]);
   const [isLoadingHall, setIsLoadingHall] = useState(true);
@@ -179,29 +182,40 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const handleMintSequence = async (e) => {
     e.preventDefault();
     setView('minting');
+    setMintingStatusMsg('Preparing transaction...');
     
     try {
       setMintStep(1);
-      await new Promise(res => setTimeout(res, 1000));
+      await new Promise(res => setTimeout(res, 500));
       
-      setMintStep(2);
-      await new Promise(res => setTimeout(res, 1000));
-      
-      setMintStep(3);
       if (!window.ethereum) throw new Error("MetaMask not found!");
       
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, signer);
 
+      // 🚀 LOGIKA BARU: CEK DAN MINTA IZIN (APPROVE) TOKEN $AETH
+      const requiredCostWei = ethers.parseUnits(currentConfig.price.toString(), 18);
+      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultV3ABI, signer);
+      
+      setMintingStatusMsg('Memeriksa izin (Allowance) token $AETH...');
+      const currentAllowance = await tokenContract.allowance(address, AETHER_VAULT_ADDRESS);
+
+      if (currentAllowance < requiredCostWei) {
+        setMintingStatusMsg('Harap berikan izin (Approve) di MetaMask untuk memotong saldo AETH Anda...');
+        const approveTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, requiredCostWei);
+        setMintingStatusMsg('Menunggu konfirmasi jaringan untuk izin (Approve)...');
+        await approveTx.wait();
+        setMintingStatusMsg('Izin berhasil! Melanjutkan pembuatan sertifikat Proof...');
+      }
+
+      setMintStep(3);
+      const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, signer);
       setMintStep(4);
       
-      // ⭐ KODE BARU: 100% ON-CHAIN BASE64 DATA URI (PENGGANTI PINATA)
-      // Teks SVG sederhana yang akan muncul sebagai gambar NFT di OpenSea
+      // ⭐ 100% ON-CHAIN BASE64 DATA URI
       const svgImage = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#0B0817"/><text x="50%" y="50%" font-family="monospace" font-size="24" font-weight="bold" fill="#e4a329" text-anchor="middle" dy=".3em">AETHER PROOF</text></svg>`;
       const base64Svg = btoa(unescape(encodeURIComponent(svgImage)));
 
-      // Meracik Metadata JSON
       const metadataJSON = {
         name: title || "Aether Proof",
         description: "Aether Proof Immutable Certificate. 100% On-Chain Verification.",
@@ -213,13 +227,13 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         ]
       };
 
-      // Mengubah seluruh JSON menjadi Base64
       const encodedJSON = btoa(unescape(encodeURIComponent(JSON.stringify(metadataJSON))));
       const tokenURIParam = `data:application/json;base64,${encodedJSON}`;
 
-      // Eksekusi Smart Contract (Suntik langsung ke Polygon)
+      setMintingStatusMsg('Harap konfirmasi transaksi pencetakan (Mint) di MetaMask...');
       const tx = await contract.createProof(tier, category, fileHash, tokenURIParam, true);
       
+      setMintingStatusMsg('Menunggu validasi blok Polygon Amoy...');
       setMintStep(5);
       const receipt = await tx.wait();
 
@@ -257,7 +271,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       fetchOnChainHallOfProof();
     } catch (error) {
       console.error("Minting failed:", error);
-      alert("Transaction failed or rejected: " + (error.reason || error.message));
+      alert("Transaksi dibatalkan atau gagal: " + (error.reason || error.message));
       setView('form');
     }
   };
@@ -669,7 +683,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
           <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-8" />
           <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-8">Processing Polygon Amoy Transaction...</h3>
           <div className="w-full max-w-md space-y-4 font-mono text-xs sm:text-sm">
-             <div className="text-center text-neutral-400">Please confirm transaction in MetaMask...</div>
+             <div className="text-center text-cyan-400 font-bold bg-cyan-500/10 py-3 rounded-xl border border-cyan-500/20">{mintingStatusMsg}</div>
           </div>
         </div>
       )}
