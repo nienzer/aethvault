@@ -36,7 +36,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
     if (!isLoading) return;
     const steps = [
       tHop.syncing || "Syncing Registry...",
-      tHop.reading || "Reading Polygon...",
+      tHop.reading || "Reading Binance Smart Chain...",
       tHop.verifying || "Verifying Hashes...",
       tHop.loading || "Loading Certificates..."
     ];
@@ -54,7 +54,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
       try {
         const provider = window.ethereum 
           ? new ethers.BrowserProvider(window.ethereum)
-          : new ethers.JsonRpcProvider("https://rpc-amoy.polygon.technology/");
+          : new ethers.JsonRpcProvider("https://bsc-testnet-rpc.publicnode.com");
 
         const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AETHER_VAULT_ABI, provider);
         
@@ -214,7 +214,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
             {tHop.title || 'Hall of Proof™'}
           </h2>
           <p className="text-sm sm:text-base text-neutral-400 max-w-2xl mx-auto leading-relaxed">
-            {tHop.desc || 'The World\'s Permanent Registry for Verified Intellectual Property. Explore authentic digital assets secured directly on the Polygon blockchain.'}
+            {tHop.desc || 'The World\'s Permanent Registry for Verified Intellectual Property. Explore authentic digital assets secured directly on the Binance Smart Chain.'}
           </p>
         </div>
 
@@ -225,7 +225,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
             { label: tStats.burn || "AETH Burned", value: stats.burned.toLocaleString(), icon: Flame, color: "text-orange-400" },
             { label: tHop.creators || "Creators", value: stats.creators.toLocaleString(), icon: Users, color: "text-purple-400" },
             { label: tHop.categories || "Categories", value: 8, icon: Layers, color: "text-pink-400" },
-            { label: tHop.blocks || "Polygon Blocks", value: stats.blocks, icon: Blocks, color: "text-green-400" }
+            { label: tHop.blocks || "Binance Smart Chain Blocks", value: stats.blocks, icon: Blocks, color: "text-green-400" }
           ].map((stat, idx) => (
             <div key={idx} className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl hover:border-neutral-600 transition-colors shadow-lg flex flex-col justify-between">
               <div className="flex items-center justify-between mb-3">

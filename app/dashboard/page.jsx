@@ -1232,7 +1232,7 @@ export default function DashboardPage() {
                       <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">
                         {t.reentrancyDesc || 'Mekanisme keamanan tingkat tinggi yang mencegah serangan manipulasi berulang (re-entrancy attacks) saat proses eksekusi smart contract.'}
                       </p>
-                      <a href={`https://testnet.bscscan.com.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
+                      <a href={`https://testnet.bscscan.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
                         {t.viewCodeBtn || 'View Source Code'} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
@@ -1245,7 +1245,7 @@ export default function DashboardPage() {
                       <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">
                         {t.vaultReserveDesc || 'Dana diamankan di dalam brankas terisolasi (isolated vault) yang terverifikasi on-chain sepenuhnya.'}
                       </p>
-                      <a href={`https://testnet.bscscan.com.com/address/${STAKING_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-yellow-400 bg-yellow-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-all border border-yellow-500/30">
+                      <a href={`https://testnet.bscscan.com/address/${STAKING_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-yellow-400 bg-yellow-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-all border border-yellow-500/30">
                         {t.checkVaultBtn || 'Check Reserve'} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>

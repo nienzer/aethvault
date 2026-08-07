@@ -9,7 +9,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space
 
 export const metadata = {
   title: 'AetherVault | Time-Locked Crypto Vault',
-  description: 'Secure, non-custodial time-locked crypto vault on Polygon.',
+  description: 'Secure, non-custodial time-locked crypto vault on Binance Smart Chain .',
 };
 
 export default function RootLayout({

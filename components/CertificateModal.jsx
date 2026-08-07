@@ -83,7 +83,7 @@ export default function CertificateModal({
               
               <div className="absolute top-8 right-8 flex items-center gap-2 z-20 bg-white/90 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
                 <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
-                <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">{t.certBadgePolygon || "Verified on Polygon"}</span>
+                <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">{t.certBadgePolygon || "Verified on Binance"}</span>
               </div>
 
               <img src="/whatermark.png" alt="" className="absolute inset-0 w-full h-full object-contain opacity-[0.03] pointer-events-none grayscale mix-blend-multiply p-20" />
@@ -153,7 +153,7 @@ export default function CertificateModal({
                     {t.certRegisteredBy || "Registered By"}<br/>
                     <span className="text-xs font-black mt-0.5 block">AETHVAULT™ REGISTRY</span>
                   </p>
-                  <p className="text-[7px] text-neutral-500 font-mono mt-1.5 tracking-widest bg-amber-900/5 inline-block px-1.5 py-0.5 rounded">{t.certImmutableBadge || "IMMUTABLE"} • {TARGET_CHAIN_NAME || 'POLYGON'}</p>
+                  <p className="text-[7px] text-neutral-500 font-mono mt-1.5 tracking-widest bg-amber-900/5 inline-block px-1.5 py-0.5 rounded">{t.certImmutableBadge || "IMMUTABLE"} • {TARGET_CHAIN_NAME || 'BINANCE'}</p>
                 </div>
 
                 <div className="text-center mb-2 px-8 flex flex-col items-center">

@@ -137,7 +137,7 @@ export default function LandingPage() {
               
               <div className="bg-purple-500/10 backdrop-blur-xl border border-purple-500/20 p-3.5 rounded-2xl flex items-center gap-3 shadow-[0_8px_30px_rgb(168,85,247,0.15)] transform -translate-x-4 animate-float" style={{ animationDelay: '1s' }}>
                  <div className="w-10 h-10 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center"><Layers className="w-5 h-5 text-purple-300"/></div>
-                 <div><p className="text-white font-bold text-xs">Polygon Network</p><p className="text-[9px] text-purple-300 font-mono">L2 Immutable Storage</p></div>
+                 <div><p className="text-white font-bold text-xs">Binance Smart Chain</p><p className="text-[9px] text-purple-300 font-mono">L2 Immutable Storage</p></div>
               </div>
               <div className="w-0.5 h-5 bg-gradient-to-b from-purple-500/50 to-cyan-500/50 mx-auto"></div>
 
@@ -238,7 +238,7 @@ export default function LandingPage() {
                    <p className="text-purple-300 text-sm sm:text-base font-bold">{liveStats.tvl.toLocaleString()} AETH</p>
                  </div>
                  <div className="bg-black/40 backdrop-blur-md border border-white/10 p-3 rounded-xl space-y-1.5 col-span-2 sm:col-span-1 shadow-inner">
-                   <p className="text-neutral-400 uppercase tracking-widest text-[7px] sm:text-[8px]">Polygon Block</p>
+                   <p className="text-neutral-400 uppercase tracking-widest text-[7px] sm:text-[8px]">BSC Block</p>
                    <p className="text-green-400 text-sm sm:text-base font-bold">#{liveStats.block > 0 ? liveStats.block.toLocaleString() : "Syncing"}</p>
                  </div>
                </div>
@@ -524,8 +524,8 @@ export default function LandingPage() {
            <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-6 opacity-100">
               
               <div className="flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:scale-105 transition-all">
-                 <img src="/polygon.png" alt="Polygon" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
-                 <span className="text-[10px] sm:text-sm font-bold font-mono text-white tracking-wide">POLYGON</span>
+                 <img src="/binance.png" alt="Binance" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                 <span className="text-[10px] sm:text-sm font-bold font-mono text-white tracking-wide">BINANCE</span>
               </div>
 
               <div className="flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:bg-white/20 hover:scale-105 transition-all">
@@ -592,7 +592,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between text-[10px] sm:text-xs text-neutral-500 font-mono gap-3">
           <p>© {new Date().getFullYear()} Nienzer. Hak Cipta Dilindungi. Email: admin@aethvault.xyz</p>
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span> Polygon Mainnet Operational
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span> BSC Mainnet Operational
           </div>
         </div>
       </footer>

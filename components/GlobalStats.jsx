@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Flame, UserX, Users, Loader2, Database, ShieldCheck, Activity, Award, Wallet, Coins, Clock, Blocks, Zap } from 'lucide-react';
 import { ethers } from 'ethers';
 
-const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology/";
+const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const AETHER_VAULT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD";
 const STAKING_CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576";
 
@@ -251,7 +251,7 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
         <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-white/40 hover:shadow-[0_10px_20px_-10px_rgba(255,255,255,0.2)] hover:-translate-y-1 transition-all lg:col-span-3">
           <div className="flex items-center justify-between mb-3 border-b border-neutral-800/50 pb-3">
             <span className="text-[10px] uppercase text-neutral-500 font-bold font-mono tracking-widest flex items-center gap-2">
-              <Blocks className="w-4 h-4 text-white"/> {t.height || "Polygon Network Height"}
+              <Blocks className="w-4 h-4 text-white"/> {t.height || "Binance Smart Chain"}
             </span>
             <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700 px-2.5 py-1 rounded shadow-inner">
                <div className="w-2 h-2 bg-green-400 rounded-full animate-ping"></div>

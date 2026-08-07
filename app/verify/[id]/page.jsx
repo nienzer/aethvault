@@ -6,7 +6,7 @@ import { Shield, CheckCircle2, AlertTriangle, Loader2, Award, Database, Clock, K
 import Link from 'next/link';
 
 const CONTRACT_ADDRESS = "0x631Bf65a007dD76f64605D5cdAA0dd0e0D9328C5";
-const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology/";
+const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const TARGET_CHAIN_NAME = "BSC Testnet Testnet";
 
 const AetherVaultABI = [

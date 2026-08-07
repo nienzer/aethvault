@@ -10,7 +10,7 @@ import { useLanguage } from '@/context/LanguageContext';
 const AETHER_VAULT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD";
 // ⭐ TAMBAHAN: Kita butuh alamat token AETH untuk memanggil fungsi Approve
 const AETH_TOKEN_ADDRESS = "0x631Bf65a007dD76f64605D5cdAA0dd0e0D9328C5"; 
-const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology/";
+const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
   const { t: globalT } = useLanguage();
@@ -309,7 +309,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
     <div ref={certificateRef} className="w-[842px] h-[595px] bg-[#fdfbf7] text-neutral-900 rounded-sm p-10 relative overflow-hidden shadow-2xl font-serif border border-neutral-300 mx-auto flex flex-col justify-between shrink-0">
       <div className="absolute top-8 right-8 flex items-center gap-2 z-20 bg-white/90 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
         <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
-        <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">{tDash.certBadgePolygon || 'Verified on Polygon'}</span>
+        <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">{tDash.certBadgePolygon || 'Verified on Binance'}</span>
       </div>
 
       <img src="/whatermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-[0.05] pointer-events-none grayscale mix-blend-multiply p-20" />
@@ -381,7 +381,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             {tDash.certRegisteredBy || 'Certified & Permanently Registered by'}<br/>
             <span className="text-xs font-black mt-0.5 block">AETHVAULT™ REGISTRY</span>
           </p>
-          <p className="text-[7px] text-neutral-500 font-mono mt-1.5 tracking-widest bg-amber-900/5 inline-block px-1.5 py-0.5 rounded">{tDash.certImmutableBadge || 'IMMUTABLE • ON-CHAIN'} • {proofData?.network || 'POLYGON'}</p>
+          <p className="text-[7px] text-neutral-500 font-mono mt-1.5 tracking-widest bg-amber-900/5 inline-block px-1.5 py-0.5 rounded">{tDash.certImmutableBadge || 'IMMUTABLE • ON-CHAIN'} • {proofData?.network || 'BINANCE'}</p>
         </div>
 
         <div className="text-center mb-2 px-8 flex flex-col items-center">
@@ -440,7 +440,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                 
                 <div className="space-y-3 w-full max-w-[240px] text-center">
                   <div className="p-3 bg-neutral-900 border border-neutral-800 rounded-xl text-xs font-mono font-bold text-white flex items-center justify-center gap-2 shadow">
-                    <Globe className="w-4 h-4 text-purple-400 animate-spin" /> Polygon Network
+                    <Globe className="w-4 h-4 text-purple-400 animate-spin" /> Binance Smart Chain
                   </div>
                   <div className="h-4 w-0.5 bg-gradient-to-b from-purple-500 to-amber-500 mx-auto"></div>
                   <div className="p-3 bg-neutral-900 border border-neutral-800 rounded-xl text-xs font-mono font-bold text-white flex items-center justify-center gap-2 shadow">
@@ -669,7 +669,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                   date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
                   network: TARGET_CHAIN_NAME || "BSC Testnet",
                   contract: AETHER_VAULT_ADDRESS,
-                  verifyUrl: "https://testnet.bscscan.com.com/address/" + AETHER_VAULT_ADDRESS
+                  verifyUrl: "https://testnet.bscscan.com/address/" + AETHER_VAULT_ADDRESS
                 }} />
               </div>
             </div>
@@ -706,7 +706,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             <button onClick={handleDownloadPNG} className="bg-[#05030F] border border-amber-900/50 hover:bg-neutral-900 text-white font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg">
               <ImageIcon className="w-4 h-4 text-cyan-400" /> Export PNG
             </button>
-            <a href={`https://testnet.bscscan.com.com/tx/${generatedProof.txHash}`} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer no-underline shadow-lg">
+            <a href={`https://testnet.bscscan.com/tx/${generatedProof.txHash}`} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer no-underline shadow-lg">
               <ExternalLink className="w-4 h-4" /> View Transaction
             </a>
           </div>

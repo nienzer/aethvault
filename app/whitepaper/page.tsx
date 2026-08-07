@@ -130,7 +130,7 @@ export default function WhitepaperPage() {
                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgc3Ryb2tlPSIjM0IzQjRCIiBzdHJva2Utd2lkdGg9IjAuNSIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTTAgNDBoNDBNNDAgMHY0MCIvPjwvZz48L3N2Zz4=')] opacity-20"></div>
                    
                    <div className="relative z-10 w-full max-w-md space-y-2">
-                     {["User Local Input", "ECIES Browser Encryption", "IPFS / Arweave Storage", "Polygon Smart Contract", "Immutable Registry"].map((step, idx) => (
+                     {["User Local Input", "ECIES Browser Encryption", "IPFS / Arweave Storage", "BSC Smart Contract", "Immutable Registry"].map((step, idx) => (
                        <React.Fragment key={idx}>
                          <div className="bg-neutral-900 border border-neutral-700 p-4 rounded-xl text-center font-bold text-sm text-cyan-300 shadow-md flex items-center justify-center gap-3">
                            {idx === 1 ? <Lock className="w-4 h-4"/> : idx === 3 ? <Layers className="w-4 h-4"/> : <CheckCircle2 className="w-4 h-4 text-green-400"/>}

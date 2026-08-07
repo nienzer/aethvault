@@ -333,7 +333,7 @@ export default function CreateCapsule({
               </span>
               <span className="text-lg font-bold text-cyan-400 font-mono">AETH</span>
             </div>
-            <p className="text-[10px] text-neutral-500 font-mono">Secured by Polygon</p>
+            <p className="text-[10px] text-neutral-500 font-mono">Secured by Binance</p>
           </div>
 
         </div>
