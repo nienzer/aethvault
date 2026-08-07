@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
 
-const RPC_URL = "https://polygon-amoy.drpc.org";
-const AETHER_VAULT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B";
-const STAKING_CONTRACT_ADDRESS = "0xc72433e176F2935965cbf595d6f30a70A89F702c";
+const RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
+const AETHER_VAULT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD";
+const STAKING_CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576";
 
 const VAULT_ABI = ["function totalCapsulesCreated() view returns (uint256)"];
 const STAKING_ABI = ["function getStakingStats() view returns (uint256 currentTotalStaked, uint256 totalRewardsPaid, uint256 stakersCount, uint256 rewardPoolAvailable)"];
@@ -19,7 +19,7 @@ export default function LandingPage() {
 
   const [toast, setToast] = useState(null);
   const [liveStats, setLiveStats] = useState({ block: 0, proofs: 0, tvl: 0, stakers: 0 });
-  const [onChainStatus, setOnChainStatus] = useState("Connecting to Polygon Amoy...");
+  const [onChainStatus, setOnChainStatus] = useState("Connecting to BSC Testnet...");
 
   const showToast = (msg, type = 'info') => {
     setToast({ msg, type });
@@ -159,7 +159,7 @@ export default function LandingPage() {
       <div className="border-y border-white/5 bg-white/5 backdrop-blur-xl py-3 relative z-20 shadow-[0_4px_30px_rgba(0,0,0,0.1)] mt-4 lg:mt-0">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-3 sm:gap-12 text-[9px] sm:text-xs font-mono">
           <div className="flex items-center gap-1.5 text-neutral-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Network: <span className="text-white font-bold">Polygon Amoy</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Network: <span className="text-white font-bold">BSC Testnet</span>
           </div>
           <div className="flex items-center gap-1.5 text-neutral-300">
              Block: <span className="text-cyan-400 font-bold">{liveStats.block > 0 ? liveStats.block.toLocaleString() : "Syncing..."}</span>
@@ -214,7 +214,7 @@ export default function LandingPage() {
              </div>
              <div>
                <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">Hall of Proof™ Live Records</h2>
-               <p className="text-neutral-300 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">Real-time smart contract state directly queried from Polygon Amoy blockchain.</p>
+               <p className="text-neutral-300 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">Real-time smart contract state directly queried from BSC Testnet blockchain.</p>
              </div>
 
              <div className="w-full bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-4 sm:p-6 text-left shadow-[0_30px_60px_rgba(0,0,0,0.4)]">

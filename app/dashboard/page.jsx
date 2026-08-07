@@ -71,21 +71,21 @@ const StakingABI = [
 ];
 
 // ⭐ ALAMAT KONTRAK DIPISAH DENGAN JELAS
-const AETH_TOKEN_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9"; 
-const CONTRACT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B"; 
-const STAKING_CONTRACT_ADDRESS = "0xc72433e176F2935965cbf595d6f30a70A89F702c"; 
+const AETH_TOKEN_ADDRESS = "0x631Bf65a007dD76f64605D5cdAA0dd0e0D9328C5"; 
+const CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; 
+const STAKING_CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; 
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED = CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
 const IS_STAKING_ADDRESS_CONFIGURED = STAKING_CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
 
-const TARGET_CHAIN_ID = 80002;
+const TARGET_CHAIN_ID = 97;
 const TARGET_CHAIN_ID_HEX = "0x" + TARGET_CHAIN_ID.toString(16);
-const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
+const TARGET_CHAIN_NAME = "BSC Testnet Testnet";
 
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
-const READ_ONLY_RPC_URL = "https://polygon-amoy.drpc.org";
+const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
 const TIER_FALLBACK_CONFIG = {
   basic: { cost: 10, burn: 2, maxLength: 250, maxYears: 1 },
@@ -1232,7 +1232,7 @@ export default function DashboardPage() {
                       <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">
                         {t.reentrancyDesc || 'Mekanisme keamanan tingkat tinggi yang mencegah serangan manipulasi berulang (re-entrancy attacks) saat proses eksekusi smart contract.'}
                       </p>
-                      <a href={`https://amoy.polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
+                      <a href={`https://testnet.bscscan.com.com/address/${STAKING_CONTRACT_ADDRESS}#code`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-all border border-cyan-500/30">
                         {t.viewCodeBtn || 'View Source Code'} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
@@ -1245,7 +1245,7 @@ export default function DashboardPage() {
                       <p className="text-[10px] sm:text-sm text-neutral-400 mb-4 sm:mb-6 leading-relaxed">
                         {t.vaultReserveDesc || 'Dana diamankan di dalam brankas terisolasi (isolated vault) yang terverifikasi on-chain sepenuhnya.'}
                       </p>
-                      <a href={`https://amoy.polygonscan.com/address/${STAKING_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-yellow-400 bg-yellow-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-all border border-yellow-500/30">
+                      <a href={`https://testnet.bscscan.com.com/address/${STAKING_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-xs font-bold text-yellow-400 bg-yellow-500/10 px-3 sm:px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-all border border-yellow-500/30">
                         {t.checkVaultBtn || 'Check Reserve'} <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
@@ -1286,7 +1286,7 @@ export default function DashboardPage() {
                           <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.rpcDesc}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto mt-1 sm:mt-0">
-                          <input type="text" disabled value="Polygon Amoy Testnet" className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none text-center sm:text-left" />
+                          <input type="text" disabled value="BSC Testnet Testnet" className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none text-center sm:text-left" />
                           <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? t.wrongNetwork : t.connected}</span>
                         </div>
                       </div>

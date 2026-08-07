@@ -52,7 +52,7 @@ export default function CertificateModal({
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   const dateStr = new Date(selectedCertificate.creationTimestamp * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-  const verifyUrl = `https://amoy.polygonscan.com/tx/${selectedCertificate.proofHash}`;
+  const verifyUrl = `https://testnet.bscscan.com.com/tx/${selectedCertificate.proofHash}`;
 
   return (
     <div className="fixed inset-0 bg-[#030208]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-300">
@@ -133,7 +133,7 @@ export default function CertificateModal({
                   </div>
                   <div className="col-span-1 pl-2 pt-2 border-t">
                     <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">{t.certSmartContract || "Smart Contract"}</p>
-                    <p className="font-bold text-neutral-900 text-[10px]">{formatAddress("0xb273Bdad4D9d0053657359F45d189561449aa56B")}</p>
+                    <p className="font-bold text-neutral-900 text-[10px]">{formatAddress("0x318Ec508E9D33DaD230a76A600E04C26757A71FD")}</p>
                   </div>
 
                   <div className="col-span-3 border-t border-amber-900/20 pt-4 mt-2 flex flex-col gap-3">

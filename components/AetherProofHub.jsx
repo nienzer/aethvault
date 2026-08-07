@@ -7,9 +7,9 @@ import jsPDF from 'jspdf';
 import AetherVaultV3ABI from './AetherVaultV3ABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
-const AETHER_VAULT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B";
+const AETHER_VAULT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD";
 // ⭐ TAMBAHAN: Kita butuh alamat token AETH untuk memanggil fungsi Approve
-const AETH_TOKEN_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9"; 
+const AETH_TOKEN_ADDRESS = "0x631Bf65a007dD76f64605D5cdAA0dd0e0D9328C5"; 
 const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology/";
 
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
@@ -110,7 +110,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             owner: `${args[1].substring(0, 6)}...${args[1].substring(args[1].length - 4)}`,
             ownerFull: args[1],
             date: new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-            network: TARGET_CHAIN_NAME || "Polygon Amoy",
+            network: TARGET_CHAIN_NAME || "BSC Testnet",
             hash: `${args[2].substring(0, 8)}...`,
             fullHash: args[2],
             status: "Verified On-Chain",
@@ -233,7 +233,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       setMintingStatusMsg('Harap konfirmasi transaksi pencetakan (Mint) di MetaMask...');
       const tx = await contract.createProof(tier, category, fileHash, tokenURIParam, true);
       
-      setMintingStatusMsg('Menunggu validasi blok Polygon Amoy...');
+      setMintingStatusMsg('Menunggu validasi blok BSC Testnet...');
       setMintStep(5);
       const receipt = await tx.wait();
 
@@ -263,8 +263,8 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         fileHash: fileHash,
         metaHash: metadataHash,
         date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-        network: TARGET_CHAIN_NAME || "Polygon Amoy",
-        verifyUrl: `https://amoy.polygonscan.com/address/${AETHER_VAULT_ADDRESS}`
+        network: TARGET_CHAIN_NAME || "BSC Testnet",
+        verifyUrl: `https://testnet.bscscan.com.com/address/${AETHER_VAULT_ADDRESS}`
       });
       
       setView('success');
@@ -459,7 +459,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             {[
               { label: tHop.totalProofs || "On-Chain Proofs", value: globalProtocolStats.totalProofs, icon: Award, color: "text-amber-400" },
               { label: tHop.creators || "Global Creators", value: globalProtocolStats.totalProofs > 0 ? `${globalProtocolStats.totalProofs}+` : "0", icon: User, color: "text-cyan-400" },
-              { label: "Network", value: "Polygon Amoy", icon: Globe, color: "text-purple-400" },
+              { label: "Network", value: "BSC Testnet", icon: Globe, color: "text-purple-400" },
               { label: tStats.burn || "$AETH Burned", value: `${globalProtocolStats.burnedTotal} AETH`, icon: Flame, color: "text-red-400" }
             ].map((stat, idx) => (
               <div key={idx} className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl shadow-xl">
@@ -667,9 +667,9 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                   fileHash: isHashing ? 'Calculating Keccak256...' : fileHash,
                   metaHash: metadataHash,
                   date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-                  network: TARGET_CHAIN_NAME || "Polygon Amoy",
+                  network: TARGET_CHAIN_NAME || "BSC Testnet",
                   contract: AETHER_VAULT_ADDRESS,
-                  verifyUrl: "https://amoy.polygonscan.com/address/" + AETHER_VAULT_ADDRESS
+                  verifyUrl: "https://testnet.bscscan.com.com/address/" + AETHER_VAULT_ADDRESS
                 }} />
               </div>
             </div>
@@ -681,7 +681,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       {view === 'minting' && (
         <div className="bg-[#0B0817] border border-amber-500/30 p-10 sm:p-16 rounded-3xl shadow-xl flex flex-col items-center justify-center min-h-[400px]">
           <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-8" />
-          <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-8">Processing Polygon Amoy Transaction...</h3>
+          <h3 className="font-display text-xl sm:text-2xl font-bold text-white mb-8">Processing BSC Testnet Transaction...</h3>
           <div className="w-full max-w-md space-y-4 font-mono text-xs sm:text-sm">
              <div className="text-center text-cyan-400 font-bold bg-cyan-500/10 py-3 rounded-xl border border-cyan-500/20">{mintingStatusMsg}</div>
           </div>
@@ -706,7 +706,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             <button onClick={handleDownloadPNG} className="bg-[#05030F] border border-amber-900/50 hover:bg-neutral-900 text-white font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg">
               <ImageIcon className="w-4 h-4 text-cyan-400" /> Export PNG
             </button>
-            <a href={`https://amoy.polygonscan.com/tx/${generatedProof.txHash}`} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer no-underline shadow-lg">
+            <a href={`https://testnet.bscscan.com.com/tx/${generatedProof.txHash}`} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer no-underline shadow-lg">
               <ExternalLink className="w-4 h-4" /> View Transaction
             </a>
           </div>

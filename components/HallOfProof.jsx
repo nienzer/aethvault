@@ -3,7 +3,7 @@ import { Award, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Search, Ex
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
 
-const AETHER_VAULT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B";
+const AETHER_VAULT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD";
 const AETHER_VAULT_ABI = [
   "function totalProofs() external view returns (uint256)",
   "function getProofDetails(uint256 _tokenId) external view returns (tuple(string category, bytes32 fileHash, bool isPublic, uint256 timestamp))",
@@ -417,7 +417,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
                       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-neutral-500 mb-4">
                         <span className="text-cyan-500 font-bold">{proof.category}</span>
                         <span>•</span>
-                        <span>Polygon Amoy</span>
+                        <span>BSC Testnet</span>
                       </div>
 
                       <div className="bg-[#030208] border border-neutral-800/80 rounded-xl p-3 space-y-2 mb-5 shadow-inner">

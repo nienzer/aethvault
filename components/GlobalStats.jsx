@@ -4,8 +4,8 @@ import { Flame, UserX, Users, Loader2, Database, ShieldCheck, Activity, Award, W
 import { ethers } from 'ethers';
 
 const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology/";
-const AETHER_VAULT_ADDRESS = "0xb273Bdad4D9d0053657359F45d189561449aa56B";
-const STAKING_CONTRACT_ADDRESS = "0xc72433e176F2935965cbf595d6f30a70A89F702c";
+const AETHER_VAULT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD";
+const STAKING_CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576";
 
 const VAULT_ABI = [
   "function totalProofs() view returns (uint256)",

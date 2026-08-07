@@ -1,41 +1,22 @@
 "use client";
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers/react';
 
-// ==========================================================================
-// WEB3MODAL CONFIG — TESTNET (Polygon Amoy)
-// ==========================================================================
-// File ini konfigurasi Web3Modal untuk jaringan Polygon Amoy Testnet
-// (Chain ID 80002). Gunakan file ini HANYA untuk development/testing.
-//
-// PERBEDAAN DENGAN MAINNET:
-// - Chain ID: 80002 (bukan 137)
-// - RPC: Amoy testnet RPC
-// - Explorer: amoy.polygonscan.com
-// - User butuh testnet POL (bukan POL mainnet real)
-// - Project ID BISA pakai yang sama dengan mainnet (WalletConnect tidak
-//   membedakan mainnet/testnet di project ID)
-//
-// PENTING:
-// - JANGAN deploy file ini ke production/mainnet.
-// - Pastikan user sudah add network Amoy di MetaMask:
-//   https://chainlist.org/?search=amoy&testnets=true
-// ==========================================================================
+const projectId = '3a3b654d5b853b6f34f7aeab2a6ef27e';
 
-const projectId = '3a3b654d5b853b6f34f7aeab2a6ef27e'; // ← BISA pakai ID yang sama dengan mainnet
-
-const polygonAmoyTestnet = {
-  chainId: 80002,
-  name: 'Polygon Amoy Testnet',
-  currency: 'POL',
-  explorerUrl: 'https://amoy.polygonscan.com',
-  rpcUrl: 'https://rpc-amoy.polygon.technology/'
+// NAMA VARIABEL DIGANTI AGAR SESUAI DAN RAPI
+const bscTestnet = {
+  chainId: 97,
+  name: 'BSC Testnet', // Nama dipendekkan biar cantik di tampilan dompet
+  currency: 'tBNB',
+  explorerUrl: 'https://testnet.bscscan.com', // Tanda / di belakang dihapus
+  rpcUrl: 'https://bsc-testnet-rpc.publicnode.com' // Tanda / di belakang dihapus biar aman
 };
 
 const metadata = {
   name: 'AetherVault (Testnet)',
-  description: 'Secure Time-Locked Crypto Vault on Polygon Testnet',
-  url: 'https://aethervault.xyz',
-  icons: ['https://aethervault.xyz/logo.png']
+  description: 'Secure Time-Locked Crypto Vault on Binance Testnet',
+  url: 'https://aethvault.xyz', // Alamat web sudah fix benar
+  icons: ['https://aethvault.xyz/logo.png'] // Ikon juga sudah fix benar
 };
 
 const ethersConfig = defaultConfig({
@@ -47,7 +28,7 @@ const ethersConfig = defaultConfig({
 
 createWeb3Modal({
   ethersConfig,
-  chains: [polygonAmoyTestnet],
+  chains: [bscTestnet], // PANGGIL NAMA VARIABEL YANG BARU DI SINI
   projectId,
   featuredWalletIds: [
     'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // MetaMask

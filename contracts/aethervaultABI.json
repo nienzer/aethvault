@@ -31,21 +31,6 @@
 		"type": "constructor"
 	},
 	{
-		"inputs": [],
-		"name": "AlreadyOpened",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "CapsuleNotFound",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "ContentAlreadyDeleted",
-		"type": "error"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -133,52 +118,12 @@
 	},
 	{
 		"inputs": [],
-		"name": "EmptyPayload",
-		"type": "error"
-	},
-	{
-		"inputs": [],
 		"name": "EnforcedPause",
 		"type": "error"
 	},
 	{
 		"inputs": [],
 		"name": "ExpectedPause",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "HeirKeyMissing",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "InsufficientBalance",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "InvalidAddress",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "InvalidPublicKeyFormat",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "InvalidTime",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "MessageTooLong",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "NotReady",
 		"type": "error"
 	},
 	{
@@ -217,21 +162,6 @@
 			}
 		],
 		"name": "SafeERC20FailedOperation",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "TransferFailed",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "Unauthorized",
-		"type": "error"
-	},
-	{
-		"inputs": [],
-		"name": "WrongTier",
 		"type": "error"
 	},
 	{
@@ -1002,7 +932,7 @@
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "totalCapsules",
+				"name": "_totalCapsules",
 				"type": "uint256"
 			},
 			{

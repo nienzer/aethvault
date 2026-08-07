@@ -5,9 +5,9 @@ import { ethers } from 'ethers';
 import { Shield, CheckCircle2, AlertTriangle, Loader2, Award, Database, Clock, Key, Globe, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
-const CONTRACT_ADDRESS = "0x8a3fb1F06e2381F1B4B0dfE5bC506d8f953C9BE9";
+const CONTRACT_ADDRESS = "0x631Bf65a007dD76f64605D5cdAA0dd0e0D9328C5";
 const READ_ONLY_RPC_URL = "https://rpc-amoy.polygon.technology/";
-const TARGET_CHAIN_NAME = "Polygon Amoy Testnet";
+const TARGET_CHAIN_NAME = "BSC Testnet Testnet";
 
 const AetherVaultABI = [
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getCertificate", "outputs": [
@@ -123,7 +123,7 @@ export default function VerifyPage() {
 
                 <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-xl">
                   <p className="text-neutral-500 text-[10px] uppercase tracking-widest mb-1">Creator / Owner Wallet</p>
-                  <a href={`https://amoy.polygonscan.com/address/${certData.owner}`} target="_blank" rel="noreferrer" className="text-cyan-400 hover:text-cyan-300 font-mono text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors">
+                  <a href={`https://testnet.bscscan.com.com/address/${certData.owner}`} target="_blank" rel="noreferrer" className="text-cyan-400 hover:text-cyan-300 font-mono text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors">
                     {certData.owner} <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
