@@ -19,7 +19,7 @@ export default function CreateCapsule({
   handleConfirmArweaveUpload, handleCancelStagedUpload, handleFileSelected,
   getMinUnlockDatetimeLocal,
   aethBalance,
-  uploadError // 🚀 TAMBAHAN: Menerima prop error dari page.jsx
+  uploadError
 }) {
   const { t: globalT } = useLanguage();
   const tDash = globalT.dashboard || {};
@@ -81,51 +81,53 @@ export default function CreateCapsule({
               />
             </div>
 
-            {/* SECURITY TIER CARDS */}
+            {/* SECURITY TIER CARDS - FIX LAYOUT KIRI KANAN */}
             <div className="space-y-3">
               <label className="block text-[10px] font-bold text-cyan-500 uppercase tracking-widest font-mono">{tDash.securityTierLabel || 'Security Tier'}</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* 🚀 UBAH: Dari grid-cols-1 jadi grid-cols-2 agar di HP tetap sejajar */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {Object.entries(tiers).map(([key, data]) => {
                   const isSelected = tier === key;
-                  const isPopular = key === 'premium';
+                  const isPopular = key === 'premium' || key === 'vip';
                   return (
                     <button
                       key={key}
                       type="button"
                       onClick={() => setTier(key)}
-                      className={`p-5 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${
+                      className={`p-3 sm:p-5 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between ${
                         isSelected 
-                          ? 'border-cyan-400 bg-gradient-to-b from-neutral-900/90 to-[#05030F] shadow-[0_0_25px_rgba(34,211,238,0.2)] ring-1 ring-cyan-400/50' 
+                          ? 'border-cyan-400 bg-gradient-to-b from-neutral-900/90 to-[#05030F] shadow-[0_0_15px_rgba(34,211,238,0.2)] ring-1 ring-cyan-400/50' 
                           : 'border-neutral-900 bg-[#05030F] hover:border-neutral-700'
                       }`}
                     >
                       {isPopular && (
-                        <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[8px] font-mono font-bold px-3 py-1 rounded-bl-xl uppercase tracking-widest shadow-md">
-                          {tTiers.popular || 'Most Popular'}
+                        <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[7px] sm:text-[8px] font-mono font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-bl-xl uppercase tracking-widest shadow-md">
+                          {tTiers.popular || 'Popular'}
                         </div>
                       )}
 
                       <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <div className={`w-8 h-8 rounded-xl ${data.icon} flex items-center justify-center shrink-0`}>
-                            {key === 'legacy' ? <UserX className={`w-4 h-4 ${data.color}`} /> : <Shield className={`w-4 h-4 ${data.color}`} />}
+                        <div className="flex items-center justify-between mb-2 sm:mb-3">
+                          <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl ${data.icon} flex items-center justify-center shrink-0`}>
+                            {key === 'legacy' ? <UserX className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${data.color}`} /> : <Shield className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${data.color}`} />}
                           </div>
-                          <span className="font-mono text-xs font-bold text-white px-3 py-1 bg-[#0B0817] rounded-xl border border-neutral-800">{data.cost} AETH</span>
+                          <span className="font-mono text-[9px] sm:text-xs font-bold text-white px-2 py-1 bg-[#0B0817] rounded-xl border border-neutral-800">{data.cost} AETH</span>
                         </div>
-                        <div className="font-bold text-sm mb-1 text-white flex items-center gap-2">
-                          {data.name}
-                          {isSelected && <Check className="w-4 h-4 text-cyan-400 ml-auto" />}
+                        <div className="font-bold text-[11px] sm:text-sm mb-1 text-white flex items-center gap-1 sm:gap-2">
+                          <span className="truncate">{data.name}</span>
+                          {isSelected && <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 ml-auto shrink-0" />}
                         </div>
-                        <p className="text-[11px] text-neutral-400 mb-4 leading-relaxed">{data.desc}</p>
+                        <p className="text-[9px] sm:text-[11px] text-neutral-400 mb-3 sm:mb-4 leading-snug sm:leading-relaxed line-clamp-2 sm:line-clamp-none">{data.desc}</p>
                       </div>
 
-                      <div className="flex items-center justify-between border-t border-neutral-800/80 pt-3 w-full">
-                        <span className="text-[10px] text-red-400 font-bold flex items-center gap-1 font-mono">
-                          <Flame className="w-3.5 h-3.5" /> {tDash.burnLabel || 'Burn'} {data.burn} AETH
+                      <div className="flex items-center justify-between border-t border-neutral-800/80 pt-2.5 sm:pt-3 w-full">
+                        <span className="text-[9px] sm:text-[10px] text-red-400 font-bold flex items-center gap-1 font-mono truncate pr-1">
+                          <Flame className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" /> 
+                          <span className="truncate">{tDash.burnLabel || 'Burn'} {data.burn}</span>
                         </span>
                         {isSelected && (
-                          <span className="text-[9px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/30">
-                            SELECTED
+                          <span className="text-[8px] sm:text-[9px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 sm:px-2 rounded border border-cyan-500/30 shrink-0">
+                            SEL
                           </span>
                         )}
                       </div>
@@ -182,15 +184,12 @@ export default function CreateCapsule({
                              {tDash.estimatedCostLabel || 'Estimated Storage Cost:'} <span className="font-bold text-white">~{stagedUpload.estimatedCost.toString()} POL</span>
                        </p>
                     </div>
-
-                    {/* 🚀 TAMBAHAN: Tampilkan Error Merah jika Upload Gagal */}
                     {uploadError && (
                       <div className="bg-red-500/10 border border-red-500/20 p-2.5 rounded-xl flex items-start gap-2 text-red-400 text-[11px] font-mono shadow-[0_0_10px_rgba(239,68,68,0.1)]">
                         <X className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                         <span><strong>Gagal Upload:</strong> {uploadError}</span>
                       </div>
                     )}
-
                     <div className="flex gap-2">
                       {isUploading ? (
                         <div className="flex-1 flex items-center justify-center gap-2 py-2 text-cyan-400 text-xs font-bold font-mono">

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// 🚀 FIX 1: 'Users' sudah ditambahkan di sini agar tidak crash
 import { Flame, UserX, Users, Loader2, Database, ShieldCheck, Activity, Award, Wallet, Coins, Clock, Blocks, Zap } from 'lucide-react';
 import { ethers } from 'ethers';
 
@@ -50,7 +49,6 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
         });
 
         const DEPLOY_BLOCK = 43345845;
-        // 🚀 FIX 2: Turunkan ke 3000 blok agar server RPC tidak menolak (error HTTP)
         const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 3000); 
 
         const [sealedLogs, proofLogs, stakedLogs] = await Promise.all([
@@ -248,25 +246,27 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
           </div>
         </div>
 
-        <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-white/40 hover:shadow-[0_10px_20px_-10px_rgba(255,255,255,0.2)] hover:-translate-y-1 transition-all lg:col-span-3">
+        {/* 🚀 UBAH: Tambahkan col-span-2 agar di HP membentang penuh (2 kolom) dan teks header tidak tergencet */}
+        <div className="col-span-2 lg:col-span-3 bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-white/40 hover:shadow-[0_10px_20px_-10px_rgba(255,255,255,0.2)] hover:-translate-y-1 transition-all">
           <div className="flex items-center justify-between mb-3 border-b border-neutral-800/50 pb-3">
-            <span className="text-[10px] uppercase text-neutral-500 font-bold font-mono tracking-widest flex items-center gap-2">
-              <Blocks className="w-4 h-4 text-white"/> {t.height || "Binance Smart Chain"}
+            <span className="text-[9px] sm:text-[10px] uppercase text-neutral-500 font-bold font-mono tracking-widest flex items-center gap-1.5 sm:gap-2 truncate pr-2">
+              <Blocks className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0"/> 
+              <span className="truncate">{t.height || "Binance Smart Chain"}</span>
             </span>
-            <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-700 px-2.5 py-1 rounded shadow-inner">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-neutral-900 border border-neutral-700 px-2 py-1 rounded shadow-inner shrink-0">
                <div className="w-2 h-2 bg-green-400 rounded-full animate-ping"></div>
-               <span className="text-[10px] font-bold text-white tracking-widest uppercase">{t.liveSync || "Live Sync"}</span>
+               <span className="text-[9px] sm:text-[10px] font-bold text-white tracking-widest uppercase">{t.liveSync || "Live Sync"}</span>
             </div>
           </div>
           <div className="flex items-center justify-between mt-auto pt-2">
-            <div>
-              <span className="text-3xl sm:text-4xl font-black font-mono text-white tracking-tight drop-shadow-md">
+            <div className="w-full">
+              <span className="text-2xl sm:text-3xl md:text-4xl font-black font-mono text-white tracking-tight drop-shadow-md truncate block w-full">
                 {onChainStats.blockNumber > 0 ? onChainStats.blockNumber.toLocaleString() : <Loader2 className="w-6 h-6 animate-spin text-neutral-500"/>}
               </span>
-              <p className="text-[10px] text-neutral-500 font-mono mt-1">{t.targetChain || "Target Chain:"} {READ_ONLY_RPC_URL}</p>
+              <p className="text-[10px] text-neutral-500 font-mono mt-1 truncate w-full">{t.targetChain || "Target Chain:"} {READ_ONLY_RPC_URL}</p>
             </div>
             
-            <div className="hidden sm:flex items-center gap-1 opacity-50">
+            <div className="hidden sm:flex items-center gap-1 opacity-50 ml-4">
               {[...Array(6)].map((_, i) => (
                  <div key={i} className="w-2 h-8 bg-neutral-800 rounded-sm" style={{ animation: `pulse 1.5s infinite ${(i * 0.2)}s` }}></div>
               ))}

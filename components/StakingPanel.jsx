@@ -62,27 +62,29 @@ export default function StakingPanel({
             {tStake.subtitle || "Earn Yield on Your AETH"}
           </h3>
           
-          <div className="pt-6 flex flex-wrap justify-center gap-4 sm:gap-6">
-            <div className="bg-[#05030F]/80 backdrop-blur-md border border-neutral-800 rounded-2xl px-6 py-4 flex flex-col items-center shadow-lg group hover:-translate-y-1 hover:shadow-violet-500/20 transition-all">
-              <span className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.currentApy || "CURRENT APY"}</span>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-white font-mono">{safeApy}%</span>
-                <span className="text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded border border-green-500/20">🚀 +0.2%</span>
+          {/* 🚀 UBAH: Dari flex-wrap jadi grid 2 kolom di HP */}
+          <div className="pt-6 grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 max-w-3xl mx-auto">
+            <div className="bg-[#05030F]/80 backdrop-blur-md border border-neutral-800 rounded-2xl px-4 py-4 flex flex-col items-center justify-center text-center shadow-lg group hover:-translate-y-1 hover:shadow-violet-500/20 transition-all">
+              <span className="text-[9px] sm:text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.currentApy || "CURRENT APY"}</span>
+              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+                <span className="text-xl sm:text-2xl font-black text-white font-mono">{safeApy}%</span>
+                <span className="text-[8px] sm:text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded border border-green-500/20">🚀 +0.2%</span>
               </div>
             </div>
             
-            <div className="bg-[#05030F]/80 backdrop-blur-md border border-neutral-800 rounded-2xl px-6 py-4 flex flex-col items-center shadow-lg group hover:-translate-y-1 hover:shadow-cyan-500/20 transition-all">
-              <span className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.tvl || "TOTAL VALUE LOCKED"}</span>
+            <div className="bg-[#05030F]/80 backdrop-blur-md border border-neutral-800 rounded-2xl px-4 py-4 flex flex-col items-center justify-center text-center shadow-lg group hover:-translate-y-1 hover:shadow-cyan-500/20 transition-all">
+              <span className="text-[9px] sm:text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.tvl || "TOTAL VALUE LOCKED"}</span>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-white font-mono">{isFetchingGlobalStats ? '...' : totalGlobalStaked.toLocaleString()} AETH</span>
+                <span className="text-xl sm:text-2xl font-black text-white font-mono">{isFetchingGlobalStats ? '...' : totalGlobalStaked.toLocaleString()} AETH</span>
               </div>
             </div>
 
-            <div className="bg-[#05030F]/80 backdrop-blur-md border border-neutral-800 rounded-2xl px-6 py-4 flex flex-col items-center shadow-lg group hover:-translate-y-1 hover:shadow-fuchsia-500/20 transition-all">
-              <span className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.health || "NETWORK HEALTH"}</span>
+            {/* Item ke-3 ini akan memakan lebar 2 kolom (full width) di HP karena col-span-2 */}
+            <div className="col-span-2 md:col-span-1 bg-[#05030F]/80 backdrop-blur-md border border-neutral-800 rounded-2xl px-4 py-4 flex flex-col items-center justify-center text-center shadow-lg group hover:-translate-y-1 hover:shadow-fuchsia-500/20 transition-all">
+              <span className="text-[9px] sm:text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.health || "NETWORK HEALTH"}</span>
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-ping"></div>
-                <span className="text-sm font-bold text-cyan-400">{tStake.healthExcellent || "Excellent"}</span>
+                <span className="text-xs sm:text-sm font-bold text-cyan-400">{tStake.healthExcellent || "Excellent"}</span>
               </div>
             </div>
           </div>
@@ -122,18 +124,20 @@ export default function StakingPanel({
                 <div className="flex items-center gap-2 text-[10px] font-bold text-violet-400 uppercase tracking-widest mb-1">
                   <Sparkles className="w-3 h-3" /> {tStake.estRewards || "ESTIMATED REWARDS"}
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                {/* 🚀 UBAH: Layout Estimated Rewards jadi 2 kolom di HP */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div>
                     <p className="text-[10px] text-neutral-500 font-mono">{tStake.perDay || "Per Day"}</p>
-                    <p className="text-sm font-bold text-green-400 font-mono">+{dailyRewardEst.toFixed(2)} AETH</p>
+                    <p className="text-[11px] sm:text-sm font-bold text-green-400 font-mono truncate">+{dailyRewardEst.toFixed(2)} AETH</p>
                   </div>
-                  <div className="border-l border-neutral-800 pl-4">
+                  <div className="border-l border-neutral-800 pl-3 sm:pl-4">
                     <p className="text-[10px] text-neutral-500 font-mono">{tStake.perWeek || "Per Week"}</p>
-                    <p className="text-sm font-bold text-green-400 font-mono">+{weeklyRewardEst.toFixed(2)} AETH</p>
+                    <p className="text-[11px] sm:text-sm font-bold text-green-400 font-mono truncate">+{weeklyRewardEst.toFixed(2)} AETH</p>
                   </div>
-                  <div className="border-l border-neutral-800 pl-4">
+                  {/* Item ke-3 ini full width di HP dan dibuat ada pemisah garis atas */}
+                  <div className="col-span-2 sm:col-span-1 pt-3 border-t sm:pt-0 sm:border-t-0 sm:border-l border-neutral-800 sm:pl-4 flex items-center justify-between sm:block">
                     <p className="text-[10px] text-neutral-500 font-mono">{tStake.perMonth || "Per Month"}</p>
-                    <p className="text-sm font-bold text-green-400 font-mono">+{monthlyRewardEst.toFixed(2)} AETH</p>
+                    <p className="text-[11px] sm:text-sm font-bold text-green-400 font-mono truncate">+{monthlyRewardEst.toFixed(2)} AETH</p>
                   </div>
                 </div>
               </div>

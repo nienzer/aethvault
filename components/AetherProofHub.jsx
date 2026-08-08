@@ -8,7 +8,6 @@ import AetherVaultV3ABI from './AetherVaultV3ABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
 const AETHER_VAULT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD";
-// ⭐ TAMBAHAN: Kita butuh alamat token AETH untuk memanggil fungsi Approve
 const AETH_TOKEN_ADDRESS = "0x631Bf65a007dD76f64605D5cdAA0dd0e0D9328C5"; 
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
@@ -22,7 +21,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const [view, setView] = useState('hub');
   const certificateRef = useRef(null);
 
-  // ⭐ STATE UNTUK ZOOM & DRAG PREVIEW
   const previewScrollRef = useRef(null);
   const [previewZoom, setPreviewZoom] = useState(0.6);
   const [isDraggingPreview, setIsDraggingPreview] = useState(false);
@@ -41,7 +39,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
 
   const [mintStep, setMintStep] = useState(0);
   const [generatedProof, setGeneratedProof] = useState(null);
-  const [mintingStatusMsg, setMintingStatusMsg] = useState('Please confirm transaction in MetaMask...'); // 🚀 STATE BARU UNTUK TEXT LOADING
+  const [mintingStatusMsg, setMintingStatusMsg] = useState('Please confirm transaction in MetaMask...');
 
   const [onChainProofs, setOnChainProofs] = useState([]);
   const [isLoadingHall, setIsLoadingHall] = useState(true);
@@ -64,7 +62,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '0xA5E3...7Fa2';
   const realAddress = address || "0xA5E3000000000000000000000000000000007Fa2";
 
-  // ⭐ FUNGSI DRAG-TO-PAN UNTUK MOUSE DI DESKTOP
   const handleMouseDown = (e) => {
     setIsDraggingPreview(true);
     setDragStart({
@@ -193,7 +190,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
 
-      // 🚀 LOGIKA BARU: CEK DAN MINTA IZIN (APPROVE) TOKEN $AETH
       const requiredCostWei = ethers.parseUnits(currentConfig.price.toString(), 18);
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultV3ABI, signer);
       
@@ -212,7 +208,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, signer);
       setMintStep(4);
       
-      // ⭐ 100% ON-CHAIN BASE64 DATA URI
       const svgImage = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#0B0817"/><text x="50%" y="50%" font-family="monospace" font-size="24" font-weight="bold" fill="#e4a329" text-anchor="middle" dy=".3em">AETHER PROOF</text></svg>`;
       const base64Svg = btoa(unescape(encodeURIComponent(svgImage)));
 
@@ -482,28 +477,29 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* 🚀 UBAH: Layout grid untuk kotak Categories & Badges agar 2 kolom di HP */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {Object.entries(categoryConfig).map(([key, val], idx) => (
                 <div 
                   key={idx} 
                   onClick={() => { setCategory(key); setView('form'); }}
-                  className="bg-[#05030F] border border-neutral-800/80 hover:border-amber-500/50 p-5 rounded-2xl transition-all cursor-pointer group relative overflow-hidden flex flex-col justify-between shadow-md"
+                  className="bg-[#05030F] border border-neutral-800/80 hover:border-amber-500/50 p-3 sm:p-5 rounded-xl sm:rounded-2xl transition-all cursor-pointer group relative overflow-hidden flex flex-col justify-between shadow-md"
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        {val.icon}
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                        <div className="scale-75 sm:scale-100 flex items-center justify-center">{val.icon}</div>
                       </div>
-                      <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-xl border border-amber-500/20">{val.price} AETH</span>
+                      <span className="text-[9px] sm:text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-1 sm:px-3 sm:py-1 rounded-lg sm:rounded-xl border border-amber-500/20 whitespace-nowrap">{val.price} AETH</span>
                     </div>
-                    <h5 className="font-bold text-white text-base mb-1 group-hover:text-amber-300 transition-colors">{key}</h5>
+                    <h5 className="font-bold text-white text-xs sm:text-base mb-1 group-hover:text-amber-300 transition-colors truncate">{key}</h5>
                   </div>
 
-                  <div className="pt-3 border-t border-neutral-800/80 flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-neutral-300 flex items-center gap-1.5">
-                      <span>{val.badgeIcon}</span> {val.badge}
+                  <div className="pt-2 sm:pt-3 border-t border-neutral-800/80 flex items-center justify-between mt-2">
+                    <span className="text-[9px] sm:text-[11px] font-bold text-neutral-300 flex items-center gap-1 sm:gap-1.5 truncate pr-1">
+                      <span className="shrink-0">{val.badgeIcon}</span> <span className="truncate">{val.badge}</span>
                     </span>
-                    <ArrowUpRight className="w-4 h-4 text-neutral-500 group-hover:text-amber-400 transition-colors" />
+                    <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 text-neutral-500 group-hover:text-amber-400 transition-colors shrink-0" />
                   </div>
                 </div>
               ))}
