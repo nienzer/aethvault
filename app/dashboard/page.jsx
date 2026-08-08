@@ -578,46 +578,40 @@ export default function DashboardPage() {
     }
   };
 
-  const handleConfirmArweaveUpload = async () => {
-    if (!stagedUpload) return;
+  const handleFileSelected = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!isConnected) return showToast(t.connectWalletBeforeAttach, 'error');
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     
-    setUploadError(''); 
-    setIsUploading(true);
+    // 🚀 PENGAMAN TAMBAHAN KHUSUS LEGACY
+    if (tier === 'legacy' && !ethers.isAddress(heirAddress)) {
+      showToast("⚠️ Harap masukkan Alamat Dompet Ahli Waris yang valid sebelum mengunggah lampiran!", "error");
+      setSelectedFile(null);
+      return;
+    }
+
+    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)), 'error');
+
+    setSelectedFile(file);
+    setIsPreparingUpload(true);
     try {
-      const irysUploader = await getNewIrysUploader(walletProvider);
-
-      // 🚀 FIX: Bungkus data ke dalam Buffer murni agar diterima Irys
-      const dataBuffer = Buffer.from(stagedUpload.encryptedBytes);
-
-      // Auto-fund opsional
-      const price = await irysUploader.getPrice(dataBuffer.length);
-      try {
-        await irysUploader.fund(price);
-      } catch (fundErr) {
-        console.log("Auto-fund info:", fundErr);
-      }
-
-      const tags = [
-        { name: "Content-Type", value: "application/octet-stream" },
-        { name: "App-Name", value: "AetherVault" },
-        { name: "Encryption", value: "ECIES-secp256k1" }
-      ];
-
-      // 🚀 Gunakan dataBuffer yang sudah beres
-      const receipt = await irysUploader.upload(dataBuffer, { tags });
-      const irysUrl = `https://devnet.irys.xyz/${receipt.id}`;
+      const { publicKey: recipientPublicKey } = await resolveRecipient();
+      const fileBase64 = await fileToBase64(file);
+      const cipherPayload = JSON.stringify({ name: file.name, type: file.type, data: fileBase64 });
+      const encryptedPayload = await encryptForPublicKey(recipientPublicKey, cipherPayload);
+      const encryptedBytes = new TextEncoder().encode(encryptedPayload);
       
-      setUploadedCid(irysUrl);
-      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`);
-      showToast(t.fileUploadedSuccess, "success");
-      setStagedUpload(null);
+      const irysUploader = await getNewIrysUploader(walletProvider);
+      const price = await irysUploader.getPrice(encryptedBytes.byteLength);
+      const estimatedCost = ethers.formatEther(price.toString()); 
+
+      setStagedUpload({ file, encryptedBytes, estimatedCost });
     } catch (error) {
-      console.error("DETAIL ERROR IRYS:", error);
-      showToast(t.fileUploadFailPrefix + extractErrorMessage(error), "error");
-      setUploadError(error.message || extractErrorMessage(error)); 
+      showToast(t.prepareAttachmentFailPrefix + extractErrorMessage(error), "error");
+      setSelectedFile(null);
     } finally {
-      setIsUploading(false);
+      setIsPreparingUpload(false);
     }
   };
 
