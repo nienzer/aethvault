@@ -181,7 +181,7 @@ export default function CreateCapsule({
                     </div>
                     <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-3">
                        <p className="text-xs text-purple-200 font-mono">
-                             {tDash.estimatedCostLabel || 'Estimated Storage Cost:'} <span className="font-bold text-white">~{stagedUpload.estimatedCost.toString()} POL</span>
+                             {tDash.estimatedCostLabel || 'Estimated Storage Cost:'} <span className="font-bold text-white">~{stagedUpload.estimatedCost.toString()} tBNB</span>
                        </p>
                     </div>
                     {uploadError && (

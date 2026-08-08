@@ -308,7 +308,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       </div>
 
       {/* 🚀 FIX WATERMARK: Opacity dinaikkan jadi 15 agar lebih terlihat */}
-      <img src="/whatermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-15 pointer-events-none grayscale mix-blend-multiply p-20" />
+      <img src="/whatermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-10 pointer-events-none grayscale mix-blend-multiply p-20" />
 
       <div className="absolute inset-4 border-[4px] border-double border-amber-900/30 pointer-events-none rounded-sm"></div>
       <div className="absolute inset-6 border-[1px] border-amber-900/10 pointer-events-none rounded-sm"></div>
@@ -614,7 +614,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                 <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-2.5 mb-4">
                   <div className="flex justify-between text-xs font-mono"><span className="text-neutral-400">Mint Cost</span><span className="text-white font-bold">{currentConfig.price} AETH</span></div>
                   <div className="flex justify-between text-xs font-mono"><span className="text-neutral-500 flex items-center gap-1"><Flame className="w-3 h-3 text-red-400"/> {tStats.burn || 'Burn'}</span><span className="text-red-400">-{currentConfig.price * 0.2} AETH</span></div>
-                  <div className="flex justify-between text-xs font-mono border-t border-neutral-800 pt-2"><span className="text-neutral-400">Est. Gas Fee</span><span className="text-white">~0.01 POL</span></div>
+                  <div className="flex justify-between text-xs font-mono border-t border-neutral-800 pt-2"><span className="text-neutral-400">Est. Gas Fee</span><span className="text-white">~0.0005 tBNB</span></div>
                 </div>
 
                 <button type="submit" disabled={!title || isHashing} className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-white font-bold py-4 rounded-full text-xs sm:text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center justify-center gap-2 cursor-pointer transition-all">

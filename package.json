@@ -17,6 +17,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@web3modal/ethers": "^5.1.11",
     "eth-crypto": "^4.1.0",
+    "ethers": "^6.17.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.28.0",

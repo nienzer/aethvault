@@ -1,8 +1,8 @@
 "use client";
 import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect } from '@web3modal/ethers/react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Landmark, Cpu, Coins, Settings, UserX, AlertTriangle, UploadCloud, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Database, Globe } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Landmark, Cpu, Coins, Settings, UserX, AlertTriangle, UploadCloud, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Database, Globe, ShieldAlert, Unlock } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
 import {
@@ -13,7 +13,11 @@ import {
   encryptForPublicKey,
   decryptWithPrivateKey,
 } from '@/lib/cryptoUtils';
-import { uploadToArweavePermanent, estimateArweaveCost, getIrysUploader } from '@/lib/arweaveUpload';
+
+// 🚀 SDK IRYS TERBARU
+import { WebUploader } from "@irys/web-upload";
+import { WebBNB } from "@irys/web-upload-ethereum";
+import { EthersV6Adapter } from "@irys/web-upload-ethereum-ethers-v6";
 
 // ⭐ IMPORT SEMUA KOMPONEN
 import CertificateModal from '@/components/CertificateModal';
@@ -24,6 +28,15 @@ import CreateCapsule from '@/components/CreateCapsule';
 import AetherProofHub from '@/components/AetherProofHub';
 import HallOfProof from '@/components/HallOfProof';
 
+// 🚀 FUNGSI KONEKSI IRYS TERBARU
+const getNewIrysUploader = async (walletProvider) => {
+  const provider = new ethers.BrowserProvider(walletProvider);
+  return await WebUploader(WebBNB)
+    .withAdapter(EthersV6Adapter(provider))
+    .withRpc("https://bsc-testnet-rpc.publicnode.com")
+    .devnet();
+};
+
 // ==========================================
 // ⭐ ABI AETHERVAULT V2.2
 // ==========================================
@@ -32,6 +45,10 @@ const AetherVaultABI = [
   { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "bytes", "name": "_pubKey", "type": "bytes" }], "name": "registerPublicKey", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
+  { "inputs": [], "name": "pause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  { "inputs": [], "name": "unpause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  { "inputs": [{ "internalType": "address", "name": "_newTreasury", "type": "address" }], "name": "updateTreasury", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "encryptionPublicKeys", "outputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }], "stateMutability": "view", "type": "function" },
   { "inputs": [ { "internalType": "enum AetherVault.Tier", "name": "_tier", "type": "uint8" }, { "internalType": "string", "name": "_title", "type": "string" }, { "internalType": "string", "name": "_encryptedMessage", "type": "string" }, { "internalType": "uint256", "name": "_unlockTimestamp", "type": "uint256" } ], "name": "sealTimeLockCapsule", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "string", "name": "_title", "type": "string" }, { "internalType": "string", "name": "_encryptedMessage", "type": "string" }, { "internalType": "uint256", "name": "_inactivityDuration", "type": "uint256" }, { "internalType": "address", "name": "_heirAddress", "type": "address" }], "name": "sealLegacyCapsule", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
@@ -46,12 +63,7 @@ const AetherVaultABI = [
   { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "isCapsuleReady", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "_user", "type": "address" }], "name": "getUserCapsules", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "_heir", "type": "address" }], "name": "getHeirCapsules", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "enum AetherVault.Tier", "name": "", "type": "uint8" }], "name": "tierConfigs", "outputs": [ { "internalType": "uint256", "name": "cost", "type": "uint256" }, { "internalType": "uint256", "name": "burnPart", "type": "uint256" }, { "internalType": "uint256", "name": "maxDuration", "type": "uint256" }, { "internalType": "uint256", "name": "maxMessageLength", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
-  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": false, "internalType": "enum AetherVault.Tier", "name": "tier", "type": "uint8" }, { "indexed": false, "internalType": "uint256", "name": "cost", "type": "uint256" }, { "indexed": false, "internalType": "bytes32", "name": "proofHash", "type": "bytes32" } ], "name": "CapsuleSealed", "type": "event" },
-  { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "revealer", "type": "address" }], "name": "CapsuleRevealed", "type": "event" },
-  { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "heir", "type": "address" }], "name": "LegacyClaimed", "type": "event" },
-  { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }], "name": "PingRecorded", "type": "event" },
-  { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": false, "internalType": "bytes32", "name": "proofHash", "type": "bytes32" }], "name": "ProofCreated", "type": "event" }
+  { "inputs": [{ "internalType": "enum AetherVault.Tier", "name": "", "type": "uint8" }], "name": "tierConfigs", "outputs": [ { "internalType": "uint256", "name": "cost", "type": "uint256" }, { "internalType": "uint256", "name": "burnPart", "type": "uint256" }, { "internalType": "uint256", "name": "maxDuration", "type": "uint256" }, { "internalType": "uint256", "name": "maxMessageLength", "type": "uint256" } ], "stateMutability": "view", "type": "function" }
 ];
 
 // ==========================================
@@ -61,16 +73,16 @@ const StakingABI = [
   { "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "stake", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "withdraw", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [], "name": "claimReward", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
+  { "inputs": [], "name": "pause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
+  { "inputs": [], "name": "unpause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "stakedBalance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "_user", "type": "address" }], "name": "calculateReward", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
   { "inputs": [], "name": "rewardRate", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [], "name": "getStakingStats", "outputs": [ { "internalType": "uint256", "name": "currentTotalStaked", "type": "uint256" }, { "internalType": "uint256", "name": "totalRewardsPaid", "type": "uint256" }, { "internalType": "uint256", "name": "stakersCount", "type": "uint256" }, { "internalType": "uint256", "name": "rewardPoolAvailable", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
-  { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "user", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Staked", "type": "event" },
-  { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "user", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Withdrawn", "type": "event" },
-  { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "user", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "reward", "type": "uint256" }], "name": "RewardClaimed", "type": "event" }
+  { "inputs": [], "name": "getStakingStats", "outputs": [ { "internalType": "uint256", "name": "currentTotalStaked", "type": "uint256" }, { "internalType": "uint256", "name": "totalRewardsPaid", "type": "uint256" }, { "internalType": "uint256", "name": "stakersCount", "type": "uint256" }, { "internalType": "uint256", "name": "rewardPoolAvailable", "type": "uint256" } ], "stateMutability": "view", "type": "function" }
 ];
 
-// ⭐ ALAMAT KONTRAK DIPISAH DENGAN JELAS
+// ⭐ ALAMAT KONTRAK
 const AETH_TOKEN_ADDRESS = "0x631Bf65a007dD76f64605D5cdAA0dd0e0D9328C5"; 
 const CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; 
 const STAKING_CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; 
@@ -81,7 +93,7 @@ const IS_STAKING_ADDRESS_CONFIGURED = STAKING_CONTRACT_ADDRESS.toLowerCase() !==
 
 const TARGET_CHAIN_ID = 97;
 const TARGET_CHAIN_ID_HEX = "0x" + TARGET_CHAIN_ID.toString(16);
-const TARGET_CHAIN_NAME = "BSC Testnet Testnet";
+const TARGET_CHAIN_NAME = "BSC Testnet";
 
 const TIER_ENUM_MAP = { basic: 0, premium: 1, eternal: 2, legacy: 3 };
 const TIER_INDEX_TO_LABEL = { 0: 'Basic', 1: 'VIP', 2: 'Eternal', 3: 'Legacy' };
@@ -96,6 +108,7 @@ const TIER_FALLBACK_CONFIG = {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const { t: globalT } = useLanguage();
   const t = globalT.dashboard;
 
@@ -110,6 +123,14 @@ export default function DashboardPage() {
   const [nativeBalance, setNativeBalance] = useState('0.0000');
   const [aethBalance, setAethBalance] = useState(0);
   const [activeTab, setActiveTab] = useState('create');
+  const [isOwner, setIsOwner] = useState(false);
+
+  // 🚀 DETEKSI URL /admin MANUAL
+  useEffect(() => {
+    if (pathname && pathname.includes('/admin')) {
+      setActiveTab('admin');
+    }
+  }, [pathname]);
 
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -124,7 +145,7 @@ export default function DashboardPage() {
   const [uploadedCid, setUploadedCid] = useState('');
   const [stagedUpload, setStagedUpload] = useState(null); 
   const [isPreparingUpload, setIsPreparingUpload] = useState(false);
-  const [uploadError, setUploadError] = useState(''); // 🚀 TAMBAHAN: State Error Upload
+  const [uploadError, setUploadError] = useState(''); 
 
   const [stakeInput, setStakeInput] = useState('');
   const [unstakeInput, setUnstakeInput] = useState('');
@@ -448,7 +469,13 @@ export default function DashboardPage() {
           setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
           const registeredKey = await tokenContract.encryptionPublicKeys(address);
           setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x');
-        } catch (err) {}
+
+          // 🚀 CEK APAKAH WALLET YANG LOGIN ADALAH OWNER KONTRAK
+          const contractOwner = await tokenContract.owner();
+          setIsOwner(contractOwner.toLowerCase() === address.toLowerCase());
+        } catch (err) {
+          setIsOwner(false);
+        }
         
         try {
           if (STAKING_CONTRACT_ADDRESS) {
@@ -475,7 +502,7 @@ export default function DashboardPage() {
       } catch (err) {}
     } else {
       setNativeBalance('0.0000'); setAethBalance(0); setStakedBalance(0); setPendingReward(0);
-      setMyCapsules([]); setTransactions([]); setMyPublicKeyRegistered(false);
+      setMyCapsules([]); setTransactions([]); setMyPublicKeyRegistered(false); setIsOwner(false);
       myKeyPairRef.current = null;
     }
   }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, getOrDeriveKeyPair, t]);
@@ -535,10 +562,11 @@ export default function DashboardPage() {
       const cipherPayload = JSON.stringify({ name: file.name, type: file.type, data: fileBase64 });
       const encryptedPayload = await encryptForPublicKey(recipientPublicKey, cipherPayload);
       const encryptedBytes = new TextEncoder().encode(encryptedPayload);
-      const provider = new ethers.BrowserProvider(walletProvider);
-      await ensureCorrectNetwork(await provider.getSigner());
-      const uploader = await getIrysUploader(provider);
-      const estimatedCost = await estimateArweaveCost(uploader, encryptedBytes.byteLength);
+      
+      const irysUploader = await getNewIrysUploader(walletProvider);
+      const price = await irysUploader.getPrice(encryptedBytes.byteLength);
+      const estimatedCost = ethers.formatEther(price.toString()); 
+
       setStagedUpload({ file, encryptedBytes, estimatedCost });
     } catch (error) {
       showToast(t.prepareAttachmentFailPrefix + extractErrorMessage(error), "error");
@@ -548,26 +576,30 @@ export default function DashboardPage() {
     }
   };
 
-  // 🚀 FIX: Handle error upload Arweave 
   const handleConfirmArweaveUpload = async () => {
     if (!stagedUpload) return;
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     
-    setUploadError(''); // Reset error lama
+    setUploadError(''); 
     setIsUploading(true);
     try {
-      const result = await uploadToArweavePermanent(
-        new ethers.BrowserProvider(walletProvider),
-        stagedUpload.encryptedBytes,
-        [{ name: "Encryption", value: "ECIES-secp256k1" }]
-      );
-      setUploadedCid(result.arweaveUrl);
-      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${result.arweaveUrl}]`);
+      const irysUploader = await getNewIrysUploader(walletProvider);
+      const tags = [
+        { name: "Content-Type", value: "application/octet-stream" },
+        { name: "App-Name", value: "AetherVault" },
+        { name: "Encryption", value: "ECIES-secp256k1" }
+      ];
+
+      const receipt = await irysUploader.upload(stagedUpload.encryptedBytes, { tags });
+      const irysUrl = `https://devnet.irys.xyz/${receipt.id}`;
+      
+      setUploadedCid(irysUrl);
+      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`);
       showToast(t.fileUploadedSuccess, "success");
       setStagedUpload(null);
     } catch (error) {
       showToast(t.fileUploadFailPrefix + extractErrorMessage(error), "error");
-      setUploadError(extractErrorMessage(error)); // Munculkan error di kotak
+      setUploadError(extractErrorMessage(error)); 
     } finally {
       setIsUploading(false);
     }
@@ -576,7 +608,7 @@ export default function DashboardPage() {
   const handleCancelStagedUpload = () => {
     setStagedUpload(null);
     setSelectedFile(null);
-    setUploadError(''); // Reset pesan error saat batal
+    setUploadError(''); 
   };
 
   const fileToBase64 = (file) => new Promise((resolve, reject) => {
@@ -604,7 +636,6 @@ export default function DashboardPage() {
     if (!isConnected) return showToast(t.authRejectedConnectWallet, 'error');
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
-    // 🚀 FIX: Cegah Seal jika gambar belum di-Confirm ke Arweave!
     if (stagedUpload && !uploadedCid) {
       return showToast("⚠️ Anda belum mengonfirmasi upload lampiran gambar. Silakan klik 'Confirm & Pay Storage' dulu di kotak gambar!", "error");
     }
@@ -843,7 +874,7 @@ export default function DashboardPage() {
   };
 
   const extractArweaveUrl = (text) => {
-    const match = text?.match(/(https:\/\/arweave\.net\/[a-zA-Z0-9_-]+)/);
+    const match = text?.match(/(https:\/\/(arweave\.net|devnet\.irys\.xyz|gateway\.irys\.xyz)\/[a-zA-Z0-9_-]+)/);
     return match ? match[1] : null;
   };
 
@@ -883,6 +914,50 @@ export default function DashboardPage() {
       showToast((t.downloadFailPrefix || "Gagal unduh: ") + extractErrorMessage(err), "error");
     } finally {
       setIsDownloadingAttachment(null);
+    }
+  };
+
+  // ==========================================
+  // 🚀 FUNGSI AKSI ADMIN PANEL
+  // ==========================================
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
+  const [newTreasuryInput, setNewTreasuryInput] = useState('');
+
+  const handleAdminTogglePause = async (isPause, isStaking = false) => {
+    try {
+      setIsAdminLoading(true);
+      const signer = await getSigner();
+      const targetAddress = isStaking ? STAKING_CONTRACT_ADDRESS : CONTRACT_ADDRESS;
+      const abi = isStaking ? StakingABI : AetherVaultABI;
+      const contract = new ethers.Contract(targetAddress, abi, signer);
+
+      const tx = isPause ? await contract.pause() : await contract.unpause();
+      showToast("Mengirim transaksi darurat...", "info");
+      await tx.wait();
+      showToast(isPause ? "Berhasil di-PAUSE!" : "Berhasil di-UNPAUSE!", "success");
+    } catch (err) {
+      showToast("Gagal ubah status pause: " + err.message, "error");
+    } finally {
+      setIsAdminLoading(false);
+    }
+  };
+
+  const handleAdminUpdateTreasury = async (e) => {
+    e.preventDefault();
+    if (!ethers.isAddress(newTreasuryInput)) return showToast("Alamat treasury tidak valid!", "error");
+    try {
+      setIsAdminLoading(true);
+      const signer = await getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      const tx = await contract.updateTreasury(newTreasuryInput);
+      showToast("Memperbarui treasury...", "info");
+      await tx.wait();
+      showToast("Treasury sukses diperbarui!", "success");
+      setNewTreasuryInput('');
+    } catch (err) {
+      showToast("Gagal update treasury: " + err.message, "error");
+    } finally {
+      setIsAdminLoading(false);
     }
   };
 
@@ -1091,11 +1166,11 @@ export default function DashboardPage() {
                   handleFileSelected={handleFileSelected}
                   getMinUnlockDatetimeLocal={getMinUnlockDatetimeLocal}
                   aethBalance={aethBalance}
-                  uploadError={uploadError} // 🚀 TAMBAHAN: Parsing error ke CreateCapsule
+                  uploadError={uploadError} 
                 />
               )}
 
-              {/* ⭐ TAB: AETHER PROOF (BARU) */}
+              {/* ⭐ TAB: AETHER PROOF */}
               {activeTab === 'proof' && (
                 <AetherProofHub
                   t={t}
@@ -1286,7 +1361,7 @@ export default function DashboardPage() {
                           <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.rpcDesc}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto mt-1 sm:mt-0">
-                          <input type="text" disabled value="BSC Testnet Testnet" className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none text-center sm:text-left" />
+                          <input type="text" disabled value="BSC Testnet" className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none text-center sm:text-left" />
                           <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? t.wrongNetwork : t.connected}</span>
                         </div>
                       </div>
@@ -1294,6 +1369,95 @@ export default function DashboardPage() {
                   </div>
                 </div>
               )}
+
+              {/* 🚀 TAB RAHASIA ADMIN PANEL (Hanya muncul jika URL diketik /admin dan dompet yang login adalah Owner) */}
+              {activeTab === 'admin' && (
+                <div className="bg-[#0B0817] border border-red-500/40 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 shadow-2xl animate-in fade-in duration-300">
+                  <div className="flex items-center gap-3 border-b border-neutral-900 pb-4">
+                    <ShieldAlert className="w-8 h-8 text-red-400 shrink-0" />
+                    <div>
+                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">Restricted Admin Control</h3>
+                      <p className="text-xs text-red-400 font-mono">Panel manajemen khusus Owner (Diakses via URL /admin).</p>
+                    </div>
+                  </div>
+
+                  {!isOwner ? (
+                    <div className="bg-red-950/20 border border-red-500/30 p-6 rounded-2xl text-center space-y-2">
+                      <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
+                      <h4 className="text-sm font-bold text-red-300">Akses Ditolak!</h4>
+                      <p className="text-xs text-neutral-400">Dompet yang terhubung saat ini bukan pemilik sah (Owner) dari Smart Contract AetherVault.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {/* 1. KONTROL PAUSE */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-3">
+                          <h4 className="text-xs font-bold text-neutral-300 uppercase font-mono">Darurat Kontrak Utama</h4>
+                          <div className="flex gap-2">
+                            <button 
+                              disabled={isAdminLoading}
+                              onClick={() => handleAdminTogglePause(true, false)} 
+                              className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <Lock className="w-3.5 h-3.5" /> Pause Main
+                            </button>
+                            <button 
+                              disabled={isAdminLoading}
+                              onClick={() => handleAdminTogglePause(false, false)} 
+                              className="flex-1 bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <Unlock className="w-3.5 h-3.5" /> Unpause Main
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-3">
+                          <h4 className="text-xs font-bold text-neutral-300 uppercase font-mono">Darurat Kontrak Staking</h4>
+                          <div className="flex gap-2">
+                            <button 
+                              disabled={isAdminLoading}
+                              onClick={() => handleAdminTogglePause(true, true)} 
+                              className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <Lock className="w-3.5 h-3.5" /> Pause Stake
+                            </button>
+                            <button 
+                              disabled={isAdminLoading}
+                              onClick={() => handleAdminTogglePause(false, true)} 
+                              className="flex-1 bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <Unlock className="w-3.5 h-3.5" /> Unpause Stake
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 2. UPDATE TREASURY */}
+                      <form onSubmit={handleAdminUpdateTreasury} className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl space-y-3">
+                        <h4 className="text-xs font-bold text-cyan-400 uppercase font-mono">Ganti Alamat Treasury</h4>
+                        <div className="flex gap-3">
+                          <input 
+                            type="text" 
+                            placeholder="0x... (Alamat Wallet Treasury Baru)" 
+                            value={newTreasuryInput}
+                            onChange={(e) => setNewTreasuryInput(e.target.value)}
+                            className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-500 font-mono"
+                            required
+                          />
+                          <button 
+                            type="submit" 
+                            disabled={isAdminLoading}
+                            className="bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer whitespace-nowrap shadow-lg"
+                          >
+                            Update Treasury
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           </div>
         </div>
@@ -1336,15 +1500,12 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
-                {/* 🚀 FIX 2: Memisahkan Teks Asli dan Kotak Download Gambar secara Cerdas */}
                 <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
-                  {/* Render teks saja tanpa link mentah Arweave-nya */}
                   {selectedVault.decryptedMessage 
-                    ? selectedVault.decryptedMessage.replace(/\[(Attachment|Lampiran|Attachment Tag)?:?\s*https:\/\/arweave\.net\/[a-zA-Z0-9_-]+\]/gi, '').trim() || "< Tidak ada pesan teks, hanya gambar >" 
+                    ? selectedVault.decryptedMessage.replace(/\[(Attachment|Lampiran|Attachment Tag)?:?\s*https:\/\/(arweave\.net|devnet\.irys\.xyz|gateway\.irys\.xyz)\/[a-zA-Z0-9_-]+\]/gi, '').trim() || "< Tidak ada pesan teks, hanya gambar >" 
                     : ""}
                 </div>
 
-                {/* Render Tombol Gambar jika terdeteksi URL Arweave di dalam teks */}
                 {selectedVault.decryptedMessage && extractArweaveUrl(selectedVault.decryptedMessage) && (
                   <div className="mt-4 p-4 border border-cyan-500/30 bg-cyan-500/10 rounded-xl space-y-3 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                     <div className="flex items-center gap-2 text-cyan-300 text-[11px] sm:text-xs font-bold font-mono">
