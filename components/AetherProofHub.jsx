@@ -46,16 +46,16 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const [globalProtocolStats, setGlobalProtocolStats] = useState({ totalProofs: 0, burnedTotal: 0 });
 
   const categoryConfig = {
-    "Writing": { price: 10, badge: "Verified Author", badgeIcon: "✍️", icon: <BookOpen className="w-5 h-5 text-amber-400" /> },
-    "Photography": { price: 10, badge: "Verified Photographer", badgeIcon: "📷", icon: <Camera className="w-5 h-5 text-cyan-400" /> },
-    "Design": { price: 10, badge: "Verified Creator", badgeIcon: "🎨", icon: <Palette className="w-5 h-5 text-fuchsia-400" /> },
-    "Music": { price: 50, badge: "Verified Artist", badgeIcon: "🎵", icon: <Music className="w-5 h-5 text-purple-400" /> },
-    "Video": { price: 50, badge: "Verified Filmmaker", badgeIcon: "🎬", icon: <Film className="w-5 h-5 text-rose-400" /> },
+    "Writing": { price: 200, badge: "Verified Author", badgeIcon: "✍️", icon: <BookOpen className="w-5 h-5 text-amber-400" /> },
+    "Photography": { price: 200, badge: "Verified Photographer", badgeIcon: "📷", icon: <Camera className="w-5 h-5 text-cyan-400" /> },
+    "Design": { price: 200, badge: "Verified Creator", badgeIcon: "🎨", icon: <Palette className="w-5 h-5 text-fuchsia-400" /> },
+    "Music": { price: 200, badge: "Verified Artist", badgeIcon: "🎵", icon: <Music className="w-5 h-5 text-purple-400" /> },
+    "Video": { price: 200, badge: "Verified Filmmaker", badgeIcon: "🎬", icon: <Film className="w-5 h-5 text-rose-400" /> },
     "Software": { price: 200, badge: "Verified Developer", badgeIcon: "💻", icon: <Code2 className="w-5 h-5 text-blue-400" /> },
     "Research": { price: 200, badge: "Verified Researcher", badgeIcon: "🔬", icon: <Microscope className="w-5 h-5 text-emerald-400" /> },
-    "Business": { price: 500, badge: "Verified Company", badgeIcon: "🏛️", icon: <Building2 className="w-5 h-5 text-yellow-400" /> },
-    "Legal": { price: 500, badge: "Verified Entity", badgeIcon: "📜", icon: <Scale className="w-5 h-5 text-indigo-400" /> },
-    "Other": { price: 10, badge: "Verified Creator", badgeIcon: "✨", icon: <Box className="w-5 h-5 text-neutral-400" /> }
+    "Business": { price: 200, badge: "Verified Company", badgeIcon: "🏛️", icon: <Building2 className="w-5 h-5 text-yellow-400" /> },
+    "Legal": { price: 200, badge: "Verified Entity", badgeIcon: "📜", icon: <Scale className="w-5 h-5 text-indigo-400" /> },
+    "Other": { price: 200, badge: "Verified Creator", badgeIcon: "✨", icon: <Box className="w-5 h-5 text-neutral-400" /> }
   };
 
   const currentConfig = categoryConfig[category];
