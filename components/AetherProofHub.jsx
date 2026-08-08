@@ -304,10 +304,11 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
     <div ref={certificateRef} className="w-[842px] h-[595px] bg-[#fdfbf7] text-neutral-900 rounded-sm p-10 relative overflow-hidden shadow-2xl font-serif border border-neutral-300 mx-auto flex flex-col justify-between shrink-0">
       <div className="absolute top-8 right-8 flex items-center gap-2 z-20 bg-white/90 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
         <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
-        <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">{tDash.certBadgePolygon || 'Verified on Binance'}</span>
+        <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">{tDash.certBadgePolygon || 'Verified on BSC Testnet'}</span>
       </div>
 
-      <img src="/whatermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-[0.05] pointer-events-none grayscale mix-blend-multiply p-20" />
+      {/* 🚀 FIX WATERMARK: Opacity dinaikkan jadi 15 agar lebih terlihat */}
+      <img src="/whatermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-15 pointer-events-none grayscale mix-blend-multiply p-20" />
 
       <div className="absolute inset-4 border-[4px] border-double border-amber-900/30 pointer-events-none rounded-sm"></div>
       <div className="absolute inset-6 border-[1px] border-amber-900/10 pointer-events-none rounded-sm"></div>
@@ -320,7 +321,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       <div className="relative z-10 space-y-6 flex-1 flex flex-col justify-center px-4">
         <div className="text-center mb-2">
           <p className="text-[10px] uppercase tracking-widest text-neutral-500 mb-2">{tDash.certCertifies || 'This unalterable document officially certifies the registration of'}</p>
-          <h5 className="text-3xl font-bold text-neutral-900 font-display px-8 leading-snug">"{proofData?.title || 'Untitled Proof'}"</h5>
+          <h5 className="text-3xl font-bold text-neutral-900 font-display px-8 leading-snug truncate">"{proofData?.title || 'Untitled Proof'}"</h5>
         </div>
 
         <div className="grid grid-cols-3 gap-y-5 gap-x-6 text-xs font-mono bg-white/60 p-6 border border-amber-900/20 rounded-sm shadow-sm backdrop-blur-sm">
@@ -337,7 +338,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             <p className="font-bold text-neutral-900">{proofData?.date || new Date().toLocaleDateString()}</p>
           </div>
 
-          <div className="col-span-1 border-r border-amber-900/10 pt-2 border-t">
+          <div className="col-span-1 border-r border-amber-900/10 pt-2 border-t border-amber-900/10">
             <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">{tHop.categories || 'Category'}</p>
             <div className="flex items-center gap-1.5">
               <span className="font-bold text-neutral-900">{proofData?.category || 'Category'}</span>
@@ -346,50 +347,53 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
               </span>
             </div>
           </div>
-          <div className="col-span-1 border-r border-amber-900/10 pl-2 pt-2 border-t">
+          <div className="col-span-1 border-r border-amber-900/10 pl-2 pt-2 border-t border-amber-900/10">
             <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">{tDash.certWalletLabel || 'Wallet Address'}</p>
-            <p className="font-bold text-neutral-900 text-[10px]">{proofData?.wallet || '0x...'}</p>
+            <p className="font-bold text-neutral-900 text-[10px] truncate pr-2">{proofData?.wallet || '0x...'}</p>
           </div>
-          <div className="col-span-1 pl-2 pt-2 border-t">
+          <div className="col-span-1 pl-2 pt-2 border-t border-amber-900/10">
             <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">{tDash.certSmartContract || 'Smart Contract'}</p>
-            <p className="font-bold text-neutral-900 text-[10px]">{formatAddress(proofData?.contract || AETHER_VAULT_ADDRESS)}</p>
+            <p className="font-bold text-neutral-900 text-[10px] truncate pr-2">{formatAddress(proofData?.contract || AETHER_VAULT_ADDRESS)}</p>
           </div>
 
-          <div className="col-span-3 border-t border-amber-900/20 pt-4 mt-2 flex flex-col gap-3">
-            <div className="flex justify-between items-center">
-              <div>
+          {/* 🚀 FIX HASH: Pakai grid-cols-2 dan truncate agar teks hash terpotong rapi dengan titik-titik dan tidak menerobos batas */}
+          <div className="col-span-3 border-t border-amber-900/20 pt-4 mt-2">
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <div className="min-w-0">
                 <p className="text-[9px] uppercase tracking-widest text-amber-800/70 mb-1 flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> {tHop.hash || 'SHA-256'}</p>
-                <p className="text-[10px] text-neutral-700 font-bold tracking-tight">{proofData?.fileHash || '0x...'}</p>
+                <p className="text-[10px] text-neutral-700 font-bold tracking-tight truncate pr-4">{proofData?.fileHash || '0x...'}</p>
               </div>
-              <div className="text-right">
+              <div className="min-w-0 text-right">
                 <p className="text-[9px] uppercase tracking-widest text-amber-800/70 mb-1 flex items-center justify-end gap-1.5"><Lock className="w-3 h-3"/> Metadata Hash</p>
-                <p className="text-[10px] text-neutral-700 font-bold tracking-tight">{proofData?.metaHash || '0x...'}</p>
+                <p className="text-[10px] text-neutral-700 font-bold tracking-tight truncate pl-4">{proofData?.metaHash || '0x...'}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="relative z-10 mt-6 pt-4 border-t-2 border-amber-900/20 flex flex-row items-end justify-between px-6 pb-2">
-        <div className="text-left mb-2">
+      {/* 🚀 FIX QR CODE & MARGIN BAWAH: Mengatur items-center dan mengecilkan QR Code */}
+      <div className="relative z-10 mt-4 pt-4 border-t-2 border-amber-900/20 flex flex-row items-center justify-between px-6 pb-1">
+        <div className="text-left mb-1">
           <p className="text-[8px] font-bold text-amber-900 uppercase tracking-widest leading-relaxed">
             {tDash.certRegisteredBy || 'Certified & Permanently Registered by'}<br/>
             <span className="text-xs font-black mt-0.5 block">AETHVAULT™ REGISTRY</span>
           </p>
-          <p className="text-[7px] text-neutral-500 font-mono mt-1.5 tracking-widest bg-amber-900/5 inline-block px-1.5 py-0.5 rounded">{tDash.certImmutableBadge || 'IMMUTABLE • ON-CHAIN'} • {proofData?.network || 'BINANCE'}</p>
+          <p className="text-[7px] text-neutral-500 font-mono mt-1.5 tracking-widest bg-amber-900/5 inline-block px-1.5 py-0.5 rounded">{tDash.certImmutableBadge || 'IMMUTABLE • ON-CHAIN'} • {proofData?.network || 'BSC TESTNET'}</p>
         </div>
 
-        <div className="text-center mb-2 px-8 flex flex-col items-center">
+        <div className="text-center mb-1 px-8 flex flex-col items-center">
            <div className="font-signature text-3xl text-amber-900/80 -rotate-3 mb-1" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault DAO</div>
            <div className="w-32 border-b border-amber-900/40 mb-1"></div>
            <p className="text-[8px] uppercase tracking-widest text-neutral-500 font-bold">{tDash.certSignature || 'Digital Signature'}</p>
         </div>
 
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 bg-white border border-neutral-200 p-1.5 rounded-sm shadow-sm flex items-center justify-center">
-            <QRCode value={proofData?.verifyUrl || 'https://aethvault.xyz'} size={68} bgColor="#ffffff" fgColor="#451a03" level="Q" />
+          {/* QR Code dikecilkan jadi w-16 h-16 dan size 56 agar tidak nabrak bawah */}
+          <div className="w-16 h-16 bg-white border border-neutral-200 p-1 rounded-sm shadow-sm flex items-center justify-center mb-1">
+            <QRCode value={proofData?.verifyUrl || 'https://aethvault.xyz'} size={56} bgColor="#ffffff" fgColor="#451a03" level="Q" />
           </div>
-          <p className="text-[7px] uppercase tracking-widest mt-1.5 text-amber-900 font-bold">{tDash.certScan || 'Scan to Verify'}</p>
+          <p className="text-[6px] uppercase tracking-widest text-amber-900 font-bold">{tDash.certScan || 'Scan to Verify'}</p>
         </div>
       </div>
     </div>
