@@ -578,43 +578,6 @@ export default function DashboardPage() {
     }
   };
 
-  const handleFileSelected = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!isConnected) return showToast(t.connectWalletBeforeAttach, 'error');
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
-    
-    // 🚀 PENGAMAN TAMBAHAN KHUSUS LEGACY
-    if (tier === 'legacy' && !ethers.isAddress(heirAddress)) {
-      showToast("⚠️ Harap masukkan Alamat Dompet Ahli Waris yang valid sebelum mengunggah lampiran!", "error");
-      setSelectedFile(null);
-      return;
-    }
-
-    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)), 'error');
-
-    setSelectedFile(file);
-    setIsPreparingUpload(true);
-    try {
-      const { publicKey: recipientPublicKey } = await resolveRecipient();
-      const fileBase64 = await fileToBase64(file);
-      const cipherPayload = JSON.stringify({ name: file.name, type: file.type, data: fileBase64 });
-      const encryptedPayload = await encryptForPublicKey(recipientPublicKey, cipherPayload);
-      const encryptedBytes = new TextEncoder().encode(encryptedPayload);
-      
-      const irysUploader = await getNewIrysUploader(walletProvider);
-      const price = await irysUploader.getPrice(encryptedBytes.byteLength);
-      const estimatedCost = ethers.formatEther(price.toString()); 
-
-      setStagedUpload({ file, encryptedBytes, estimatedCost });
-    } catch (error) {
-      showToast(t.prepareAttachmentFailPrefix + extractErrorMessage(error), "error");
-      setSelectedFile(null);
-    } finally {
-      setIsPreparingUpload(false);
-    }
-  };
-
   const handleCancelStagedUpload = () => {
     setStagedUpload(null);
     setSelectedFile(null);
