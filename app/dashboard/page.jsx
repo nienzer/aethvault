@@ -587,12 +587,15 @@ export default function DashboardPage() {
     try {
       const irysUploader = await getNewIrysUploader(walletProvider);
 
-      // 🚀 Auto-fund minimal sejumlah estimasi biaya agar tidak mental di MetaMask
-      const price = await irysUploader.getPrice(stagedUpload.encryptedBytes.byteLength);
+      // 🚀 FIX: Bungkus data ke dalam Buffer murni agar diterima Irys
+      const dataBuffer = Buffer.from(stagedUpload.encryptedBytes);
+
+      // Auto-fund opsional
+      const price = await irysUploader.getPrice(dataBuffer.length);
       try {
         await irysUploader.fund(price);
       } catch (fundErr) {
-        console.log("Catatan Auto-fund:", fundErr);
+        console.log("Auto-fund info:", fundErr);
       }
 
       const tags = [
@@ -601,7 +604,8 @@ export default function DashboardPage() {
         { name: "Encryption", value: "ECIES-secp256k1" }
       ];
 
-      const receipt = await irysUploader.upload(stagedUpload.encryptedBytes, { tags });
+      // 🚀 Gunakan dataBuffer yang sudah beres
+      const receipt = await irysUploader.upload(dataBuffer, { tags });
       const irysUrl = `https://devnet.irys.xyz/${receipt.id}`;
       
       setUploadedCid(irysUrl);
