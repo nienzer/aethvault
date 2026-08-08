@@ -28,13 +28,15 @@ import CreateCapsule from '@/components/CreateCapsule';
 import AetherProofHub from '@/components/AetherProofHub';
 import HallOfProof from '@/components/HallOfProof';
 
-// 🚀 FUNGSI KONEKSI IRYS TERBARU
+// 🚀 FUNGSI KONEKSI & AUTO-FUND IRYS TERBARU
 const getNewIrysUploader = async (walletProvider) => {
   const provider = new ethers.BrowserProvider(walletProvider);
-  return await WebUploader(WebBNB)
+  const irysUploader = await WebUploader(WebBNB)
     .withAdapter(EthersV6Adapter(provider))
     .withRpc("https://bsc-testnet-rpc.publicnode.com")
     .devnet();
+    
+  return irysUploader;
 };
 
 // ==========================================
@@ -584,6 +586,15 @@ export default function DashboardPage() {
     setIsUploading(true);
     try {
       const irysUploader = await getNewIrysUploader(walletProvider);
+
+      // 🚀 Auto-fund minimal sejumlah estimasi biaya agar tidak mental di MetaMask
+      const price = await irysUploader.getPrice(stagedUpload.encryptedBytes.byteLength);
+      try {
+        await irysUploader.fund(price);
+      } catch (fundErr) {
+        console.log("Catatan Auto-fund:", fundErr);
+      }
+
       const tags = [
         { name: "Content-Type", value: "application/octet-stream" },
         { name: "App-Name", value: "AetherVault" },
@@ -598,8 +609,9 @@ export default function DashboardPage() {
       showToast(t.fileUploadedSuccess, "success");
       setStagedUpload(null);
     } catch (error) {
+      console.error("DETAIL ERROR IRYS:", error);
       showToast(t.fileUploadFailPrefix + extractErrorMessage(error), "error");
-      setUploadError(extractErrorMessage(error)); 
+      setUploadError(error.message || extractErrorMessage(error)); 
     } finally {
       setIsUploading(false);
     }
