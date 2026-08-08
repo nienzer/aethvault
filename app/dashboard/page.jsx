@@ -554,6 +554,13 @@ export default function DashboardPage() {
     if (!file) return;
     if (!isConnected) return showToast(t.connectWalletBeforeAttach, 'error');
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    
+    if (tier === 'legacy' && !ethers.isAddress(heirAddress)) {
+      showToast("⚠️ Harap masukkan Alamat Dompet Ahli Waris yang valid sebelum mengunggah lampiran!", "error");
+      setSelectedFile(null);
+      return;
+    }
+
     if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)), 'error');
 
     setSelectedFile(file);
@@ -575,6 +582,45 @@ export default function DashboardPage() {
       setSelectedFile(null);
     } finally {
       setIsPreparingUpload(false);
+    }
+  };
+
+  const handleConfirmArweaveUpload = async () => {
+    if (!stagedUpload) return;
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    
+    setUploadError(''); 
+    setIsUploading(true);
+    try {
+      const irysUploader = await getNewIrysUploader(walletProvider);
+      const dataBuffer = Buffer.from(stagedUpload.encryptedBytes);
+
+      const price = await irysUploader.getPrice(dataBuffer.length);
+      try {
+        await irysUploader.fund(price);
+      } catch (fundErr) {
+        console.log("Auto-fund info:", fundErr);
+      }
+
+      const tags = [
+        { name: "Content-Type", value: "application/octet-stream" },
+        { name: "App-Name", value: "AetherVault" },
+        { name: "Encryption", value: "ECIES-secp256k1" }
+      ];
+
+      const receipt = await irysUploader.upload(dataBuffer, { tags });
+      const irysUrl = `https://devnet.irys.xyz/${receipt.id}`;
+      
+      setUploadedCid(irysUrl);
+      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`);
+      showToast(t.fileUploadedSuccess, "success");
+      setStagedUpload(null);
+    } catch (error) {
+      console.error("DETAIL ERROR IRYS:", error);
+      showToast(t.fileUploadFailPrefix + extractErrorMessage(error), "error");
+      setUploadError(error.message || extractErrorMessage(error)); 
+    } finally {
+      setIsUploading(false);
     }
   };
 
