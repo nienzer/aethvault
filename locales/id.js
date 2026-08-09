@@ -170,7 +170,8 @@ export const id = {
     unlocks: "Terbuka",
     lastPing: "Ping Terakhir",
     limit: "Batas",
-    heirAccess: "Akses Ahli Waris"
+    heirAccess: "Akses Ahli Waris",
+    secretNoCert: "Brankas rahasia tidak memiliki Sertifikat Publik"
   },
   infrastructure: {
     tag: "Infrastruktur",
@@ -720,6 +721,9 @@ export const id = {
     mintDone: "SELESAI",
     mintWorking: "PROSES",
     mintWaiting: "MENUNGGU",
-    mintSuccess: "SUKSES"
+    mintSuccess: "SUKSES",
+    checkingAllowance: "Memeriksa izin (Allowance) token $AETH...",
+    requestingApprove: "Meminta persetujuan (Approve) pemotongan $AETH...",
+    approveSuccess: "Approve berhasil! Melanjutkan pembuatan kapsul..."
   }
 };

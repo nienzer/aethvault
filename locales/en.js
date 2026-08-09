@@ -170,7 +170,8 @@ export const en = {
     unlocks: "Unlocks",
     lastPing: "Last Ping",
     limit: "Limit",
-    heirAccess: "Heir Access"
+    heirAccess: "Heir Access",
+    secretNoCert: "Secret vaults do not have Public Certificates"
   },
   infrastructure: {
     tag: "Infrastructure",
@@ -720,6 +721,9 @@ export const en = {
     mintDone: "DONE",
     mintWorking: "WORKING",
     mintWaiting: "WAITING",
-    mintSuccess: "SUCCESS"
+    mintSuccess: "SUCCESS",
+    checkingAllowance: "Checking $AETH allowance...",
+    requestingApprove: "Requesting $AETH approve...",
+    approveSuccess: "Approve success! Proceeding to seal..."
   }
 };

@@ -703,14 +703,14 @@ export default function DashboardPage() {
       const requiredCostWei = ethers.parseUnits(selectedTierData.cost.toString(), 18);
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       
-      showToast("Memeriksa izin (Allowance) token $AETH...", "info");
+      showToast(t.checkingAllowance, "info");
       const currentAllowance = await tokenContract.allowance(address, CONTRACT_ADDRESS);
 
       if (currentAllowance < requiredCostWei) {
-        showToast("Meminta persetujuan (Approve) pemotongan $AETH...", "info");
+        showToast(t.requestingApprove, "info");
         const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, requiredCostWei);
         await approveTx.wait();
-        showToast("Approve berhasil! Melanjutkan pembuatan kapsul...", "success");
+        showToast(t.approveSuccess, "success");
       }
 
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);

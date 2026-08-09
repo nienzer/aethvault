@@ -130,8 +130,8 @@ export default function VaultsList({
               </div>
 
               <div className="space-y-2">
-                {!capsule.contentDeleted && (
-                  <button
+                {!capsule.contentDeleted && (!capsule.isLegacy || capsule.asHeir) && (
+                 <button
                     onClick={() => handleOpenVault(capsule)}
                     disabled={!capsule.isReady && !capsule.isClaimedOrRevealed}
                     className={`w-full py-3 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer ${
@@ -174,7 +174,7 @@ export default function VaultsList({
                   {isSecretCapsule ? (
                     <div className="py-2 px-3 bg-neutral-900/40 border border-neutral-800/60 rounded-xl text-[9px] text-neutral-500 font-mono text-center flex items-center justify-center gap-1.5">
                       <Shield className="w-3 h-3" />
-                      <span>Brankas rahasia tidak memiliki Sertifikat Publik</span>
+                      <span>{vaultT.secretNoCert}</span>
                     </div>
                   ) : (
                     <button
