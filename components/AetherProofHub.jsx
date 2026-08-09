@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import AetherVaultV3ABI from './AetherVaultV3ABI.json';
+import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
 const AETHER_VAULT_ADDRESS = "0x806909B351521f41e7986D7f2609f8933B3b6a48";
@@ -89,7 +89,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, provider);
 
-      const filter = contract.filters.ProofCreated();
+      const filter = contract.filters.ProofMinted();
       const DEPLOY_BLOCK = 43345845; 
       const currentBlock = await provider.getBlockNumber();
       const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 3000);
@@ -108,8 +108,8 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             ownerFull: args[1],
             date: new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
             network: TARGET_CHAIN_NAME || "BSC Testnet",
-            hash: `${args[2].substring(0, 8)}...`,
-            fullHash: args[2],
+            hash: `${args[4].substring(0, 8)}...`,
+            fullHash: args[4],
             status: "Verified On-Chain",
             txHash: ev.transactionHash
           };

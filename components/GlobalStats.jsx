@@ -8,8 +8,8 @@ const STAKING_CONTRACT_ADDRESS = "0x0743e656fc2dBa316D1bE06f57CAB821baA7Aa0F";
 
 const VAULT_ABI = [
   "function totalProofs() view returns (uint256)",
-  "event CapsuleSealed(uint256 indexed capsuleId, address indexed owner, uint8 tier, uint256 cost, bytes32 proofHash)",
-  "event ProofCreated(uint256 indexed capsuleId, address indexed owner, bytes32 proofHash)"
+  "event CapsuleSealed(uint256 indexed capsuleId, address indexed owner, uint8 tier, uint256 cost)",
+  "event ProofMinted(uint256 indexed tokenId, address indexed creator, string category, bool isPublic, bytes32 fileHash, string tokenURI, uint256 blockNumber)"
 ];
 const STAKING_ABI = [
   "function getStakingStats() view returns (uint256 currentTotalStaked, uint256 totalRewardsPaid, uint256 stakersCount, uint256 rewardPoolAvailable)",
@@ -53,7 +53,7 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
 
         const [sealedLogs, proofLogs, stakedLogs] = await Promise.all([
           vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(), startBlock, "latest"),
-          vaultContract.queryFilter(vaultContract.filters.ProofCreated(), startBlock, "latest"),
+          vaultContract.queryFilter(vaultContract.filters.ProofMinted(), startBlock, "latest"),
           stakingContract.queryFilter(stakingContract.filters.Staked(), startBlock, "latest")
         ]);
 

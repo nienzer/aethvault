@@ -8,7 +8,7 @@ const AETHER_VAULT_ABI = [
   "function totalProofs() external view returns (uint256)",
   "function getProofDetails(uint256 _tokenId) external view returns (tuple(string category, bytes32 fileHash, bool isPublic, uint256 timestamp))",
   "function tokenURI(uint256 tokenId) external view returns (string)", // ⭐ TAMBAHAN BARU: Untuk baca Base64
-  "event ProofCreated(uint256 indexed capsuleId, address indexed owner, bytes32 proofHash)"
+  "event ProofMinted(uint256 indexed tokenId, address indexed creator, string category, bool isPublic, bytes32 fileHash, string tokenURI, uint256 blockNumber)"
 ];
 
 export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
@@ -74,7 +74,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
 
         const DEPLOY_BLOCK = 43345845;
         const startBlock = Math.max(DEPLOY_BLOCK, blockNum - 3000);
-        const events = await contract.queryFilter(contract.filters.ProofCreated(), startBlock, "latest");
+        const events = await contract.queryFilter(contract.filters.ProofMinted(), startBlock, "latest");
         
         const ownerMap = {};
         events.forEach(ev => {
