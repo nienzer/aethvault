@@ -377,7 +377,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         <div className="text-left mb-1">
           <p className="text-[8px] font-bold text-amber-900 uppercase tracking-widest leading-relaxed">
             {tDash.certRegisteredBy || 'Certified & Permanently Registered by'}<br/>
-            <span className="text-xs font-black mt-0.5 block">AETHVAULT™ REGISTRY</span>
+            <span className="text-xs font-black mt-0.5 block">AETHERVAULT™ REGISTRY</span>
           </p>
           <p className="text-[7px] text-neutral-500 font-mono mt-1.5 tracking-widest bg-amber-900/5 inline-block px-1.5 py-0.5 rounded">{tDash.certImmutableBadge || 'IMMUTABLE • ON-CHAIN'} • {proofData?.network || 'BSC TESTNET'}</p>
         </div>

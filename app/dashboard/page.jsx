@@ -466,14 +466,19 @@ export default function DashboardPage() {
         const rawBalance = await provider.getBalance(address);
         setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
         try {
-          const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, provider);
+          // Tetap gunakan tokenContract untuk saldo AETH
+          const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, [
+            { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
+          ], provider);
           const rawAethBalance = await tokenContract.balanceOf(address);
           setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
-          const registeredKey = await tokenContract.encryptionPublicKeys(address);
+
+          // 🔥 PERBAIKAN TOTAL: Gunakan CONTRACT_ADDRESS utama untuk cek Key & Owner
+          const mainContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+          const registeredKey = await mainContract.encryptionPublicKeys(address);
           setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x');
 
-          // 🚀 CEK APAKAH WALLET YANG LOGIN ADALAH OWNER KONTRAK
-          const contractOwner = await tokenContract.owner();
+          const contractOwner = await mainContract.owner();
           setIsOwner(contractOwner.toLowerCase() === address.toLowerCase());
         } catch (err) {
           setIsOwner(false);

@@ -104,7 +104,7 @@ export default function CertificateModal({
                   </h5>
                 </div>
 
-                <div className="grid grid-cols-3 gap-y-5 gap-x-6 text-xs font-mono bg-white/60 p-6 border border-amber-900/20 rounded-sm shadow-sm backdrop-blur-sm">
+                <div className="grid grid-cols-3 gap-y-5 gap-x-6 text-xs font-mono bg-white/30 p-6 border border-amber-900/20 rounded-sm shadow-sm backdrop-blur-xs">
                   <div className="col-span-1 border-r border-amber-900/10">
                     <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">{t.certVaultId || "Vault ID"}</p>
                     <p className="font-bold text-neutral-900">#{selectedCertificate.capsuleId}</p>
