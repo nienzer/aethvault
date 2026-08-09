@@ -376,9 +376,26 @@ export default function DashboardPage() {
         
         const batchResults = await Promise.all(
           batch.map(async ({ id, asHeir }) => {
-            try {
+           try {
               const meta = await contract.getCapsuleMeta(id);
-              const ready = await contract.isCapsuleReady(id);
+              let ready = false;
+              try {
+                ready = await contract.isCapsuleReady(id);
+              } catch (e) {
+                ready = false;
+              }
+
+              // 🔥 PENGAMAN UI FALLBACK: Paksa ready jika durasi waktu sudah terlewat
+              if (!ready) {
+                const nowSec = Math.floor(Date.now() / 1000);
+                if (meta.isLegacy) {
+                  const deadlineSec = Number(meta.lastPingAlive) + Number(meta.inactivityLimit);
+                  if (nowSec > deadlineSec) ready = true;
+                } else {
+                  if (nowSec >= Number(meta.unlockTimestamp)) ready = true;
+                }
+              }
+
               const decryptedTitle = await tryDecryptTitle(meta.title, privateKeyForTitles);
               
               return {
