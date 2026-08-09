@@ -718,7 +718,7 @@ export default function DashboardPage() {
 
       let tx;
       if (tier === 'legacy') {
-        const inactivitySeconds = parseInt(inactivityYears) * 365 * 24 * 60 * 60;
+        const inactivitySeconds = 180;
         tx = await contract.sealLegacyCapsule(encryptedTitle, encryptedMessage, inactivitySeconds, heirAddress);
       } else {
         if (!unlockDate) throw new Error(t.selectUnlockDateTime);
