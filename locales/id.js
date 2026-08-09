@@ -724,6 +724,7 @@ export const id = {
     mintSuccess: "SUKSES",
     checkingAllowance: "Memeriksa izin (Allowance) token $AETH...",
     requestingApprove: "Meminta persetujuan (Approve) pemotongan $AETH...",
-    approveSuccess: "Approve berhasil! Melanjutkan pembuatan kapsul..."
+    approveSuccess: "Approve berhasil! Melanjutkan pembuatan kapsul...",
+    uploadHeirWarning: "⚠️ Harap masukkan Alamat Dompet Ahli Waris yang valid sebelum mengunggah lampiran!"
   }
 };

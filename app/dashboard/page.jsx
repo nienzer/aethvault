@@ -532,7 +532,7 @@ export default function DashboardPage() {
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     
     if (tier === 'legacy' && !ethers.isAddress(heirAddress)) {
-      showToast("⚠️ Harap masukkan Alamat Dompet Ahli Waris yang valid sebelum mengunggah lampiran!", "error");
+      showToast(t.uploadHeirWarning, "error");
       setSelectedFile(null);
       return;
     }

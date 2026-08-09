@@ -147,12 +147,12 @@ export default function VaultsList({
                   </button>
                 )}
 
-                {capsule.isLegacy && !capsule.asHeir && !capsule.isClaimedOrRevealed && !capsule.contentDeleted && (
-                  <button
-                    onClick={() => handlePingAlive(capsule)}
-                    disabled={isPinging === capsule.id || isWrongNetwork}
-                    className="w-full py-3 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
-                  >
+               {capsule.isLegacy && !capsule.asHeir && !capsule.isClaimedOrRevealed && !capsule.contentDeleted && !capsule.isReady && (
+                 <button
+                  onClick={() => handlePingAlive(capsule)}
+                  disabled={isPinging === capsule.id || isWrongNetwork}
+                  className="w-full py-3 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                 >
                     {isPinging === capsule.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Activity className="w-4 h-4" />}
                     {dashT.btnPingAlive || "Ping Alive"}
                   </button>

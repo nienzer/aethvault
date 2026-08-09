@@ -724,6 +724,7 @@ export const en = {
     mintSuccess: "SUCCESS",
     checkingAllowance: "Checking $AETH allowance...",
     requestingApprove: "Requesting $AETH approve...",
-    approveSuccess: "Approve success! Proceeding to seal..."
+    approveSuccess: "Approve success! Proceeding to seal...",
+    uploadHeirWarning: "⚠️ Please enter a valid Heir Wallet Address before uploading an attachment!"
   }
 };
