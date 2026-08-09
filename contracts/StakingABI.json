@@ -17,7 +17,27 @@
 	},
 	{
 		"inputs": [],
+		"name": "DepositNotFound",
+		"type": "error"
+	},
+	{
+		"inputs": [],
 		"name": "EnforcedPause",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ExceedsMaxApy",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ExceedsMaxCap",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ExceedsMaxDeposits",
 		"type": "error"
 	},
 	{
@@ -38,6 +58,21 @@
 	{
 		"inputs": [],
 		"name": "InvalidAddress",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidLockDuration",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidTier",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "NoPendingUpdate",
 		"type": "error"
 	},
 	{
@@ -90,6 +125,21 @@
 	},
 	{
 		"inputs": [],
+		"name": "TimelockNotExpired",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "TokenAmountMismatch",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "TokenStillLocked",
+		"type": "error"
+	},
+	{
+		"inputs": [],
 		"name": "TransferFailed",
 		"type": "error"
 	},
@@ -104,23 +154,17 @@
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "token",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "to",
+				"name": "user",
 				"type": "address"
 			},
 			{
 				"indexed": false,
 				"internalType": "uint256",
-				"name": "amount",
+				"name": "depositId",
 				"type": "uint256"
 			}
 		],
-		"name": "ForeignTokenRescued",
+		"name": "DepositRemoved",
 		"type": "event"
 	},
 	{
@@ -129,17 +173,29 @@
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "to",
+				"name": "user",
 				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "depositId",
+				"type": "uint256"
 			},
 			{
 				"indexed": false,
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "forfeitedReward",
+				"type": "uint256"
 			}
 		],
-		"name": "NativeCoinRescued",
+		"name": "EmergencyWithdrawn",
 		"type": "event"
 	},
 	{
@@ -197,6 +253,12 @@
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "funder",
+				"type": "address"
+			},
+			{
 				"indexed": false,
 				"internalType": "uint256",
 				"name": "amount",
@@ -237,11 +299,85 @@
 			{
 				"indexed": false,
 				"internalType": "uint256",
+				"name": "tierId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
 				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "depositId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "apy",
 				"type": "uint256"
 			}
 		],
 		"name": "Staked",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tierId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "apy",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "lockDuration",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "executeAfter",
+				"type": "uint256"
+			}
+		],
+		"name": "TierUpdateRequested",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tierId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "apy",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "lockDuration",
+				"type": "uint256"
+			}
+		],
+		"name": "TierUpdated",
 		"type": "event"
 	},
 	{
@@ -269,12 +405,83 @@
 			{
 				"indexed": false,
 				"internalType": "uint256",
+				"name": "depositId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
 			}
 		],
 		"name": "Withdrawn",
 		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "MAX_APY",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MAX_DEPOSITS_PER_WALLET",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MAX_LOCK_DURATION",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "MAX_STAKE_PER_WALLET",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "TIMELOCK_DURATION",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
 	},
 	{
 		"inputs": [],
@@ -339,6 +546,32 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
+				"name": "_depositId",
+				"type": "uint256"
+			}
+		],
+		"name": "emergencyWithdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tierId",
+				"type": "uint256"
+			}
+		],
+		"name": "executeTierUpdate",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
 				"name": "_amount",
 				"type": "uint256"
 			}
@@ -349,42 +582,59 @@
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "getStakingStats",
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserDeposits",
 		"outputs": [
 			{
-				"internalType": "uint256",
-				"name": "currentTotalStaked",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "totalRewardsPaid",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "stakersCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "rewardPoolAvailable",
-				"type": "uint256"
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "tierId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "lastClaimTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "unlockTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "apy",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct AetherVaultStakingSecureV6.Deposit[]",
+				"name": "",
+				"type": "tuple[]"
 			}
 		],
 		"stateMutability": "view",
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "lastStakeTime",
+		"inputs": [],
+		"name": "nextDepositId",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -442,8 +692,65 @@
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "pendingTierUpdates",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "apy",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lockDuration",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "executeAfter",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "pending",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tierId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_apy",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_lockDuration",
+				"type": "uint256"
+			}
+		],
+		"name": "requestTierUpdate",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -474,55 +781,10 @@
 	{
 		"inputs": [
 			{
-				"internalType": "address payable",
-				"name": "_to",
-				"type": "address"
+				"internalType": "uint256",
+				"name": "_tierId",
+				"type": "uint256"
 			},
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "rescueNativeCoin",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "rewardDebt",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "rewardRate",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
 			{
 				"internalType": "uint256",
 				"name": "_amount",
@@ -537,16 +799,21 @@
 	{
 		"inputs": [
 			{
-				"internalType": "address",
+				"internalType": "uint256",
 				"name": "",
-				"type": "address"
+				"type": "uint256"
 			}
 		],
-		"name": "stakedBalance",
+		"name": "tiers",
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "",
+				"name": "apy",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lockDuration",
 				"type": "uint256"
 			}
 		],
@@ -615,6 +882,98 @@
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "userDeposits",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tierId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lastClaimTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "unlockTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "apy",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "userRewardDebt",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "userTotalStaked",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_depositId",
+				"type": "uint256"
+			},
+			{
 				"internalType": "uint256",
 				"name": "_amount",
 				"type": "uint256"
@@ -624,9 +983,5 @@
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
 	}
 ]

@@ -28,6 +28,11 @@ import CreateCapsule from '@/components/CreateCapsule';
 import AetherProofHub from '@/components/AetherProofHub';
 import HallOfProof from '@/components/HallOfProof';
 
+// ⭐ IMPORT ABI LANGSUNG DARI FOLDER CONTRACTS
+import AetherVaultABI from '@/contracts/AetherVaultABI.json';
+import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
+import StakingABI from '@/contracts/StakingABI.json';
+
 // 🚀 FUNGSI KONEKSI & AUTO-FUND IRYS TERBARU
 const getNewIrysUploader = async (walletProvider) => {
   const provider = new ethers.BrowserProvider(walletProvider);
@@ -39,59 +44,10 @@ const getNewIrysUploader = async (walletProvider) => {
   return irysUploader;
 };
 
-// ==========================================
-// ⭐ ABI AETHERVAULT V2.2
-// ==========================================
-const AetherVaultABI = [
-  { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "bytes", "name": "_pubKey", "type": "bytes" }], "name": "registerPublicKey", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [], "name": "pause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [], "name": "unpause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "address", "name": "_newTreasury", "type": "address" }], "name": "updateTreasury", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "encryptionPublicKeys", "outputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [ { "internalType": "enum AetherVault.Tier", "name": "_tier", "type": "uint8" }, { "internalType": "string", "name": "_title", "type": "string" }, { "internalType": "string", "name": "_encryptedMessage", "type": "string" }, { "internalType": "uint256", "name": "_unlockTimestamp", "type": "uint256" } ], "name": "sealTimeLockCapsule", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "string", "name": "_title", "type": "string" }, { "internalType": "string", "name": "_encryptedMessage", "type": "string" }, { "internalType": "uint256", "name": "_inactivityDuration", "type": "uint256" }, { "internalType": "address", "name": "_heirAddress", "type": "address" }], "name": "sealLegacyCapsule", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "pingAlive", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "revealCapsule", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "claimLegacy", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getOpenedCiphertext", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "deleteOpenedContent", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getCapsuleMeta", "outputs": [ { "internalType": "string", "name": "title", "type": "string" }, { "internalType": "uint256", "name": "unlockTimestamp", "type": "uint256" }, { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "enum AetherVault.Tier", "name": "tier", "type": "uint8" }, { "internalType": "bool", "name": "isLegacy", "type": "bool" }, { "internalType": "address", "name": "heirAddress", "type": "address" }, { "internalType": "uint256", "name": "lastPingAlive", "type": "uint256" }, { "internalType": "uint256", "name": "inactivityLimit", "type": "uint256" }, { "internalType": "bool", "name": "isClaimedOrRevealed", "type": "bool" }, { "internalType": "bool", "name": "contentDeleted", "type": "bool" } ], "stateMutability": "view", "type": "function" },
-  { "inputs": [], "name": "getPlatformStats", "outputs": [ { "internalType": "uint256", "name": "totalCapsules", "type": "uint256" }, { "internalType": "uint256", "name": "burnedAeth", "type": "uint256" }, { "internalType": "uint256", "name": "users", "type": "uint256" }, { "internalType": "uint256", "name": "currentSupply", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "getCertificate", "outputs": [ { "internalType": "uint256", "name": "capsuleId", "type": "uint256" }, { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "enum AetherVault.Tier", "name": "tier", "type": "uint8" }, { "internalType": "bool", "name": "isLegacy", "type": "bool" }, { "internalType": "bytes32", "name": "proofHash", "type": "bytes32" }, { "internalType": "uint256", "name": "creationTimestamp", "type": "uint256" }, { "internalType": "uint256", "name": "blockNumber", "type": "uint256" } ], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_capsuleIndex", "type": "uint256" }], "name": "isCapsuleReady", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "address", "name": "_user", "type": "address" }], "name": "getUserCapsules", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "address", "name": "_heir", "type": "address" }], "name": "getHeirCapsules", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "enum AetherVault.Tier", "name": "", "type": "uint8" }], "name": "tierConfigs", "outputs": [ { "internalType": "uint256", "name": "cost", "type": "uint256" }, { "internalType": "uint256", "name": "burnPart", "type": "uint256" }, { "internalType": "uint256", "name": "maxDuration", "type": "uint256" }, { "internalType": "uint256", "name": "maxMessageLength", "type": "uint256" } ], "stateMutability": "view", "type": "function" }
-  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleIndex", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "user", "type": "address" } ], "name": "CapsuleSealed", "type": "event" },
-  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleIndex", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "user", "type": "address" } ], "name": "CapsuleRevealed", "type": "event" },
-  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleIndex", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "heir", "type": "address" } ], "name": "LegacyClaimed", "type": "event" },
-  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleIndex", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "user", "type": "address" } ], "name": "PingRecorded", "type": "event" },
-];
-
-// ==========================================
-// ⭐ ABI STAKING V2
-// ==========================================
-const StakingABI = [
-  { "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "stake", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "withdraw", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [], "name": "claimReward", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [], "name": "pause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [], "name": "unpause", "outputs": [], "stateMutability": "nonpayable", "type": "function" },
-  { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "stakedBalance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [{ "internalType": "address", "name": "_user", "type": "address" }], "name": "calculateReward", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [], "name": "rewardRate", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" },
-  { "inputs": [], "name": "getStakingStats", "outputs": [ { "internalType": "uint256", "name": "currentTotalStaked", "type": "uint256" }, { "internalType": "uint256", "name": "totalRewardsPaid", "type": "uint256" }, { "internalType": "uint256", "name": "stakersCount", "type": "uint256" }, { "internalType": "uint256", "name": "rewardPoolAvailable", "type": "uint256" } ], "stateMutability": "view", "type": "function" }
-];
-
 // ⭐ ALAMAT KONTRAK
-const AETH_TOKEN_ADDRESS = "0x631Bf65a007dD76f64605D5cdAA0dd0e0D9328C5"; 
-const CONTRACT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD"; 
-const STAKING_CONTRACT_ADDRESS = "0x63317e60C7bEC4a3e8a61e1a2436624d1b998576"; 
+const AETH_TOKEN_ADDRESS = "0x303574EF7B2AdA02e1E2eadB68D406283C59765e"; 
+const CONTRACT_ADDRESS = "0x806909B351521f41e7986D7f2609f8933B3b6a48"; 
+const STAKING_CONTRACT_ADDRESS = "0x0743e656fc2dBa316D1bE06f57CAB821baA7Aa0F"; 
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED = CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -131,7 +87,6 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('create');
   const [isOwner, setIsOwner] = useState(false);
 
-  // 🚀 DETEKSI URL /admin MANUAL
   useEffect(() => {
     if (pathname && pathname.includes('/admin')) {
       setActiveTab('admin');
@@ -198,7 +153,7 @@ export default function DashboardPage() {
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       try {
-        const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+        const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
         const stats = await vaultContract.getPlatformStats();
         setPlatformStats({
           capsules: Number(stats[0]),
@@ -235,7 +190,7 @@ export default function DashboardPage() {
         const provider = walletProvider
           ? new ethers.BrowserProvider(walletProvider)
           : new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
         const results = [];
         for (let idx = 0; idx <= 3; idx++) {
           try {
@@ -355,7 +310,7 @@ export default function DashboardPage() {
   const fetchCapsulesFromChain = useCallback(async (provider, userAddress, privateKeyForTitles) => {
     setIsLoadingCapsules(true);
     try {
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
       
       const [ownedIds, heirIds] = await Promise.all([
         contract.getUserCapsules(userAddress),
@@ -389,7 +344,6 @@ export default function DashboardPage() {
                 ready = false;
               }
 
-              // 🔥 PENGAMAN UI FALLBACK: Paksa ready jika durasi waktu sudah terlewat
               if (!ready) {
                 const nowSec = Math.floor(Date.now() / 1000);
                 if (meta.isLegacy) {
@@ -440,7 +394,7 @@ export default function DashboardPage() {
     setIsLoadingHistory(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
-      const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+      const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
       const currentBlock = await provider.getBlockNumber();
       const startBlock = Math.max(0, currentBlock - 3000); 
       
@@ -487,15 +441,11 @@ export default function DashboardPage() {
         const rawBalance = await provider.getBalance(address);
         setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
         try {
-          // Tetap gunakan tokenContract untuk saldo AETH
-          const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, [
-            { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }
-          ], provider);
+          const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, provider);
           const rawAethBalance = await tokenContract.balanceOf(address);
           setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
 
-          // 🔥 PERBAIKAN TOTAL: Gunakan CONTRACT_ADDRESS utama untuk cek Key & Owner
-          const mainContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+          const mainContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
           const registeredKey = await mainContract.encryptionPublicKeys(address);
           setMyPublicKeyRegistered(registeredKey && registeredKey !== '0x');
 
@@ -559,7 +509,7 @@ export default function DashboardPage() {
     try {
       const { publicKey } = await getOrDeriveKeyPair();
       const signer = await getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       const tx = await contract.registerPublicKey(publicKeyToBytes(publicKey));
       showToast(t.registeringKey, 'info');
       await tx.wait();
@@ -665,7 +615,7 @@ export default function DashboardPage() {
 
   const resolveRecipient = async () => {
     const provider = new ethers.BrowserProvider(walletProvider);
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, provider);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
     if (tier === 'legacy') {
       if (!ethers.isAddress(heirAddress)) throw new Error(t.enterValidHeirAddress);
       const heirKey = await contract.encryptionPublicKeys(heirAddress);
@@ -717,7 +667,7 @@ export default function DashboardPage() {
         showToast(t.approveSuccess, "success");
       }
 
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       showToast(t.preparingOnChainTx, 'info');
 
       let tx;
@@ -757,7 +707,7 @@ export default function DashboardPage() {
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       let ciphertext;
       if (capsule.isClaimedOrRevealed) {
         ciphertext = await contract.getOpenedCiphertext(capsule.id);
@@ -783,7 +733,7 @@ export default function DashboardPage() {
     if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     try {
       const signer = await getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       
       const cert = await contract.getCertificate(capsuleId);
       setSelectedCertificate({
@@ -807,7 +757,7 @@ export default function DashboardPage() {
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       const tx = await contract.pingAlive(capsule.id);
       await tx.wait();
       showToast(t.pingSuccess, 'success');
@@ -828,7 +778,7 @@ export default function DashboardPage() {
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       const tx = await contract.deleteOpenedContent(capsule.id);
       await tx.wait();
       showToast(t.deleteContentSuccess, 'success');
@@ -962,9 +912,6 @@ export default function DashboardPage() {
     }
   };
 
-  // ==========================================
-  // 🚀 FUNGSI AKSI ADMIN PANEL
-  // ==========================================
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [newTreasuryInput, setNewTreasuryInput] = useState('');
 
@@ -973,7 +920,7 @@ export default function DashboardPage() {
       setIsAdminLoading(true);
       const signer = await getSigner();
       const targetAddress = isStaking ? STAKING_CONTRACT_ADDRESS : CONTRACT_ADDRESS;
-      const abi = isStaking ? StakingABI : AetherVaultABI;
+      const abi = isStaking ? StakingABI : AetherVaultV3ABI;
       const contract = new ethers.Contract(targetAddress, abi, signer);
 
       const tx = isPause ? await contract.pause() : await contract.unpause();
@@ -993,7 +940,7 @@ export default function DashboardPage() {
     try {
       setIsAdminLoading(true);
       const signer = await getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultABI, signer);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       const tx = await contract.updateTreasury(newTreasuryInput);
       showToast("Memperbarui treasury...", "info");
       await tx.wait();
@@ -1186,8 +1133,6 @@ export default function DashboardPage() {
             </div>
 
             <div className="lg:col-span-3 space-y-6">
-              
-              {/* TAB: CREATE */}
               {activeTab === 'create' && (
                 <CreateCapsule
                   t={t}
@@ -1215,7 +1160,6 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* ⭐ TAB: AETHER PROOF */}
               {activeTab === 'proof' && (
                 <AetherProofHub
                   t={t}
@@ -1232,7 +1176,6 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* TAB: VAULTS */}
               {activeTab === 'vaults' && (
                 <VaultsList
                   t={t}
@@ -1250,7 +1193,6 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* TAB: HISTORY */}
               {activeTab === 'history' && (
                 <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl space-y-4 sm:space-y-6">
                   <h3 className="font-display text-lg sm:text-xl font-bold text-white">{t.historyTitle}</h3>
@@ -1283,7 +1225,6 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* TAB: STATS */}
               {activeTab === 'stats' && (
                 <GlobalStats
                   t={t}
@@ -1292,7 +1233,6 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* TAB: STAKING */}
               {activeTab === 'staking' && (
                 <StakingPanel
                   t={t}
@@ -1315,7 +1255,6 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* TAB: SECURITY */}
               {activeTab === 'security' && (
                 <div className="space-y-4 sm:space-y-6">
                   <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1373,7 +1312,6 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* TAB: SETTINGS */}
               {activeTab === 'settings' && (
                 <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 sm:space-y-8 shadow-xl">
                   <div>
@@ -1415,7 +1353,6 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* 🚀 TAB RAHASIA ADMIN PANEL (Hanya muncul jika URL diketik /admin dan dompet yang login adalah Owner) */}
               {activeTab === 'admin' && (
                 <div className="bg-[#0B0817] border border-red-500/40 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 shadow-2xl animate-in fade-in duration-300">
                   <div className="flex items-center gap-3 border-b border-neutral-900 pb-4">
@@ -1434,7 +1371,6 @@ export default function DashboardPage() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {/* 1. KONTROL PAUSE */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-3">
                           <h4 className="text-xs font-bold text-neutral-300 uppercase font-mono">Darurat Kontrak Utama</h4>
@@ -1477,7 +1413,6 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      {/* 2. UPDATE TREASURY */}
                       <form onSubmit={handleAdminUpdateTreasury} className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl space-y-3">
                         <h4 className="text-xs font-bold text-cyan-400 uppercase font-mono">Ganti Alamat Treasury</h4>
                         <div className="flex gap-3">

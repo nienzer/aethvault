@@ -7,8 +7,8 @@ import jsPDF from 'jspdf';
 import AetherVaultV3ABI from './AetherVaultV3ABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
-const AETHER_VAULT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD";
-const AETH_TOKEN_ADDRESS = "0x631Bf65a007dD76f64605D5cdAA0dd0e0D9328C5"; 
+const AETHER_VAULT_ADDRESS = "0x806909B351521f41e7986D7f2609f8933B3b6a48";
+const AETH_TOKEN_ADDRESS = "0x303574EF7B2AdA02e1E2eadB68D406283C59765e"; 
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {

@@ -3,7 +3,7 @@ import { Award, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Search, Ex
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
 
-const AETHER_VAULT_ADDRESS = "0x318Ec508E9D33DaD230a76A600E04C26757A71FD";
+const AETHER_VAULT_ADDRESS = "0x806909B351521f41e7986D7f2609f8933B3b6a48";
 const AETHER_VAULT_ABI = [
   "function totalProofs() external view returns (uint256)",
   "function getProofDetails(uint256 _tokenId) external view returns (tuple(string category, bytes32 fileHash, bool isPublic, uint256 timestamp))",
