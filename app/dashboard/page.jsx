@@ -66,6 +66,10 @@ const AetherVaultABI = [
   { "inputs": [{ "internalType": "address", "name": "_user", "type": "address" }], "name": "getUserCapsules", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "address", "name": "_heir", "type": "address" }], "name": "getHeirCapsules", "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }], "stateMutability": "view", "type": "function" },
   { "inputs": [{ "internalType": "enum AetherVault.Tier", "name": "", "type": "uint8" }], "name": "tierConfigs", "outputs": [ { "internalType": "uint256", "name": "cost", "type": "uint256" }, { "internalType": "uint256", "name": "burnPart", "type": "uint256" }, { "internalType": "uint256", "name": "maxDuration", "type": "uint256" }, { "internalType": "uint256", "name": "maxMessageLength", "type": "uint256" } ], "stateMutability": "view", "type": "function" }
+  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleIndex", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "user", "type": "address" } ], "name": "CapsuleSealed", "type": "event" },
+  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleIndex", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "user", "type": "address" } ], "name": "CapsuleRevealed", "type": "event" },
+  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleIndex", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "heir", "type": "address" } ], "name": "LegacyClaimed", "type": "event" },
+  { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "capsuleIndex", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "user", "type": "address" } ], "name": "PingRecorded", "type": "event" },
 ];
 
 // ==========================================
