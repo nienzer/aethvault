@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
-const AETHER_VAULT_ADDRESS = "0x806909B351521f41e7986D7f2609f8933B3b6a48";
+const AETHER_VAULT_ADDRESS = "0x0743e656fc2dBa316D1bE06f57CAB821baA7Aa0F";
 const AETH_TOKEN_ADDRESS = "0x303574EF7B2AdA02e1E2eadB68D406283C59765e"; 
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
