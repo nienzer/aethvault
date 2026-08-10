@@ -657,15 +657,16 @@ export default function DashboardPage() {
       const requiredCostWei = ethers.parseUnits(selectedTierData.cost.toString(), 18);
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       
-      showToast(t.checkingAllowance, "info");
-      const currentAllowance = await tokenContract.allowance(address, CONTRACT_ADDRESS);
+      // Menggunakan STAKING_CONTRACT_ADDRESS dan amountInWei
+showToast(t.checkingAllowance || "Checking allowance...", "info");
+const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
 
-      if (currentAllowance < requiredCostWei) {
-        showToast(t.requestingApprove, "info");
-        const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, requiredCostWei);
-        await approveTx.wait();
-        showToast(t.approveSuccess, "success");
-      }
+if (currentAllowance < amountInWei) {
+  showToast(t.requestingApprove || "Requesting approval...", "info");
+  const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountInWei);
+  await approveTx.wait();
+  showToast(t.approveSuccess || "Approval success!", "success");
+}
 
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       showToast(t.preparingOnChainTx, 'info');
