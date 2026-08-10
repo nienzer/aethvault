@@ -317,15 +317,18 @@ export default function DashboardPage() {
       let ownedIds = [];
       let heirIds = [];
       try {
-        ownedIds = await contract.getUserCapsules(userAddress);
-      } catch (e) {
-        console.warn("Gagal ambil user capsules:", e);
-      }
+        const totalOwned = await contract.getUserCapsuleCount(userAddress);
+        if (totalOwned > 0n) {
+          ownedIds = await contract.getUserCapsulesPaginated(userAddress, 0, Number(totalOwned));
+        }
+      } catch (e) {}
+
       try {
-        heirIds = await contract.getHeirCapsules(userAddress);
-      } catch (e) {
-        console.warn("Gagal ambil heir capsules:", e);
-      }
+        const totalHeir = await contract.getHeirCapsuleCount(userAddress);
+        if (totalHeir > 0n) {
+          heirIds = await contract.getHeirCapsulesPaginated(userAddress, 0, Number(totalHeir));
+        }
+      } catch (e) {}
       
       const allIdsMap = new Map();
       if (ownedIds && ownedIds.length) {
@@ -382,15 +385,12 @@ export default function DashboardPage() {
             tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? (t.tierLabelLegacy || 'Legacy') : (t.tierLabelTimeLock || 'TimeLock')),
             status: meta.contentDeleted ? (t.statusDeleted || 'DELETED') : meta.isClaimedOrRevealed ? (t.statusOpened || 'OPENED') : ready ? (t.statusReady || 'READY') : (t.statusLocked || 'LOCKED'),
           });
-        } catch (itemErr) {
-          console.error(`Error parsing capsule ID ${id}:`, itemErr);
-        }
+        } catch (itemErr) {}
       }
 
       results.sort((a, b) => Number(b.id) - Number(a.id));
       setMyCapsules(results);
     } catch (err) {
-      console.error("Gagal total memuat kapsul dari chain:", err);
       setMyCapsules([]);
     } finally {
       setIsLoadingCapsules(false);
