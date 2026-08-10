@@ -1460,8 +1460,6 @@ export default function DashboardPage() {
                           </button>
                         </div>
                       </form>
-                       </form>
-
                       {/* KOTAK BARU: BRANKAS GAJI DEV */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl space-y-3 mt-4">
                         <h4 className="text-xs font-bold text-green-400 uppercase font-mono">Brankas Gaji Developer</h4>
