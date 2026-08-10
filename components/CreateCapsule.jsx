@@ -228,10 +228,9 @@ export default function CreateCapsule({
                 className="w-full h-36 bg-[#05030F] border border-neutral-800 rounded-2xl p-4 text-xs sm:text-sm text-white focus:border-cyan-500 outline-none resize-none font-mono transition-all leading-relaxed"
                 required
               />
-              <div className="text-right text-[11px] text-cyan-400 font-mono font-bold">
-                {tDash.charCount || 'Characters: '} {message.length} / {tiers[tier].maxLength}
+              <div className="text-right text-[11px] text-cyan-400 font-mono font-bold flex items-center justify-end gap-1.5">
+                <Fingerprint className="w-3.5 h-3.5" /> Payload will be hashed (32-bytes) & encrypted locally
               </div>
-            </div>
 
             {/* UNLOCK DATE & TIME */}
             <div className="pt-2">

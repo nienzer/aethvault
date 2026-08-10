@@ -3,8 +3,8 @@ import { Flame, UserX, Users, Loader2, Database, ShieldCheck, Activity, Award, W
 import { ethers } from 'ethers';
 
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
-const AETHER_VAULT_ADDRESS = "0x0743e656fc2dBa316D1bE06f57CAB821baA7Aa0F";
-const STAKING_CONTRACT_ADDRESS = "0x806909B351521f41e7986D7f2609f8933B3b6a48";
+const AETHER_VAULT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c";
+const STAKING_CONTRACT_ADDRESS = "0xE4A91F311B52A5EfCEe57eCB60D8DE886fc50D51";
 
 const VAULT_ABI = [
   "function totalProofs() view returns (uint256)",

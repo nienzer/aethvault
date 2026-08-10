@@ -7,8 +7,8 @@ import jsPDF from 'jspdf';
 import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
-const AETHER_VAULT_ADDRESS = "0x0743e656fc2dBa316D1bE06f57CAB821baA7Aa0F";
-const AETH_TOKEN_ADDRESS = "0x303574EF7B2AdA02e1E2eadB68D406283C59765e"; 
+const AETHER_VAULT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c";
+const AETH_TOKEN_ADDRESS = "0xB251439799Ca1cCe317451b5E13A080eEaa70bff"; 
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
@@ -614,6 +614,8 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                 <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-2.5 mb-4">
                   <div className="flex justify-between text-xs font-mono"><span className="text-neutral-400">Mint Cost</span><span className="text-white font-bold">{currentConfig.price} AETH</span></div>
                   <div className="flex justify-between text-xs font-mono"><span className="text-neutral-500 flex items-center gap-1"><Flame className="w-3 h-3 text-red-400"/> {tStats.burn || 'Burn'}</span><span className="text-red-400">-{currentConfig.price * 0.2} AETH</span></div>
+                  <div className="flex justify-between text-xs font-mono"><span className="text-neutral-500 flex items-center gap-1"><Activity className="w-3 h-3 text-green-400"/> Staking Pool</span><span className="text-green-400">+{currentConfig.price * 0.4} AETH</span></div>
+                  <div className="flex justify-between text-xs font-mono"><span className="text-neutral-500 flex items-center gap-1"><Building2 className="w-3 h-3 text-yellow-400"/> Treasury Reserve</span><span className="text-yellow-400">+{currentConfig.price * 0.4} AETH</span></div>
                   <div className="flex justify-between text-xs font-mono border-t border-neutral-800 pt-2"><span className="text-neutral-400">Est. Gas Fee</span><span className="text-white">~0.0005 tBNB</span></div>
                 </div>
 

@@ -133,7 +133,7 @@ export default function CertificateModal({
                   </div>
                   <div className="col-span-1 pl-2 pt-2 border-t">
                     <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">{t.certSmartContract || "Smart Contract"}</p>
-                    <p className="font-bold text-neutral-900 text-[10px]">{formatAddress("0x0743e656fc2dBa316D1bE06f57CAB821baA7Aa0F")}</p>
+                    <p className="font-bold text-neutral-900 text-[10px]">{formatAddress("0x4558D794044Dc382BF9D98e3D45E2478904Cf46c")}</p>
                   </div>
 
                   <div className="col-span-3 border-t border-amber-900/20 pt-4 mt-2 flex flex-col gap-3">

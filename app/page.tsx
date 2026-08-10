@@ -6,8 +6,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
 
 const RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
-const AETHER_VAULT_ADDRESS = "0x806909B351521f41e7986D7f2609f8933B3b6a48";
-const STAKING_CONTRACT_ADDRESS = "0x0743e656fc2dBa316D1bE06f57CAB821baA7Aa0F";
+const AETHER_VAULT_ADDRESS = "0xE4A91F311B52A5EfCEe57eCB60D8DE886fc50D51";
+const STAKING_CONTRACT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c";
 
 const VAULT_ABI = ["function totalCapsulesCreated() view returns (uint256)"];
 const STAKING_ABI = ["function getStakingStats() view returns (uint256 currentTotalStaked, uint256 totalRewardsPaid, uint256 stakersCount, uint256 rewardPoolAvailable)"];

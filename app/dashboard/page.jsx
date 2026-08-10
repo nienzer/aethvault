@@ -32,6 +32,7 @@ import HallOfProof from '@/components/HallOfProof';
 import AetherVaultABI from '@/contracts/AetherVaultABI.json';
 import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
 import StakingABI from '@/contracts/StakingABI.json';
+import TeamVestingABI from '@/contracts/TeamVestingABI.json';
 
 // 🚀 FUNGSI KONEKSI & AUTO-FUND IRYS TERBARU
 const getNewIrysUploader = async (walletProvider) => {
@@ -45,9 +46,10 @@ const getNewIrysUploader = async (walletProvider) => {
 };
 
 // ⭐ ALAMAT KONTRAK
-const AETH_TOKEN_ADDRESS = "0x303574EF7B2AdA02e1E2eadB68D406283C59765e"; 
-const CONTRACT_ADDRESS = "0x0743e656fc2dBa316D1bE06f57CAB821baA7Aa0F"; 
-const STAKING_CONTRACT_ADDRESS = "0x806909B351521f41e7986D7f2609f8933B3b6a48"; 
+const AETH_TOKEN_ADDRESS = "0xB251439799Ca1cCe317451b5E13A080eEaa70bff"; 
+const CONTRACT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c"; 
+const STAKING_CONTRACT_ADDRESS = "0xE4A91F311B52A5EfCEe57eCB60D8DE886fc50D51"; 
+const VESTING_CONTRACT_ADDRESS = "0x3927cEb656d2A062F7025291157eb40f4279d3ac";
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED = CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -657,29 +659,34 @@ export default function DashboardPage() {
       const requiredCostWei = ethers.parseUnits(selectedTierData.cost.toString(), 18);
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       
-      // Menggunakan STAKING_CONTRACT_ADDRESS dan amountInWei
-showToast(t.checkingAllowance || "Checking allowance...", "info");
-const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
+      // ✅ PERBAIKAN: Approve ke CONTRACT_ADDRESS (Brankas) menggunakan requiredCostWei
+      showToast(t.checkingAllowance || "Checking allowance...", "info");
+      const currentAllowance = await tokenContract.allowance(address, CONTRACT_ADDRESS);
 
-if (currentAllowance < amountInWei) {
-  showToast(t.requestingApprove || "Requesting approval...", "info");
-  const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountInWei);
-  await approveTx.wait();
-  showToast(t.approveSuccess || "Approval success!", "success");
-}
+      if (currentAllowance < requiredCostWei) {
+      showToast(t.requestingApprove || "Requesting approval...", "info");
+      const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, requiredCostWei);
+      await approveTx.wait();
+      showToast(t.approveSuccess || "Approval success!", "success");
+      }
 
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       showToast(t.preparingOnChainTx, 'info');
 
+      // ✅ PERBAIKAN V3: Ubah pesan teks panjang menjadi Hash 32-byte yang ringan
+      const contentHash = ethers.keccak256(ethers.toUtf8Bytes(encryptedMessage));
+
       let tx;
       if (tier === 'legacy') {
         const inactivitySeconds = 180;
-        tx = await contract.sealLegacyCapsule(encryptedTitle, encryptedMessage, inactivitySeconds, heirAddress);
+        // Kirim contentHash, bukan encryptedMessage
+        tx = await contract.sealLegacyCapsule(encryptedTitle, contentHash, inactivitySeconds, heirAddress);
       } else {
         if (!unlockDate) throw new Error(t.selectUnlockDateTime);
         const unlockTimeMs = new Date(unlockDate).getTime();
         const unlockTimestamp = Math.floor(unlockTimeMs / 1000);
-        tx = await contract.sealTimeLockCapsule(TIER_ENUM_MAP[tier], encryptedTitle, encryptedMessage, unlockTimestamp);
+        // Kirim contentHash, bukan encryptedMessage
+        tx = await contract.sealTimeLockCapsule(TIER_ENUM_MAP[tier], encryptedTitle, contentHash, unlockTimestamp);
       }
       showToast(t.txSentWaitingConfirm, "info");
       await tx.wait();
