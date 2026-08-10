@@ -314,79 +314,84 @@ export default function DashboardPage() {
     try {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
       
-      const [ownedIds, heirIds] = await Promise.all([
-        contract.getUserCapsules(userAddress),
-        contract.getHeirCapsules(userAddress),
-      ]);
+      let ownedIds = [];
+      let heirIds = [];
+      try {
+        ownedIds = await contract.getUserCapsules(userAddress);
+      } catch (e) {
+        console.warn("Gagal ambil user capsules:", e);
+      }
+      try {
+        heirIds = await contract.getHeirCapsules(userAddress);
+      } catch (e) {
+        console.warn("Gagal ambil heir capsules:", e);
+      }
       
       const allIdsMap = new Map();
-      ownedIds.forEach((id) => allIdsMap.set(id.toString(), { id, asHeir: false }));
-      heirIds.forEach((id) => {
-        const key = id.toString();
-        if (!allIdsMap.has(key)) {
-          allIdsMap.set(key, { id, asHeir: true });
-        }
-      });
+      if (ownedIds && ownedIds.length) {
+        ownedIds.forEach((id) => allIdsMap.set(id.toString(), { id, asHeir: false }));
+      }
+      if (heirIds && heirIds.length) {
+        heirIds.forEach((id) => {
+          const key = id.toString();
+          if (!allIdsMap.has(key)) {
+            allIdsMap.set(key, { id, asHeir: true });
+          }
+        });
+      }
       const allIds = Array.from(allIdsMap.values());
-
-      const chunkSize = 5; 
       const results = [];
 
-      for (let i = 0; i < allIds.length; i += chunkSize) {
-        const batch = allIds.slice(i, i + chunkSize);
-        
-        const batchResults = await Promise.all(
-          batch.map(async ({ id, asHeir }) => {
-           try {
-              const meta = await contract.getCapsuleMeta(id);
-              let ready = false;
-              try {
-                ready = await contract.isCapsuleReady(id);
-              } catch (e) {
-                ready = false;
-              }
+      for (const { id, asHeir } of allIds) {
+        try {
+          const meta = await contract.getCapsuleMeta(id);
+          let ready = false;
+          try {
+            ready = await contract.isCapsuleReady(id);
+          } catch (e) {
+            ready = false;
+          }
 
-              if (!ready) {
-                const nowSec = Math.floor(Date.now() / 1000);
-                if (meta.isLegacy) {
-                  const deadlineSec = Number(meta.lastPingAlive) + Number(meta.inactivityLimit);
-                  if (nowSec > deadlineSec) ready = true;
-                } else {
-                  if (nowSec >= Number(meta.unlockTimestamp)) ready = true;
-                }
-              }
-
-              const decryptedTitle = await tryDecryptTitle(meta.title, privateKeyForTitles);
-              
-              return {
-                id: id.toString(),
-                title: decryptedTitle ?? t.lockedTitleFallback,
-                titleIsLocked: decryptedTitle === null,
-                unlockTimestamp: Number(meta.unlockTimestamp),
-                owner: meta.owner,
-                isLegacy: meta.isLegacy,
-                heirAddress: meta.heirAddress,
-                lastPingAlive: Number(meta.lastPingAlive),
-                inactivityLimit: Number(meta.inactivityLimit),
-                isClaimedOrRevealed: meta.isClaimedOrRevealed,
-                contentDeleted: meta.contentDeleted,
-                tierIndex: Number(meta.tier),
-                isReady: ready,
-                asHeir,
-                tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? t.tierLabelLegacy : t.tierLabelTimeLock),
-                status: meta.contentDeleted ? t.statusDeleted : meta.isClaimedOrRevealed ? t.statusOpened : ready ? t.statusReady : t.statusLocked,
-              };
-            } catch (err) {
-              return null; 
+          if (!ready) {
+            const nowSec = Math.floor(Date.now() / 1000);
+            if (meta.isLegacy) {
+              const deadlineSec = Number(meta.lastPingAlive) + Number(meta.inactivityLimit);
+              if (nowSec > deadlineSec) ready = true;
+            } else {
+              if (nowSec >= Number(meta.unlockTimestamp)) ready = true;
             }
-          })
-        );
-        results.push(...batchResults.filter(item => item !== null));
+          }
+
+          const decryptedTitle = await tryDecryptTitle(meta.title, privateKeyForTitles);
+          
+          results.push({
+            id: id.toString(),
+            title: decryptedTitle ?? (t.lockedTitleFallback || `Capsule #${id}`),
+            titleIsLocked: decryptedTitle === null,
+            unlockTimestamp: Number(meta.unlockTimestamp),
+            owner: meta.owner,
+            isLegacy: meta.isLegacy,
+            heirAddress: meta.heirAddress,
+            lastPingAlive: Number(meta.lastPingAlive),
+            inactivityLimit: Number(meta.inactivityLimit),
+            isClaimedOrRevealed: meta.isClaimedOrRevealed,
+            contentDeleted: meta.contentDeleted,
+            tierIndex: Number(meta.tier),
+            isReady: ready,
+            asHeir,
+            tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? (t.tierLabelLegacy || 'Legacy') : (t.tierLabelTimeLock || 'TimeLock')),
+            status: meta.contentDeleted ? (t.statusDeleted || 'DELETED') : meta.isClaimedOrRevealed ? (t.statusOpened || 'OPENED') : ready ? (t.statusReady || 'READY') : (t.statusLocked || 'LOCKED'),
+          });
+        } catch (itemErr) {
+          console.error(`Error parsing capsule ID ${id}:`, itemErr);
+        }
       }
 
       results.sort((a, b) => Number(b.id) - Number(a.id));
       setMyCapsules(results);
     } catch (err) {
+      console.error("Gagal total memuat kapsul dari chain:", err);
+      setMyCapsules([]);
     } finally {
       setIsLoadingCapsules(false);
     }
