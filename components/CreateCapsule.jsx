@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Lock, Shield, UserX, Flame, UploadCloud, FileImage, X, Loader2, Clock, Check, Coins } from 'lucide-react';
+import { Sparkles, Lock, Shield, UserX, Flame, UploadCloud, FileImage, X, Loader2, Clock, Check, Coins, Fingerprint } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function CreateCapsule({
@@ -29,7 +29,7 @@ export default function CreateCapsule({
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
       
-      {/* ⭐ 1. 4-STEP PROGRESS BAR */}
+      {/* 4-STEP PROGRESS BAR */}
       <div className="bg-[#0B0817] border border-neutral-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative">
           {[
@@ -81,10 +81,9 @@ export default function CreateCapsule({
               />
             </div>
 
-            {/* SECURITY TIER CARDS - FIX LAYOUT KIRI KANAN */}
+            {/* SECURITY TIER CARDS */}
             <div className="space-y-3">
               <label className="block text-[10px] font-bold text-cyan-500 uppercase tracking-widest font-mono">{tDash.securityTierLabel || 'Security Tier'}</label>
-              {/* 🚀 UBAH: Dari grid-cols-1 jadi grid-cols-2 agar di HP tetap sejajar */}
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {Object.entries(tiers).map(([key, data]) => {
                   const isSelected = tier === key;
@@ -231,6 +230,7 @@ export default function CreateCapsule({
               <div className="text-right text-[11px] text-cyan-400 font-mono font-bold flex items-center justify-end gap-1.5">
                 <Fingerprint className="w-3.5 h-3.5" /> Payload will be hashed (32-bytes) & encrypted locally
               </div>
+            </div>
 
             {/* UNLOCK DATE & TIME */}
             <div className="pt-2">
@@ -281,20 +281,21 @@ export default function CreateCapsule({
             </div>
 
             {/* TOMBOL UTAMA */}
-<button
-            type="submit"
-            disabled={!isConnected || isSealing || isWrongNetwork}
-            className={`w-full font-bold py-4 rounded-full flex justify-center items-center gap-2 transition-all text-xs sm:text-sm shadow-xl cursor-pointer ${
-              isConnected && !isSealing && !isWrongNetwork 
-                ? 'bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white shadow-[0_0_25px_rgba(168,85,247,0.4)]' 
-                : 'bg-neutral-900 text-neutral-500 cursor-not-allowed border border-neutral-800'
-            }`}
-          >
-            {isSealing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
-            {isSealing ? (tDash.processingBtn || "Processing...") : isWrongNetwork ? `Switch to ${TARGET_CHAIN_NAME}` : (isConnected ? (tDash.sealButton || "Seal Capsule Now") : (tDash.connectToSeal || "Connect Wallet to Seal"))}
-          </button>
-        </form>
-      </div>
+            <button
+              type="submit"
+              disabled={!isConnected || isSealing || isWrongNetwork}
+              className={`w-full font-bold py-4 rounded-full flex justify-center items-center gap-2 transition-all text-xs sm:text-sm shadow-xl cursor-pointer ${
+                isConnected && !isSealing && !isWrongNetwork 
+                  ? 'bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white shadow-[0_0_25px_rgba(168,85,247,0.4)]' 
+                  : 'bg-neutral-900 text-neutral-500 cursor-not-allowed border border-neutral-800'
+              }`}
+            >
+              {isSealing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
+              {isSealing ? (tDash.processingBtn || "Processing...") : isWrongNetwork ? `Switch to ${TARGET_CHAIN_NAME}` : (isConnected ? (tDash.sealButton || "Seal Capsule Now") : (tDash.connectToSeal || "Connect Wallet to Seal"))}
+            </button>
+
+          </form>
+        </div>
 
         {/* KOLOM KANAN: WIDGET INFORMASI & SALDO ASLI */}
         <div className="lg:col-span-4 space-y-6">
