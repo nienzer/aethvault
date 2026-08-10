@@ -282,19 +282,19 @@ export default function CreateCapsule({
 
             {/* TOMBOL UTAMA */}
             <button
-              type="submit"
-              disabled={!isConnected || isSealing || isWrongNetwork}
-              className={`w-full font-bold py-4 rounded-full flex justify-center items-center gap-2 transition-all text-xs sm:text-sm shadow-xl cursor-pointer ${
-                isConnected && !isSealing && !isWrongNetwork 
-                  ? 'bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white shadow-[0_0_25px_rgba(168,85,247,0.4)]' 
-                  : 'bg-neutral-900 text-neutral-500 cursor-not-allowed border border-neutral-800'
-              }`}
-            >
-              {isSealing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
-              {isSealing ? (tDash.processingBtn || "Processing...") : isWrongNetwork ? `Switch to ${TARGET_CHAIN_NAME}` : (isConnected ? (tDash.sealButton || "Seal Capsule Now") : (tDash.connectToSeal || "Connect Wallet to Seal"))}
-            </button>
-          </form>
-        </div>
+                type="submit"
+                disabled={!isConnected || isSealing || isWrongNetwork}
+                className={`w-full font-bold py-4 rounded-full flex justify-center items-center gap-2 transition-all text-xs sm:text-sm shadow-xl cursor-pointer ${
+                  isConnected && !isSealing && !isWrongNetwork 
+                    ? 'bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white shadow-[0_0_25px_rgba(168,85,247,0.4)]' 
+                    : 'bg-neutral-900 text-neutral-500 cursor-not-allowed border border-neutral-800'
+                }`}
+              >
+                {isSealing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
+                {isSealing ? (tDash.processingBtn || "Processing...") : isWrongNetwork ? `Switch to ${TARGET_CHAIN_NAME}` : (isConnected ? (tDash.sealButton || "Seal Capsule Now") : (tDash.connectToSeal || "Connect Wallet to Seal"))}
+              </button>
+            </form>
+          </div>
 
         {/* KOLOM KANAN: WIDGET INFORMASI & SALDO ASLI */}
         <div className="lg:col-span-4 space-y-6">

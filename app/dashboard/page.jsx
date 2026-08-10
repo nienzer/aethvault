@@ -960,6 +960,25 @@ export default function DashboardPage() {
       setIsAdminLoading(false);
     }
   };
+  const handleAdminClaimVesting = async () => {
+    try {
+      setIsAdminLoading(true);
+      const signer = await getSigner();
+      const vestingContract = new ethers.Contract(VESTING_CONTRACT_ADDRESS, TeamVestingABI, signer);
+      
+      showToast("Memproses pencairan token developer...", "info");
+      
+      // Catatan: Pastikan nama fungsinya 'release()' atau 'claim()' sesuai dengan yang ada di dalam TeamVesting.sol Bos
+      const tx = await vestingContract.release(); 
+      
+      await tx.wait();
+      showToast("Mantap! Gaji developer berhasil masuk dompet!", "success");
+    } catch (err) {
+      showToast("Gagal mencairkan vesting: " + err.message, "error");
+    } finally {
+      setIsAdminLoading(false);
+    }
+  };
 
   const renderNavMenu = (isMobile = false) => (
     <nav className="space-y-1.5">
@@ -1441,6 +1460,20 @@ export default function DashboardPage() {
                           </button>
                         </div>
                       </form>
+                       </form>
+
+                      {/* KOTAK BARU: BRANKAS GAJI DEV */}
+                      <div className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl space-y-3 mt-4">
+                        <h4 className="text-xs font-bold text-green-400 uppercase font-mono">Brankas Gaji Developer</h4>
+                        <p className="text-[10px] text-neutral-400 font-mono mb-2">Cairkan jatah AETH yang sudah melewati masa vesting.</p>
+                        <button 
+                          disabled={isAdminLoading}
+                          onClick={handleAdminClaimVesting} 
+                          className="w-full bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shadow-lg"
+                        >
+                          <Coins className="w-4 h-4" /> Cairkan Gaji (Claim Vesting)
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
