@@ -194,21 +194,20 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const requiredCostWei = ethers.parseUnits(currentConfig.price.toString(), 18);
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
 
-      setMintingStatusMsg('Memeriksa izin (Allowance) token $AETH...');
+      setMintingStatusMsg(tHop.checkingAllowance || 'Checking $AETH token allowance...');
       const currentAllowance = await tokenContract.allowance(address, AETHER_VAULT_ADDRESS);
 
       if (currentAllowance < requiredCostWei) {
-      // ✅ Keamanan tambahan: Reset allowance ke 0 jika tersisa
-      if (currentAllowance > 0n) {
-     const resetTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, 0);
-     await resetTx.wait();
-     }
-     setMintingStatusMsg('Harap berikan izin (Approve) di MetaMask untuk memotong saldo AETH Anda...');
-     const approveTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, requiredCostWei);
-     setMintingStatusMsg('Menunggu konfirmasi jaringan untuk izin (Approve)...');
-     await approveTx.wait();
-     setMintingStatusMsg('Izin berhasil! Melanjutkan pembuatan sertifikat Proof...');
-     }
+        if (currentAllowance > 0n) {
+          const resetTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, 0);
+          await resetTx.wait();
+        }
+        setMintingStatusMsg(tHop.approveTokenPrompt || 'Please approve $AETH spending in your wallet...');
+        const approveTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, requiredCostWei);
+        setMintingStatusMsg(tHop.waitingApproveConfirm || 'Waiting for network approval confirmation...');
+        await approveTx.wait();
+        setMintingStatusMsg(tHop.approvalSuccess || 'Approval granted! Generating proof certificate...');
+      }
 
       setMintStep(3);
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, signer);

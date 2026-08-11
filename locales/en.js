@@ -725,6 +725,23 @@ export const en = {
     checkingAllowance: "Checking $AETH allowance...",
     requestingApprove: "Requesting $AETH approve...",
     approveSuccess: "Approve success! Proceeding to seal...",
-    uploadHeirWarning: "⚠️ Please enter a valid Heir Wallet Address before uploading an attachment!"
+    uploadHeirWarning: "⚠️ Please enter a valid Heir Wallet Address before uploading an attachment!",
+    unconfirmedAttachmentWarning: "⚠️ You haven't confirmed the attachment. Please click 'Confirm & Pay Storage' first!",
+    payloadHashNotice: "Payload will be hashed (32-bytes) & encrypted locally",
+    checkingAllowance: "Checking $AETH token allowance...",
+    approveTokenPrompt: "Please approve $AETH spending in your wallet...",
+    waitingApproveConfirm: "Waiting for network approval confirmation...",
+    approvalSuccess: "Approval granted! Generating proof certificate...",
+    invalidTreasuryAddress: "Invalid treasury address!",
+    adminTxSending: "Sending emergency transaction...",
+    adminPauseSuccess: "Successfully PAUSED!",
+    adminUnpauseSuccess: "Successfully UNPAUSED!",
+    adminPauseFail: "Failed to change pause status: ",
+    adminTreasuryUpdating: "Updating treasury address...",
+    adminTreasurySuccess: "Treasury successfully updated!",
+    adminTreasuryFail: "Failed to update treasury: ",
+    adminVestingClaiming: "Processing developer token vesting claim...",
+    adminVestingSuccess: "Success! Developer salary claimed to wallet!",
+    adminVestingFail: "Failed to claim vesting: "
   }
 };

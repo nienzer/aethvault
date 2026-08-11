@@ -405,7 +405,7 @@ export default function DashboardPage() {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
       const currentBlock = await provider.getBlockNumber();
-      const startBlock = Math.max(0, currentBlock - 200000); 
+      const startBlock = Math.max(0, currentBlock - 4900); 
       
       let sealedEvents = [];
       let revealedEvents = [];
@@ -557,7 +557,8 @@ export default function DashboardPage() {
   };
 
   const isPermanentTier = tier === 'eternal' || tier === 'legacy';
-  const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
+  const maxFileSizeMB = tier === 'legacy' ? 10 : 5;
+  const MAX_ATTACHMENT_SIZE_BYTES = maxFileSizeMB * 1024 * 1024;
 
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
@@ -666,7 +667,7 @@ export default function DashboardPage() {
     if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
     if (stagedUpload && !uploadedCid) {
-      return showToast("⚠️ Anda belum mengonfirmasi upload lampiran gambar. Silakan klik 'Confirm & Pay Storage' dulu di kotak gambar!", "error");
+      return showToast(t.unconfirmedAttachmentWarning || "⚠️ You haven't confirmed the attachment. Please click 'Confirm & Pay Storage' first!", "error");
     }
 
     const selectedTierData = tiers[tier];
@@ -1002,11 +1003,11 @@ export default function DashboardPage() {
       const contract = new ethers.Contract(targetAddress, abi, signer);
 
       const tx = isPause ? await contract.pause() : await contract.unpause();
-      showToast("Mengirim transaksi darurat...", "info");
+      showToast(t.adminTxSending || "Mengirim transaksi darurat...", "info");
       await tx.wait();
-      showToast(isPause ? "Berhasil di-PAUSE!" : "Berhasil di-UNPAUSE!", "success");
+      showToast(isPause ? (t.adminPauseSuccess || "Berhasil di-PAUSE!") : (t.adminUnpauseSuccess || "Berhasil di-UNPAUSE!"), "success");
     } catch (err) {
-      showToast("Gagal ubah status pause: " + err.message, "error");
+      showToast((t.adminPauseFail || "Gagal ubah status pause: ") + err.message, "error");
     } finally {
       setIsAdminLoading(false);
     }
@@ -1014,18 +1015,18 @@ export default function DashboardPage() {
 
   const handleAdminUpdateTreasury = async (e) => {
     e.preventDefault();
-    if (!ethers.isAddress(newTreasuryInput)) return showToast("Alamat treasury tidak valid!", "error");
+    if (!ethers.isAddress(newTreasuryInput)) return showToast(t.invalidTreasuryAddress || "Alamat treasury tidak valid!", "error");
     try {
       setIsAdminLoading(true);
       const signer = await getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       const tx = await contract.updateTreasury(newTreasuryInput);
-      showToast("Memperbarui treasury...", "info");
+      showToast(t.adminTreasuryUpdating || "Memperbarui treasury...", "info");
       await tx.wait();
-      showToast("Treasury sukses diperbarui!", "success");
+      showToast(t.adminTreasurySuccess || "Treasury sukses diperbarui!", "success");
       setNewTreasuryInput('');
     } catch (err) {
-      showToast("Gagal update treasury: " + err.message, "error");
+      showToast((t.adminTreasuryFail || "Gagal update treasury: ") + err.message, "error");
     } finally {
       setIsAdminLoading(false);
     }
@@ -1037,12 +1038,12 @@ export default function DashboardPage() {
       const signer = await getSigner();
       const vestingContract = new ethers.Contract(VESTING_CONTRACT_ADDRESS, TeamVestingABI, signer);
       
-      showToast("Memproses pencairan token developer...", "info");
+      showToast(t.adminVestingClaiming || "Memproses pencairan token developer...", "info");
       const tx = await vestingContract.claim(); 
       await tx.wait();
-      showToast("Mantap! Gaji developer berhasil masuk dompet!", "success");
+      showToast(t.adminVestingSuccess || "Mantap! Gaji developer berhasil masuk dompet!", "success");
     } catch (err) {
-      showToast("Gagal mencairkan vesting: " + err.message, "error");
+      showToast((t.adminVestingFail || "Gagal mencairkan vesting: ") + err.message, "error");
     } finally {
       setIsAdminLoading(false);
     }
@@ -1263,6 +1264,8 @@ export default function DashboardPage() {
                   myCapsules={myCapsules}
                   handleViewCertificate={handleViewCertificate}
                   setActiveTab={setActiveTab}
+                  platformStats={platformStats}
+                  isFetchingGlobalStats={isFetchingGlobalStats}
                 />
               )}
 
@@ -1328,6 +1331,7 @@ export default function DashboardPage() {
                   t={t}
                   isFetchingGlobalStats={isFetchingGlobalStats}
                   platformStats={platformStats}
+                  stakingGlobalStats={stakingGlobalStats}
                 />
               )}
 

@@ -34,9 +34,9 @@ export default function CreateCapsule({
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative">
           {[
             { step: 1, label: "WALLET", desc: "Connect your wallet", active: isConnected },
-            { step: 2, label: "TIER", desc: "Choose security tier", active: true },
-            { step: 3, label: "ENCRYPT", desc: "Add your content", active: message.length > 0 || title.length > 0 },
-            { step: 4, label: "SEAL", desc: "Confirm & seal", active: false }
+            { step: 2, label: "TIER", desc: "Choose security tier", active: isConnected },
+            { step: 3, label: "ENCRYPT", desc: "Add your content", active: isConnected && tier !== '' },
+            { step: 4, label: "SEAL", desc: "Confirm & seal", active: isConnected && title.length > 0 && message.length > 0 && (tier === 'legacy' ? heirAddress.length > 0 : unlockDate !== '') }
           ].map((item, idx) => (
             <div key={idx} className="flex items-center gap-3 bg-[#05030F] p-3 rounded-2xl border border-neutral-800/80">
               <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-mono font-bold text-xs shrink-0 ${item.active ? 'bg-gradient-to-br from-cyan-500 to-violet-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-neutral-900 text-neutral-500 border border-neutral-800'}`}>
@@ -211,7 +211,7 @@ export default function CreateCapsule({
                     <input type="file" onChange={handleFileSelected} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf,.zip" />
                     <UploadCloud className="w-8 h-8 text-cyan-400/70 mx-auto mb-2" />
                     <p className="text-xs text-white font-bold mb-1">{tDash.ipfsUploadPrompt || 'Click or drag file here'}</p>
-                    <p className="text-[10px] text-neutral-500 font-mono">{tDash.ipfsUploadSub || 'Max attachment 10MB (PDF, ZIP, Images)'}</p>
+                    <p className="text-[10px] text-neutral-500 font-mono">{tDash.ipfsUploadSub || `Max attachment ${tier === 'legacy' ? '10' : '5'}MB (PDF, ZIP, Images)`}</p>
                   </div>
                 )}
               </div>
@@ -227,8 +227,8 @@ export default function CreateCapsule({
                 className="w-full h-36 bg-[#05030F] border border-neutral-800 rounded-2xl p-4 text-xs sm:text-sm text-white focus:border-cyan-500 outline-none resize-none font-mono transition-all leading-relaxed"
                 required
               />
-              <div className="text-right text-[11px] text-cyan-400 font-mono font-bold flex items-center justify-end gap-1.5">
-                <Fingerprint className="w-3.5 h-3.5" /> Payload will be hashed (32-bytes) & encrypted locally
+              <div className="text-center text-[10px] sm:text-[11px] text-cyan-400 font-mono font-bold flex items-center justify-center gap-1.5 mt-2">
+                <Fingerprint className="w-3.5 h-3.5 shrink-0" /> {tDash.payloadHashNotice || 'Payload will be hashed (32-bytes) & encrypted locally'}
               </div>
             </div>
 

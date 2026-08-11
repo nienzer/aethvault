@@ -725,6 +725,23 @@ export const id = {
     checkingAllowance: "Memeriksa izin (Allowance) token $AETH...",
     requestingApprove: "Meminta persetujuan (Approve) pemotongan $AETH...",
     approveSuccess: "Approve berhasil! Melanjutkan pembuatan kapsul...",
-    uploadHeirWarning: "⚠️ Harap masukkan Alamat Dompet Ahli Waris yang valid sebelum mengunggah lampiran!"
+    uploadHeirWarning: "⚠️ Harap masukkan Alamat Dompet Ahli Waris yang valid sebelum mengunggah lampiran!",
+    unconfirmedAttachmentWarning: "⚠️ Anda belum mengonfirmasi lampiran gambar. Silakan klik 'Confirm & Pay Storage' terlebih dahulu!",
+    payloadHashNotice: "Payload akan di-hash (32-byte) & dienkripsi secara lokal",
+    checkingAllowance: "Memeriksa izin (Allowance) token $AETH...",
+    approveTokenPrompt: "Harap berikan izin (Approve) di MetaMask untuk memotong saldo AETH Anda...",
+    waitingApproveConfirm: "Menunggu konfirmasi jaringan untuk izin (Approve)...",
+    approvalSuccess: "Izin berhasil! Melanjutkan pembuatan sertifikat Proof...",
+    invalidTreasuryAddress: "Alamat treasury tidak valid!",
+    adminTxSending: "Mengirim transaksi darurat...",
+    adminPauseSuccess: "Berhasil di-PAUSE!",
+    adminUnpauseSuccess: "Berhasil di-UNPAUSE!",
+    adminPauseFail: "Gagal ubah status pause: ",
+    adminTreasuryUpdating: "Memperbarui treasury...",
+    adminTreasurySuccess: "Treasury sukses diperbarui!",
+    adminTreasuryFail: "Gagal update treasury: ",
+    adminVestingClaiming: "Memproses pencairan token developer...",
+    adminVestingSuccess: "Mantap! Gaji developer berhasil masuk dompet!",
+    adminVestingFail: "Gagal mencairkan vesting: "
   }
 };
