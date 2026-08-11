@@ -52,7 +52,7 @@ export default function CertificateModal({
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   const dateStr = new Date(selectedCertificate.creationTimestamp * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-  const verifyUrl = `https://testnet.bscscan.com.com/tx/${selectedCertificate.proofHash}`;
+  const verifyUrl = `https://testnet.bscscan.com/tx/${selectedCertificate.proofHash}`;
 
   return (
     <div className="fixed inset-0 bg-[#030208]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-300">

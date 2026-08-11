@@ -45,7 +45,7 @@ const getNewIrysUploader = async (walletProvider) => {
   return irysUploader;
 };
 
-// ⭐ ALAMAT KONTRAK
+// ⭐ ALAMAT KONTRAK (PASTIKAN GANTI DENGAN ADDRESS DEPLOY TERBARU BOS)
 const AETH_TOKEN_ADDRESS = "0xB251439799Ca1cCe317451b5E13A080eEaa70bff"; 
 const CONTRACT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c"; 
 const STAKING_CONTRACT_ADDRESS = "0xE4A91F311B52A5EfCEe57eCB60D8DE886fc50D51"; 
@@ -74,7 +74,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const pathname = usePathname();
   const { t: globalT } = useLanguage();
-  const t = globalT.dashboard;
+  const t = globalT.dashboard || {};
 
   const { open } = useWeb3Modal();
   const { address, isConnected, chainId } = useWeb3ModalAccount();
@@ -110,13 +110,13 @@ export default function DashboardPage() {
   const [isPreparingUpload, setIsPreparingUpload] = useState(false);
   const [uploadError, setUploadError] = useState(''); 
 
+  // ⭐ STATE STAKING V6
   const [stakeInput, setStakeInput] = useState('');
-  const [unstakeInput, setUnstakeInput] = useState('');
-  const [stakedBalance, setStakedBalance] = useState(0);
+  const [totalUserStaked, setTotalUserStaked] = useState(0);
   const [pendingReward, setPendingReward] = useState(0);
+  const [userDeposits, setUserDeposits] = useState([]);
   const [isStaking, setIsStaking] = useState(false);
   const [isWithdrawingStake, setIsWithdrawingStake] = useState(false);
-  const [apyPercent, setApyPercent] = useState(null);
 
   const [myPublicKeyRegistered, setMyPublicKeyRegistered] = useState(false);
   const [isRegisteringKey, setIsRegisteringKey] = useState(false);
@@ -164,16 +164,19 @@ export default function DashboardPage() {
           supply: parseFloat(ethers.formatUnits(stats[3], 18))
         });
       } catch (vaultErr) {}
+      
       if (IS_STAKING_ADDRESS_CONFIGURED) {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-          const sStats = await stakingContract.getStakingStats();
+          const sTotalStaked = await stakingContract.totalStaked();
+          const sTotalRewards = await stakingContract.totalRewardClaimed();
+          const sStakers = await stakingContract.totalStakers();
           setStakingGlobalStats({
-            totalStaked: parseFloat(ethers.formatUnits(sStats[0], 18)),
-            totalRewards: parseFloat(ethers.formatUnits(sStats[1], 18)),
-            stakers: Number(sStats[2])
+            totalStaked: parseFloat(ethers.formatUnits(sTotalStaked, 18)),
+            totalRewards: parseFloat(ethers.formatUnits(sTotalRewards, 18)),
+            stakers: Number(sStakers)
           });
-        } catch (stakeErr) {}
+        } catch (stakeErr) { console.error(stakeErr); }
       }
     } catch (err) {} finally {
       setIsFetchingGlobalStats(false);
@@ -210,8 +213,7 @@ export default function DashboardPage() {
             parsed[idx] = {
               cost: parseFloat(ethers.formatUnits(r.cost, 18)),
               burn: parseFloat(ethers.formatUnits(r.burnPart, 18)),
-              maxDurationSeconds: Number(r.maxDuration),
-              maxLength: Number(r.maxMessageLength),
+              maxDurationSeconds: Number(r.maxDuration)
             };
           }
         });
@@ -229,10 +231,10 @@ export default function DashboardPage() {
   }, [walletProvider]);
 
   const tierDisplayMeta = {
-    basic: { name: t.tiersList.basicName, desc: t.tiersList.basicDesc, icon: 'bg-neutral-800', color: 'text-gray-300', border: 'border-neutral-500 shadow-[0_0_15px_-3px_rgba(255,255,255,0.1)]' },
-    premium: { name: t.tiersList.vipName, desc: t.tiersList.vipDesc, icon: 'bg-gradient-to-br from-cyan-500/20 to-violet-500/20', color: 'text-cyan-300', border: 'border-cyan-400/70 shadow-[0_0_25px_-4px_rgba(168,85,247,0.45),0_0_15px_-4px_rgba(34,211,238,0.4)]' },
-    eternal: { name: t.tiersList.eternalName, desc: t.tiersList.eternalDesc, icon: 'bg-gradient-to-br from-amber-500/20 to-orange-500/20', color: 'text-amber-300', border: 'border-amber-400/70 shadow-[0_0_25px_-4px_rgba(245,158,11,0.45),0_0_15px_-4px_rgba(251,146,60,0.35)]' },
-    legacy: { name: t.tiersList.legacyName, desc: t.tiersList.legacyDesc, icon: 'bg-gradient-to-br from-fuchsia-500/20 to-rose-500/20', color: 'text-fuchsia-300', border: 'border-fuchsia-400/70 shadow-[0_0_25px_-4px_rgba(232,121,249,0.45),0_0_15px_-4px_rgba(244,63,94,0.35)]' },
+    basic: { name: t.tiersList?.basicName || 'Basic', desc: t.tiersList?.basicDesc || '', icon: 'bg-neutral-800', color: 'text-gray-300', border: 'border-neutral-500 shadow-[0_0_15px_-3px_rgba(255,255,255,0.1)]' },
+    premium: { name: t.tiersList?.vipName || 'VIP', desc: t.tiersList?.vipDesc || '', icon: 'bg-gradient-to-br from-cyan-500/20 to-violet-500/20', color: 'text-cyan-300', border: 'border-cyan-400/70 shadow-[0_0_25px_-4px_rgba(168,85,247,0.45),0_0_15px_-4px_rgba(34,211,238,0.4)]' },
+    eternal: { name: t.tiersList?.eternalName || 'Eternal', desc: t.tiersList?.eternalDesc || '', icon: 'bg-gradient-to-br from-amber-500/20 to-orange-500/20', color: 'text-amber-300', border: 'border-amber-400/70 shadow-[0_0_25px_-4px_rgba(245,158,11,0.45),0_0_15px_-4px_rgba(251,146,60,0.35)]' },
+    legacy: { name: t.tiersList?.legacyName || 'Legacy', desc: t.tiersList?.legacyDesc || '', icon: 'bg-gradient-to-br from-fuchsia-500/20 to-rose-500/20', color: 'text-fuchsia-300', border: 'border-fuchsia-400/70 shadow-[0_0_25px_-4px_rgba(232,121,249,0.45),0_0_15px_-4px_rgba(244,63,94,0.35)]' },
   };
 
   const tiers = Object.keys(tierDisplayMeta).reduce((acc, key) => {
@@ -243,7 +245,7 @@ export default function DashboardPage() {
       ...tierDisplayMeta[key],
       cost: onChain ? onChain.cost : fallback.cost,
       burn: onChain ? onChain.burn : fallback.burn,
-      maxLength: onChain ? onChain.maxLength : fallback.maxLength,
+      maxLength: fallback.maxLength, 
       maxYears: onChain ? Math.floor(onChain.maxDurationSeconds / (365 * 24 * 60 * 60)) : fallback.maxYears,
     };
     return acc;
@@ -283,9 +285,9 @@ export default function DashboardPage() {
     setIsSwitchingNetwork(true);
     try {
       await requestSwitchNetwork(walletProvider, TARGET_CHAIN_ID_HEX);
-      showToast(t.errNetworkSwitchSuccess.replace('{chain}', TARGET_CHAIN_NAME), 'success');
+      showToast(t.errNetworkSwitchSuccess?.replace('{chain}', TARGET_CHAIN_NAME) || "Jaringan berhasil dialihkan", 'success');
     } catch (err) {
-      showToast(t.errNetworkSwitchFailPrefix + extractErrorMessage(err), 'error');
+      showToast((t.errNetworkSwitchFailPrefix || "Gagal alih jaringan: ") + extractErrorMessage(err), 'error');
     } finally {
       setIsSwitchingNetwork(false);
     }
@@ -403,7 +405,7 @@ export default function DashboardPage() {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
       const currentBlock = await provider.getBlockNumber();
-      const startBlock = Math.max(0, currentBlock - 3000); 
+      const startBlock = Math.max(0, currentBlock - 200000); 
       
       let sealedEvents = [];
       let revealedEvents = [];
@@ -424,13 +426,23 @@ export default function DashboardPage() {
 
       allLogs.sort((a, b) => b.e.blockNumber - a.e.blockNumber);
 
-      const built = allLogs.map(({ e, kind }) => ({
-        id: `${kind}-${e.transactionHash}`,
-        date: 'Baru saja',
-        type: kind.toUpperCase(),
-        detail: `Kapsul ID: ${e.args[0]}`,
-        amount: 0,
-        direction: 'neutral'
+      const built = await Promise.all(allLogs.map(async ({ e, kind }) => {
+        const block = await provider.getBlock(e.blockNumber);
+        const date = new Date(block.timestamp * 1000).toLocaleString(t.dateLocale || 'id-ID', {
+          day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        let amount = 0;
+        if (kind === 'sealed') {
+          amount = parseFloat(ethers.formatUnits(e.args[3] || 0, 18));
+        }
+        return {
+          id: `${kind}-${e.transactionHash}`,
+          date: date,
+          type: kind.toUpperCase(),
+          detail: `Kapsul ID: ${e.args[0]}`,
+          amount: amount,
+          direction: kind === 'sealed' ? 'out' : 'neutral'
+        };
       }));
 
       setTransactions(built);
@@ -462,17 +474,32 @@ export default function DashboardPage() {
           setIsOwner(false);
         }
         
+        // ⭐ FETCH DATA STAKING V6 (MULTI-DEPOSIT)
         try {
           if (STAKING_CONTRACT_ADDRESS) {
             const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-            const rawStaked = await stakingContract.stakedBalance(address);
+            
+            const rawStaked = await stakingContract.userTotalStaked(address);
             const rawReward = await stakingContract.calculateReward(address);
-            const rawRate = await stakingContract.rewardRate();
-            setStakedBalance(parseFloat(ethers.formatUnits(rawStaked, 18)));
+            setTotalUserStaked(parseFloat(ethers.formatUnits(rawStaked, 18)));
             setPendingReward(parseFloat(ethers.formatUnits(rawReward, 18)));
-            setApyPercent(Number(rawRate) / 10);
+
+            const depositCount = await stakingContract.getUserDepositCount(address);
+            if (depositCount > 0n) {
+              const deposits = await stakingContract.getUserDepositsPaginated(address, 0, Number(depositCount));
+              const formattedDeposits = deposits.map(dep => ({
+                id: Number(dep.id),
+                tierId: Number(dep.tierId),
+                amount: dep.amount, 
+                unlockTime: Number(dep.unlockTime),
+                apy: Number(dep.apy)
+              }));
+              setUserDeposits(formattedDeposits);
+            } else {
+              setUserDeposits([]);
+            }
           }
-        } catch (stakingErr) {}
+        } catch (stakingErr) { console.error("Staking Fetch Error:", stakingErr); }
         
         let privateKeyForTitles = null;
         if (!isWrongNetwork) {
@@ -486,7 +513,7 @@ export default function DashboardPage() {
         await fetchOnChainHistory(address);
       } catch (err) {}
     } else {
-      setNativeBalance('0.0000'); setAethBalance(0); setStakedBalance(0); setPendingReward(0);
+      setNativeBalance('0.0000'); setAethBalance(0); setTotalUserStaked(0); setPendingReward(0); setUserDeposits([]);
       setMyCapsules([]); setTransactions([]); setMyPublicKeyRegistered(false); setIsOwner(false);
       myKeyPairRef.current = null;
     }
@@ -504,26 +531,26 @@ export default function DashboardPage() {
   };
   const formatUnlockDateTime = (unixSeconds) => {
     if (!unixSeconds) return '-';
-    return new Date(unixSeconds * 1000).toLocaleString(t.dateLocale, {
+    return new Date(unixSeconds * 1000).toLocaleString(t.dateLocale || 'id-ID', {
       day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
     });
   };
 
   const handleRegisterEncryptionKey = async () => {
-    if (!isConnected) return showToast(t.connectWalletFirst, 'error');
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet terlebih dahulu", 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     setIsRegisteringKey(true);
     try {
       const { publicKey } = await getOrDeriveKeyPair();
       const signer = await getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       const tx = await contract.registerPublicKey(publicKeyToBytes(publicKey));
-      showToast(t.registeringKey, 'info');
+      showToast(t.registeringKey || "Mendaftarkan kunci...", 'info');
       await tx.wait();
       setMyPublicKeyRegistered(true);
-      showToast(t.keyRegisteredSuccess, 'success');
+      showToast(t.keyRegisteredSuccess || "Kunci berhasil terdaftar", 'success');
     } catch (err) {
-      showToast(t.keyRegisterFailPrefix + extractErrorMessage(err), 'error');
+      showToast((t.keyRegisterFailPrefix || "Gagal: ") + extractErrorMessage(err), 'error');
     } finally {
       setIsRegisteringKey(false);
     }
@@ -535,16 +562,16 @@ export default function DashboardPage() {
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!isConnected) return showToast(t.connectWalletBeforeAttach, 'error');
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (!isConnected) return showToast(t.connectWalletBeforeAttach || "Hubungkan dompet dulu", 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     
     if (tier === 'legacy' && !ethers.isAddress(heirAddress)) {
-      showToast(t.uploadHeirWarning, "error");
+      showToast(t.uploadHeirWarning || "Masukkan alamat Heir yang valid terlebih dahulu", "error");
       setSelectedFile(null);
       return;
     }
 
-    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)), 'error');
+    if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge?.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)) || "File terlalu besar", 'error');
 
     setSelectedFile(file);
     setIsPreparingUpload(true);
@@ -561,7 +588,7 @@ export default function DashboardPage() {
 
       setStagedUpload({ file, encryptedBytes, estimatedCost });
     } catch (error) {
-      showToast(t.prepareAttachmentFailPrefix + extractErrorMessage(error), "error");
+      showToast((t.prepareAttachmentFailPrefix || "Gagal memproses file: ") + extractErrorMessage(error), "error");
       setSelectedFile(null);
     } finally {
       setIsPreparingUpload(false);
@@ -570,7 +597,7 @@ export default function DashboardPage() {
 
   const handleConfirmArweaveUpload = async () => {
     if (!stagedUpload) return;
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     
     setUploadError(''); 
     setIsUploading(true);
@@ -596,11 +623,11 @@ export default function DashboardPage() {
       
       setUploadedCid(irysUrl);
       setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`);
-      showToast(t.fileUploadedSuccess, "success");
+      showToast(t.fileUploadedSuccess || "Upload berhasil!", "success");
       setStagedUpload(null);
     } catch (error) {
       console.error("DETAIL ERROR IRYS:", error);
-      showToast(t.fileUploadFailPrefix + extractErrorMessage(error), "error");
+      showToast((t.fileUploadFailPrefix || "Gagal upload: ") + extractErrorMessage(error), "error");
       setUploadError(error.message || extractErrorMessage(error)); 
     } finally {
       setIsUploading(false);
@@ -624,9 +651,9 @@ export default function DashboardPage() {
     const provider = new ethers.BrowserProvider(walletProvider);
     const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
     if (tier === 'legacy') {
-      if (!ethers.isAddress(heirAddress)) throw new Error(t.enterValidHeirAddress);
+      if (!ethers.isAddress(heirAddress)) throw new Error(t.enterValidHeirAddress || "Alamat pewaris tidak valid");
       const heirKey = await contract.encryptionPublicKeys(heirAddress);
-      if (!heirKey || heirKey === '0x') throw new Error(t.heirKeyNotRegistered);
+      if (!heirKey || heirKey === '0x') throw new Error(t.heirKeyNotRegistered || "Pewaris belum mendaftarkan public key");
       return { publicKey: heirKey, privateKey: null };
     }
     const kp = await getOrDeriveKeyPair();
@@ -635,8 +662,8 @@ export default function DashboardPage() {
 
   const handleSeal = async (e) => {
     e.preventDefault();
-    if (!isConnected) return showToast(t.authRejectedConnectWallet, 'error');
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (!isConnected) return showToast(t.authRejectedConnectWallet || "Hubungkan dompet", 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
     if (stagedUpload && !uploadedCid) {
       return showToast("⚠️ Anda belum mengonfirmasi upload lampiran gambar. Silakan klik 'Confirm & Pay Storage' dulu di kotak gambar!", "error");
@@ -644,18 +671,18 @@ export default function DashboardPage() {
 
     const selectedTierData = tiers[tier];
     const messageByteLength = new TextEncoder().encode(message).length;
-    if (messageByteLength > selectedTierData.maxLength) return showToast(t.messageTooLong.replace('{max}', selectedTierData.maxLength), 'error');
-    if (aethBalance < selectedTierData.cost) return showToast(t.insufficientBalance, 'error');
-    if (tier === 'legacy' && !ethers.isAddress(heirAddress)) return showToast(t.invalidHeirAddress, 'error');
+    if (messageByteLength > selectedTierData.maxLength) return showToast(t.messageTooLong?.replace('{max}', selectedTierData.maxLength) || "Pesan terlalu panjang", 'error');
+    if (aethBalance < selectedTierData.cost) return showToast(t.insufficientBalance || "Saldo tidak mencukupi", 'error');
+    if (tier === 'legacy' && !ethers.isAddress(heirAddress)) return showToast(t.invalidHeirAddress || "Alamat pewaris tidak valid", 'error');
 
     setIsSealing(true);
     try {
-      showToast(t.encryptingMessage, 'info');
+      showToast(t.encryptingMessage || "Mengenkripsi pesan...", 'info');
       const { publicKey: recipientPublicKey } = await resolveRecipient();
       const encryptedMessage = await encryptForPublicKey(recipientPublicKey, message);
 
-      if (encryptedMessage.length > selectedTierData.maxLength) throw new Error(t.messageCapacityExceeded);
-      const plainTitle = title || t.defaultCapsuleTitle;
+      if (encryptedMessage.length > selectedTierData.maxLength) throw new Error(t.messageCapacityExceeded || "Kapasitas maksimal terlampaui setelah enkripsi");
+      const plainTitle = title || t.defaultCapsuleTitle || "Capsule";
       const encryptedTitle = await encryptForPublicKey(recipientPublicKey, plainTitle);
       
       const signer = await getSigner();
@@ -664,38 +691,38 @@ export default function DashboardPage() {
       const requiredCostWei = ethers.parseUnits(selectedTierData.cost.toString(), 18);
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       
-      // ✅ PERBAIKAN: Approve ke CONTRACT_ADDRESS (Brankas) menggunakan requiredCostWei
       showToast(t.checkingAllowance || "Checking allowance...", "info");
       const currentAllowance = await tokenContract.allowance(address, CONTRACT_ADDRESS);
 
       if (currentAllowance < requiredCostWei) {
-      showToast(t.requestingApprove || "Requesting approval...", "info");
-      const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, requiredCostWei);
-      await approveTx.wait();
-      showToast(t.approveSuccess || "Approval success!", "success");
+        if (currentAllowance > 0n) {
+          const resetTx = await tokenContract.approve(CONTRACT_ADDRESS, 0);
+          await resetTx.wait();
+        }
+        showToast(t.requestingApprove || "Requesting approval...", "info");
+        const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, requiredCostWei);
+        await approveTx.wait();
+        showToast(t.approveSuccess || "Approval success!", "success");
       }
 
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
-      showToast(t.preparingOnChainTx, 'info');
+      showToast(t.preparingOnChainTx || "Mempersiapkan transaksi on-chain...", 'info');
 
-      // ✅ PERBAIKAN V3: Ubah pesan teks panjang menjadi Hash 32-byte yang ringan
       const contentHash = ethers.keccak256(ethers.toUtf8Bytes(encryptedMessage));
 
       let tx;
       if (tier === 'legacy') {
         const inactivitySeconds = 180;
-        // Kirim contentHash, bukan encryptedMessage
         tx = await contract.sealLegacyCapsule(encryptedTitle, contentHash, inactivitySeconds, heirAddress);
       } else {
-        if (!unlockDate) throw new Error(t.selectUnlockDateTime);
+        if (!unlockDate) throw new Error(t.selectUnlockDateTime || "Pilih waktu buka");
         const unlockTimeMs = new Date(unlockDate).getTime();
         const unlockTimestamp = Math.floor(unlockTimeMs / 1000);
-        // Kirim contentHash, bukan encryptedMessage
         tx = await contract.sealTimeLockCapsule(TIER_ENUM_MAP[tier], encryptedTitle, contentHash, unlockTimestamp);
       }
-      showToast(t.txSentWaitingConfirm, "info");
+      showToast(t.txSentWaitingConfirm || "Transaksi terkirim. Menunggu konfirmasi...", "info");
       await tx.wait();
-      showToast(t.sealSuccess, 'success');
+      showToast(t.sealSuccess || "Kapsul berhasil disegel!", 'success');
       setTitle(''); setMessage(''); setUnlockDate(''); setHeirAddress('');
       setSelectedFile(null); setUploadedCid('');
       setActiveTab('vaults');
@@ -703,16 +730,16 @@ export default function DashboardPage() {
       await fetchWalletData();
       await fetchGlobalStats(); 
     } catch (err) {
-      showToast(t.genericFailPrefix + extractErrorMessage(err), 'error');
+      showToast((t.genericFailPrefix || "Gagal: ") + extractErrorMessage(err), 'error');
     } finally {
       setIsSealing(false);
     }
   };
 
   const handleOpenVault = async (capsule) => {
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     if (capsule.contentDeleted) {
-      setSelectedVault({ ...capsule, decryptedMessage: null, error: t.statusAlreadyDeleted });
+      setSelectedVault({ ...capsule, decryptedMessage: null, error: t.statusAlreadyDeleted || "Sudah dihapus" });
       return;
     }
     setSelectedVault({ ...capsule, decryptedMessage: null, error: null });
@@ -733,17 +760,17 @@ export default function DashboardPage() {
       const { privateKey } = await getOrDeriveKeyPair();
       const plaintext = await decryptWithPrivateKey(privateKey, ciphertext);
       setSelectedVault(prev => ({ ...prev, decryptedMessage: plaintext }));
-      showToast(t.decryptSuccess, 'success');
+      showToast(t.decryptSuccess || "Dekripsi berhasil", 'success');
       await fetchWalletData();
     } catch (err) {
-      showToast(t.openVaultFailPrefix + extractErrorMessage(err), 'error');
+      showToast((t.openVaultFailPrefix || "Gagal membuka: ") + extractErrorMessage(err), 'error');
     } finally {
       setIsDecrypting(false);
     }
   };
 
   const handleViewCertificate = async (capsuleId) => {
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     try {
       const signer = await getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
@@ -765,7 +792,7 @@ export default function DashboardPage() {
 
   const [isPinging, setIsPinging] = useState(null);
   const handlePingAlive = async (capsule) => {
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
     setIsPinging(capsule.id);
     try {
       const signer = await getSigner();
@@ -773,10 +800,10 @@ export default function DashboardPage() {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       const tx = await contract.pingAlive(capsule.id);
       await tx.wait();
-      showToast(t.pingSuccess, 'success');
+      showToast(t.pingSuccess || "Ping berhasil dikirim", 'success');
       await fetchWalletData();
     } catch (err) {
-      showToast(t.pingFailPrefix + extractErrorMessage(err), 'error');
+      showToast((t.pingFailPrefix || "Gagal ping: ") + extractErrorMessage(err), 'error');
     } finally {
       setIsPinging(null);
     }
@@ -784,8 +811,8 @@ export default function DashboardPage() {
 
   const [isDeletingContent, setIsDeletingContent] = useState(null);
   const handleDeleteOpenedContent = async (capsule) => {
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
-    const confirmed = window.confirm(t.deleteConfirmText);
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    const confirmed = window.confirm(t.deleteConfirmText || "Yakin ingin menghapus secara permanen?");
     if (!confirmed) return;
     setIsDeletingContent(capsule.id);
     try {
@@ -794,78 +821,116 @@ export default function DashboardPage() {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       const tx = await contract.deleteOpenedContent(capsule.id);
       await tx.wait();
-      showToast(t.deleteContentSuccess, 'success');
+      showToast(t.deleteContentSuccess || "Konten terhapus", 'success');
       setSelectedVault(null);
       await fetchWalletData();
     } catch (err) {
-      showToast(t.deleteContentFailPrefix + extractErrorMessage(err), 'error');
+      showToast((t.deleteContentFailPrefix || "Gagal menghapus: ") + extractErrorMessage(err), 'error');
     } finally {
       setIsDeletingContent(null);
     }
   };
 
-  const handleStake = async () => {
-    const amount = parseFloat(stakeInput);
-    if (isNaN(amount) || amount <= 0) return showToast(t.invalidAethAmount, "error");
-    if (!isConnected) return showToast(t.connectWalletFirst, "error");
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+  // ⭐ FUNGSI STAKING V6 (UPDATE MULTI-TIER)
+  const handleStake = async (tierId, amountInput) => {
+    const amount = parseFloat(amountInput);
+    if (isNaN(amount) || amount <= 0) return showToast(t.invalidAethAmount || "Nominal tidak valid", "error");
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
     setIsStaking(true);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
       const amountInWei = ethers.parseUnits(amount.toString(), 18);
+      
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
 
       if (currentAllowance < amountInWei) {
+        if (currentAllowance > 0n) {
+          const resetTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, 0);
+          await resetTx.wait();
+        }
+        showToast(t.requestingApprove || "Meminta izin akses token (Approve)...", "info");
         const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountInWei);
         await approveTx.wait();
       }
+
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
-      const tx = await stakingContract.stake(amountInWei);
+      const tx = await stakingContract.stake(tierId, amountInWei);
+      showToast(t.txSentWaitingConfirm || "Memproses Staking di jaringan...", "info");
       await tx.wait();
+      
       setStakeInput('');
-      showToast(t.stakeSuccess.replace("{amount}", amount), "success");
+      showToast(t.stakeSuccess?.replace("{amount}", amount) || `Berhasil Stake ${amount} AETH!`, "success");
       await fetchWalletData();
       await fetchGlobalStats();
     } catch (err) {
-      showToast(t.stakeFailPrefix + extractErrorMessage(err), "error");
+      showToast((t.stakeFailPrefix || "Gagal Staking: ") + extractErrorMessage(err), "error");
     } finally {
       setIsStaking(false);
     }
   };
 
-  const handleWithdrawStake = async () => {
-    const amount = parseFloat(unstakeInput);
-    if (isNaN(amount) || amount <= 0) return showToast(t.invalidAethAmount, "error");
-    if (!isConnected) return showToast(t.connectWalletFirst, "error");
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
-    if (amount > stakedBalance) return showToast(t.unstakeExceedsBalance, "error");
+  const handleWithdrawStake = async (depositId) => {
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet", "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    
+    const dep = userDeposits.find(d => d.id === depositId);
+    if (!dep) return;
 
     setIsWithdrawingStake(true);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
-      const amountInWei = ethers.parseUnits(amount.toString(), 18);
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
-      const tx = await stakingContract.withdraw(amountInWei);
+      
+      const tx = await stakingContract.withdraw(depositId, dep.amount);
+      showToast(t.txSentWaitingConfirm || "Memproses Withdraw di jaringan...", "info");
       await tx.wait();
-      setUnstakeInput('');
-      showToast(t.unstakeSuccess.replace("{amount}", amount), "success");
+      
+      showToast(t.unstakeSuccess?.replace("{amount}", ethers.formatUnits(dep.amount, 18)) || "Withdraw Berhasil!", "success");
       await fetchWalletData();
       await fetchGlobalStats();
     } catch (err) {
-      showToast(t.unstakeFailPrefix + extractErrorMessage(err), "error");
+      showToast((t.unstakeFailPrefix || "Gagal Withdraw: ") + extractErrorMessage(err), "error");
+    } finally {
+      setIsWithdrawingStake(false);
+    }
+  };
+
+  const handleEmergencyWithdraw = async (depositId) => {
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet", "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    
+    const confirmed = window.confirm(t.emergencyWarning || "PERINGATAN! Menarik paksa sebelum waktu selesai akan MENGHANGUSKAN semua bunga pada deposit ini. Lanjutkan?");
+    if (!confirmed) return;
+
+    setIsWithdrawingStake(true);
+    try {
+      const signer = await getSigner();
+      await ensureCorrectNetwork(signer);
+      const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
+      
+      const tx = await stakingContract.emergencyWithdraw(depositId);
+      showToast(t.txSentWaitingConfirm || "Memproses Emergency Withdraw...", "info");
+      await tx.wait();
+      
+      showToast(t.emergencySuccess || "Dana Darurat Berhasil Ditarik!", "success");
+      await fetchWalletData();
+      await fetchGlobalStats();
+    } catch (err) {
+      showToast((t.emergencyFailPrefix || "Gagal Emergency Withdraw: ") + extractErrorMessage(err), "error");
     } finally {
       setIsWithdrawingStake(false);
     }
   };
 
   const handleClaimReward = async () => {
-    if (!isConnected) return showToast(t.connectWalletFirst, "error");
-    if (isWrongNetwork) return showToast(t.switchNetworkFirst.replace('{chain}', TARGET_CHAIN_NAME), 'error');
-    if (pendingReward <= 0) return showToast(t.noRewardAvailable, "error");
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet", "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
+    if (pendingReward <= 0) return showToast(t.noRewardAvailable || "Belum ada bunga", "error");
 
     try {
       const signer = await getSigner();
@@ -873,11 +938,11 @@ export default function DashboardPage() {
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
       const tx = await stakingContract.claimReward();
       await tx.wait();
-      showToast(t.claimRewardSuccess, "success");
+      showToast(t.claimRewardSuccess || "Bunga berhasil diklaim!", "success");
       await fetchWalletData();
       await fetchGlobalStats();
     } catch (err) {
-      showToast(t.claimRewardFailPrefix + extractErrorMessage(err), "error");
+      showToast((t.claimRewardFailPrefix || "Gagal Klaim Bunga: ") + extractErrorMessage(err), "error");
     }
   };
 
@@ -965,6 +1030,7 @@ export default function DashboardPage() {
       setIsAdminLoading(false);
     }
   };
+  
   const handleAdminClaimVesting = async () => {
     try {
       setIsAdminLoading(true);
@@ -972,10 +1038,7 @@ export default function DashboardPage() {
       const vestingContract = new ethers.Contract(VESTING_CONTRACT_ADDRESS, TeamVestingABI, signer);
       
       showToast("Memproses pencairan token developer...", "info");
-      
-      // Catatan: Pastikan nama fungsinya 'release()' atau 'claim()' sesuai dengan yang ada di dalam TeamVesting.sol Bos
-      const tx = await vestingContract.release(); 
-      
+      const tx = await vestingContract.claim(); 
       await tx.wait();
       showToast("Mantap! Gaji developer berhasil masuk dompet!", "success");
     } catch (err) {
@@ -988,15 +1051,15 @@ export default function DashboardPage() {
   const renderNavMenu = (isMobile = false) => (
     <nav className="space-y-1.5">
       {[
-        { id: 'create', icon: Lock, label: t.menuCreate },
+        { id: 'create', icon: Lock, label: t.menuCreate || 'Create' },
         { id: 'proof', icon: Award, label: t.menuProof || 'Aether Proof' },
         { id: 'hall', icon: Globe, label: t.menuHall || 'Hall of Proof' },
-        { id: 'vaults', icon: Layers, label: t.menuVaults, count: myCapsules.length > 0 ? myCapsules.length : undefined },
-        { id: 'history', icon: History, label: t.menuHistory },
-        { id: 'stats', icon: Flame, label: t.menuStats },
-        { id: 'staking', icon: Coins, label: t.menuStaking },
-        { id: 'security', icon: Shield, label: t.menuSecurity },
-        { id: 'settings', icon: Settings, label: t.menuSettings }
+        { id: 'vaults', icon: Layers, label: t.menuVaults || 'My Vaults', count: myCapsules.length > 0 ? myCapsules.length : undefined },
+        { id: 'history', icon: History, label: t.menuHistory || 'History' },
+        { id: 'stats', icon: Flame, label: t.menuStats || 'Global Stats' },
+        { id: 'staking', icon: Coins, label: t.menuStaking || 'Staking V6' },
+        { id: 'security', icon: Shield, label: t.menuSecurity || 'Security' },
+        { id: 'settings', icon: Settings, label: t.menuSettings || 'Settings' }
       ].map((menu) => (
         <button
           key={menu.id}
@@ -1023,7 +1086,7 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-[#05030F] text-gray-200 p-6">
         <div className="max-w-md w-full bg-[#0B0817] border border-red-500/40 rounded-3xl p-6 sm:p-8 space-y-4 text-center shadow-[0_0_30px_rgba(239,68,68,0.15)]">
           <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
-          <h2 className="text-lg font-extrabold text-red-300">{t.configIncompleteTitle}</h2>
+          <h2 className="text-lg font-extrabold text-red-300">{t.configIncompleteTitle || "Configuration Incomplete"}</h2>
         </div>
       </div>
     );
@@ -1048,7 +1111,7 @@ export default function DashboardPage() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 bg-[#05030F]/95 backdrop-blur-xl z-40 lg:hidden pt-24 px-6 pb-6 overflow-y-auto border-b border-neutral-900 shadow-2xl">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest font-mono">{t.menuTitle}</h2>
+            <h2 className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest font-mono">{t.menuTitle || "Navigation"}</h2>
             <button onClick={() => setIsMobileMenuOpen(false)} className="text-neutral-400 hover:text-white p-2 bg-neutral-900 rounded-full"><X className="w-4 h-4"/></button>
           </div>
           {renderNavMenu(true)}
@@ -1066,7 +1129,7 @@ export default function DashboardPage() {
                 <Menu className="w-5 h-5" />
               </button>
               <div className="hidden lg:flex items-center gap-2 text-cyan-500 font-bold font-mono text-[10px] sm:text-xs uppercase tracking-widest px-2">
-                <Activity className="w-4 h-4" /> {t.web3TerminalLabel}
+                <Activity className="w-4 h-4" /> {t.web3TerminalLabel || "Web3 Terminal"}
               </div>
             </div>
 
@@ -1076,15 +1139,15 @@ export default function DashboardPage() {
                   onClick={() => open()}
                   className="bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:from-cyan-400 hover:via-violet-400 hover:to-fuchsia-400 text-white px-4 py-2 sm:px-6 sm:py-2.5 rounded-full font-bold flex items-center gap-1.5 sm:gap-2 transition-all shadow-[0_0_25px_-3px_rgba(168,85,247,0.5),0_0_15px_-3px_rgba(34,211,238,0.4)] text-[10px] sm:text-sm cursor-pointer whitespace-nowrap"
                 >
-                  <Wallet className="w-3 h-3 sm:w-4 sm:h-4" /> {t.connectWallet}
+                  <Wallet className="w-3 h-3 sm:w-4 sm:h-4" /> {t.connectWallet || "Connect"}
                 </button>
               ) : (
                 <div className="flex items-center gap-1.5 sm:gap-3">
                   <div className="hidden md:flex items-center gap-2.5 bg-[#05030F] px-4 py-2 rounded-full border border-neutral-800">
                     <Cpu className="w-4 h-4 text-cyan-500" />
                     <div className="flex flex-col">
-                      <span className="text-[9px] text-neutral-400 uppercase tracking-wider">{t.gasFeeLabel}</span>
-                      <span className="text-xs font-bold font-mono text-white">{nativeBalance} POL</span>
+                      <span className="text-[9px] text-neutral-400 uppercase tracking-wider">{t.gasFeeLabel || "Gas Coin"}</span>
+                      <span className="text-xs font-bold font-mono text-white">{nativeBalance} tBNB</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3 bg-[#05030F] px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full border border-neutral-800 shadow-inner">
@@ -1115,8 +1178,8 @@ export default function DashboardPage() {
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-red-300">{t.wrongNetworkTitle}</p>
-                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">{t.wrongNetworkDesc.replace('{chain}', TARGET_CHAIN_NAME)}</p>
+                  <p className="text-xs sm:text-sm font-bold text-red-300">{t.wrongNetworkTitle || "Wrong Network"}</p>
+                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">{t.wrongNetworkDesc?.replace('{chain}', TARGET_CHAIN_NAME) || "Please switch to BSC Testnet."}</p>
                 </div>
               </div>
               <button
@@ -1125,7 +1188,7 @@ export default function DashboardPage() {
                 className="whitespace-nowrap bg-red-500/10 hover:bg-red-500/20 border border-red-500/40 text-red-300 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isSwitchingNetwork ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Activity className="w-3.5 h-3.5" />}
-                {t.switchToChainBtn.replace('{chain}', TARGET_CHAIN_NAME)}
+                {t.switchToChainBtn?.replace('{chain}', TARGET_CHAIN_NAME) || "Switch Network"}
               </button>
             </div>
           )}
@@ -1135,8 +1198,8 @@ export default function DashboardPage() {
               <div className="flex items-start gap-3">
                 <KeyRound className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs sm:text-sm font-bold text-amber-300">{t.keyNotRegisteredTitle}</p>
-                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">{t.keyNotRegisteredDesc}</p>
+                  <p className="text-xs sm:text-sm font-bold text-amber-300">{t.keyNotRegisteredTitle || "Encryption Key Missing"}</p>
+                  <p className="text-[11px] sm:text-xs text-neutral-400 mt-0.5">{t.keyNotRegisteredDesc || "Register your key to use the Vault."}</p>
                 </div>
               </div>
               <button
@@ -1145,7 +1208,7 @@ export default function DashboardPage() {
                 className="whitespace-nowrap bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-300 px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isRegisteringKey ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <KeyRound className="w-3.5 h-3.5" />}
-                {t.registerKeyBtn}
+                {t.registerKeyBtn || "Register Key"}
               </button>
             </div>
           )}
@@ -1153,11 +1216,11 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
             <div className="hidden lg:block lg:col-span-1 space-y-6">
               <div className="bg-[#0B0817] border border-neutral-900 p-5 rounded-3xl sticky top-28 shadow-xl">
-                <h2 className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-4 px-3 font-mono">{t.menuTitle}</h2>
+                <h2 className="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-4 px-3 font-mono">{t.menuTitle || "Navigation"}</h2>
                 {renderNavMenu()}
                 <div className="mt-8 pt-5 border-t border-neutral-900 px-2">
                   <div className="flex items-center justify-between text-[11px] text-neutral-500">
-                    <span className="flex items-center gap-2"><Activity className="w-3.5 h-3.5 text-cyan-500 animate-pulse" /> {t.mainnetLabel}</span>
+                    <span className="flex items-center gap-2"><Activity className="w-3.5 h-3.5 text-cyan-500 animate-pulse" /> {t.mainnetLabel || "Network"}</span>
                     <span className="font-mono text-neutral-400">{TARGET_CHAIN_NAME}</span>
                   </div>
                 </div>
@@ -1195,6 +1258,8 @@ export default function DashboardPage() {
               {activeTab === 'proof' && (
                 <AetherProofHub
                   t={t}
+                  address={address}
+                  TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
                   myCapsules={myCapsules}
                   handleViewCertificate={handleViewCertificate}
                   setActiveTab={setActiveTab}
@@ -1205,6 +1270,7 @@ export default function DashboardPage() {
                 <HallOfProof 
                   t={t} 
                   handleViewCertificate={handleViewCertificate} 
+                  setActiveTab={setActiveTab}
                 />
               )}
 
@@ -1227,7 +1293,7 @@ export default function DashboardPage() {
 
               {activeTab === 'history' && (
                 <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl space-y-4 sm:space-y-6">
-                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">{t.historyTitle}</h3>
+                  <h3 className="font-display text-lg sm:text-xl font-bold text-white">{t.historyTitle || "History"}</h3>
                   {isLoadingHistory ? (
                     <div className="text-center py-12 text-neutral-500 text-xs sm:text-sm">
                       <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-2 animate-spin" />
@@ -1235,7 +1301,7 @@ export default function DashboardPage() {
                   ) : transactions.length === 0 ? (
                     <div className="text-center py-12 text-neutral-500 text-xs sm:text-sm">
                       <History className="w-8 h-8 text-neutral-700 mx-auto mb-2" />
-                      {t.historyEmpty}
+                      {t.historyEmpty || "No history found"}
                     </div>
                   ) : (
                     <div className="space-y-2 sm:space-y-3">
@@ -1265,10 +1331,10 @@ export default function DashboardPage() {
                 />
               )}
 
+              {/* ⭐ COMPONENT STAKING V6 */}
               {activeTab === 'staking' && (
                 <StakingPanel
                   t={t}
-                  apyPercent={apyPercent}
                   stakingGlobalStats={stakingGlobalStats}
                   isFetchingGlobalStats={isFetchingGlobalStats}
                   aethBalance={aethBalance}
@@ -1277,11 +1343,11 @@ export default function DashboardPage() {
                   handleStake={handleStake}
                   isStaking={isStaking}
                   isWrongNetwork={isWrongNetwork}
-                  stakedBalance={stakedBalance}
+                  totalUserStaked={totalUserStaked}
                   pendingReward={pendingReward}
-                  unstakeInput={unstakeInput}
-                  setUnstakeInput={setUnstakeInput}
+                  userDeposits={userDeposits}
                   handleWithdrawStake={handleWithdrawStake}
+                  handleEmergencyWithdraw={handleEmergencyWithdraw}
                   isWithdrawingStake={isWithdrawingStake}
                   handleClaimReward={handleClaimReward}
                 />
@@ -1308,10 +1374,10 @@ export default function DashboardPage() {
                         <KeyRound className="w-4 h-4 sm:w-5 sm:h-5 text-fuchsia-400"/> {t.secHowProtected || 'ECIES secp256k1 Encryption'}
                       </h5>
                       <div className="space-y-3 text-[10px] sm:text-sm text-neutral-400 leading-relaxed">
-                        <p>{t.secDesc1}</p>
-                        <p>{t.secDesc2}</p>
-                        <p className="text-neutral-500 font-bold">{t.secDesc3}</p>
-                        <p className="text-fuchsia-500/80 italic">{t.secDesc4}</p>
+                        <p>{t.secDesc1 || 'Desc 1'}</p>
+                        <p>{t.secDesc2 || 'Desc 2'}</p>
+                        <p className="text-neutral-500 font-bold">{t.secDesc3 || 'Desc 3'}</p>
+                        <p className="text-fuchsia-500/80 italic">{t.secDesc4 || 'Desc 4'}</p>
                       </div>
                     </div>
 
@@ -1347,16 +1413,16 @@ export default function DashboardPage() {
               {activeTab === 'settings' && (
                 <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 sm:space-y-8 shadow-xl">
                   <div>
-                    <h3 className="font-display text-lg sm:text-xl font-bold text-white flex items-center gap-2"><Settings className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-400"/> {t.settingsTitle}</h3>
-                    <p className="text-[11px] sm:text-sm text-neutral-400 mt-1">{t.settingsDesc}</p>
+                    <h3 className="font-display text-lg sm:text-xl font-bold text-white flex items-center gap-2"><Settings className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-400"/> {t.settingsTitle || 'Settings'}</h3>
+                    <p className="text-[11px] sm:text-sm text-neutral-400 mt-1">{t.settingsDesc || 'Configure'}</p>
                   </div>
 
                   <div className="space-y-4 sm:space-y-6">
                     <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                         <div>
-                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><KeyRound className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> {t.encryptionKeyLabel}</p>
-                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.encryptionKeyDesc}</p>
+                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><KeyRound className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> {t.encryptionKeyLabel || 'Encryption Key'}</p>
+                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.encryptionKeyDesc || 'Register to use ECIES'}</p>
                         </div>
                         <button
                           onClick={handleRegisterEncryptionKey}
@@ -1364,7 +1430,7 @@ export default function DashboardPage() {
                           className={`text-[9px] sm:text-[10px] px-3 sm:px-4 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 flex items-center gap-2 ${myPublicKeyRegistered ? 'bg-green-500/10 text-green-400 border border-green-500/20 cursor-default' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 cursor-pointer disabled:opacity-50'}`}
                         >
                           {isRegisteringKey && <Loader2 className="w-3 h-3 animate-spin" />}
-                          {myPublicKeyRegistered ? t.registeredStatus : t.registerBtn}
+                          {myPublicKeyRegistered ? (t.registeredStatus || "REGISTERED") : (t.registerBtn || "REGISTER")}
                         </button>
                       </div>
                     </div>
@@ -1372,12 +1438,12 @@ export default function DashboardPage() {
                     <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                         <div>
-                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> {t.rpcLabel}</p>
-                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.rpcDesc}</p>
+                          <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 sm:gap-2"><Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-500"/> {t.rpcLabel || 'RPC Node'}</p>
+                          <p className="text-[10px] sm:text-xs text-neutral-500 mt-1">{t.rpcDesc || 'Current provider'}</p>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto mt-1 sm:mt-0">
                           <input type="text" disabled value="BSC Testnet" className="bg-[#0B0817] border border-neutral-800 text-neutral-400 text-[9px] sm:text-xs font-mono px-2.5 sm:px-3 py-2 rounded-lg w-full sm:w-48 outline-none text-center sm:text-left" />
-                          <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? t.wrongNetwork : t.connected}</span>
+                          <span className={`text-[8px] sm:text-[10px] px-2 sm:px-3 py-2 rounded-lg font-bold uppercase tracking-widest shrink-0 ${isWrongNetwork ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-green-500/10 text-green-400 border border-green-500/20'}`}>{isWrongNetwork ? (t.wrongNetwork || "WRONG NETWORK") : (t.connected || "CONNECTED")}</span>
                         </div>
                       </div>
                     </div>
@@ -1465,7 +1531,7 @@ export default function DashboardPage() {
                           </button>
                         </div>
                       </form>
-                      {/* KOTAK BARU: BRANKAS GAJI DEV */}
+
                       <div className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl space-y-3 mt-4">
                         <h4 className="text-xs font-bold text-green-400 uppercase font-mono">Brankas Gaji Developer</h4>
                         <p className="text-[10px] text-neutral-400 font-mono mb-2">Cairkan jatah AETH yang sudah melewati masa vesting.</p>
@@ -1494,7 +1560,7 @@ export default function DashboardPage() {
             <span className="text-[10px] sm:text-xs font-bold text-neutral-600 tracking-widest">AETHERVAULT</span>
           </div>
           <p className="text-[9px] sm:text-[10px] text-neutral-600 font-mono text-center md:text-right">
-            &copy; {new Date().getFullYear()} Nienzer. All rights reserved. Decentralized Protocol V2.2.
+            &copy; {new Date().getFullYear()} Nin Studio. All rights reserved. Decentralized Protocol V2.2.
           </p>
         </div>
       </footer>
@@ -1511,7 +1577,7 @@ export default function DashboardPage() {
         <div className="fixed inset-0 bg-[#05030F]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-[#0B0817] border border-cyan-500/30 max-w-lg w-full rounded-2xl sm:rounded-3xl p-6 sm:p-8 space-y-4 sm:space-y-6 shadow-[0_0_30px_rgba(6,182,212,0.15)] relative">
             <h4 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2 sm:gap-2.5">
-              <Sparkles className="text-cyan-400 w-4 h-4 sm:w-5 sm:h-5"/> {t.modalDecryptedTitle}
+              <Sparkles className="text-cyan-400 w-4 h-4 sm:w-5 sm:h-5"/> {t.modalDecryptedTitle || "Decrypted Content"}
             </h4>
             {isDecrypting ? (
               <div className="text-center py-8">
@@ -1558,7 +1624,7 @@ export default function DashboardPage() {
               </>
             )}
             <button onClick={() => setSelectedVault(null)} className="w-full bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-3 sm:py-4 rounded-xl sm:rounded-full text-[10px] sm:text-xs cursor-pointer transition-colors outline-none border border-transparent focus:border-neutral-500">
-              {t.closeVaultBtn}
+              {t.closeVaultBtn || "Close"}
             </button>
           </div>
         </div>

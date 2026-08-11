@@ -5,6 +5,7 @@ import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
+import AetherVaultABI from '@/contracts/AetherVaultABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
 const AETHER_VAULT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c";
@@ -92,7 +93,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const filter = contract.filters.ProofMinted();
       const DEPLOY_BLOCK = 43345845; 
       const currentBlock = await provider.getBlockNumber();
-      const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 3000);
+      const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 200000);
 
       const events = await contract.queryFilter(filter, startBlock, "latest");
       
@@ -191,18 +192,23 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const signer = await provider.getSigner();
 
       const requiredCostWei = ethers.parseUnits(currentConfig.price.toString(), 18);
-      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultV3ABI, signer);
-      
+      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
+
       setMintingStatusMsg('Memeriksa izin (Allowance) token $AETH...');
       const currentAllowance = await tokenContract.allowance(address, AETHER_VAULT_ADDRESS);
 
       if (currentAllowance < requiredCostWei) {
-        setMintingStatusMsg('Harap berikan izin (Approve) di MetaMask untuk memotong saldo AETH Anda...');
-        const approveTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, requiredCostWei);
-        setMintingStatusMsg('Menunggu konfirmasi jaringan untuk izin (Approve)...');
-        await approveTx.wait();
-        setMintingStatusMsg('Izin berhasil! Melanjutkan pembuatan sertifikat Proof...');
-      }
+      // ✅ Keamanan tambahan: Reset allowance ke 0 jika tersisa
+      if (currentAllowance > 0n) {
+     const resetTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, 0);
+     await resetTx.wait();
+     }
+     setMintingStatusMsg('Harap berikan izin (Approve) di MetaMask untuk memotong saldo AETH Anda...');
+     const approveTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, requiredCostWei);
+     setMintingStatusMsg('Menunggu konfirmasi jaringan untuk izin (Approve)...');
+     await approveTx.wait();
+     setMintingStatusMsg('Izin berhasil! Melanjutkan pembuatan sertifikat Proof...');
+     }
 
       setMintStep(3);
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, signer);
@@ -259,7 +265,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         metaHash: metadataHash,
         date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
         network: TARGET_CHAIN_NAME || "BSC Testnet",
-        verifyUrl: `https://testnet.bscscan.com.com/address/${AETHER_VAULT_ADDRESS}`
+        verifyUrl: `https://testnet.bscscan.com/address/${AETHER_VAULT_ADDRESS}`
       });
       
       setView('success');
