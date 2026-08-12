@@ -40,7 +40,7 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
 
         const [totalProofs, stakingStats] = await Promise.all([
           vaultContract.totalProofs().catch(() => 0),
-          stakingContract.getStakingStats().catch(() =>)
+          stakingContract.getStakingStats().catch(() => [])
         ]);
 
         if (!isMounted) return; // Batalkan jika komponen sudah unmount

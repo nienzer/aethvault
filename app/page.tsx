@@ -38,13 +38,14 @@ export default function LandingPage() {
         const [currentBlock, totalProofs, stakingData] = await Promise.all([
           provider.getBlockNumber(),
           vaultContract.totalCapsulesCreated().catch(() => 0),
-          stakingContract.getStakingStats().catch(() =>)
+          stakingContract.getStakingStats().catch(() => [])
         ]);
 
         if (!isMounted) return; // Batalkan pembaruan jika pengguna sudah pindah ke dashboard
 
         // 🚀 FIX LOGIKA: Mengamankan array mapping index data agar tidak memicu error kompilasi
-        const safeStakingData = stakingData && stakingData.length >= 3 ? stakingData :;
+        // PASTIKAN BARIS INI TERTULIS SEPERTI INI:
+const safeStakingData = stakingData && stakingData.length >= 3 ? stakingData : [];
 
         setLiveStats({
           block: Number(currentBlock || 0),
