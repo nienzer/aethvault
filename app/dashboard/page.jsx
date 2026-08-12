@@ -48,7 +48,7 @@ const getNewIrysUploader = async (walletProvider) => {
 // ⭐ ALAMAT KONTRAK (PASTIKAN GANTI DENGAN ADDRESS DEPLOY TERBARU BOS)
 const AETH_TOKEN_ADDRESS = "0xB251439799Ca1cCe317451b5E13A080eEaa70bff"; 
 const CONTRACT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c"; 
-const STAKING_CONTRACT_ADDRESS = "0xE4A91F311B52A5EfCEe57eCB60D8DE886fc50D51"; 
+const STAKING_CONTRACT_ADDRESS = "0x9cD1F86F42cA3f80679d17087362059Dc64E89E5"; 
 const VESTING_CONTRACT_ADDRESS = "0x3927cEb656d2A062F7025291157eb40f4279d3ac";
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
@@ -172,17 +172,15 @@ export default function DashboardPage() {
       if (IS_STAKING_ADDRESS_CONFIGURED) {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-          const stakingStats = await stakingContract.getStakingStats();
           
-          // Membaca data object/array dari smart contract secara aman
-          const rawTotalStaked = stakingStats && (stakingStats.currentTotalStaked !== undefined ? stakingStats.currentTotalStaked : (stakingStats[0] !== undefined ? stakingStats[0] : 0n));
-          const rawTotalRewards = stakingStats && (stakingStats.totalRewardsPaid !== undefined ? stakingStats.totalRewardsPaid : (stakingStats[1] !== undefined ? stakingStats[1] : 0n));
-          const rawStakersCount = stakingStats && (stakingStats.stakersCount !== undefined ? stakingStats.stakersCount : (stakingStats[2] !== undefined ? stakingStats[2] : 0n));
+          const sTotalStaked = await stakingContract.totalStaked();
+          const sTotalRewards = await stakingContract.totalRewardClaimed();
+          const sStakers = await stakingContract.totalStakers();
 
           setStakingGlobalStats({
-            totalStaked: parseFloat(ethers.formatUnits(rawTotalStaked, 18)),
-            totalRewards: parseFloat(ethers.formatUnits(rawTotalRewards, 18)),
-            stakers: Number(rawStakersCount)
+            totalStaked: parseFloat(ethers.formatUnits(sTotalStaked, 18)),
+            totalRewards: parseFloat(ethers.formatUnits(sTotalRewards, 18)),
+            stakers: Number(sStakers)
           });
         } catch (stakeErr) { 
           console.error("Gagal staking stats:", stakeErr); 

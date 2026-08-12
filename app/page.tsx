@@ -6,11 +6,11 @@ import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
 
 const RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
-const AETHER_VAULT_ADDRESS = "0xE4A91F311B52A5EfCEe57eCB60D8DE886fc50D51";
-const STAKING_CONTRACT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c";
+const AETHER_VAULT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c";
+const STAKING_CONTRACT_ADDRESS = "0x9cD1F86F42cA3f80679d17087362059Dc64E89E5";
 
-const VAULT_ABI = ["function totalCapsulesCreated() view returns (uint256)"];
-const STAKING_ABI = ["function getStakingStats() view returns (uint256 currentTotalStaked, uint256 totalRewardsPaid, uint256 stakersCount, uint256 rewardPoolAvailable)"];
+const VAULT_ABI = ["function totalCapsules() view returns (uint256)", "function totalProofs() view returns (uint256)"];
+const STAKING_ABI = ["function totalStaked() view returns (uint256)", "function totalStakers() view returns (uint256)"];
 
 export default function LandingPage() {
   const router = useRouter();
@@ -26,8 +26,8 @@ export default function LandingPage() {
     setTimeout(() => setToast(null), 4000);
   };
 
-      useEffect(() => {
-    let isMounted = true; // 🚀 FIX MEMORY LEAK: Isolasi status siklus hidup komponen landing page
+  useEffect(() => {
+    let isMounted = true; 
 
     const fetchLiveBlockchainData = async () => {
       try {
@@ -35,24 +35,22 @@ export default function LandingPage() {
         const vaultContract = new ethers.Contract(AETHER_VAULT_ADDRESS, VAULT_ABI, provider);
         const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, STAKING_ABI, provider);
 
-        const [currentBlock, totalProofs, stakingData] = await Promise.all([
+        const [currentBlock, totalProofs, rawTotalStaked, rawStakers] = await Promise.all([
           provider.getBlockNumber(),
-          vaultContract.totalCapsulesCreated().catch(() => 0),
-          stakingContract.getStakingStats().catch(() => [])
+          vaultContract.totalProofs().catch(() => 0),
+          stakingContract.totalStaked().catch(() => 0n),
+          stakingContract.totalStakers().catch(() => 0n)
         ]);
 
-        if (!isMounted) return; // Batalkan pembaruan jika pengguna sudah pindah ke dashboard
-
-        // 🚀 FIX LOGIKA: Mengamankan array mapping index data agar tidak memicu error kompilasi
-        // PASTIKAN BARIS INI TERTULIS SEPERTI INI:
-const safeStakingData = stakingData && stakingData.length >= 3 ? stakingData : [];
+        if (!isMounted) return; 
 
         setLiveStats({
           block: Number(currentBlock || 0),
           proofs: Number(totalProofs || 0),
-          tvl: parseFloat(ethers.formatUnits(safeStakingData[0] || 0, 18)),
-          stakers: Number(safeStakingData[2] || 0)
+          tvl: parseFloat(ethers.formatUnits(rawTotalStaked || 0n, 18)),
+          stakers: Number(rawStakers || 0n)
         });
+        
         setOnChainStatus("Verified On-Chain & Synced");
       } catch (e) {
         console.error("Gagal menarik data on-chain:", e);
@@ -61,10 +59,10 @@ const safeStakingData = stakingData && stakingData.length >= 3 ? stakingData : [
     };
 
     fetchLiveBlockchainData();
-    const interval = setInterval(fetchLiveBlockchainData, 20000); // Sinkronisasi 20 detik demi stabilitas di Windows
+    const interval = setInterval(fetchLiveBlockchainData, 20000); 
     
     return () => {
-      isMounted = false; // Bersihkan bendera saat unmount
+      isMounted = false; 
       clearInterval(interval);
     };
   }, []);
