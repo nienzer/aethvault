@@ -150,7 +150,7 @@ export default function LandingPage() {
 
               <div className="bg-[#0B0817]/90 backdrop-blur-xl border border-cyan-500/30 p-3.5 rounded-2xl flex items-center gap-3 shadow-[0_8px_30px_rgb(6,182,212,0.15)] transform translate-x-6 animate-float animate-glow" style={{ animationDelay: '2s' }}>
                  <div className="w-10 h-10 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex items-center justify-center"><Clock className="w-5 h-5 text-cyan-400"/></div>
-                 <div><p className="text-white font-bold text-xs">Time-Lock Target</p><p className="text-[9px] text-cyan-400 font-mono">Unlock Year 2045</p></div>
+                 <div><p className="text-white font-bold text-xs">Time-Lock Target</p><p className="text-[9px] text-cyan-400 font-mono">Smart Contract Enforced</p></div>
               </div>
               <div className="w-0.5 h-5 bg-gradient-to-b from-cyan-500/50 to-green-500/50 mx-auto"></div>
 

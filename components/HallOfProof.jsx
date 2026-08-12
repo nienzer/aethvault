@@ -3,17 +3,19 @@ import { Award, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Search, Ex
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
 
+// PASTIKAN ALAMAT INI SAMA DENGAN YANG ADA DI page_2.jsx / page.tsx BOS
 const AETHER_VAULT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c";
 const AETHER_VAULT_ABI = [
   "function totalProofs() external view returns (uint256)",
   "function getProofDetails(uint256 _tokenId) external view returns (tuple(string category, bytes32 fileHash, bool isPublic, uint256 timestamp))",
-  "function tokenURI(uint256 tokenId) external view returns (string)", // ⭐ TAMBAHAN BARU: Untuk baca Base64
+  "function tokenURI(uint256 tokenId) external view returns (string)",
   "event ProofMinted(uint256 indexed tokenId, address indexed creator, string category, bool isPublic, bytes32 fileHash, string tokenURI, uint256 blockNumber)"
 ];
 
 export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
   const { t: globalT } = useLanguage();
   const tHop = globalT.hallOfProof || {};
+  const tDash = globalT.dashboard || {};
   const tStats = globalT.globalStats || {};
 
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -58,7 +60,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
 
         const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AETHER_VAULT_ABI, provider);
         
-                const total = await contract.totalProofs();
+        const total = await contract.totalProofs();
         const totalNum = Number(total);
         const blockNum = await provider.getBlockNumber();
 
@@ -72,20 +74,21 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
         }
         setLatestBlocks(blocksTimeline);
 
+        // Pencarian event ProofMinted untuk mendapatkan daftar Kreator
         const DEPLOY_BLOCK = 43345845;
-        const startBlock = Math.max(DEPLOY_BLOCK, blockNum - 3000);
+        const startBlock = Math.max(DEPLOY_BLOCK, blockNum - 50000); 
         
         let events = [];
         try {
           events = await contract.queryFilter(contract.filters.ProofMinted(), startBlock, "latest");
         } catch (e) {
-          events = [];
+          console.warn("Gagal menarik events, melanjutkan proses...", e);
         }
         
         const ownerMap = {};
         if (events && events.length) {
           events.forEach(ev => {
-            if (ev.args && ev.args[0]) {
+            if (ev.args && ev.args[0] && ev.args[1]) {
               ownerMap[ev.args[0].toString()] = ev.args[1];
             }
           });
@@ -98,7 +101,6 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
         const limit = Math.min(totalNum, 15);
         for (let i = totalNum; i > totalNum - limit && i > 0; i--) {
           try {
-            // Membaca detail secara aman menggunakan token ID dinamis
             const details = await contract.getProofDetails(i);
             const rawCat = details.category || "General";
             
@@ -114,7 +116,6 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
             else if (rawCat === "Research") { iconComponent = <Microscope className="w-8 h-8 text-emerald-400" />; cost = 200; }
             else if (rawCat === "Business") { iconComponent = <Building2 className="w-8 h-8 text-yellow-400" />; cost = 500; }
 
-            // Proteksi aman penanganan Base64 SVG dari Smart Contract
             try {
               const tokenUri = await contract.tokenURI(i);
               if (tokenUri && tokenUri.startsWith('data:application/json;base64,')) {
@@ -131,12 +132,11 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
 
             totalEstimatedCost += (cost * 0.2); 
 
-                        const timestampMs = Number(details.timestamp || Math.floor(Date.now() / 1000)) * 1000;
+            const timestampMs = Number(details.timestamp || Math.floor(Date.now() / 1000)) * 1000;
             const diffMs = Date.now() - timestampMs;
             const diffMins = Math.floor(diffMs / (1000 * 60));
             const diffHours = Math.floor(diffMins / 60);
             
-            // 🚀 INTEGRASI KAMUS LOKAL: Mengikat teks durasi langsung ke properti id.js dan en.js Anda
             const timeAgoStr = diffMins < 1 
               ? (tDash.statJustNow || "Just now") 
               : diffMins < 60 
@@ -192,7 +192,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
     };
 
     fetchOnChainData();
-  }, [tHop.creator]);
+  }, [tHop.creator, tHop.daysAgo, tDash.statJustNow, tDash.statMinsAgo, tDash.statHrsAgo]);
 
   const categories = ['All', 'Music', 'Software', 'Design', 'Writing', 'Video', 'Research', 'Business'];
 
@@ -207,6 +207,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
   return (
     <div className="relative min-h-screen bg-[#030208] text-white font-sans overflow-hidden">
       
+      {/* Background Orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgc3Ryb2tlPSIjM0IzQjRCIiBzdHJva2Utd2lkdGg9IjAuNSIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTTAgNDBoNDBNNDAgMHY0MCIvPjwvZz48L3N2Zz4=')] opacity-[0.15]"></div>
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] mix-blend-screen"></div>
@@ -216,6 +217,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
 
       <div className="relative z-10 space-y-12 animate-in fade-in duration-500 pb-20">
         
+        {/* Header Title */}
         <div className="text-center pt-8 pb-4 space-y-3">
           <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-neutral-900 border border-neutral-700 text-neutral-300 text-[10px] font-mono font-bold uppercase tracking-widest shadow-lg">
             <Globe className="w-3.5 h-3.5 text-cyan-400" /> {tHop.galleryBadge || 'Immutable On-Chain Gallery'}
@@ -228,6 +230,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
           </p>
         </div>
 
+        {/* Global Statistics Top Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
             { label: tHop.totalProofs || "Total Proofs", value: stats.totalProofs.toLocaleString(), icon: Database, color: "text-cyan-400" },
@@ -251,8 +254,10 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
           ))}
         </div>
 
+        {/* Main Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
+          {/* Active Stream Sidebar */}
           <div className="lg:col-span-3 space-y-8">
             <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 rounded-3xl p-6 shadow-xl">
               <h4 className="font-display text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2 mb-6 border-b border-neutral-800 pb-4">
@@ -284,15 +289,15 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
 
           <div className="lg:col-span-9 space-y-8">
 
+            {/* Featured Proof Section */}
             {!isLoading && featuredProof && (
               <div className="bg-[#0A0713]/80 backdrop-blur-xl border border-amber-500/30 rounded-3xl p-1 shadow-[0_0_40px_rgba(245,158,11,0.1)] relative overflow-hidden group">
                 <div className="absolute top-0 right-0 bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl rounded-tr-2xl z-20 flex items-center gap-1.5">
                   <Crown className="w-3 h-3"/> Featured Proof
                 </div>
                 
-                <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden bg-neutral-900">
-                  {/* ⭐ MENDUKUNG TAMPILAN GAMBAR BASE64/SVG SECARA PROPORSIONAL */}
-                  <img src={featuredProof.resolvedImage} alt={featuredProof.title} className="w-full h-full object-contain sm:object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+                <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden bg-[#030208]">
+                  <img src={featuredProof.resolvedImage} alt={featuredProof.title} className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700 mix-blend-screen" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0A0713] via-[#0A0713]/40 to-transparent"></div>
                   
                   <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
@@ -325,6 +330,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
               </div>
             )}
 
+            {/* Filter and Search Bar */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-3 sm:p-4 rounded-2xl shadow-lg relative z-20">
               <div className="flex flex-wrap gap-1.5 w-full md:w-auto">
                 {categories.map((cat, idx) => (
@@ -352,6 +358,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
               </div>
             </div>
 
+            {/* Proofs Grid */}
             {isLoading ? (
               <div className="py-24 flex flex-col items-center justify-center space-y-4">
                 <Loader2 className="w-12 h-12 text-cyan-500 animate-spin drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
@@ -379,7 +386,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProofs.map((proof, idx) => (
                   <div 
                     key={proof.id} 
@@ -387,60 +394,63 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
                     style={{ animationDelay: `${idx * 100}ms` }}
                   >
                     
-                    <div className="relative h-56 w-full rounded-2xl overflow-hidden mb-5 bg-neutral-900 border border-neutral-800">
-                      {/* ⭐ MENAMPILKAN GAMBAR DARI ON-CHAIN */}
-                      <img src={proof.resolvedImage} alt={proof.title} className="w-full h-full object-contain sm:object-cover opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0713] via-transparent to-transparent opacity-80"></div>
+                    {/* Desain Kartu Rapi (Gambar, Badge & Waktu) */}
+                    <div className="relative h-48 w-full rounded-2xl overflow-hidden mb-4 bg-[#030208] border border-neutral-800/80 shadow-inner">
+                      <img src={proof.resolvedImage} alt={proof.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 mix-blend-screen" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0713] via-transparent to-transparent opacity-90"></div>
                       
-                      <div className="absolute top-3 left-3 flex flex-wrap gap-2 pr-12">
+                      {/* Badges Atas */}
+                      <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 pr-10">
                         {proof.badges.map(b => (
-                          <div key={b} className={`backdrop-blur-md border text-[8px] font-bold px-2 py-1 rounded-md flex items-center gap-1 uppercase tracking-widest shadow-md
-                            ${b === 'Verified' ? 'bg-black/50 border-cyan-500/30 text-cyan-300' : 
-                              b === 'Genesis' ? 'bg-amber-500/20 border-amber-500/50 text-amber-300' :
-                              b === 'Top Creator' ? 'bg-purple-500/20 border-purple-500/50 text-purple-300' :
-                              b === 'Premium' ? 'bg-rose-500/20 border-rose-500/50 text-rose-300' :
-                              'bg-black/50 border-neutral-600 text-neutral-300'}`}>
-                            {b === 'Verified' && <Check className="w-2.5 h-2.5" />}
-                            {b === 'Genesis' && <Crown className="w-2.5 h-2.5" />}
-                            {b === 'Top Creator' && <Gem className="w-2.5 h-2.5" />}
+                          <div key={b} className={`backdrop-blur-md border text-[7px] font-bold px-2 py-0.5 rounded flex items-center gap-1 uppercase tracking-widest shadow-md
+                            ${b === 'Verified' ? 'bg-cyan-950/50 border-cyan-500/30 text-cyan-300' : 
+                              b === 'Genesis' ? 'bg-amber-950/50 border-amber-500/30 text-amber-300' :
+                              b === 'Top Creator' ? 'bg-purple-950/50 border-purple-500/30 text-purple-300' :
+                              b === 'Premium' ? 'bg-rose-950/50 border-rose-500/30 text-rose-300' :
+                              'bg-neutral-900/50 border-neutral-600 text-neutral-300'}`}>
+                            {b === 'Verified' && <Check className="w-2 h-2" />}
+                            {b === 'Genesis' && <Crown className="w-2 h-2" />}
+                            {b === 'Top Creator' && <Gem className="w-2 h-2" />}
                             {b}
                           </div>
                         ))}
                       </div>
 
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 group-hover:opacity-0 transition-opacity duration-500 text-white drop-shadow-2xl">
+                      {/* Ikon Tengah */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-0 transition-opacity duration-500 text-white drop-shadow-2xl">
                         {proof.icon}
                       </div>
 
-                      <div className="absolute bottom-3 right-3 text-[9px] font-mono text-neutral-300 bg-black/60 px-2 py-1 rounded backdrop-blur-md border border-neutral-700">
+                      {/* Waktu Bawah */}
+                      <div className="absolute bottom-2 right-2 text-[8px] font-mono text-neutral-400 bg-[#030208]/80 px-2 py-1 rounded backdrop-blur-md border border-neutral-800/80">
                         {proof.timeAgo}
                       </div>
                     </div>
 
-                    <div className="px-2 flex-1 flex flex-col">
-                      <div className="flex justify-between items-start mb-1">
-                        <h4 className="font-bold text-white text-lg group-hover:text-cyan-400 transition-colors line-clamp-1" title={proof.title}>
+                    {/* Informasi Teks (Proporsional) */}
+                    <div className="flex-1 flex flex-col justify-between space-y-4">
+                      <div>
+                        <h4 className="font-bold text-white text-base group-hover:text-cyan-400 transition-colors line-clamp-1 mb-1" title={proof.title}>
                           {proof.title}
                         </h4>
-                      </div>
-                      
-                      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-neutral-500 mb-4">
-                        <span className="text-cyan-500 font-bold">{proof.category}</span>
-                        <span>•</span>
-                        <span>BSC Testnet</span>
+                        <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest text-neutral-500">
+                          <span className="text-cyan-500 font-bold">{proof.category}</span>
+                          <span>•</span>
+                          <span>BSC Testnet</span>
+                        </div>
                       </div>
 
-                      <div className="bg-[#030208] border border-neutral-800/80 rounded-xl p-3 space-y-2 mb-5 shadow-inner">
-                        <div className="flex justify-between items-center text-[10px] font-mono">
+                      <div className="bg-[#030208]/50 border border-neutral-800/50 rounded-xl p-2.5 space-y-1.5 shadow-inner">
+                        <div className="flex justify-between items-center text-[9px] font-mono">
                           <span className="text-neutral-500">{tHop.creator || 'Creator'}</span>
-                          <span className="text-neutral-300 bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800" title={proof.ownerFull}>{proof.owner}</span>
+                          <span className="text-neutral-300" title={proof.ownerFull}>{proof.owner}</span>
                         </div>
-                        <div className="flex justify-between items-center text-[10px] font-mono border-t border-neutral-800/50 pt-2">
+                        <div className="flex justify-between items-center text-[9px] font-mono">
                           <span className="text-neutral-500">{tHop.hash || 'SHA-256'}</span>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5">
                             <span className="text-neutral-400">{proof.txHash.substring(0,6)}...{proof.txHash.substring(proof.txHash.length - 4)}</span>
                             <button onClick={() => copyToClipboard(proof.txHash, `hash-${proof.id}`)} className="text-neutral-500 hover:text-white transition-colors" title="Copy Hash">
-                              {copiedId === `hash-${proof.id}` ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                              {copiedId === `hash-${proof.id}` ? <Check className="w-2.5 h-2.5 text-green-400" /> : <Copy className="w-2.5 h-2.5" />}
                             </button>
                           </div>
                         </div>
@@ -448,9 +458,9 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
 
                       <button
                         onClick={() => handleViewCertificate(proof.id)}
-                        className="w-full bg-neutral-900 hover:bg-white border border-neutral-800 hover:border-white text-white hover:text-black font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 cursor-pointer transition-all mt-auto group/btn"
+                        className="w-full bg-neutral-900/50 hover:bg-white border border-neutral-800 hover:border-white text-neutral-300 hover:text-black font-bold py-2.5 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 cursor-pointer transition-all group/btn shadow-md"
                       >
-                        {tHop.viewCert || 'VIEW CERTIFICATE'} <ArrowUpRight className="w-3.5 h-3.5 opacity-50 group-hover/btn:opacity-100" />
+                        {tHop.viewCert || 'VIEW CERTIFICATE'} <ArrowUpRight className="w-3 h-3 opacity-50 group-hover/btn:opacity-100" />
                       </button>
                     </div>
 

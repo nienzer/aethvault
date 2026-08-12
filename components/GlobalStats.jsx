@@ -128,21 +128,45 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
           </div>
         </div>
 
-        {/* Network Panel */}
-        <div className="col-span-2 lg:col-span-4 bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-white/40 hover:shadow-[0_10px_20px_-10px_rgba(255,255,255,0.2)] hover:-translate-y-1 transition-all">
+        {/* Network Panel (Desain Baru Keren) */}
+        <div className="col-span-2 lg:col-span-4 bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-cyan-500/30 hover:shadow-[0_10px_20px_-10px_rgba(6,182,212,0.2)] hover:-translate-y-1 transition-all">
           <div className="flex items-center justify-between mb-3 border-b border-neutral-800/50 pb-3">
             <span className="text-[9px] sm:text-[10px] uppercase text-neutral-500 font-bold font-mono tracking-widest flex items-center gap-1.5 sm:gap-2 truncate pr-2">
               <Blocks className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0"/> 
               <span className="truncate">{t.height || "Binance Smart Chain"}</span>
             </span>
-            <div className="flex items-center gap-1.5 sm:gap-2 bg-neutral-900 border border-neutral-700 px-2 py-1 rounded shadow-inner shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-[#030208] border border-neutral-800 px-3 py-1.5 rounded-lg shadow-inner shrink-0">
                <div className="w-2 h-2 bg-green-400 rounded-full animate-ping"></div>
-               <span className="text-[9px] sm:text-[10px] font-bold text-white tracking-widest uppercase">{t.liveSync || "Live Sync"}</span>
+               <span className="text-[9px] sm:text-[10px] font-bold text-green-400 tracking-widest uppercase">{t.liveSync || "Connected"}</span>
             </div>
           </div>
-          <div className="flex items-center justify-between mt-auto pt-2">
-            <div className="w-full text-center">
-              <span className="text-[10px] text-cyan-500 font-mono mt-1 w-full bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-md inline-block">Global Blockchain Metrics Synchronized</span>
+          
+          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mt-2 bg-[#05030F] border border-neutral-800/80 rounded-xl p-3 sm:p-4 shadow-inner">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                <Activity className="w-4 h-4 text-cyan-400" />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-[8px] sm:text-[9px] text-neutral-500 font-mono uppercase tracking-widest font-bold">Network Status</span>
+                <span className="text-[10px] sm:text-xs font-bold text-cyan-300 font-mono flex items-center gap-1.5 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                  Optimal & Secured
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-neutral-800/50 pt-2 sm:pt-0">
+               <div className="flex flex-col text-left sm:text-right">
+                 <span className="text-[8px] text-neutral-500 font-mono uppercase tracking-widest font-bold">RPC Latency</span>
+                 <span className="text-[10px] font-mono text-green-400 mt-0.5">~45ms</span>
+               </div>
+               
+               {/* Efek Animasi Sinyal Server */}
+               <div className="flex items-end gap-1 h-6">
+                 {[4, 8, 5, 10, 6, 9].map((h, i) => (
+                   <div key={i} className="w-1.5 bg-cyan-500/50 rounded-t-sm" style={{ height: `${h * 2}px`, animation: `pulse 1.5s infinite ${(i * 0.15)}s` }}></div>
+                 ))}
+               </div>
             </div>
           </div>
         </div>
