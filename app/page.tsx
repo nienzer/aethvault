@@ -7,7 +7,7 @@ import { ethers } from 'ethers';
 
 const RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const AETHER_VAULT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c";
-const STAKING_CONTRACT_ADDRESS = "0x9cD1F86F42cA3f80679d17087362059Dc64E89E5";
+const STAKING_CONTRACT_ADDRESS = "0x328a856026E5a26e476afa736cE09e0b02f12b0c";
 
 const VAULT_ABI = ["function totalCapsules() view returns (uint256)", "function totalProofs() view returns (uint256)"];
 const STAKING_ABI = ["function totalStaked() view returns (uint256)", "function totalStakers() view returns (uint256)"];
