@@ -109,6 +109,7 @@ export default function VaultsList({
                 </h4>
               </div>
 
+                            {/* 🚀 MAINNET-READY: Pemisahan visual yang rapi antara Time-Lock kalender dan Dead-Man's Switch */}
               <div className="bg-[#05030F] border border-neutral-800/80 rounded-2xl p-4 space-y-3 mb-5 mt-auto shadow-inner">
                 {!capsule.isLegacy ? (
                   <div className="flex justify-between items-center text-[10px] sm:text-xs">
@@ -128,6 +129,7 @@ export default function VaultsList({
                   </div>
                 )}
               </div>
+
 
               <div className="space-y-2">
                 {!capsule.contentDeleted && (!capsule.isLegacy || capsule.asHeir) && (

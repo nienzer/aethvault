@@ -86,9 +86,8 @@ export default function CertificateModal({
                 <span className="text-[10px] font-bold text-[#15803d] uppercase tracking-widest">{t.certBadgePolygon || "Verified on Binance"}</span>
               </div>
 
-              {/* mix-blend-multiply dihilangkan agar html2canvas tidak crash */}
-              <img src="/whatermark.png" alt="" className="absolute inset-0 w-full h-full object-contain opacity-[0.05] pointer-events-none grayscale p-20" />
-
+                            {/* 🚀 FIX WATERMARK: Mengubah nama aset menjadi /watermark.png agar terbaca sempurna di sistem Windows & Produksi */}
+              <img src="/watermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-[0.05] pointer-events-none grayscale p-20" />
               <div className="absolute inset-4 border-[4px] border-double border-[rgba(120,53,15,0.3)] pointer-events-none rounded-sm"></div>
               <div className="absolute inset-6 border-[1px] border-[rgba(120,53,15,0.1)] pointer-events-none rounded-sm"></div>
               

@@ -27,7 +27,9 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
   const burned = platformStats?.burned || 0;
   const burnPercentage = totalSupply > 0 ? ((burned / totalSupply) * 100).toFixed(4) : "0.00";
 
-  useEffect(() => {
+    useEffect(() => {
+    let isMounted = true; // 🚀 FIX MEMORY LEAK: Bendera pelacak status komponen
+
     const fetchOnChainRealtime = async () => {
       try {
         const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
@@ -38,8 +40,10 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
 
         const [totalProofs, stakingStats] = await Promise.all([
           vaultContract.totalProofs().catch(() => 0),
-          stakingContract.getStakingStats().catch(() => [0, 0, 0, 0])
+          stakingContract.getStakingStats().catch(() =>)
         ]);
+
+        if (!isMounted) return; // Batalkan jika komponen sudah unmount
 
         setOnChainStats({
           proofs: Number(totalProofs),
@@ -99,17 +103,23 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
           });
         }
 
-        setActivities(acts);
-        setIsLoadingExtra(false);
+        if (isMounted) {
+          setActivities(acts);
+          setIsLoadingExtra(false);
+        }
       } catch (e) { 
         console.error("Gagal menarik data blockchain murni:", e);
-        setIsLoadingExtra(false);
+        if (isMounted) setIsLoadingExtra(false);
       }
     };
 
     fetchOnChainRealtime();
-    const interval = setInterval(fetchOnChainRealtime, 15000); 
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchOnChainRealtime, 20000); // Naikkan ke 20s demi stabilitas RPC Testnet
+    
+    return () => {
+      isMounted = false; // Bersihkan status pemicu saat unmount
+      clearInterval(interval);
+    };
   }, [t]);
 
   return (

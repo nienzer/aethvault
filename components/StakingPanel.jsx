@@ -164,9 +164,9 @@ export default function StakingPanel({
             </div>
           </div>
 
-          <button 
+           <button 
             onClick={() => handleStake(selectedTier, stakeInput)} 
-            disabled={isStaking || isWrongNetwork || parsedStakeInput <= 0} 
+            disabled={isStaking || isWrongNetwork || parsedStakeInput <= 0 || (parsedStakeInput + parseFloat(totalUserStaked || 0) > 50000)} 
             className="w-full py-4 mt-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:grayscale rounded-2xl font-bold text-sm text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] cursor-pointer flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
           >
             {isStaking ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
@@ -224,21 +224,30 @@ export default function StakingPanel({
               {/* DAFTAR DEPOSIT AKTIF (MULTI-DEPOSIT) */}
               <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.activeDeposits || "ACTIVE DEPOSITS"}</p>
               
-              <div className="flex-1 overflow-y-auto max-h-[300px] space-y-3 pr-1 custom-scrollbar">
+                            <div className="flex-1 overflow-y-auto max-h-[300px] space-y-3 pr-1 custom-scrollbar">
                 {userDeposits?.map((dep, index) => {
-                  const isLocked = currentTime < dep.unlockTime;
-                  const formattedAmount = (parseFloat(dep.amount) / 1e18).toLocaleString(); // Sesuaikan jika format decimal dari contract berbeda
-                  const tierName = TIERS[dep.tierId]?.name || "Tier";
+                  const isLocked = currentTime < Number(dep.unlockTime || 0);
+                  
+                  // 🚀 FIX DESIMAL & APY V6: Deteksi otomatis tipe data agar tidak terjadi pembagian ganda 1e18
+                  const rawAmount = parseFloat(dep.amount || 0);
+                  const formattedAmount = rawAmount > 1000000000 
+                    ? (rawAmount / 1e18).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })
+                    : rawAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+                  
+                  const targetTier = TIERS[dep.tierId] || TIERS[0];
+                  const tierName = targetTier.name;
+                  const displayApy = targetTier.apy;
                   
                   return (
-                    <div key={dep.id || index} className="bg-[#05030F] border border-neutral-800 rounded-xl p-3 flex flex-col gap-2">
+                    <div key={dep.id || index} className="bg-[#05030F] border border-neutral-800 rounded-xl p-3 flex flex-col gap-2 animate-in fade-in duration-200">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-bold text-white bg-neutral-800 px-2 py-0.5 rounded">{tierName}</span>
-                          <span className="text-[10px] text-cyan-400 font-mono">{dep.apy / 100}% APY</span>
+                          <span className="text-[10px] text-cyan-400 font-mono">{displayApy}% APY</span>
                         </div>
                         <span className="text-xs font-black text-white font-mono">{formattedAmount} AETH</span>
                       </div>
+
 
                       <div className="flex justify-between items-end mt-2">
                         <div className="flex items-center gap-1.5 text-[9px] text-neutral-400">

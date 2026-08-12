@@ -519,8 +519,11 @@ export default function DashboardPage() {
     }
   }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, getOrDeriveKeyPair, t]);
 
-  useEffect(() => {
-    fetchWalletData();
+    useEffect(() => {
+    if (isConnected && address && !isWrongNetwork) {
+      fetchWalletData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, address, isWrongNetwork]); 
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
@@ -692,18 +695,14 @@ export default function DashboardPage() {
       const requiredCostWei = ethers.parseUnits(selectedTierData.cost.toString(), 18);
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       
-      showToast(t.checkingAllowance || "Checking allowance...", "info");
+            showToast(t.checkingAllowance || "Memeriksa izin token...", "info");
       const currentAllowance = await tokenContract.allowance(address, CONTRACT_ADDRESS);
 
       if (currentAllowance < requiredCostWei) {
-        if (currentAllowance > 0n) {
-          const resetTx = await tokenContract.approve(CONTRACT_ADDRESS, 0);
-          await resetTx.wait();
-        }
-        showToast(t.requestingApprove || "Requesting approval...", "info");
+        showToast(t.requestingApprove || "Meminta persetujuan token...", "info");
         const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, requiredCostWei);
         await approveTx.wait();
-        showToast(t.approveSuccess || "Approval success!", "success");
+        showToast(t.approveSuccess || "Persetujuan token sukses!", "success");
       }
 
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
@@ -713,9 +712,11 @@ export default function DashboardPage() {
 
       let tx;
       if (tier === 'legacy') {
-        const inactivitySeconds = 180;
+        // Simulasi cepat 3 menit khusus untuk testnet
+        const inactivitySeconds = 180; 
         tx = await contract.sealLegacyCapsule(encryptedTitle, contentHash, inactivitySeconds, heirAddress);
       } else {
+
         if (!unlockDate) throw new Error(t.selectUnlockDateTime || "Pilih waktu buka");
         const unlockTimeMs = new Date(unlockDate).getTime();
         const unlockTimestamp = Math.floor(unlockTimeMs / 1000);
@@ -832,18 +833,25 @@ export default function DashboardPage() {
     }
   };
 
-  // ⭐ FUNGSI STAKING V6 (UPDATE MULTI-TIER)
+   // ⭐ FUNGSI STAKING V6 (UPDATE MULTI-TIER)
   const handleStake = async (tierId, amountInput) => {
     const amount = parseFloat(amountInput);
     if (isNaN(amount) || amount <= 0) return showToast(t.invalidAethAmount || "Nominal tidak valid", "error");
     if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet terlebih dahulu", "error");
     if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
 
+    // Mencegah input desimal Windows yang merusak parseUnits
+    const sanitizedAmount = amountInput.replace(/,/g, '.');
+    const decimalParts = sanitizedAmount.includes('.') ? sanitizedAmount.split('.')[1] : "";
+    if (decimalParts.length > 18) {
+      return showToast("Maksimal desimal untuk token AETH adalah 18 angka!", "error");
+    }
+
     setIsStaking(true);
     try {
       const signer = await getSigner();
       await ensureCorrectNetwork(signer);
-      const amountInWei = ethers.parseUnits(amount.toString(), 18);
+      const amountInWei = ethers.parseUnits(sanitizedAmount, 18);
       
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);

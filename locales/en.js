@@ -102,7 +102,9 @@ export const en = {
     hopJustNow: "Just now",
     hopMinsAgo: "mins ago",
     hopHoursAgo: "hours ago",
-    hopDaysAgo: "days ago"
+    hopDaysAgo: "days ago",
+    daysAgo: "days ago",
+    calculatingHash: "Calculating Keccak256..."
   },
   globalStats: {
     title: "Protocol Statistics",
@@ -742,6 +744,9 @@ export const en = {
     adminTreasuryFail: "Failed to update treasury: ",
     adminVestingClaiming: "Processing developer token vesting claim...",
     adminVestingSuccess: "Success! Developer salary claimed to wallet!",
-    adminVestingFail: "Failed to claim vesting: "
+    adminVestingFail: "Failed to claim vesting: ",
+    statJustNow: "Just now",
+    statMinsAgo: "mins ago",
+    statHrsAgo: "hours ago"
   }
 };

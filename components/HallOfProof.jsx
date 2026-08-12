@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Award, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Search, ExternalLink, ShieldCheck, Database, Blocks, Users, Copy, Check, Hexagon, Crown, Flame, Sparkles, Gem, Layers, Loader2, ArrowUpRight, Lock, Box, Microscope, HardDrive, Activity, Zap } from 'lucide-react';
+import { Award, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Search, ExternalLink, ShieldCheck, Database, Blocks, Users, Copy, Check, Hexagon, Crown, Flame, Sparkles, Gem, Layers, Loader2, ArrowUpRight, Lock, Box, Microscope, HardDrive, Activity, Zap, Building2 } from 'lucide-react';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -58,28 +58,38 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
 
         const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AETHER_VAULT_ABI, provider);
         
-        const total = await contract.totalProofs();
+                const total = await contract.totalProofs();
         const totalNum = Number(total);
         const blockNum = await provider.getBlockNumber();
 
         const blocksTimeline = [];
         for(let b = 0; b < 5; b++) {
           blocksTimeline.push({
-            blockNumber: (blockNum - (b * Math.floor(Math.random() * 5 + 1))).toLocaleString(),
-            proofsCount: b === 0 ? Math.floor(Math.random() * 3 + 1) : Math.floor(Math.random() * 5),
-            timeAgo: b === 0 ? "Just now" : `${b * 2} mins ago`
+            blockNumber: (blockNum - (b * 3)).toLocaleString(),
+            proofsCount: b === 0 ? 1 : 0,
+            timeAgo: b === 0 ? "Just now" : `${b * 3} mins ago`
           });
         }
         setLatestBlocks(blocksTimeline);
 
         const DEPLOY_BLOCK = 43345845;
         const startBlock = Math.max(DEPLOY_BLOCK, blockNum - 3000);
-        const events = await contract.queryFilter(contract.filters.ProofMinted(), startBlock, "latest");
+        
+        let events = [];
+        try {
+          events = await contract.queryFilter(contract.filters.ProofMinted(), startBlock, "latest");
+        } catch (e) {
+          events = [];
+        }
         
         const ownerMap = {};
-        events.forEach(ev => {
-          ownerMap[ev.args[0].toString()] = ev.args[1];
-        });
+        if (events && events.length) {
+          events.forEach(ev => {
+            if (ev.args && ev.args[0]) {
+              ownerMap[ev.args[0].toString()] = ev.args[1];
+            }
+          });
+        }
 
         let fetchedProofs = [];
         let uniqueOwners = new Set();
@@ -88,13 +98,12 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
         const limit = Math.min(totalNum, 15);
         for (let i = totalNum; i > totalNum - limit && i > 0; i--) {
           try {
+            // Membaca detail secara aman menggunakan token ID dinamis
             const details = await contract.getProofDetails(i);
             const rawCat = details.category || "General";
             
             let iconComponent = <Box className="w-8 h-8" />;
-            
-            // Gambar fallback ini (jika belum pakai Base64 / NFT lama)
-            let imageBg = "https://images.unsplash.com/photo-1639322537504-6427a16b0a28?auto=format&fit=crop&q=80&w=600&h=400";
+            let imageBg = "https://unsplash.com";
             let cost = 10;
 
             if (rawCat === "Music") { iconComponent = <Music className="w-8 h-8 text-purple-400" />; cost = 50; }
@@ -105,33 +114,36 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
             else if (rawCat === "Research") { iconComponent = <Microscope className="w-8 h-8 text-emerald-400" />; cost = 200; }
             else if (rawCat === "Business") { iconComponent = <Building2 className="w-8 h-8 text-yellow-400" />; cost = 500; }
 
-            // ⭐ KODE BARU: BACA ON-CHAIN BASE64 SVG DARI SMART CONTRACT
+            // Proteksi aman penanganan Base64 SVG dari Smart Contract
             try {
               const tokenUri = await contract.tokenURI(i);
-              if (tokenUri.startsWith('data:application/json;base64,')) {
-                // Ekstrak teks base64
+              if (tokenUri && tokenUri.startsWith('data:application/json;base64,')) {
                 const base64Data = tokenUri.split(',')[1];
-                // Dekode menjadi string JSON (Browser-native: atob)
                 const decodedJson = atob(base64Data);
                 const metadata = JSON.parse(decodedJson);
-                
-                // Ambil gambar SVG Base64 yang kita simpan di AetherProofHub
                 if (metadata.image) {
                   imageBg = metadata.image; 
                 }
               }
             } catch (uriErr) {
-              // Jika tokenURI tidak ditemukan (misal data lama), biarkan pakai Unsplash
               console.log(`Menggunakan fallback image untuk Proof #${i}`);
             }
 
             totalEstimatedCost += (cost * 0.2); 
 
-            const timestampMs = Number(details.timestamp) * 1000;
+                        const timestampMs = Number(details.timestamp || Math.floor(Date.now() / 1000)) * 1000;
             const diffMs = Date.now() - timestampMs;
             const diffMins = Math.floor(diffMs / (1000 * 60));
             const diffHours = Math.floor(diffMins / 60);
-            const timeAgoStr = diffMins < 1 ? "Just now" : diffMins < 60 ? `${diffMins} mins ago` : diffHours < 24 ? `${diffHours} hours ago` : `${Math.floor(diffHours / 24)} days ago`;
+            
+            // 🚀 INTEGRASI KAMUS LOKAL: Mengikat teks durasi langsung ke properti id.js dan en.js Anda
+            const timeAgoStr = diffMins < 1 
+              ? (tDash.statJustNow || "Just now") 
+              : diffMins < 60 
+                ? `${diffMins} ${(tDash.statMinsAgo || "mins ago")}` 
+                : diffHours < 24 
+                  ? `${diffHours} ${(tDash.statHrsAgo || "hours ago")}` 
+                  : `${Math.floor(diffHours / 24)} ${(tHop.daysAgo || "days ago")}`;
 
             const ownerAddress = ownerMap[i.toString()] || "0xUnknown";
             if (ownerAddress !== "0xUnknown") uniqueOwners.add(ownerAddress);
@@ -139,9 +151,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
             const badges = ["Verified"];
             if (i <= 100) badges.push("Genesis");
             if (i === totalNum) badges.push("Newest");
-            if (ownerAddress.startsWith("0x5") || i % 7 === 0) badges.push("Top Creator");
             if (cost >= 200) badges.push("Premium");
-            if (details.isPublic) badges.push("Public");
 
             fetchedProofs.push({
               id: i,
@@ -149,18 +159,18 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
               title: `Aether Proof #${i}`,
               category: rawCat,
               ownerFull: ownerAddress,
-              owner: ownerAddress !== "0xUnknown" ? `${ownerAddress.substring(0, 6)}...${ownerAddress.substring(ownerAddress.length - 4)}` : (tHop.creator || "Creator"),
+              owner: ownerAddress !== "0xUnknown" ? `${ownerAddress.substring(0, 6)}...${ownerAddress.substring(ownerAddress.length - 4)}` : "Creator",
               date: new Date(timestampMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
               timeAgo: timeAgoStr,
               badges: badges,
-              txHash: details.fileHash,
-              resolvedImage: imageBg, // <== Di sini gambar On-Chain dipasang!
+              txHash: details.fileHash || ethers.ZeroHash,
+              resolvedImage: imageBg,
               icon: iconComponent,
               isPublic: details.isPublic
             });
 
           } catch (err) {
-            console.error(`Gagal memuat token ID ${i} dari blockchain:`, err);
+            console.error(`Gagal memuat token ID ${i}:`, err);
           }
         }
 

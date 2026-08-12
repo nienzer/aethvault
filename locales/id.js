@@ -102,7 +102,9 @@ export const id = {
     hopJustNow: "Baru saja",
     hopMinsAgo: "menit lalu",
     hopHoursAgo: "jam lalu",
-    hopDaysAgo: "hari lalu"
+    hopDaysAgo: "hari lalu",
+    daysAgo: "hari lalu",
+    calculatingHash: "Menghitung Keccak256..."
   },
   globalStats: {
     title: "Statistik Protokol",
@@ -742,6 +744,9 @@ export const id = {
     adminTreasuryFail: "Gagal update treasury: ",
     adminVestingClaiming: "Memproses pencairan token developer...",
     adminVestingSuccess: "Mantap! Gaji developer berhasil masuk dompet!",
-    adminVestingFail: "Gagal mencairkan vesting: "
+    adminVestingFail: "Gagal mencairkan vesting: ",
+    statJustNow: "Baru saja",
+    statMinsAgo: "menit lalu",
+    statHrsAgo: "jam lalu"
   }
 };

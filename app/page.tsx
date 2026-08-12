@@ -26,7 +26,9 @@ export default function LandingPage() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  useEffect(() => {
+      useEffect(() => {
+    let isMounted = true; // 🚀 FIX MEMORY LEAK: Isolasi status siklus hidup komponen landing page
+
     const fetchLiveBlockchainData = async () => {
       try {
         const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -36,26 +38,37 @@ export default function LandingPage() {
         const [currentBlock, totalProofs, stakingData] = await Promise.all([
           provider.getBlockNumber(),
           vaultContract.totalCapsulesCreated().catch(() => 0),
-          stakingContract.getStakingStats().catch(() => [0, 0, 0, 0])
+          stakingContract.getStakingStats().catch(() =>)
         ]);
 
+        if (!isMounted) return; // Batalkan pembaruan jika pengguna sudah pindah ke dashboard
+
+        // 🚀 FIX LOGIKA: Mengamankan array mapping index data agar tidak memicu error kompilasi
+        const safeStakingData = stakingData && stakingData.length >= 3 ? stakingData :;
+
         setLiveStats({
-          block: currentBlock,
-          proofs: Number(totalProofs),
-          tvl: parseFloat(ethers.formatUnits(stakingData[0] || 0, 18)),
-          stakers: Number(stakingData[2] || 0)
+          block: Number(currentBlock || 0),
+          proofs: Number(totalProofs || 0),
+          tvl: parseFloat(ethers.formatUnits(safeStakingData[0] || 0, 18)),
+          stakers: Number(safeStakingData[2] || 0)
         });
         setOnChainStatus("Verified On-Chain & Synced");
       } catch (e) {
         console.error("Gagal menarik data on-chain:", e);
-        setOnChainStatus("RPC Connection Error");
+        if (isMounted) setOnChainStatus("RPC Connection Error");
       }
     };
 
     fetchLiveBlockchainData();
-    const interval = setInterval(fetchLiveBlockchainData, 15000);
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchLiveBlockchainData, 20000); // Sinkronisasi 20 detik demi stabilitas di Windows
+    
+    return () => {
+      isMounted = false; // Bersihkan bendera saat unmount
+      clearInterval(interval);
+    };
   }, []);
+
+
 
   return (
     <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-24 sm:pt-28 lg:pt-32">
@@ -483,7 +496,7 @@ export default function LandingPage() {
                 </div>
               </a>
               
-              <a href="LINK_WEB3_DAO_BOS_DISINI" target="_blank" rel="noreferrer" className="bg-[#05030F] border border-neutral-800 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group">
+              <a href="/community" className="bg-[#05030F] border border-neutral-800 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group">
                 <Globe className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
                 <div className="text-center">
                   <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.forumTitle || "Web3 Forum"}</h3>

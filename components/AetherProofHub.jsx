@@ -194,19 +194,15 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const requiredCostWei = ethers.parseUnits(currentConfig.price.toString(), 18);
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
 
-      setMintingStatusMsg(tHop.checkingAllowance || 'Checking $AETH token allowance...');
+            setMintingStatusMsg(tHop.checkingAllowance || 'Memeriksa izin akses token $AETH...');
       const currentAllowance = await tokenContract.allowance(address, AETHER_VAULT_ADDRESS);
 
       if (currentAllowance < requiredCostWei) {
-        if (currentAllowance > 0n) {
-          const resetTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, 0);
-          await resetTx.wait();
-        }
-        setMintingStatusMsg(tHop.approveTokenPrompt || 'Please approve $AETH spending in your wallet...');
+        setMintingStatusMsg(tHop.approveTokenPrompt || 'Silakan setujui izin akses $AETH di dompet Anda...');
         const approveTx = await tokenContract.approve(AETHER_VAULT_ADDRESS, requiredCostWei);
-        setMintingStatusMsg(tHop.waitingApproveConfirm || 'Waiting for network approval confirmation...');
+        setMintingStatusMsg(tHop.waitingApproveConfirm || 'Menunggu konfirmasi izin akses dari jaringan...');
         await approveTx.wait();
-        setMintingStatusMsg(tHop.approvalSuccess || 'Approval granted! Generating proof certificate...');
+        setMintingStatusMsg(tHop.approvalSuccess || 'Izin akses disetujui! Menyiapkan sertifikat...');
       }
 
       setMintStep(3);
@@ -312,8 +308,8 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">{tDash.certBadgePolygon || 'Verified on BSC Testnet'}</span>
       </div>
 
-      {/* 🚀 FIX WATERMARK: Opacity dinaikkan jadi 15 agar lebih terlihat */}
-      <img src="/whatermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-10 pointer-events-none grayscale mix-blend-multiply p-20" />
+            {/* 🚀 FIX WATERMARK: Memperbaiki salah ketik nama berkas agar terbaca di Windows & Produksi */}
+      <img src="/watermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-10 pointer-events-none grayscale mix-blend-multiply p-20" />
 
       <div className="absolute inset-4 border-[4px] border-double border-amber-900/30 pointer-events-none rounded-sm"></div>
       <div className="absolute inset-6 border-[1px] border-amber-900/10 pointer-events-none rounded-sm"></div>
