@@ -748,6 +748,7 @@ export const id = {
     adminVestingFail: "Gagal mencairkan vesting: ",
     statJustNow: "Baru saja",
     statMinsAgo: "menit lalu",
-    statHrsAgo: "jam lalu"
+    statHrsAgo: "jam lalu",
+    emergencyWarning: "PERINGATAN! Menarik paksa sebelum waktu selesai akan MENGHANGUSKAN semua bunga pada deposit ini. Lanjutkan?"
   }
 };

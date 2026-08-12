@@ -748,6 +748,7 @@ export const en = {
     adminVestingFail: "Failed to claim vesting: ",
     statJustNow: "Just now",
     statMinsAgo: "mins ago",
-    statHrsAgo: "hours ago"
+    statHrsAgo: "hours ago",
+    emergencyWarning: "WARNING! Emergency withdrawing before the lock period expires will FORFEIT all rewards accumulated for this deposit. Do you want to proceed?"
   }
 };

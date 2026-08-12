@@ -234,7 +234,9 @@ export default function StakingPanel({
               
                             <div className="flex-1 overflow-y-auto max-h-[300px] space-y-3 pr-1 custom-scrollbar">
                 {userDeposits?.map((dep, index) => {
-                  const isLocked = currentTime < Number(dep.unlockTime || 0);
+                  // Memastikan konversi BigInt aman dari error overflow
+                  const unlockTimestamp = dep.unlockTime !== undefined ? Number(dep.unlockTime.toString()) : 0;
+                  const isLocked = currentTime < unlockTimestamp;
                   
                   // 🚀 FIX DESIMAL & APY V6: Deteksi otomatis tipe data agar tidak terjadi pembagian ganda 1e18
                   const rawAmount = parseFloat(dep.amount || 0);

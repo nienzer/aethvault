@@ -1,7 +1,7 @@
 "use client";
 import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect } from '@web3modal/ethers/react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Landmark, Cpu, Coins, Settings, UserX, AlertTriangle, UploadCloud, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Database, Globe, ShieldAlert, Unlock } from 'lucide-react';
+import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, ... } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
@@ -411,62 +411,65 @@ export default function DashboardPage() {
 
     // 🚀 FIX HISTORY LOGS: Memperluas rentang pencarian blok dan memperbaiki urutan filter indeks event
   const fetchOnChainHistory = useCallback(async (userAddress) => {
-    setIsLoadingHistory(true);
-    try {
-      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
-      const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
-      const currentBlock = await provider.getBlockNumber();
+  setIsLoadingHistory(true);
+  try {
+    const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+    const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
+    const stakeContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
+    
+    const currentBlock = await provider.getBlockNumber();
+    
+    // ⭐ AMAN: Batasi maksimal rentang 49.000 blok agar tidak tembus batas error 50.000 RPC
+    const DEPLOY_BLOCK = Number(userAddress ? currentBlock - 49000 : currentBlock - 49000); 
+    const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 49000); 
+    
+    let sealed = []; let revealed = []; let claimed = []; let ping = [];
+    try { sealed = await vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"); } catch(e) {}
+    try { revealed = await vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(userAddress), startBlock, "latest"); } catch(e) {}
+    try { claimed = await vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(userAddress), startBlock, "latest"); } catch(e) {}
+    try { ping = await vaultContract.queryFilter(vaultContract.filters.PingRecorded(userAddress), startBlock, "latest"); } catch(e) {}
+
+    let staked = []; let withdrawn = []; let rewardClaimed = [];
+    try { staked = await stakeContract.queryFilter(stakeContract.filters.Staked(userAddress, null, null, null, null), startBlock, "latest"); } catch(e) {}
+    try { withdrawn = await stakeContract.queryFilter(stakeContract.filters.Withdrawn(userAddress, null, null), startBlock, "latest"); } catch(e) {}
+    try { rewardClaimed = await stakeContract.queryFilter(stakeContract.filters.RewardClaimed(userAddress, null), startBlock, "latest"); } catch(e) {}
+
+    const allLogs = [
+      ...sealed.map(e => ({ e, kind: 'SEALED' })),
+      ...revealed.map(e => ({ e, kind: 'REVEALED' })),
+      ...claimed.map(e => ({ e, kind: 'CLAIMED_LEGACY' })),
+      ...ping.map(e => ({ e, kind: 'PING' })),
+      ...staked.map(e => ({ e, kind: 'STAKED' })),
+      ...withdrawn.map(e => ({ e, kind: 'WITHDRAWN' })),
+      ...rewardClaimed.map(e => ({ e, kind: 'REWARD' }))
+    ];
+
+    allLogs.sort((a, b) => b.e.blockNumber - a.e.blockNumber);
+
+    const built = await Promise.all(allLogs.map(async ({ e, kind }) => {
+      const block = await provider.getBlock(e.blockNumber);
+      const date = new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleString(t.dateLocale || 'id-ID', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
       
-      // Mengubah rentang blok ke DEPLOY_BLOCK asli agar riwayat lama tetap terbaca sempurna
-      const DEPLOY_BLOCK = 43345845;
-      const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 50000); 
-      
-      let sealedEvents = [];
-      let revealedEvents = [];
-      let claimedEvents = [];
-      let pingEvents = [];
+      return {
+        id: `${kind}-${e.transactionHash}`,
+        date: date,
+        type: kind,
+        detail: kind.includes('STAKED') || kind === 'WITHDRAWN' ? `Staking Action: ${kind}` : `Kapsul ID: ${e.args[0]}`,
+        amount: kind === 'STAKED' || kind === 'WITHDRAWN' ? parseFloat(ethers.formatUnits(e.args[2] || 0, 18)).toFixed(2) : (e.args[3] ? parseFloat(ethers.formatUnits(e.args[3], 18)).toFixed(2) : 0),
+        direction: (kind === 'STAKED' || kind === 'SEALED') ? 'out' : 'in'
+      };
+    }));
 
-      // Memperbaiki pemanggilan filter indexed berdasarkan urutan parameter ABI
-      try { sealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"); } catch(e) {}
-      try { revealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(userAddress), startBlock, "latest"); } catch(e) {}
-      try { claimedEvents = await vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(userAddress), startBlock, "latest"); } catch(e) {}
-      try { pingEvents = await vaultContract.queryFilter(vaultContract.filters.PingRecorded(userAddress), startBlock, "latest"); } catch(e) {}
-
-      const allLogs = [
-        ...sealedEvents.map((e) => ({ e, kind: 'sealed' })),
-        ...revealedEvents.map((e) => ({ e, kind: 'revealed' })),
-        ...claimedEvents.map((e) => ({ e, kind: 'claimed' })),
-        ...pingEvents.map((e) => ({ e, kind: 'ping' })),
-      ];
-
-      allLogs.sort((a, b) => b.e.blockNumber - a.e.blockNumber);
-
-      const built = await Promise.all(allLogs.map(async ({ e, kind }) => {
-        const block = await provider.getBlock(e.blockNumber);
-        const date = new Date(block.timestamp * 1000).toLocaleString(t.dateLocale || 'id-ID', {
-          day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-        });
-        let amount = 0;
-        if (kind === 'sealed') {
-          amount = parseFloat(ethers.formatUnits(e.args[3] || 0, 18));
-        }
-        return {
-          id: `${kind}-${e.transactionHash}`,
-          date: date,
-          type: kind.toUpperCase(),
-          detail: `Kapsul ID: ${e.args[0]}`,
-          amount: amount,
-          direction: kind === 'sealed' ? 'out' : 'neutral'
-        };
-      }));
-
-      setTransactions(built);
-    } catch (err) {
-      setTransactions([]); 
-    } finally {
-      setIsLoadingHistory(false);
-    }
-  }, [t]);
+    setTransactions(built);
+  } catch (err) {
+    console.error("History Error:", err);
+    setTransactions([]); 
+  } finally {
+    setIsLoadingHistory(false);
+  }
+}, [t]);
 
   const fetchWalletData = useCallback(async () => {
     if (isConnected && walletProvider && address) {
