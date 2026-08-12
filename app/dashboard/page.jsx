@@ -98,7 +98,7 @@ export default function DashboardPage() {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [unlockDate, setUnlockDate] = useState('');
-  const [tier, setTier] = useState('premium');
+  const [tier, setTier] = useState('');
   const [inactivityYears, setInactivityYears] = useState('5');
   const [heirAddress, setHeirAddress] = useState('');
   const [isSealing, setIsSealing] = useState(false);
@@ -737,13 +737,12 @@ export default function DashboardPage() {
       if (tier === 'legacy') {
         // Simulasi cepat 3 menit khusus untuk testnet
         const inactivitySeconds = 180; 
-        tx = await contract.sealLegacyCapsule(encryptedTitle, contentHash, inactivitySeconds, heirAddress);
+        tx = await contract.sealLegacyCapsule(encryptedTitle, encryptedMessage, inactivitySeconds, heirAddress);
       } else {
-
         if (!unlockDate) throw new Error(t.selectUnlockDateTime || "Pilih waktu buka");
         const unlockTimeMs = new Date(unlockDate).getTime();
         const unlockTimestamp = Math.floor(unlockTimeMs / 1000);
-        tx = await contract.sealTimeLockCapsule(TIER_ENUM_MAP[tier], encryptedTitle, contentHash, BigInt(unlockTimestamp));
+        tx = await contract.sealTimeLockCapsule(TIER_ENUM_MAP[tier], encryptedTitle, encryptedMessage, BigInt(unlockTimestamp));
       }
       showToast(t.txSentWaitingConfirm || "Transaksi terkirim. Menunggu konfirmasi...", "info");
       await tx.wait();

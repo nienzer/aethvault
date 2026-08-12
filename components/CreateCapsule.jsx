@@ -32,11 +32,11 @@ export default function CreateCapsule({
       {/* 4-STEP PROGRESS BAR */}
       <div className="bg-[#0B0817] border border-neutral-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative">
-          {[
+         {[
             { step: 1, label: "WALLET", desc: "Connect your wallet", active: isConnected },
-            { step: 2, label: "TIER", desc: "Choose security tier", active: isConnected },
-            { step: 3, label: "ENCRYPT", desc: "Add your content", active: isConnected && tier !== '' },
-            { step: 4, label: "SEAL", desc: "Confirm & seal", active: isConnected && title.length > 0 && message.length > 0 && (tier === 'legacy' ? heirAddress.length > 0 : unlockDate !== '') }
+            { step: 2, label: "TIER", desc: "Choose security tier", active: isConnected && tier !== '' },
+            { step: 3, label: "ENCRYPT", desc: "Add your content", active: isConnected && tier !== '' && (title.trim().length > 0 || message.trim().length > 0) },
+            { step: 4, label: "SEAL", desc: "Confirm & seal", active: isConnected && tier !== '' && title.trim().length > 0 && message.trim().length > 0 && (tier === 'legacy' ? heirAddress.length > 0 : unlockDate !== '') }
           ].map((item, idx) => (
             <div key={idx} className="flex items-center gap-3 bg-[#05030F] p-3 rounded-2xl border border-neutral-800/80">
               <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-mono font-bold text-xs shrink-0 ${item.active ? 'bg-gradient-to-br from-cyan-500 to-violet-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-neutral-900 text-neutral-500 border border-neutral-800'}`}>
@@ -211,7 +211,7 @@ export default function CreateCapsule({
                     <input type="file" onChange={handleFileSelected} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf,.zip" />
                     <UploadCloud className="w-8 h-8 text-cyan-400/70 mx-auto mb-2" />
                     <p className="text-xs text-white font-bold mb-1">{tDash.ipfsUploadPrompt || 'Click or drag file here'}</p>
-                    <p className="text-[10px] text-neutral-500 font-mono">{tDash.ipfsUploadSub || `Max attachment ${tier === 'legacy' ? '10' : '5'}MB (PDF, ZIP, Images)`}</p>
+                    <p className="text-[10px] text-neutral-500 font-mono">Max attachment {tier === 'legacy' ? '10' : '5'}MB (PDF, ZIP, Images)</p>
                   </div>
                 )}
               </div>
