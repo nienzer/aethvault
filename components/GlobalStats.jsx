@@ -45,10 +45,13 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
 
         if (!isMounted) return; // Batalkan jika komponen sudah unmount
 
+        const rawTotalStaked = stakingStats && (stakingStats.currentTotalStaked !== undefined ? stakingStats.currentTotalStaked : stakingStats);
+        const rawStakersCount = stakingStats && (stakingStats.stakersCount !== undefined ? stakingStats.stakersCount : stakingStats);
+
         setOnChainStats({
-          proofs: Number(totalProofs),
-          tvl: parseFloat(ethers.formatUnits(stakingStats[0] || 0, 18)),
-          stakers: Number(stakingStats[2] || 0),
+          proofs: Number(totalProofs || 0),
+          tvl: parseFloat(ethers.formatUnits(rawTotalStaked || 0, 18)),
+          stakers: Number(rawStakersCount || 0),
           blockNumber: currentBlock
         });
 

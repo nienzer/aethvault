@@ -150,35 +150,47 @@ export default function DashboardPage() {
   const [onChainTierConfig, setOnChainTierConfig] = useState({});
   const [isTierConfigLoaded, setIsTierConfigLoaded] = useState(false);
 
+      // 🚀 KODE FINAL AMAN: Mengambil data staking untuk disalurkan ke GlobalStats
   const fetchGlobalStats = useCallback(async () => {
     setIsFetchingGlobalStats(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+      
       try {
         const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
         const stats = await vaultContract.getPlatformStats();
         setPlatformStats({
-          capsules: Number(stats[0]),
-          users: Number(stats[1]), 
-          burned: parseFloat(ethers.formatUnits(stats[2], 18)),
-          supply: parseFloat(ethers.formatUnits(stats[3], 18))
+          capsules: Number(stats[0] || 0),
+          users: Number(stats[1] || 0), 
+          burned: parseFloat(ethers.formatUnits(stats[2] || 0, 18)),
+          supply: parseFloat(ethers.formatUnits(stats[3] || 0, 18))
         });
-      } catch (vaultErr) {}
+      } catch (vaultErr) {
+        console.error("Gagal platform stats:", vaultErr);
+      }
       
       if (IS_STAKING_ADDRESS_CONFIGURED) {
         try {
           const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-          const sTotalStaked = await stakingContract.totalStaked();
-          const sTotalRewards = await stakingContract.totalRewardClaimed();
-          const sStakers = await stakingContract.totalStakers();
+          const stakingStats = await stakingContract.getStakingStats();
+          
+          // Membaca data object/array dari smart contract secara aman
+          const rawTotalStaked = stakingStats && (stakingStats.currentTotalStaked !== undefined ? stakingStats.currentTotalStaked : (stakingStats[0] !== undefined ? stakingStats[0] : 0n));
+          const rawTotalRewards = stakingStats && (stakingStats.totalRewardsPaid !== undefined ? stakingStats.totalRewardsPaid : (stakingStats[1] !== undefined ? stakingStats[1] : 0n));
+          const rawStakersCount = stakingStats && (stakingStats.stakersCount !== undefined ? stakingStats.stakersCount : (stakingStats[2] !== undefined ? stakingStats[2] : 0n));
+
           setStakingGlobalStats({
-            totalStaked: parseFloat(ethers.formatUnits(sTotalStaked, 18)),
-            totalRewards: parseFloat(ethers.formatUnits(sTotalRewards, 18)),
-            stakers: Number(sStakers)
+            totalStaked: parseFloat(ethers.formatUnits(rawTotalStaked, 18)),
+            totalRewards: parseFloat(ethers.formatUnits(rawTotalRewards, 18)),
+            stakers: Number(rawStakersCount)
           });
-        } catch (stakeErr) { console.error(stakeErr); }
+        } catch (stakeErr) { 
+          console.error("Gagal staking stats:", stakeErr); 
+        }
       }
-    } catch (err) {} finally {
+    } catch (err) {
+      console.error("Gagal global sync:", err);
+    } finally {
       setIsFetchingGlobalStats(false);
     }
   }, []);
@@ -399,23 +411,28 @@ export default function DashboardPage() {
     }
   }, [t]);
 
+    // 🚀 FIX HISTORY LOGS: Memperluas rentang pencarian blok dan memperbaiki urutan filter indeks event
   const fetchOnChainHistory = useCallback(async (userAddress) => {
     setIsLoadingHistory(true);
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
       const currentBlock = await provider.getBlockNumber();
-      const startBlock = Math.max(0, currentBlock - 4900); 
+      
+      // Mengubah rentang blok ke DEPLOY_BLOCK asli agar riwayat lama tetap terbaca sempurna
+      const DEPLOY_BLOCK = 43345845;
+      const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 50000); 
       
       let sealedEvents = [];
       let revealedEvents = [];
       let claimedEvents = [];
       let pingEvents = [];
 
+      // Memperbaiki pemanggilan filter indexed berdasarkan urutan parameter ABI
       try { sealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"); } catch(e) {}
-      try { revealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(null, userAddress), startBlock, "latest"); } catch(e) {}
-      try { claimedEvents = await vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(null, userAddress), startBlock, "latest"); } catch(e) {}
-      try { pingEvents = await vaultContract.queryFilter(vaultContract.filters.PingRecorded(null, userAddress), startBlock, "latest"); } catch(e) {}
+      try { revealedEvents = await vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(userAddress), startBlock, "latest"); } catch(e) {}
+      try { claimedEvents = await vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(userAddress), startBlock, "latest"); } catch(e) {}
+      try { pingEvents = await vaultContract.queryFilter(vaultContract.filters.PingRecorded(userAddress), startBlock, "latest"); } catch(e) {}
 
       const allLogs = [
         ...sealedEvents.map((e) => ({ e, kind: 'sealed' })),
