@@ -159,7 +159,8 @@ export const en = {
     dailyRewards: "Daily Rewards",
     emptyTitle: "No Active Stake",
     emptyDesc: "Lock AETH to secure the protocol and receive passive rewards continuously.",
-    maxBtn: "MAX"
+    maxBtn: "MAX",
+    maxLimitReached: "Maximum staking limit per wallet is 50,000 AETH."
   },
   vaultsUi: {
     decrypting: "Decrypting Vault Records...",

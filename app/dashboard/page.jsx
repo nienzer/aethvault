@@ -737,7 +737,7 @@ export default function DashboardPage() {
         if (!unlockDate) throw new Error(t.selectUnlockDateTime || "Pilih waktu buka");
         const unlockTimeMs = new Date(unlockDate).getTime();
         const unlockTimestamp = Math.floor(unlockTimeMs / 1000);
-        tx = await contract.sealTimeLockCapsule(TIER_ENUM_MAP[tier], encryptedTitle, contentHash, unlockTimestamp);
+        tx = await contract.sealTimeLockCapsule(TIER_ENUM_MAP[tier], encryptedTitle, contentHash, BigInt(unlockTimestamp));
       }
       showToast(t.txSentWaitingConfirm || "Transaksi terkirim. Menunggu konfirmasi...", "info");
       await tx.wait();
@@ -874,10 +874,6 @@ export default function DashboardPage() {
       const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
 
       if (currentAllowance < amountInWei) {
-        if (currentAllowance > 0n) {
-          const resetTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, 0);
-          await resetTx.wait();
-        }
         showToast(t.requestingApprove || "Meminta izin akses token (Approve)...", "info");
         const approveTx = await tokenContract.approve(STAKING_CONTRACT_ADDRESS, amountInWei);
         await approveTx.wait();

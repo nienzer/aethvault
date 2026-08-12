@@ -164,10 +164,18 @@ export default function StakingPanel({
             </div>
           </div>
 
+          {/* Teks Peringatan Max Stake */}
+          {(parsedStakeInput + parseFloat(totalUserStaked || 0) > 50000) && (
+            <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-xl mt-4 flex items-center gap-2 text-red-400 text-[11px] font-mono">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>{tStake.maxLimitReached || "Maximum staking limit per wallet is 50,000 AETH."}</span>
+            </div>
+          )}
+
            <button 
             onClick={() => handleStake(selectedTier, stakeInput)} 
             disabled={isStaking || isWrongNetwork || parsedStakeInput <= 0 || (parsedStakeInput + parseFloat(totalUserStaked || 0) > 50000)} 
-            className="w-full py-4 mt-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:grayscale rounded-2xl font-bold text-sm text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] cursor-pointer flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+            className="w-full py-4 mt-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:grayscale rounded-2xl font-bold text-sm text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] cursor-pointer flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
           >
             {isStaking ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
             {isStaking ? (tStake.btnLocking || "Locking...") : (tStake.btnConfirm || "Confirm Stake")}

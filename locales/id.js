@@ -159,7 +159,8 @@ export const id = {
     dailyRewards: "Hadiah Harian",
     emptyTitle: "Belum Ada Staking",
     emptyDesc: "Kunci AETH untuk mengamankan protokol dan terima hadiah pasif secara terus-menerus.",
-    maxBtn: "MAKS"
+    maxBtn: "MAKS",
+    maxLimitReached: "Batas maksimal staking per dompet adalah 50.000 AETH."
   },
   vaultsUi: {
     decrypting: "Mendekripsi Rekaman Brankas...",
