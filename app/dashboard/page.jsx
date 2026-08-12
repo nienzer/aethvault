@@ -411,65 +411,70 @@ export default function DashboardPage() {
 
     // 🚀 FIX HISTORY LOGS: Memperluas rentang pencarian blok dan memperbaiki urutan filter indeks event
   const fetchOnChainHistory = useCallback(async (userAddress) => {
-  setIsLoadingHistory(true);
-  try {
-    const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
-    const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
-    const stakeContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
-    
-    const currentBlock = await provider.getBlockNumber();
-    
-    // ⭐ AMAN: Batasi maksimal rentang 49.000 blok agar tidak tembus batas error 50.000 RPC
-    const DEPLOY_BLOCK = Number(userAddress ? currentBlock - 49000 : currentBlock - 49000); 
-    const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 49000); 
-    
-    let sealed = []; let revealed = []; let claimed = []; let ping = [];
-    try { sealed = await vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), startBlock, "latest"); } catch(e) {}
-    try { revealed = await vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(userAddress), startBlock, "latest"); } catch(e) {}
-    try { claimed = await vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(userAddress), startBlock, "latest"); } catch(e) {}
-    try { ping = await vaultContract.queryFilter(vaultContract.filters.PingRecorded(userAddress), startBlock, "latest"); } catch(e) {}
-
-    let staked = []; let withdrawn = []; let rewardClaimed = [];
-    try { staked = await stakeContract.queryFilter(stakeContract.filters.Staked(userAddress, null, null, null, null), startBlock, "latest"); } catch(e) {}
-    try { withdrawn = await stakeContract.queryFilter(stakeContract.filters.Withdrawn(userAddress, null, null), startBlock, "latest"); } catch(e) {}
-    try { rewardClaimed = await stakeContract.queryFilter(stakeContract.filters.RewardClaimed(userAddress, null), startBlock, "latest"); } catch(e) {}
-
-    const allLogs = [
-      ...sealed.map(e => ({ e, kind: 'SEALED' })),
-      ...revealed.map(e => ({ e, kind: 'REVEALED' })),
-      ...claimed.map(e => ({ e, kind: 'CLAIMED_LEGACY' })),
-      ...ping.map(e => ({ e, kind: 'PING' })),
-      ...staked.map(e => ({ e, kind: 'STAKED' })),
-      ...withdrawn.map(e => ({ e, kind: 'WITHDRAWN' })),
-      ...rewardClaimed.map(e => ({ e, kind: 'REWARD' }))
-    ];
-
-    allLogs.sort((a, b) => b.e.blockNumber - a.e.blockNumber);
-
-    const built = await Promise.all(allLogs.map(async ({ e, kind }) => {
-      const block = await provider.getBlock(e.blockNumber);
-      const date = new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleString(t.dateLocale || 'id-ID', {
-        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-      });
+    setIsLoadingHistory(true);
+    try {
+      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+      const vaultContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
+      const stakeContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
       
-      return {
-        id: `${kind}-${e.transactionHash}`,
-        date: date,
-        type: kind,
-        detail: kind.includes('STAKED') || kind === 'WITHDRAWN' ? `Staking Action: ${kind}` : `Kapsul ID: ${e.args[0]}`,
-        amount: kind === 'STAKED' || kind === 'WITHDRAWN' ? parseFloat(ethers.formatUnits(e.args[2] || 0, 18)).toFixed(2) : (e.args[3] ? parseFloat(ethers.formatUnits(e.args[3], 18)).toFixed(2) : 0),
-        direction: (kind === 'STAKED' || kind === 'SEALED') ? 'out' : 'in'
-      };
-    }));
+      const currentBlock = await provider.getBlockNumber();
+      const DEPLOY_BLOCK = Math.max(0, currentBlock - 49000); 
+      
+      let sealed = []; let revealed = []; let claimed = []; let ping = [];
+      try { sealed = await vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK, "latest"); } catch(e) {}
+      try { revealed = await vaultContract.queryFilter(vaultContract.filters.CapsuleRevealed(userAddress), DEPLOY_BLOCK, "latest"); } catch(e) {}
+      try { claimed = await vaultContract.queryFilter(vaultContract.filters.LegacyClaimed(userAddress), DEPLOY_BLOCK, "latest"); } catch(e) {}
+      try { ping = await vaultContract.queryFilter(vaultContract.filters.PingRecorded(userAddress), DEPLOY_BLOCK, "latest"); } catch(e) {}
 
-    setTransactions(built);
-  } catch (err) {
-    console.error("History Error:", err);
-    setTransactions([]); 
-  } finally {
-    setIsLoadingHistory(false);
-  }
-}, [t]);
+      let staked = []; let withdrawn = []; let rewardClaimed = [];
+      try { staked = await stakeContract.queryFilter(stakeContract.filters.Staked(userAddress, null, null, null, null), DEPLOY_BLOCK, "latest"); } catch(e) {}
+      try { withdrawn = await stakeContract.queryFilter(stakeContract.filters.Withdrawn(userAddress, null, null), DEPLOY_BLOCK, "latest"); } catch(e) {}
+      try { rewardClaimed = await stakeContract.queryFilter(stakeContract.filters.RewardClaimed(userAddress, null), DEPLOY_BLOCK, "latest"); } catch(e) {}
+
+      const allLogs = [
+        ...sealed.map(e => ({ e, kind: 'SEALED' })),
+        ...revealed.map(e => ({ e, kind: 'REVEALED' })),
+        ...claimed.map(e => ({ e, kind: 'CLAIMED_LEGACY' })),
+        ...ping.map(e => ({ e, kind: 'PING' })),
+        ...staked.map(e => ({ e, kind: 'STAKED' })),
+        ...withdrawn.map(e => ({ e, kind: 'WITHDRAWN' })),
+        ...rewardClaimed.map(e => ({ e, kind: 'REWARD' }))
+      ];
+
+      allLogs.sort((a, b) => b.e.blockNumber - a.e.blockNumber);
+
+      const built = await Promise.all(allLogs.map(async ({ e, kind }) => {
+        const block = await provider.getBlock(e.blockNumber);
+        const date = new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleString(t.dateLocale || 'id-ID', {
+          day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        // Safe argument extraction to prevent Index Out of Range
+        let amount = 0;
+        try {
+          if (kind === 'SEALED' && e.args[3]) amount = parseFloat(ethers.formatUnits(e.args[3], 18));
+          else if ((kind === 'STAKED' || kind === 'WITHDRAWN') && e.args[2]) amount = parseFloat(ethers.formatUnits(e.args[2], 18));
+          else if (kind === 'REWARD' && e.args[1]) amount = parseFloat(ethers.formatUnits(e.args[1], 18));
+        } catch (err) { amount = 0; }
+        
+        return {
+          id: `${kind}-${e.transactionHash}`,
+          date: date,
+          type: kind,
+          detail: kind.includes('STAKED') || kind === 'WITHDRAWN' ? `Staking Action: ${kind}` : `Kapsul ID: ${e.args[0] || 'N/A'}`,
+          amount: amount.toFixed(2),
+          direction: (kind === 'STAKED' || kind === 'SEALED') ? 'out' : 'in'
+        };
+      }));
+
+      setTransactions(built);
+    } catch (err) {
+      console.error("History Error:", err);
+      setTransactions([]); 
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  }, [t]);
 
   const fetchWalletData = useCallback(async () => {
     if (isConnected && walletProvider && address) {

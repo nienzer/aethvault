@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, UserX, Users, Loader2, Database, ShieldCheck, Award, Blocks } from 'lucide-react';
+import { Flame, UserX, Users, Loader2, Database, ShieldCheck, Award, Blocks, Activity } from 'lucide-react';
 
 export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformStats, stakingGlobalStats }) {
 
