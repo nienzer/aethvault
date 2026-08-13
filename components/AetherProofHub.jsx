@@ -8,8 +8,8 @@ import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
 import AetherVaultABI from '@/contracts/AetherVaultABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
-const AETHER_VAULT_ADDRESS = "0x3CD6383169bA310EFDC246acfa48FbAAcE8A572F";
-const AETH_TOKEN_ADDRESS = "0xa09400386C5d3e74351953b7bDB2C36288f7A569"; 
+const AETHER_VAULT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265";
+const AETH_TOKEN_ADDRESS = "0x2121a501Db9bBf122a69b856AEAaB3F908467cED"; 
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {

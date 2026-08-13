@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
 
 // PASTIKAN ALAMAT INI SAMA DENGAN YANG ADA DI page_2.jsx / page.tsx BOS
-const AETHER_VAULT_ADDRESS = "0x3CD6383169bA310EFDC246acfa48FbAAcE8A572F";
+const AETHER_VAULT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265";
 const AETHER_VAULT_ABI = [
   "function totalProofs() external view returns (uint256)",
   "function getProofDetails(uint256 _tokenId) external view returns (tuple(string category, bytes32 fileHash, bool isPublic, uint256 timestamp))",
