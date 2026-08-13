@@ -10,10 +10,10 @@ import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
 import StakingABI from '@/contracts/StakingABI.json';
 import TeamVestingABI from '@/contracts/TeamVestingABI.json';
 
-const AETH_TOKEN_ADDRESS = "0xB251439799Ca1cCe317451b5E13A080eEaa70bff"; 
-const CONTRACT_ADDRESS = "0x4558D794044Dc382BF9D98e3D45E2478904Cf46c"; 
-const STAKING_CONTRACT_ADDRESS = "0x328a856026E5a26e476afa736cE09e0b02f12b0c"; 
-const VESTING_CONTRACT_ADDRESS = "0x3927cEb656d2A062F7025291157eb40f4279d3ac";
+const AETH_TOKEN_ADDRESS = "0xa09400386C5d3e74351953b7bDB2C36288f7A569"; 
+const CONTRACT_ADDRESS = "0x3CD6383169bA310EFDC246acfa48FbAAcE8A572F"; 
+const STAKING_CONTRACT_ADDRESS = "0x33b014cecb0F9FE8885f218F240E6cd734940E01"; 
+const VESTING_CONTRACT_ADDRESS = "0xf626e7c510D80476F126bca7Cd68F8e7df4e0034";
 
 export default function AdminPage() {
   const { address, isConnected } = useWeb3ModalAccount();
