@@ -2,6 +2,7 @@
 import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect } from '@web3modal/ethers/react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Buffer } from 'buffer'; // 🚀 FIX: Import Buffer
+import { uploadEncryptedFileService } from '@/lib/storageService';
 // ⚡ FIX 9: Unused imports dibersihkan
 import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -645,28 +646,8 @@ export default function DashboardPage() {
     setUploadError(''); 
     setIsUploading(true);
     try {
-      const irysUploader = await getNewIrysUploader(walletProvider);
-      
-      // ✅ FIX BUFFER: Pastikan data berupa Node.js Buffer
-      const dataBuffer = Buffer.isBuffer(stagedUpload.encryptedBytes)
-        ? stagedUpload.encryptedBytes
-        : Buffer.from(stagedUpload.encryptedBytes);
-
-      const price = await irysUploader.getPrice(dataBuffer.length);
-      try {
-        await irysUploader.fund(price);
-      } catch (fundErr) {
-        throw new Error("Gagal fund Irys: " + fundErr.message);
-      }
-
-      const tags = [
-        { name: "Content-Type", value: "application/octet-stream" },
-        { name: "App-Name", value: "AetherVault" },
-        { name: "Encryption", value: "ECIES-secp256k1" }
-      ];
-
-      const receipt = await irysUploader.upload(dataBuffer, { tags });
-      const irysUrl = `https://devnet.irys.xyz/${receipt.id}`;
+      // 🚀 Memanggil fungsi service wrapper yang kodenya sudah teruji sukses
+      const irysUrl = await uploadEncryptedFileService(walletProvider, stagedUpload.encryptedBytes);
       
       setUploadedCid(irysUrl);
       setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`);

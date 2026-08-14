@@ -10,28 +10,28 @@
     "preview": "opennextjs-cloudflare build && wrangler dev"
   },
   "dependencies": {
-    "@irys/web-upload": "^0.0.15",
-    "@irys/web-upload-ethereum": "^0.0.16",
-    "@irys/web-upload-ethereum-ethers-v6": "^0.0.16",
-    "@tailwindcss/postcss": "^4.3.3",
-    "@tailwindcss/vite": "^4.3.3",
-    "@web3modal/ethers": "^5.1.11",
-    "buffer": "^6.0.3",
-    "eth-crypto": "^4.1.0",
-    "ethers": "^6.17.0",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^4.2.1",
-    "lucide-react": "^1.28.0",
-    "next": "^15.x",
-    "qrcode.react": "^4.2.0",
-    "react": "^19.x",
-    "react-dom": "^19.x",
-    "react-qr-code": "^2.2.0",
-    "tailwindcss": "^4.3.3"
+    "@irys/web-upload": "0.0.15",
+    "@irys/web-upload-ethereum": "0.0.16",
+    "@irys/web-upload-ethereum-ethers-v6": "0.0.16",
+    "@tailwindcss/postcss": "4.3.3",
+    "@tailwindcss/vite": "4.3.3",
+    "@web3modal/ethers": "5.1.11",
+    "buffer": "6.0.3",
+    "eth-crypto": "4.1.0",
+    "ethers": "6.17.0",
+    "html2canvas": "1.4.1",
+    "jspdf": "4.2.1",
+    "lucide-react": "1.28.0",
+    "next": "15.x",
+    "qrcode.react": "4.2.0",
+    "react": "19.x",
+    "react-dom": "19.x",
+    "react-qr-code": "2.2.0",
+    "tailwindcss": "4.3.3"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.x",
-    "typescript": "^5.x",
-    "wrangler": "^4.x"
+    "@opennextjs/cloudflare": "1.x",
+    "typescript": "5.x",
+    "wrangler": "4.x"
   }
 }
