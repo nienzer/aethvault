@@ -18,7 +18,7 @@ export default function CertificateModal({
 
   if (!selectedCertificate) return null;
 
-  // FIX: Deteksi Proof yang lebih akurat (jika ada title atau proofHash berupa hex hash)
+  // Logika pemisah pasti: True jika ada judul/proofHash valid (Proof), False jika Legacy
   const isProof = Boolean(selectedCertificate.title || (selectedCertificate.proofHash && selectedCertificate.proofHash !== "Encrypted On-Chain"));
 
   const handleDownloadPNG = async () => {
@@ -58,7 +58,11 @@ export default function CertificateModal({
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
   
   const dateStr = new Date((selectedCertificate.creationTimestamp || Date.now() / 1000) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-  const verifyUrl = `https://testnet.bscscan.com/tx/${selectedCertificate.proofHash}`;
+  
+  // FIX QR CODE: Jika Proof ke tx hash, jika Legacy langsung ke tab Read Contract BscScan
+  const verifyUrl = isProof 
+    ? `https://testnet.bscscan.com/tx/${selectedCertificate.proofHash}`
+    : `https://testnet.bscscan.com/address/0xCda136B176baE8F92d0Dbc7851C0A1E282469265#readContract`;
 
   return (
     <div className="fixed inset-0 bg-[#030208]/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-8 animate-in fade-in duration-300">
@@ -174,7 +178,7 @@ export default function CertificateModal({
 
               </div>
             ) : (
-              // 🌟 LEGALI / VAULT: Padding atas dirapikan agar tidak terpotong, tanda tangan tanpa DAO
+              // 🌟 LEGACY / VAULT: Klasik rapi, tidak terpotong atasnya, tanda tangan murni "AetherVault" tanpa DAO
               <div ref={certificateRef} className="w-[842px] h-[595px] bg-[#fdfbf7] text-[#171717] rounded-sm p-8 relative overflow-hidden shadow-2xl font-serif border border-[#d4d4d4] mx-auto flex flex-col justify-between shrink-0 transform origin-top-left sm:origin-center scale-[0.6] sm:scale-100 mb-[-200px] sm:mb-0">
                 
                 <div className="absolute top-6 right-6 flex items-center gap-2 z-20 bg-[rgba(255,255,255,0.9)] px-3 py-1.5 rounded-full border border-[#bbf7d0] shadow-sm">
@@ -241,7 +245,7 @@ export default function CertificateModal({
                     <p className="text-[7px] text-[#737373] font-mono mt-1 tracking-widest bg-[rgba(120,53,15,0.05)] inline-block px-1.5 py-0.5 rounded">IMMUTABLE • BINANCE</p>
                   </div>
 
-                  {/* Tanda tangan tanpa kata DAO */}
+                  {/* Tanda tangan murni tanpa kata DAO */}
                   <div className="text-center mb-1 px-8 flex flex-col items-center">
                      <div className="font-signature text-3xl text-[rgba(120,53,15,0.8)] -rotate-3 mb-1" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
                      <div className="w-32 border-b border-[rgba(120,53,15,0.4)] mb-1"></div>
