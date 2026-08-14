@@ -1,7 +1,7 @@
 "use client";
 import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect } from '@web3modal/ethers/react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Buffer } from 'buffer';
+import { Buffer } from 'buffer'; // 🚀 FIX: Import Buffer
 // ⚡ FIX 9: Unused imports dibersihkan
 import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -246,7 +246,6 @@ export default function DashboardPage() {
           }
         });
         setOnChainTierConfig(parsed);
-        // ⚡ FIX 7: State tierConfigError dan isTierConfigLoaded yang tidak dipakai sudah dihapus
       } catch (err) {
         console.error("Tier Config Error:", err);
       }
@@ -433,7 +432,6 @@ export default function DashboardPage() {
       const stakeContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
       
       const currentBlock = await provider.getBlockNumber();
-      // ⚡ FIX 2: Limit blok diturunkan jadi 1900 agar aman dari RPC Limit 2000
       const DEPLOY_BLOCK = Math.max(0, currentBlock - 1900); 
       
       let sealed = []; let revealed = []; let claimed = []; let ping = [];
@@ -498,7 +496,6 @@ export default function DashboardPage() {
         const rawBalance = await provider.getBalance(address);
         setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
         try {
-          // ⚡ FIX 5: Menggunakan ERC20_ABI yang benar untuk interaksi token
           const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, ERC20_ABI, provider);
           const rawAethBalance = await tokenContract.balanceOf(address);
           setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
@@ -600,6 +597,7 @@ export default function DashboardPage() {
   const maxFileSizeMB = tier === 'legacy' ? 10 : 5;
   const MAX_ATTACHMENT_SIZE_BYTES = maxFileSizeMB * 1024 * 1024;
 
+  // 🚀 FIX BUFFER: handleFileSelected
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -623,11 +621,11 @@ export default function DashboardPage() {
       const cipherPayload = JSON.stringify({ name: file.name, type: file.type, data: fileBase64 });
       const encryptedPayload = await encryptForPublicKey(recipientPublicKey, cipherPayload);
       
-      // ✅ FIX: Konversi ke Buffer agar Irys SDK menerima (bukan Uint8Array)
+      // ✅ FIX BUFFER: Menggunakan Buffer.from() murni
       const encryptedBytes = Buffer.from(encryptedPayload);
       
       const irysUploader = await getNewIrysUploader(walletProvider);
-      const price = await irysUploader.getPrice(encryptedBytes.byteLength);
+      const price = await irysUploader.getPrice(encryptedBytes.length);
       const estimatedCost = ethers.formatEther(price.toString()); 
 
       setStagedUpload({ file, encryptedBytes, estimatedCost });
@@ -639,6 +637,7 @@ export default function DashboardPage() {
     }
   };
 
+  // 🚀 FIX BUFFER: handleConfirmArweaveUpload
   const handleConfirmArweaveUpload = async () => {
     if (!stagedUpload) return;
     if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
@@ -648,7 +647,7 @@ export default function DashboardPage() {
     try {
       const irysUploader = await getNewIrysUploader(walletProvider);
       
-      // ✅ FIX: Konversi ke Buffer agar Irys SDK menerima
+      // ✅ FIX BUFFER: Pastikan data berupa Node.js Buffer
       const dataBuffer = Buffer.isBuffer(stagedUpload.encryptedBytes)
         ? stagedUpload.encryptedBytes
         : Buffer.from(stagedUpload.encryptedBytes);
@@ -747,7 +746,6 @@ export default function DashboardPage() {
 
       const requiredCostWei = ethers.parseUnits(selectedTierData.cost.toString(), 18);
       
-      // ⚡ FIX 5: Gunakan ERC20_ABI untuk Approve token agar tidak "Execution Reverted"
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, ERC20_ABI, signer);
       
       showToast(t.checkingAllowance || "Memeriksa izin token...", "info");
@@ -765,8 +763,6 @@ export default function DashboardPage() {
 
       let tx;
       if (tier === 'legacy') {
-        // ⚡ FIX 10: TESTNET ONLY. Ganti logikanya jika rilis ke Mainnet.
-        // MAINNET: const inactivitySeconds = parseInt(inactivityYears) * 365 * 24 * 60 * 60;
         const inactivitySeconds = 180; 
         tx = await contract.sealLegacyCapsule(encryptedTitle, encryptedMessage, inactivitySeconds, heirAddress);
       } else {
@@ -906,7 +902,6 @@ export default function DashboardPage() {
       await ensureCorrectNetwork(signer);
       const amountInWei = ethers.parseUnits(sanitizedAmount, 18);
       
-      // ⚡ FIX 5: Gunakan ERC20_ABI untuk Approve token agar aman
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, ERC20_ABI, signer);
       const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
 
@@ -945,7 +940,6 @@ export default function DashboardPage() {
       await ensureCorrectNetwork(signer);
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
       
-      // ⚡ FIX 6: Cast deposit amount to BigInt untuk mencegah error contract parameter
       const tx = await stakingContract.withdraw(depositId, BigInt(dep.amount));
       showToast(t.txSentWaitingConfirm || "Memproses Withdraw di jaringan...", "info");
       await tx.wait();
@@ -1054,7 +1048,6 @@ export default function DashboardPage() {
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [newTreasuryInput, setNewTreasuryInput] = useState('');
 
-  // ⚡ FIX 8: Variabel isStaking di-rename jadi isStakingTarget agar tidak Shadowing Global State
   const handleAdminTogglePause = async (isPause, isStakingTarget = false) => {
     try {
       setIsAdminLoading(true);
@@ -1629,7 +1622,6 @@ export default function DashboardPage() {
         </div>
       </footer>
 
-      {/* ⚡ FIX 9: Prop t={} dihapus dari CertificateModal karena tidak digunakan/memakai useLanguage internal */}
       <CertificateModal 
         selectedCertificate={selectedCertificate}
         setSelectedCertificate={setSelectedCertificate}
