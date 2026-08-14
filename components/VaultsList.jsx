@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, Unlock, Clock, AlertTriangle, Shield, Trash2, Award, Activity, Eye, Loader2, KeyRound, Sparkles, Box, FileText } from 'lucide-react';
+import { Lock, Unlock, Clock, Shield, Trash2, Award, Activity, Eye, Loader2, KeyRound, Box, FileText, AlertTriangle } from 'lucide-react'; // ⚡ FIX 5: Import dibersihkan, AlertTriangle dipakai untuk banner
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function VaultsList({
@@ -47,6 +47,15 @@ export default function VaultsList({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 pb-16">
+      
+      {/* ⚡ FIX 3: Banner Visual Feedback untuk Network Error */}
+      {isWrongNetwork && (
+        <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex items-center gap-3 text-amber-400 shadow-lg mb-4">
+          <AlertTriangle className="w-5 h-5 shrink-0" />
+          <p className="text-xs sm:text-sm font-mono">⚠️ Please switch to BSC Testnet to interact with your vaults.</p>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0B0817] border border-neutral-900 p-6 rounded-3xl shadow-xl">
         <div>
           <h3 className="font-display text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
@@ -62,33 +71,46 @@ export default function VaultsList({
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {myCapsules.map((capsule) => {
-          // 🚀 LOGIKA DYNAMIC UI: Cek apakah ini Kapsul Rahasia
-          const isSecretCapsule = ['Basic', 'VIP', 'Eternal', 'Legacy'].includes(capsule.tierLabel);
+          // ⚡ FIX 2: Legacy punya sertifikat warisan, jadi dikeluarkan dari list No-Cert
+          const isSecretCapsule = ['Basic', 'VIP', 'Eternal'].includes(capsule.tierLabel);
+          
+          // ⚡ FIX 1: Deteksi status menggunakan string baku / konstan, BUKAN hasil terjemahan
+          const isOpened = capsule.status === "OPENED";
+          const isReady = capsule.status === "READY";
+          const isDeleted = capsule.status === "DELETED";
+
+          // ⚡ FIX 6: Ekstrak logika Ping Alive biar lebih rapi & mudah dibaca
+          const canPing = capsule.isLegacy && !capsule.asHeir && !capsule.isClaimedOrRevealed && !capsule.contentDeleted && !capsule.isReady;
 
           return (
             <div key={capsule.id} className="bg-[#0B0817] border border-neutral-800 rounded-3xl p-5 hover:border-cyan-500/40 transition-all duration-300 shadow-lg group hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)] flex flex-col">
               
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-2">
+                  {/* Warna dinamis menggunakan variabel boolean yang akurat */}
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-inner ${
-                    capsule.status === (dashT.statusOpened || "OPENED") ? 'bg-green-500/10 border-green-500/30 text-green-400' :
-                    capsule.status === (dashT.statusReady || "READY") ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
-                    capsule.status === (dashT.statusDeleted || "DELETED") ? 'bg-red-500/10 border-red-500/30 text-red-400' :
+                    isOpened ? 'bg-green-500/10 border-green-500/30 text-green-400' :
+                    isReady ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
+                    isDeleted ? 'bg-red-500/10 border-red-500/30 text-red-400' :
                     'bg-cyan-500/10 border-cyan-500/30 text-cyan-400'
                   }`}>
-                    {capsule.status === (dashT.statusOpened || "OPENED") ? <Unlock className="w-5 h-5" /> : 
-                     capsule.status === (dashT.statusDeleted || "DELETED") ? <Trash2 className="w-5 h-5" /> : 
+                    {isOpened ? <Unlock className="w-5 h-5" /> : 
+                     isDeleted ? <Trash2 className="w-5 h-5" /> : 
                      <Lock className="w-5 h-5" />}
                   </div>
                   <div>
                     <span className="text-[9px] font-mono text-neutral-500 uppercase font-bold tracking-widest block mb-0.5">ID: #{capsule.id}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest border ${
-                      capsule.status === (dashT.statusOpened || "OPENED") ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                      capsule.status === (dashT.statusReady || "READY") ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                      capsule.status === (dashT.statusDeleted || "DELETED") ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                      isOpened ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                      isReady ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                      isDeleted ? 'bg-red-500/10 text-red-400 border-red-500/20' :
                       'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
                     }`}>
-                      {capsule.status || 'UNKNOWN'}
+                      {/* Render teks terjemahan ke UI */}
+                      {isOpened ? (dashT.statusOpened || "OPENED") : 
+                       isReady ? (dashT.statusReady || "READY") : 
+                       isDeleted ? (dashT.statusDeleted || "DELETED") : 
+                       (capsule.status || 'UNKNOWN')}
                     </span>
                   </div>
                 </div>
@@ -105,22 +127,23 @@ export default function VaultsList({
               <div className="mb-5">
                 <h4 className="font-bold text-white text-lg flex items-center gap-2 group-hover:text-cyan-300 transition-colors">
                   {capsule.titleIsLocked ? <Lock className="w-4 h-4 text-neutral-500" /> : <FileText className="w-4 h-4 text-cyan-500" />}
-                  <span className="truncate">{capsule.title}</span>
+                  <span className="truncate">{capsule.titleIsLocked ? (vaultT.encryptedTitle || "ENCRYPTED TITLE") : capsule.title}</span>
                 </h4>
               </div>
 
-                            {/* 🚀 MAINNET-READY: Pemisahan visual yang rapi antara Time-Lock kalender dan Dead-Man's Switch */}
               <div className="bg-[#05030F] border border-neutral-800/80 rounded-2xl p-4 space-y-3 mb-5 mt-auto shadow-inner">
                 {!capsule.isLegacy ? (
                   <div className="flex justify-between items-center text-[10px] sm:text-xs">
                     <span className="text-neutral-500 font-mono uppercase tracking-widest flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> {vaultT.unlocks || "UNLOCKS"}</span>
-                    <span className="font-mono font-bold text-neutral-300">{formatUnlockDateTime(capsule.unlockTimestamp)}</span>
+                    {/* ⚡ FIX 4: Null-safety untuk timestamp */}
+                    <span className="font-mono font-bold text-neutral-300">{capsule.unlockTimestamp ? formatUnlockDateTime(capsule.unlockTimestamp) : "—"}</span>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     <div className="flex justify-between items-center text-[10px] sm:text-xs">
                       <span className="text-neutral-500 font-mono uppercase tracking-widest flex items-center gap-1.5"><Activity className="w-3.5 h-3.5"/> {vaultT.lastPing || "LAST PING"}</span>
-                      <span className="font-mono font-bold text-neutral-300">{formatUnlockDateTime(capsule.lastPingAlive)}</span>
+                      {/* ⚡ FIX 4: Null-safety untuk timestamp */}
+                      <span className="font-mono font-bold text-neutral-300">{capsule.lastPingAlive ? formatUnlockDateTime(capsule.lastPingAlive) : "—"}</span>
                     </div>
                     <div className="flex justify-between items-center text-[10px] sm:text-xs border-t border-neutral-800/50 pt-2">
                       <span className="text-neutral-500 font-mono uppercase tracking-widest">{vaultT.limit || "INACTIVITY LIMIT"}</span>
@@ -129,7 +152,6 @@ export default function VaultsList({
                   </div>
                 )}
               </div>
-
 
               <div className="space-y-2">
                 {!capsule.contentDeleted && (!capsule.isLegacy || capsule.asHeir) && (
@@ -149,7 +171,8 @@ export default function VaultsList({
                   </button>
                 )}
 
-               {capsule.isLegacy && !capsule.asHeir && !capsule.isClaimedOrRevealed && !capsule.contentDeleted && !capsule.isReady && (
+               {/* Panggil extracted variable canPing */}
+               {canPing && (
                  <button
                   onClick={() => handlePingAlive(capsule)}
                   disabled={isPinging === capsule.id || isWrongNetwork}
@@ -172,11 +195,10 @@ export default function VaultsList({
                     </button>
                   )}
 
-                  {/* 🚀 LOGIKA PENGGANTI TOMBOL CERT */}
                   {isSecretCapsule ? (
                     <div className="py-2 px-3 bg-neutral-900/40 border border-neutral-800/60 rounded-xl text-[9px] text-neutral-500 font-mono text-center flex items-center justify-center gap-1.5">
                       <Shield className="w-3 h-3" />
-                      <span>{vaultT.secretNoCert}</span>
+                      <span>{vaultT.secretNoCert || "No Certificate for Basic Tiers"}</span>
                     </div>
                   ) : (
                     <button

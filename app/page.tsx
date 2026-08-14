@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Wallet, Shield, Lock, Clock, Database, Activity, ArrowRight, Server, Cpu, Globe, CheckCircle2, MessageSquare, Send, Code, Zap, Flame, UserX, Layers, FileText, Map, Users, ChevronRight, Bell, AlertTriangle, RefreshCcw, LineChart, Mail, Award, ShieldCheck, Fingerprint, Box, Network, TerminalSquare, Eye, KeyRound, Hexagon, Unlock } from "lucide-react";
+// ⚡ FIX 1: Import dibersihkan, hanya menyisakan yang dipakai
+import { Shield, Lock, Clock, ArrowRight, Server, Cpu, Globe, CheckCircle2, Send, Layers, FileText, Users, Mail, Award, ShieldCheck, Fingerprint, Box, Hexagon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
@@ -12,10 +13,23 @@ const STAKING_CONTRACT_ADDRESS = "0xe6FdC38895E2B7D463151423EE86ffcE268f5167";
 const VAULT_ABI = ["function totalCapsules() view returns (uint256)", "function totalProofs() view returns (uint256)"];
 const STAKING_ABI = ["function totalStaked() view returns (uint256)", "function totalStakers() view returns (uint256)"];
 
+// ⚡ FIX 2: Provider dan Contract dibuat di LUAR komponen agar tidak membebani memori / garbage collection
+const provider = new ethers.JsonRpcProvider(RPC_URL);
+const vaultContract = new ethers.Contract(AETHER_VAULT_ADDRESS, VAULT_ABI, provider);
+const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, STAKING_ABI, provider);
+
 export default function LandingPage() {
   const router = useRouter();
   const { t: globalT, lang, changeLanguage } = useLanguage();
-  const t = globalT.landing;
+  
+  const heroT = globalT?.hero || {};
+  const infraT = globalT?.infrastructure || {};
+  const tiersT = globalT?.tiers || {};
+  const tokenT = globalT?.tokenomics || {};
+  const teamT = globalT?.team || {};
+  const commT = globalT?.communityPage || {};
+  const footerT = globalT?.footer || {};
+  const landT = globalT?.landing || {};
 
   const [toast, setToast] = useState(null);
   const [liveStats, setLiveStats] = useState({ block: 0, proofs: 0, tvl: 0, stakers: 0 });
@@ -31,10 +45,7 @@ export default function LandingPage() {
 
     const fetchLiveBlockchainData = async () => {
       try {
-        const provider = new ethers.JsonRpcProvider(RPC_URL);
-        const vaultContract = new ethers.Contract(AETHER_VAULT_ADDRESS, VAULT_ABI, provider);
-        const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, STAKING_ABI, provider);
-
+        // Pemanggilan data langsung menggunakan instance global yang sudah dibuat
         const [currentBlock, totalProofs, rawTotalStaked, rawStakers] = await Promise.all([
           provider.getBlockNumber(),
           vaultContract.totalProofs().catch(() => 0),
@@ -67,8 +78,6 @@ export default function LandingPage() {
     };
   }, []);
 
-
-
   return (
     <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-24 sm:pt-28 lg:pt-32">
       
@@ -80,7 +89,8 @@ export default function LandingPage() {
       {toast && (
         <div className="fixed top-20 right-4 z-[100] animate-in fade-in slide-in-from-right-8 duration-300">
           <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${toast.type === 'success' ? 'bg-green-900/80 border-green-500/40 text-green-300' : 'bg-[#0B0817] border-cyan-500/30 text-cyan-400'} backdrop-blur-xl max-w-[90vw]`}>
-            <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+            {/* ⚡ FIX 3: Warna Icon Toast menyesuaikan tipe sukses/info */}
+            <CheckCircle2 className={`w-4 h-4 shrink-0 ${toast.type === 'success' ? 'text-green-400' : 'text-cyan-400'}`} />
             <p className="text-xs font-medium">{toast.msg}</p>
           </div>
         </div>
@@ -105,23 +115,23 @@ export default function LandingPage() {
         <div className="lg:col-span-6 relative text-center lg:text-left flex flex-col items-center lg:items-start -mt-16 sm:-mt-20 lg:-mt-24">
           <div className="w-fit flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 backdrop-blur-md text-[9px] sm:text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-4 font-mono shadow-[0_0_15px_rgba(6,182,212,0.15)]">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-            {globalT.hero.badge}
+            {heroT.badge || "DECENTRALIZED VAULT"}
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight mb-3 sm:mb-6 text-white leading-[1.15] drop-shadow-xl">
-            {globalT.hero.titleLine1} <br className="hidden sm:block" />
+            {heroT.titleLine1 || "Secure Your Legacy"} <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-500">
-              {globalT.hero.titleHighlight}
+              {heroT.titleHighlight || "On The Blockchain"}
             </span>
           </h1>
           
           <p className="text-neutral-300 text-xs sm:text-base mb-5 sm:mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0 drop-shadow-md">
-            {globalT.hero.desc}
+            {heroT.desc || "AetherVault provides immutable, cryptographic storage for your digital assets."}
           </p>
           
           <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-2 sm:gap-4 mb-4 sm:mb-6 w-full sm:w-auto">
             <button onClick={() => router.push("/dashboard")} className="w-full sm:w-auto flex items-center justify-center gap-1.5 sm:gap-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 text-white px-4 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-black text-[10px] sm:text-sm transition-all shadow-[0_0_25px_rgba(6,182,212,0.4)] hover:scale-105 cursor-pointer outline-none">
-              {globalT.hero.exploreBtn} <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              {heroT.exploreBtn || "Enter App"} <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
             <button onClick={() => router.push('/whitepaper')} className="w-full sm:w-auto flex items-center justify-center gap-1.5 sm:gap-2 bg-[#0B0817]/80 hover:bg-[#05030F] backdrop-blur-md text-white px-4 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-bold text-[10px] sm:text-sm border border-neutral-800 hover:border-cyan-500/50 transition-all cursor-pointer outline-none shadow-lg">
               Whitepaper <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
@@ -131,7 +141,6 @@ export default function LandingPage() {
 
         <div className="lg:col-span-6 relative z-10 hidden lg:flex flex-col items-center justify-center h-[500px] lg:-ml-10 lg:-mt-12">
            <div className="w-full max-w-sm space-y-3 relative">
-              
               <div className="absolute -left-12 top-1/2 -translate-y-1/2 -rotate-90 text-[8px] font-mono text-neutral-500 tracking-[0.3em] uppercase opacity-70">
                 Architecture Diagram
               </div>
@@ -190,22 +199,22 @@ export default function LandingPage() {
               <div className="w-8 h-8 sm:w-12 sm:h-12 bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform shadow-inner">
                  <Award className="w-4 h-4 sm:w-6 sm:h-6 text-cyan-400"/>
               </div>
-              <h3 className="text-sm sm:text-2xl font-black text-white font-display mb-1.5 sm:mb-2">{t.pillars.proofTitle}</h3>
-              <p className="text-neutral-400 text-[10px] sm:text-sm leading-relaxed hidden sm:block">{t.pillars.proofDesc}</p>
+              <h3 className="text-sm sm:text-2xl font-black text-white font-display mb-1.5 sm:mb-2">{landT?.pillars?.proofTitle || "Hall of Proof"}</h3>
+              <p className="text-neutral-400 text-[10px] sm:text-sm leading-relaxed hidden sm:block">{landT?.pillars?.proofDesc || "Immutable IP Registry"}</p>
            </div>
            <div className="bg-[#0B0817] border border-neutral-800/80 p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl hover:border-purple-500/30 transition-all group">
               <div className="w-8 h-8 sm:w-12 sm:h-12 bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform shadow-inner">
                  <ShieldCheck className="w-4 h-4 sm:w-6 sm:h-6 text-purple-400"/>
               </div>
-              <h3 className="text-sm sm:text-2xl font-black text-white font-display mb-1.5 sm:mb-2">{t.pillars.legacyTitle}</h3>
-              <p className="text-neutral-400 text-[10px] sm:text-sm leading-relaxed hidden sm:block">{t.pillars.legacyDesc}</p>
+              <h3 className="text-sm sm:text-2xl font-black text-white font-display mb-1.5 sm:mb-2">{landT?.pillars?.legacyTitle || "Legacy System"}</h3>
+              <p className="text-neutral-400 text-[10px] sm:text-sm leading-relaxed hidden sm:block">{landT?.pillars?.legacyDesc || "Automated inheritance protocol"}</p>
            </div>
            <div className="bg-[#0B0817] border border-neutral-800/80 p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl hover:border-amber-500/30 transition-all col-span-2 md:col-span-1 group">
               <div className="w-8 h-8 sm:w-12 sm:h-12 bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform shadow-inner">
                  <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-amber-400"/>
               </div>
-              <h3 className="text-sm sm:text-2xl font-black text-white font-display mb-1.5 sm:mb-2">{t.pillars.capsuleTitle}</h3>
-              <p className="text-neutral-400 text-[10px] sm:text-sm leading-relaxed">{t.pillars.capsuleDesc}</p>
+              <h3 className="text-sm sm:text-2xl font-black text-white font-display mb-1.5 sm:mb-2">{landT?.pillars?.capsuleTitle || "Time Capsules"}</h3>
+              <p className="text-neutral-400 text-[10px] sm:text-sm leading-relaxed">{landT?.pillars?.capsuleDesc || "Time-locked cryptographic storage"}</p>
            </div>
         </div>
       </section>
@@ -264,29 +273,29 @@ export default function LandingPage() {
            {/* KANAN: INFRASTRUCTURE */}
            <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
              <div className="w-fit px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 backdrop-blur-md text-blue-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono">
-               {globalT.infrastructure.tag}
+               {infraT.tag || "INFRASTRUCTURE"}
              </div>
              <div>
-               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">{globalT.infrastructure.title}</h2>
-               <p className="text-neutral-400 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">{globalT.infrastructure.desc}</p>
+               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">{infraT.title || "Robust Architecture"}</h2>
+               <p className="text-neutral-400 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">{infraT.desc || "Built to withstand the test of time."}</p>
              </div>
 
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full">
                <div className="bg-[#0B0817] border border-neutral-800 p-5 sm:p-6 rounded-2xl shadow-xl hover:border-cyan-500/30 transition-all text-left">
                  <Server className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 mb-3 drop-shadow-md"/>
-                 <h4 className="text-sm sm:text-base font-bold text-white mb-1">{globalT.infrastructure.nodesTitle}</h4>
-                 <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">{globalT.infrastructure.nodesDesc}</p>
+                 <h4 className="text-sm sm:text-base font-bold text-white mb-1">{infraT.nodesTitle || "Decentralized Nodes"}</h4>
+                 <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">{infraT.nodesDesc || "Distributed via global BSC nodes."}</p>
                </div>
                <div className="bg-[#0B0817] border border-neutral-800 p-5 sm:p-6 rounded-2xl shadow-xl hover:border-purple-500/30 transition-all text-left">
                  <Cpu className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400 mb-3 drop-shadow-md"/>
-                 <h4 className="text-sm sm:text-base font-bold text-white mb-1">{globalT.infrastructure.interopTitle}</h4>
-                 <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">{globalT.infrastructure.interopDesc}</p>
+                 <h4 className="text-sm sm:text-base font-bold text-white mb-1">{infraT.interopTitle || "Interoperability"}</h4>
+                 <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">{infraT.interopDesc || "Seamless cross-chain support."}</p>
                </div>
                <div className="bg-[#0B0817] border border-neutral-800 p-5 sm:p-6 rounded-2xl shadow-xl hover:border-amber-500/30 transition-all text-left col-span-1 sm:col-span-2 flex items-start gap-4">
                  <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400 shrink-0 mt-1 drop-shadow-md"/>
                  <div>
-                   <h4 className="text-sm sm:text-base font-bold text-white mb-1">{globalT.infrastructure.securityTitle}</h4>
-                   <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">{globalT.infrastructure.securityDesc}</p>
+                   <h4 className="text-sm sm:text-base font-bold text-white mb-1">{infraT.securityTitle || "Advanced Security"}</h4>
+                   <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">{infraT.securityDesc || "Encrypted with modern cipher suites."}</p>
                  </div>
                </div>
              </div>
@@ -302,44 +311,40 @@ export default function LandingPage() {
            {/* KIRI: 4-TIER VAULT ARCHITECTURE */}
            <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
              <div className="w-fit px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 backdrop-blur-md text-amber-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono">
-               {globalT.tiers.tag}
+               {tiersT.tag || "TIERS"}
              </div>
              <div>
-               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">{globalT.tiers.title}</h2>
-               <p className="text-neutral-400 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">{globalT.tiers.desc}</p>
+               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">{tiersT.title || "Vault Architecture"}</h2>
+               <p className="text-neutral-400 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">{tiersT.desc || "Choose your level of permanence."}</p>
              </div>
 
              <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full">
-                {/* Tier 1 */}
                 <div className="bg-[#0B0817] border border-neutral-800 p-4 sm:p-5 rounded-2xl shadow-xl hover:border-cyan-500/30 transition-all flex flex-col justify-between">
                   <div>
-                    <h4 className="text-sm font-bold text-white mb-1">{globalT.tiers.tier1Title}</h4>
-                    <p className="text-[9px] sm:text-[10px] text-neutral-400 leading-relaxed">{globalT.tiers.tier1Desc}</p>
+                    <h4 className="text-sm font-bold text-white mb-1">{tiersT.tier1Title || "Tier 1"}</h4>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-400 leading-relaxed">{tiersT.tier1Desc || "Basic setup."}</p>
                   </div>
                   <div className="pt-3 mt-3 border-t border-neutral-800 text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400">10 AETH (2 Burn)</div>
                 </div>
-                {/* Tier 2 */}
                 <div className="bg-[#0B0817] border border-neutral-800 p-4 sm:p-5 rounded-2xl shadow-xl hover:border-cyan-500/30 transition-all flex flex-col justify-between">
                   <div>
-                    <h4 className="text-sm font-bold text-white mb-1">{globalT.tiers.tier2Title}</h4>
-                    <p className="text-[9px] sm:text-[10px] text-neutral-400 leading-relaxed">{globalT.tiers.tier2Desc}</p>
+                    <h4 className="text-sm font-bold text-white mb-1">{tiersT.tier2Title || "Tier 2"}</h4>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-400 leading-relaxed">{tiersT.tier2Desc || "Standard vault."}</p>
                   </div>
                   <div className="pt-3 mt-3 border-t border-neutral-800 text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400">50 AETH (10 Burn)</div>
                 </div>
-                {/* Tier 3 */}
                 <div className="bg-[#0B0817] border border-neutral-800 p-4 sm:p-5 rounded-2xl shadow-xl hover:border-cyan-500/30 transition-all flex flex-col justify-between">
                   <div>
-                    <h4 className="text-sm font-bold text-white mb-1">{globalT.tiers.tier3Title}</h4>
-                    <p className="text-[9px] sm:text-[10px] text-neutral-400 leading-relaxed">{globalT.tiers.tier3Desc}</p>
+                    <h4 className="text-sm font-bold text-white mb-1">{tiersT.tier3Title || "Tier 3"}</h4>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-400 leading-relaxed">{tiersT.tier3Desc || "Premium."}</p>
                   </div>
                   <div className="pt-3 mt-3 border-t border-neutral-800 text-[9px] sm:text-[10px] font-mono font-bold text-cyan-400">200 AETH (40 Burn)</div>
                 </div>
-                {/* Tier 4 (Ultimate) */}
                 <div className="bg-gradient-to-br from-[#0B0817] to-cyan-950/20 border border-cyan-500/30 p-4 sm:p-5 rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.1)] hover:border-cyan-400 transition-all flex flex-col justify-between relative">
                   <div>
                     <span className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[6px] sm:text-[7px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded font-mono uppercase font-bold border border-cyan-500/30">Ultimate</span>
-                    <h4 className="text-sm font-bold text-white mb-1 mt-2 sm:mt-0">{globalT.tiers.tier4Title}</h4>
-                    <p className="text-[9px] sm:text-[10px] text-neutral-300 leading-relaxed">{globalT.tiers.tier4Desc}</p>
+                    <h4 className="text-sm font-bold text-white mb-1 mt-2 sm:mt-0">{tiersT.tier4Title || "Tier 4"}</h4>
+                    <p className="text-[9px] sm:text-[10px] text-neutral-300 leading-relaxed">{tiersT.tier4Desc || "Eternal storage."}</p>
                   </div>
                   <div className="pt-3 mt-3 border-t border-cyan-500/20 text-[9px] sm:text-[10px] font-mono text-cyan-400 font-bold">500 AETH (100 Burn)</div>
                 </div>
@@ -359,7 +364,7 @@ export default function LandingPage() {
            {/* KANAN: TOKENOMICS & TOTAL SUPPLY */}
            <div id="tokenomics" className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:pl-4">
              <div className="w-fit px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 backdrop-blur-md text-purple-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono">
-               {globalT.tokenomics.tag || "TOKENOMICS"}
+               {tokenT.tag || "TOKENOMICS"}
              </div>
              <div>
                <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">Designed for Scarcity</h2>
@@ -384,28 +389,28 @@ export default function LandingPage() {
                   <div className="bg-[#0B0817] border border-neutral-800 p-4 rounded-xl shadow-xl text-left">
                     <div className="flex items-center gap-2 mb-1.5">
                        <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]"></div>
-                       <span className="text-[7px] sm:text-[8px] font-mono text-cyan-400 font-bold uppercase">{globalT.tokenomics.liquidity || "LIQUIDITY POOL"}</span>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-cyan-400 font-bold uppercase">{tokenT.liquidity || "LIQUIDITY POOL"}</span>
                     </div>
                     <div className="text-sm sm:text-lg font-black text-white font-mono">30%</div>
                   </div>
                   <div className="bg-[#0B0817] border border-neutral-800 p-4 rounded-xl shadow-xl text-left">
                     <div className="flex items-center gap-2 mb-1.5">
                        <div className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_6px_#a855f7]"></div>
-                       <span className="text-[7px] sm:text-[8px] font-mono text-purple-400 font-bold uppercase">{globalT.tokenomics.staking || "STAKING REWARDS"}</span>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-purple-400 font-bold uppercase">{tokenT.staking || "STAKING REWARDS"}</span>
                     </div>
                     <div className="text-sm sm:text-lg font-black text-white font-mono">25%</div>
                   </div>
                   <div className="bg-[#0B0817] border border-neutral-800 p-4 rounded-xl shadow-xl text-left">
                     <div className="flex items-center gap-2 mb-1.5">
                        <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_6px_#f59e0b]"></div>
-                       <span className="text-[7px] sm:text-[8px] font-mono text-amber-400 font-bold uppercase">{globalT.tokenomics.initialSale || "INITIAL SALE"}</span>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-amber-400 font-bold uppercase">{tokenT.initialSale || "INITIAL SALE"}</span>
                     </div>
                     <div className="text-sm sm:text-lg font-black text-white font-mono">20%</div>
                   </div>
                   <div className="bg-[#0B0817] border border-neutral-800 p-4 rounded-xl shadow-xl text-left">
                     <div className="flex items-center gap-2 mb-1.5">
                        <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_6px_#3b82f6]"></div>
-                       <span className="text-[7px] sm:text-[8px] font-mono text-blue-400 font-bold uppercase">{globalT.tokenomics.treasury || "TREASURY"}</span>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-blue-400 font-bold uppercase">{tokenT.treasury || "TREASURY"}</span>
                     </div>
                     <div className="text-sm sm:text-lg font-black text-white font-mono">10%</div>
                   </div>
@@ -447,11 +452,11 @@ export default function LandingPage() {
 
             <div className="space-y-2.5 sm:space-y-3 flex-1 relative z-10 flex flex-col items-center sm:items-start text-center sm:text-left">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[8px] sm:text-[9px] font-bold uppercase tracking-widest font-mono">
-                {globalT.team.tag || "THE CONTRIBUTOR"}
+                {teamT.tag || "THE CONTRIBUTOR"}
               </div>
-              <h3 className="text-lg sm:text-2xl font-extrabold text-white font-display drop-shadow-md">{globalT.team.name || "Nienzer"}</h3>
+              <h3 className="text-lg sm:text-2xl font-extrabold text-white font-display drop-shadow-md">{teamT.name || "Nienzer"}</h3>
               <p className="text-neutral-400 text-[10px] sm:text-xs leading-relaxed">
-                {globalT.team.bio || "Lead architect behind AetherVault Smart Contracts. Focused on cryptographic innovation, data privacy, and secure Web3 architecture."}
+                {teamT.bio || "Lead architect behind AetherVault Smart Contracts. Focused on cryptographic innovation, data privacy, and secure Web3 architecture."}
               </p>
               
               <div className="flex items-center justify-center sm:justify-start gap-3 sm:gap-4 pt-2">
@@ -474,32 +479,32 @@ export default function LandingPage() {
               <a href="https://t.me/AethVault" target="_blank" rel="noreferrer" className="bg-[#05030F] border border-neutral-800 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group">
                 <Send className="w-6 h-6 text-blue-400 group-hover:scale-110 transition-transform" />
                 <div className="text-center">
-                  <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.telegramTitle || "Telegram Official"}</h3>
-                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">{(globalT.communityPage?.telegramDesc || "Real-time discussion group").replace('(Coming Soon)', '').trim()}</p>
+                  <h3 className="text-white font-bold text-xs sm:text-sm">{commT.telegramTitle || "Telegram Official"}</h3>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">{(commT.telegramDesc || "Real-time discussion group").replace('(Coming Soon)', '').trim()}</p>
                 </div>
               </a>
               
               <a href="https://twitter.com/AethVault" target="_blank" rel="noreferrer" className="bg-[#05030F] border border-neutral-800 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
                 <div className="text-center">
-                  <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.twitterTitle || "Twitter / X"}</h3>
-                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">{(globalT.communityPage?.twitterDesc || "Technical announcements").replace('(Coming Soon)', '').trim()}</p>
+                  <h3 className="text-white font-bold text-xs sm:text-sm">{commT.twitterTitle || "Twitter / X"}</h3>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">{(commT.twitterDesc || "Technical announcements").replace('(Coming Soon)', '').trim()}</p>
                 </div>
               </a>
               
               <a href="https://github.com/nienzer" target="_blank" rel="noreferrer" className="bg-[#05030F] border border-neutral-800 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-neutral-400 group-hover:scale-110 transition-transform"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
                 <div className="text-center">
-                  <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.githubTitle || "Github Open Source"}</h3>
-                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">{globalT.communityPage?.githubDesc || "Protocol code repository"}</p>
+                  <h3 className="text-white font-bold text-xs sm:text-sm">{commT.githubTitle || "Github Open Source"}</h3>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">{commT.githubDesc || "Protocol code repository"}</p>
                 </div>
               </a>
               
               <a href="/community" className="bg-[#05030F] border border-neutral-800 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group">
                 <Globe className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
                 <div className="text-center">
-                  <h3 className="text-white font-bold text-xs sm:text-sm">{globalT.communityPage?.forumTitle || "Web3 Forum"}</h3>
-                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">{(globalT.communityPage?.forumDesc || "DAO Voting & Proposals").replace('(Coming Soon)', '').trim()}</p>
+                  <h3 className="text-white font-bold text-xs sm:text-sm">{commT.forumTitle || "Web3 Forum"}</h3>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">{(commT.forumDesc || "DAO Voting & Proposals").replace('(Coming Soon)', '').trim()}</p>
                 </div>
               </a>
             </div>
@@ -567,24 +572,24 @@ export default function LandingPage() {
               <img src="/logo.png" alt="Logo" className="w-6 h-6 rounded-lg object-cover drop-shadow-md" />
               <span className="text-sm font-black tracking-widest text-white font-display drop-shadow-md">AETHERVAULT</span>
             </div>
-            <p className="text-neutral-500 text-xs leading-relaxed max-w-sm drop-shadow-sm">{globalT.footer.desc}</p>
+            <p className="text-neutral-500 text-xs leading-relaxed max-w-sm drop-shadow-sm">{footerT.desc || "Immutable cryptographic storage on the blockchain."}</p>
           </div>
           
           <div className="lg:col-span-3 grid grid-cols-2 gap-4 sm:gap-8">
             <div className="flex flex-col space-y-3">
-              <h4 className="text-white font-bold text-xs uppercase tracking-widest font-mono mb-1">{globalT.footer.quickLinks}</h4>
-              <a href="#infrastructure" className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors">{globalT.footer.navInfrastructure}</a>
-              <button onClick={() => router.push('/dashboard')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{globalT.footer.navLaunchApp}</button>
-              <button onClick={() => router.push('/whitepaper')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{globalT.footer.navWhitepaper}</button>
+              <h4 className="text-white font-bold text-xs uppercase tracking-widest font-mono mb-1">{footerT.quickLinks || "Quick Links"}</h4>
+              <a href="#infrastructure" className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors">{footerT.navInfrastructure || "Infrastructure"}</a>
+              <button onClick={() => router.push('/dashboard')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{footerT.navLaunchApp || "Launch App"}</button>
+              <button onClick={() => router.push('/whitepaper')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{footerT.navWhitepaper || "Whitepaper"}</button>
             </div>
             
             <div className="flex flex-col space-y-3">
-              <h4 className="text-white font-bold text-xs uppercase tracking-widest font-mono mb-1">{globalT.footer.community}</h4>
+              <h4 className="text-white font-bold text-xs uppercase tracking-widest font-mono mb-1">{footerT.community || "Community"}</h4>
               <button onClick={() => router.push('/community')} className="text-xs text-cyan-500 hover:text-cyan-400 font-bold transition-colors text-left bg-transparent border-none p-0 cursor-pointer flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5" /> Community Hub
               </button>
-              <button onClick={() => router.push('/terms')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{globalT.footer.terms}</button>
-              <button onClick={() => router.push('/privacy')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{globalT.footer.privacy}</button>
+              <button onClick={() => router.push('/terms')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{footerT.terms || "Terms of Service"}</button>
+              <button onClick={() => router.push('/privacy')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{footerT.privacy || "Privacy Policy"}</button>
             </div>
           </div>
 
@@ -593,7 +598,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 border-t border-neutral-900 pt-6 flex flex-col sm:flex-row items-center justify-between text-[10px] sm:text-xs text-neutral-600 font-mono gap-3">
           <p>© {new Date().getFullYear()} Nienzer. Hak Cipta Dilindungi. Email: admin@aethvault.xyz</p>
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span> BSC Mainnet Operational
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span> BSC Testnet Operational
           </div>
         </div>
       </footer>

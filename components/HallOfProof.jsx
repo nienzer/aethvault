@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Award, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Search, ExternalLink, ShieldCheck, Database, Blocks, Users, Copy, Check, Hexagon, Crown, Flame, Sparkles, Gem, Layers, Loader2, ArrowUpRight, Lock, Box, Microscope, HardDrive, Activity, Zap, Building2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Award, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Search, ExternalLink, ShieldCheck, Database, Blocks, Users, Copy, Check, Hexagon, Crown, Flame, Sparkles, Gem, Layers, Loader2, ArrowUpRight, Lock, Box, Microscope, HardDrive, Activity, Zap, Building2, AlertTriangle } from 'lucide-react';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -23,10 +23,20 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
   const [copiedId, setCopiedId] = useState(null);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null); // ⚡ FIX 7: Error State untuk UI Fallback
   const [loadingStepText, setLoadingStepText] = useState(tHop.syncing || 'Syncing Registry...');
   const [publicProofs, setPublicProofs] = useState([]);
   const [stats, setStats] = useState({ totalProofs: 0, creators: 0, burned: 0, blocks: "0", filesTb: 0 });
   const [latestBlocks, setLatestBlocks] = useState([]);
+
+  // ⚡ FIX 1: Gunakan useRef untuk tHop & tDash agar tidak memicu Infinite Loop
+  const tHopRef = useRef(tHop);
+  const tDashRef = useRef(tDash);
+
+  useEffect(() => {
+    tHopRef.current = tHop;
+    tDashRef.current = tDash;
+  }, [tHop, tDash]);
 
   const copyToClipboard = (text, id) => {
     navigator.clipboard.writeText(text);
@@ -53,10 +63,9 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
   useEffect(() => {
     const fetchOnChainData = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        const provider = window.ethereum 
-          ? new ethers.BrowserProvider(window.ethereum)
-          : new ethers.JsonRpcProvider("https://bsc-testnet-rpc.publicnode.com");
+        const provider = new ethers.JsonRpcProvider("https://bsc-testnet-rpc.publicnode.com");
 
         const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AETHER_VAULT_ABI, provider);
         
@@ -64,19 +73,9 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
         const totalNum = Number(total);
         const blockNum = await provider.getBlockNumber();
 
-        const blocksTimeline = [];
-        for(let b = 0; b < 5; b++) {
-          blocksTimeline.push({
-            blockNumber: (blockNum - (b * 3)).toLocaleString(),
-            proofsCount: b === 0 ? 1 : 0,
-            timeAgo: b === 0 ? "Just now" : `${b * 3} mins ago`
-          });
-        }
-        setLatestBlocks(blocksTimeline);
-
-        // Pencarian event ProofMinted untuk mendapatkan daftar Kreator
+        // ⚡ FIX 2: Limit range mundur 1900 blok agar aman dari penolakan RPC BSC Testnet
         const DEPLOY_BLOCK = 43345845;
-        const startBlock = Math.max(DEPLOY_BLOCK, blockNum - 50000); 
+        const startBlock = Math.max(DEPLOY_BLOCK, blockNum - 1900); 
         
         let events = [];
         try {
@@ -86,13 +85,29 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
         }
         
         const ownerMap = {};
+        const blockCounts = {}; 
         if (events && events.length) {
           events.forEach(ev => {
             if (ev.args && ev.args[0] && ev.args[1]) {
               ownerMap[ev.args[0].toString()] = ev.args[1];
             }
+            const bNum = ev.blockNumber;
+            if (bNum) blockCounts[bNum] = (blockCounts[bNum] || 0) + 1;
           });
         }
+
+        const sortedBlocks = Object.keys(blockCounts).sort((a, b) => b - a).slice(0, 5);
+        const blocksTimeline = sortedBlocks.map(bNumStr => {
+           const bNum = Number(bNumStr);
+           const diffBlocks = blockNum - bNum;
+           const diffMins = Math.max(1, Math.floor((diffBlocks * 3) / 60)); 
+           return {
+             blockNumber: bNum.toLocaleString(),
+             proofsCount: blockCounts[bNumStr],
+             timeAgo: diffBlocks < 20 ? "Just now" : `${diffMins} mins ago`
+           };
+        });
+        setLatestBlocks(blocksTimeline);
 
         let fetchedProofs = [];
         let uniqueOwners = new Set();
@@ -105,7 +120,8 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
             const rawCat = details.category || "General";
             
             let iconComponent = <Box className="w-8 h-8" />;
-            let imageBg = "https://unsplash.com";
+            // ⚡ FIX 5: Tautan Fallback image yang valid
+            let imageBg = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2832&auto=format&fit=crop";
             let cost = 10;
 
             if (rawCat === "Music") { iconComponent = <Music className="w-8 h-8 text-purple-400" />; cost = 50; }
@@ -120,7 +136,13 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
               const tokenUri = await contract.tokenURI(i);
               if (tokenUri && tokenUri.startsWith('data:application/json;base64,')) {
                 const base64Data = tokenUri.split(',')[1];
-                const decodedJson = atob(base64Data);
+                // ⚡ FIX 3: Dekode Unicode/Emoji paling aman pakai TextDecoder murni JS
+                const binaryString = atob(base64Data);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let j = 0; j < binaryString.length; j++) {
+                  bytes[j] = binaryString.charCodeAt(j);
+                }
+                const decodedJson = new TextDecoder().decode(bytes);
                 const metadata = JSON.parse(decodedJson);
                 if (metadata.image) {
                   imageBg = metadata.image; 
@@ -137,13 +159,14 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
             const diffMins = Math.floor(diffMs / (1000 * 60));
             const diffHours = Math.floor(diffMins / 60);
             
+            // Menggunakan useRef agar aman dari depedency array
             const timeAgoStr = diffMins < 1 
-              ? (tDash.statJustNow || "Just now") 
+              ? (tDashRef.current.statJustNow || "Just now") 
               : diffMins < 60 
-                ? `${diffMins} ${(tDash.statMinsAgo || "mins ago")}` 
+                ? `${diffMins} ${(tDashRef.current.statMinsAgo || "mins ago")}` 
                 : diffHours < 24 
-                  ? `${diffHours} ${(tDash.statHrsAgo || "hours ago")}` 
-                  : `${Math.floor(diffHours / 24)} ${(tHop.daysAgo || "days ago")}`;
+                  ? `${diffHours} ${(tDashRef.current.statHrsAgo || "hours ago")}` 
+                  : `${Math.floor(diffHours / 24)} ${(tHopRef.current.daysAgo || "days ago")}`;
 
             const ownerAddress = ownerMap[i.toString()] || "0xUnknown";
             if (ownerAddress !== "0xUnknown") uniqueOwners.add(ownerAddress);
@@ -163,7 +186,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
               date: new Date(timestampMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
               timeAgo: timeAgoStr,
               badges: badges,
-              txHash: details.fileHash || ethers.ZeroHash,
+              fileHash: details.fileHash || ethers.ZeroHash,
               resolvedImage: imageBg,
               icon: iconComponent,
               isPublic: details.isPublic
@@ -184,15 +207,29 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
           filesTb: (totalNum * 0.005).toFixed(2) 
         });
 
-      } catch (error) {
-        console.error("Kesalahan jaringan/kontrak saat menarik data on-chain:", error);
+      } catch (err) {
+        console.error("Kesalahan jaringan/kontrak saat menarik data on-chain:", err);
+        setError("Failed to connect to BSC Testnet. Please try again later."); // ⚡ Set error state
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchOnChainData();
-  }, [tHop.creator, tHop.daysAgo, tDash.statJustNow, tDash.statMinsAgo, tDash.statHrsAgo]);
+    // ⚡ FIX 1: Array Kosong [] karena kita pakai useRef (tHopRef, tDashRef)
+  }, []);
+
+  // ⚡ FIX 10: Event listener shortcut Search (Cmd+K / Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('search-input')?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const categories = ['All', 'Music', 'Software', 'Design', 'Writing', 'Video', 'Research', 'Business'];
 
@@ -234,8 +271,8 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
             { label: tHop.totalProofs || "Total Proofs", value: stats.totalProofs.toLocaleString(), icon: Database, color: "text-cyan-400" },
-            { label: "Files Protected", value: `${stats.filesTb} TB`, icon: HardDrive, color: "text-blue-400" },
-            { label: tStats.burn || "AETH Burned", value: stats.burned.toLocaleString(), icon: Flame, color: "text-orange-400" },
+            { label: "Est. Files Protected", value: `${stats.filesTb} TB`, icon: HardDrive, color: "text-blue-400" },
+            { label: tStats.burn || "Est. AETH Burned", value: stats.burned.toLocaleString(), icon: Flame, color: "text-orange-400" },
             { label: tHop.creators || "Creators", value: stats.creators.toLocaleString(), icon: Users, color: "text-purple-400" },
             { label: tHop.categories || "Categories", value: 8, icon: Layers, color: "text-pink-400" },
             { label: tHop.blocks || "Binance Smart Chain Blocks", value: stats.blocks, icon: Blocks, color: "text-green-400" }
@@ -266,6 +303,8 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
               <div className="space-y-4">
                 {isLoading ? (
                    <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 text-neutral-500 animate-spin" /></div>
+                ) : latestBlocks.length === 0 ? (
+                   <div className="text-center text-xs text-neutral-500 font-mono py-4">No recent blocks found</div>
                 ) : latestBlocks.map((block, idx) => (
                   <div key={idx} className="flex items-start gap-3 relative">
                     {idx !== latestBlocks.length - 1 && (
@@ -289,8 +328,16 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
 
           <div className="lg:col-span-9 space-y-8">
 
+            {/* Error UI Handling */}
+            {error && !isLoading && (
+              <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center gap-3 text-red-400">
+                <AlertTriangle className="w-5 h-5 shrink-0" />
+                <p className="text-sm font-mono">{error}</p>
+              </div>
+            )}
+
             {/* Featured Proof Section */}
-            {!isLoading && featuredProof && (
+            {!isLoading && !error && featuredProof && (
               <div className="bg-[#0A0713]/80 backdrop-blur-xl border border-amber-500/30 rounded-3xl p-1 shadow-[0_0_40px_rgba(245,158,11,0.1)] relative overflow-hidden group">
                 <div className="absolute top-0 right-0 bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl rounded-tr-2xl z-20 flex items-center gap-1.5">
                   <Crown className="w-3 h-3"/> Featured Proof
@@ -346,6 +393,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
               <div className="relative w-full md:w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                 <input
+                  id="search-input" // ⚡ FIX 10: Shortcut Focus
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -364,7 +412,7 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
                 <Loader2 className="w-12 h-12 text-cyan-500 animate-spin drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
                 <p className="text-xs text-cyan-300 font-mono font-bold tracking-widest uppercase">{loadingStepText}</p>
               </div>
-            ) : filteredProofs.length === 0 ? (
+            ) : filteredProofs.length === 0 && !error ? (
               <div className="py-24 px-4 bg-[#0A0713]/50 backdrop-blur-md border border-neutral-800/50 rounded-3xl text-center space-y-5 shadow-2xl max-w-2xl mx-auto mt-8 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800/20 via-[#0A0713]/0 to-transparent"></div>
                 <div className="w-20 h-20 bg-gradient-to-b from-neutral-800 to-[#0A0713] border border-neutral-700 rounded-full flex items-center justify-center mx-auto text-neutral-400 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative z-10">
@@ -448,8 +496,8 @@ export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
                         <div className="flex justify-between items-center text-[9px] font-mono">
                           <span className="text-neutral-500">{tHop.hash || 'SHA-256'}</span>
                           <div className="flex items-center gap-1.5">
-                            <span className="text-neutral-400">{proof.txHash.substring(0,6)}...{proof.txHash.substring(proof.txHash.length - 4)}</span>
-                            <button onClick={() => copyToClipboard(proof.txHash, `hash-${proof.id}`)} className="text-neutral-500 hover:text-white transition-colors" title="Copy Hash">
+                            <span className="text-neutral-400">{proof.fileHash.substring(0,6)}...{proof.fileHash.substring(proof.fileHash.length - 4)}</span>
+                            <button onClick={() => copyToClipboard(proof.fileHash, `hash-${proof.id}`)} className="text-neutral-500 hover:text-white transition-colors" title="Copy Hash">
                               {copiedId === `hash-${proof.id}` ? <Check className="w-2.5 h-2.5 text-green-400" /> : <Copy className="w-2.5 h-2.5" />}
                             </button>
                           </div>

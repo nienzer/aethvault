@@ -7,19 +7,20 @@ export default function StakingPanel({
   stakingGlobalStats,
   isFetchingGlobalStats,
   aethBalance,
-  
+  isConnected, // ⚡ FIX: Tambah prop agar bisa guard tombol stake
+
   // Props untuk Stake Baru
   stakeInput,
   setStakeInput,
   handleStake, // Sekarang harus menerima (tierId, amount)
   isStaking,
   isWrongNetwork,
-  
+
   // Props Data User (BERUBAH UNTUK V6)
   totalUserStaked, // Total gabungan semua deposit
   pendingReward,   // Total bunga yang siap diklaim (userRewardDebt)
   userDeposits,    // Array dari struct Deposit: [{ id, tierId, amount, unlockTime, apy }, ...]
-  
+
   // Props Aksi Withdraw & Claim
   handleWithdrawStake,       // Harus menerima (depositId)
   handleEmergencyWithdraw,   // Harus menerima (depositId)
@@ -63,11 +64,11 @@ export default function StakingPanel({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-16 text-white font-sans">
-      
+
       {/* HEADER DASHBOARD STATS */}
       <div className="bg-gradient-to-br from-[#0B0817] via-[#05030F] to-[#0A0713] border border-violet-500/30 p-8 sm:p-10 rounded-3xl shadow-2xl relative overflow-hidden text-center">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-br from-violet-500/10 via-cyan-500/10 to-fuchsia-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-        
+
         <div className="relative z-10 space-y-3">
           <h2 className="text-sm font-bold text-neutral-400 uppercase tracking-[0.25em] flex items-center justify-center gap-2">
             <Coins className="w-4 h-4 text-violet-400" /> {tStake.title || "STAKING DASHBOARD"}
@@ -75,7 +76,7 @@ export default function StakingPanel({
           <h3 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-fuchsia-400 font-display">
             {tStake.subtitle || "Earn Yield on Your AETH"}
           </h3>
-          
+
           <div className="pt-6 grid grid-cols-2 gap-3 sm:gap-6 max-w-2xl mx-auto">
             <div className="bg-[#05030F]/80 backdrop-blur-md border border-neutral-800 rounded-2xl px-4 py-4 flex flex-col items-center justify-center text-center shadow-lg group hover:-translate-y-1 hover:shadow-violet-500/20 transition-all">
               <span className="text-[9px] sm:text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.maxApy || "MAX APY"}</span>
@@ -84,7 +85,7 @@ export default function StakingPanel({
                 <span className="text-[8px] sm:text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded border border-green-500/20">Tier Gold</span>
               </div>
             </div>
-            
+
             <div className="bg-[#05030F]/80 backdrop-blur-md border border-neutral-800 rounded-2xl px-4 py-4 flex flex-col items-center justify-center text-center shadow-lg group hover:-translate-y-1 hover:shadow-cyan-500/20 transition-all">
               <span className="text-[9px] sm:text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.tvl || "TOTAL VALUE LOCKED"}</span>
               <div className="flex items-center gap-2">
@@ -97,7 +98,7 @@ export default function StakingPanel({
 
       {/* MAIN CONTENT GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
         {/* PANEL KIRI: STAKE BARU (MULTI-TIER) */}
         <div className="lg:col-span-7 bg-[#0B0817] border border-neutral-900 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col justify-between group hover:border-violet-500/30 transition-colors">
           <div className="space-y-6">
@@ -119,7 +120,7 @@ export default function StakingPanel({
                 </div>
               ))}
             </div>
-            
+
             <div className="space-y-4">
               <div className="bg-[#05030F] border border-neutral-800 rounded-2xl p-5 shadow-inner">
                 <div className="flex justify-between items-center text-[10px] sm:text-xs text-neutral-500 mb-2">
@@ -135,7 +136,7 @@ export default function StakingPanel({
                     className="w-full bg-transparent text-3xl sm:text-4xl font-black font-mono text-white outline-none focus:text-violet-300 transition-colors placeholder:text-neutral-700"
                   />
                   <span className="text-sm font-bold text-neutral-500 font-mono">AETH</span>
-                  <button onClick={() => setStakeInput(aethBalance.toString())} className="text-[10px] sm:text-xs font-bold bg-violet-500/10 text-violet-400 px-3 py-1.5 rounded-lg border border-violet-500/20 cursor-pointer hover:bg-violet-500/20 uppercase tracking-widest">
+                  <button onClick={() => setStakeInput((aethBalance || 0).toString())} className="text-[10px] sm:text-xs font-bold bg-violet-500/10 text-violet-400 px-3 py-1.5 rounded-lg border border-violet-500/20 cursor-pointer hover:bg-violet-500/20 uppercase tracking-widest">
                     {tStake.maxBtn || "MAX"}
                   </button>
                 </div>
@@ -174,17 +175,17 @@ export default function StakingPanel({
 
            <button 
             onClick={() => handleStake(selectedTier, stakeInput)} 
-            disabled={isStaking || isWrongNetwork || parsedStakeInput <= 0 || (parsedStakeInput + parseFloat(totalUserStaked || 0) > 50000)} 
+            disabled={!isConnected || isStaking || isWrongNetwork || parsedStakeInput <= 0 || (parsedStakeInput + parseFloat(totalUserStaked || 0) > 50000)} 
             className="w-full py-4 mt-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:grayscale rounded-2xl font-bold text-sm text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] cursor-pointer flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
           >
             {isStaking ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-            {isStaking ? (tStake.btnLocking || "Locking...") : (tStake.btnConfirm || "Confirm Stake")}
+            {isStaking ? (tStake.btnLocking || "Locking...") : !isConnected ? (tStake.connectWallet || "Connect Wallet") : (tStake.btnConfirm || "Confirm Stake")}
           </button>
         </div>
 
         {/* PANEL KANAN: STATUS USER & DAFTAR DEPOSIT */}
         <div className="lg:col-span-5 bg-[#0B0817] border border-neutral-900 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col group hover:border-cyan-500/30 transition-colors">
-          
+
           <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-widest flex items-center justify-between border-b border-neutral-800 pb-3 mb-5">
             <span className="flex items-center gap-2"><Activity className="w-4 h-4 text-cyan-400" /> {tStake.yourPosition || "YOUR POSITION"}</span>
             {totalUserStaked > 0 && <span className="bg-cyan-500/10 text-cyan-400 text-[9px] px-2 py-0.5 rounded border border-cyan-500/20">{tStake.active || "ACTIVE"}</span>}
@@ -204,12 +205,12 @@ export default function StakingPanel({
             </div>
           ) : (
             <div className="space-y-4 flex-1 flex flex-col">
-              
+
               {/* RINGKASAN TOTAL STAKE & PENDING REWARD */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-[#05030F] border border-neutral-800 rounded-2xl p-4 shadow-inner">
                   <p className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.totalStaked || "TOTAL STAKED"}</p>
-                  <p className="text-lg font-black text-white font-mono truncate">{totalUserStaked?.toLocaleString() || "0"} AETH</p>
+                  <p className="text-lg font-black text-white font-mono truncate">{Number(totalUserStaked || 0).toLocaleString()} AETH</p>
                 </div>
                 <div className="bg-[#05030F] border border-neutral-800 rounded-2xl p-4 shadow-inner">
                   <p className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.pendingRewards || "READY TO CLAIM"}</p>
@@ -228,28 +229,29 @@ export default function StakingPanel({
               </button>
 
               <div className="border-t border-neutral-800 my-2"></div>
-              
+
               {/* DAFTAR DEPOSIT AKTIF (MULTI-DEPOSIT) */}
               <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.activeDeposits || "ACTIVE DEPOSITS"}</p>
-              
-                            <div className="flex-1 overflow-y-auto max-h-[300px] space-y-3 pr-1 custom-scrollbar">
+
+              <div className="flex-1 overflow-y-auto max-h-[300px] space-y-3 pr-1 custom-scrollbar">
                 {userDeposits?.map((dep, index) => {
                   // Memastikan konversi BigInt aman dari error overflow
                   const unlockTimestamp = dep.unlockTime !== undefined ? Number(dep.unlockTime.toString()) : 0;
                   const isLocked = currentTime < unlockTimestamp;
-                  
-                  // 🚀 FIX DESIMAL & APY V6: Deteksi otomatis tipe data agar tidak terjadi pembagian ganda 1e18
+
+                  // FIX DESIMAL & APY V6: Deteksi otomatis tipe data agar tidak terjadi pembagian ganda 1e18
                   const rawAmount = parseFloat(dep.amount || 0);
                   const formattedAmount = rawAmount > 1000000000 
                     ? (rawAmount / 1e18).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })
                     : rawAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
-                  
+
                   const targetTier = TIERS[dep.tierId] || TIERS[0];
                   const tierName = targetTier.name;
                   const displayApy = targetTier.apy;
-                  
+
                   return (
-                    <div key={dep.id || index} className="bg-[#05030F] border border-neutral-800 rounded-xl p-3 flex flex-col gap-2 animate-in fade-in duration-200">
+                    // ⚡ FIX: Konversi dep.id ke String agar React tidak warning saat BigInt
+                    <div key={dep.id !== undefined ? String(dep.id) : index} className="bg-[#05030F] border border-neutral-800 rounded-xl p-3 flex flex-col gap-2 animate-in fade-in duration-200">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-bold text-white bg-neutral-800 px-2 py-0.5 rounded">{tierName}</span>

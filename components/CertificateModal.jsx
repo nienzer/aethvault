@@ -50,8 +50,11 @@ export default function CertificateModal({
     }
   };
 
-  const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
-  const dateStr = new Date(selectedCertificate.creationTimestamp * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  // FIX: Menggunakan string "Not Connected" jika alamat tidak ditemukan
+  const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
+  
+  // FIX: Menggunakan Date.now() sebagai fallback jika timestamp bermasalah
+  const dateStr = new Date((selectedCertificate.creationTimestamp || Date.now() / 1000) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   const verifyUrl = `https://testnet.bscscan.com/tx/${selectedCertificate.proofHash}`;
 
   return (
@@ -86,7 +89,6 @@ export default function CertificateModal({
                 <span className="text-[10px] font-bold text-[#15803d] uppercase tracking-widest">{t.certBadgePolygon || "Verified on Binance"}</span>
               </div>
 
-                            {/* 🚀 FIX WATERMARK: Mengubah nama aset menjadi /watermark.png agar terbaca sempurna di sistem Windows & Produksi */}
               <img src="/watermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-[0.05] pointer-events-none grayscale p-20" />
               <div className="absolute inset-4 border-[4px] border-double border-[rgba(120,53,15,0.3)] pointer-events-none rounded-sm"></div>
               <div className="absolute inset-6 border-[1px] border-[rgba(120,53,15,0.1)] pointer-events-none rounded-sm"></div>
@@ -104,7 +106,7 @@ export default function CertificateModal({
                   </h5>
                 </div>
 
-                <div className="grid grid-cols-3 gap-y-5 gap-x-6 text-xs font-mono bg-[rgba(255,255,255,0.1)] p-6 border border-[rgba(120,53,15,0.2)] rounded-sm shadow-sm backdrop-blur-xs">
+                <div className="grid grid-cols-3 gap-y-5 gap-x-6 text-xs font-mono bg-[rgba(255,255,255,0.1)] p-6 border border-[rgba(120,53,15,0.2)] rounded-sm shadow-sm backdrop-blur-sm">
                   <div className="col-span-1 border-r border-[rgba(120,53,15,0.1)]">
                     <p className="text-[8px] uppercase tracking-widest text-[rgba(146,64,14,0.7)] mb-1">{t.certVaultId || "Vault ID"}</p>
                     <p className="font-bold text-[#171717]">#{selectedCertificate.capsuleId}</p>
@@ -127,20 +129,17 @@ export default function CertificateModal({
                       </span>
                     </div>
                   </div>
-                  <div className="col-span-1 border-r border-[rgba(120,53,15,0.1)] pl-2 pt-2 border-t">
-                    <p className="text-[8px] uppercase tracking-widest text-[rgba(146,64,14,0.7)] mb-1">{t.certBlock || "Block Number"}</p>
-                    <p className="font-bold text-[#171717] text-[10px]">{selectedCertificate.blockNumber}</p>
-                  </div>
-                  <div className="col-span-1 pl-2 pt-2 border-t">
+                  {/* FIX: Menghapus bagian Block Number yang akan selalu 0 */}
+                  <div className="col-span-2 pl-2 pt-2 border-t">
                     <p className="text-[8px] uppercase tracking-widest text-[rgba(146,64,14,0.7)] mb-1">{t.certSmartContract || "Smart Contract"}</p>
-                    <p className="font-bold text-[#171717] text-[10px]">{formatAddress("0xCda136B176baE8F92d0Dbc7851C0A1E282469265")}</p>
+                    <p className="font-bold text-[#171717] text-[10px] truncate pr-2">{formatAddress("0xCda136B176baE8F92d0Dbc7851C0A1E282469265")}</p>
                   </div>
 
                   <div className="col-span-3 border-t border-[rgba(120,53,15,0.2)] pt-4 mt-2 flex flex-col gap-3">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-[9px] uppercase tracking-widest text-[rgba(146,64,14,0.7)] mb-1 flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> {t.certHash || "Proof Hash"}</p>
-                        <p className="text-[10px] text-[#404040] font-bold tracking-tight">{selectedCertificate.proofHash}</p>
+                        <p className="text-[10px] text-[#404040] font-bold tracking-tight break-all">{selectedCertificate.proofHash}</p>
                       </div>
                     </div>
                   </div>

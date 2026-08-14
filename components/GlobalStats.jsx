@@ -1,5 +1,6 @@
 import React from 'react';
-import { Flame, UserX, Users, Loader2, Database, ShieldCheck, Award, Blocks, Activity } from 'lucide-react';
+// ⚡ FIX: UserX diganti jadi UserCheck
+import { Flame, UserCheck, Users, Loader2, Database, ShieldCheck, Award, Blocks, Activity } from 'lucide-react';
 
 export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformStats, stakingGlobalStats }) {
 
@@ -80,7 +81,8 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
         <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-green-500/50 hover:shadow-[0_10px_20px_-10px_rgba(34,197,94,0.3)] hover:-translate-y-1 transition-all">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] uppercase text-neutral-500 font-bold font-mono tracking-widest">{t.wallets || "Active Wallets"}</span>
-            <UserX className="w-4 h-4 text-green-400 group-hover:scale-110 transition-transform" />
+            {/* ⚡ FIX: Gunakan UserCheck agar maknanya sesuai dengan Active Wallets */}
+          <UserCheck className="w-4 h-4 text-green-400 group-hover:scale-110 transition-transform" />
           </div>
           <div className="flex items-end justify-between">
             <span className="text-2xl font-black font-mono text-white">
@@ -164,7 +166,7 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
                {/* Efek Animasi Sinyal Server */}
                <div className="flex items-end gap-1 h-6">
                  {[4, 8, 5, 10, 6, 9].map((h, i) => (
-                   <div key={i} className="w-1.5 bg-cyan-500/50 rounded-t-sm" style={{ height: `${h * 2}px`, animation: `pulse 1.5s infinite ${(i * 0.15)}s` }}></div>
+                   <div key={i} className="w-1.5 bg-cyan-500/50 rounded-t-sm animate-pulse" style={{ height: `${h * 2}px`, animationDelay: `${(i * 0.15)}s` }}></div>
                  ))}
                </div>
             </div>

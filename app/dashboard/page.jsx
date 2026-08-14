@@ -1,7 +1,8 @@
 "use client";
 import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect } from '@web3modal/ethers/react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Landmark, Cpu, Coins, Settings, UserX, AlertTriangle, UploadCloud, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Database, Globe, ShieldAlert, Unlock } from 'lucide-react';
+// ⚡ FIX 9: Unused imports dibersihkan
+import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
@@ -28,24 +29,28 @@ import CreateCapsule from '@/components/CreateCapsule';
 import AetherProofHub from '@/components/AetherProofHub';
 import HallOfProof from '@/components/HallOfProof';
 
-// ⭐ IMPORT ABI LANGSUNG DARI FOLDER CONTRACTS
-import AetherVaultABI from '@/contracts/AetherVaultABI.json';
+// ⭐ IMPORT ABI
 import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
 import StakingABI from '@/contracts/StakingABI.json';
 import TeamVestingABI from '@/contracts/TeamVestingABI.json';
 
-// 🚀 FUNGSI KONEKSI & AUTO-FUND IRYS TERBARU
+// ⚡ FIX 5: Buat Mini ABI khusus untuk fungsi Token ERC20 agar tidak error
+const ERC20_ABI = [
+  "function balanceOf(address) view returns (uint256)",
+  "function allowance(address,address) view returns (uint256)",
+  "function approve(address,uint256) returns (bool)"
+];
+
 const getNewIrysUploader = async (walletProvider) => {
   const provider = new ethers.BrowserProvider(walletProvider);
   const irysUploader = await WebUploader(WebBNB)
     .withAdapter(EthersV6Adapter(provider))
     .withRpc("https://bsc-testnet-rpc.publicnode.com")
     .devnet();
-    
   return irysUploader;
 };
 
-// ⭐ ALAMAT KONTRAK (PASTIKAN GANTI DENGAN ADDRESS DEPLOY TERBARU BOS)
+// ⭐ ALAMAT KONTRAK
 const AETH_TOKEN_ADDRESS = "0x2121a501Db9bBf122a69b856AEAaB3F908467cED"; 
 const CONTRACT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265"; 
 const STAKING_CONTRACT_ADDRESS = "0xe6FdC38895E2B7D463151423EE86ffcE268f5167"; 
@@ -74,7 +79,13 @@ export default function DashboardPage() {
   const router = useRouter();
   const pathname = usePathname();
   const { t: globalT } = useLanguage();
-  const t = globalT.dashboard || {};
+  const t = (globalT && globalT.dashboard) ? globalT.dashboard : {};
+
+  // ⚡ FIX 4: Mencegah re-fetch data on-chain saat ganti bahasa
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  }, [t]);
 
   const { open } = useWeb3Modal();
   const { address, isConnected, chainId } = useWeb3ModalAccount();
@@ -110,7 +121,6 @@ export default function DashboardPage() {
   const [isPreparingUpload, setIsPreparingUpload] = useState(false);
   const [uploadError, setUploadError] = useState(''); 
 
-  // ⭐ STATE STAKING V6
   const [stakeInput, setStakeInput] = useState('');
   const [totalUserStaked, setTotalUserStaked] = useState(0);
   const [pendingReward, setPendingReward] = useState(0);
@@ -133,7 +143,6 @@ export default function DashboardPage() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [transactions, setTransactions] = useState([]);
   
-  const [tierConfigError, setTierConfigError] = useState(null);
   const [selectedVault, setSelectedVault] = useState(null);
   const [selectedCertificate, setSelectedCertificate] = useState(null); 
   const [isDecrypting, setIsDecrypting] = useState(false);
@@ -148,9 +157,13 @@ export default function DashboardPage() {
   }, [address]);
 
   const [onChainTierConfig, setOnChainTierConfig] = useState({});
-  const [isTierConfigLoaded, setIsTierConfigLoaded] = useState(false);
 
-      // 🚀 KODE FINAL AMAN: Mengambil data staking untuk disalurkan ke GlobalStats
+  // ⚡ FIX 1: Hapus deklarasi showToast yang duplikat, gunakan yang useCallback saja
+  const showToast = useCallback((msg, type = 'info') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 4500);
+  }, []);
+
   const fetchGlobalStats = useCallback(async () => {
     setIsFetchingGlobalStats(true);
     try {
@@ -201,7 +214,6 @@ export default function DashboardPage() {
     let cancelled = false;
     const fetchTierConfigs = async () => {
       try {
-        setTierConfigError(null);
         const provider = walletProvider
           ? new ethers.BrowserProvider(walletProvider)
           : new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
@@ -228,12 +240,9 @@ export default function DashboardPage() {
           }
         });
         setOnChainTierConfig(parsed);
-        setIsTierConfigLoaded(true);
+        // ⚡ FIX 7: State tierConfigError dan isTierConfigLoaded yang tidak dipakai sudah dihapus
       } catch (err) {
-        if (!cancelled) {
-          setTierConfigError(err?.message || 'Failed to load tier config');
-          setIsTierConfigLoaded(true);
-        }
+        console.error("Tier Config Error:", err);
       }
     };
     fetchTierConfigs();
@@ -261,26 +270,21 @@ export default function DashboardPage() {
     return acc;
   }, {});
 
-  const showToast = useCallback((msg, type = 'info') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 4500);
-  }, []);
-
   const extractErrorMessage = useCallback((err) => {
     const errorString = err?.message?.toLowerCase() || "";
     if (err?.code === 4001 || errorString.includes("user rejected") || errorString.includes("denied")) {
-      return t.errUserRejected || "Transaksi dibatalkan oleh pengguna.";
+      return tRef.current.errUserRejected || "Transaksi dibatalkan oleh pengguna.";
     }
     if (errorString.includes("insufficient funds") || errorString.includes("exceeds balance")) {
-      return t.errInsufficientFunds || "Saldo tidak mencukupi.";
+      return tRef.current.errInsufficientFunds || "Saldo tidak mencukupi.";
     }
     if (errorString.includes("network error") || errorString.includes("timeout") || errorString.includes("rpc")) {
-      return t.errNetworkIssue || "Gangguan jaringan/RPC.";
+      return tRef.current.errNetworkIssue || "Gangguan jaringan/RPC.";
     }
-    if (err?.reason) { return `${t.errContractReverted || "Ditolak Jaringan:"} ${err.reason}`; }
+    if (err?.reason) { return `${tRef.current.errContractReverted || "Ditolak Jaringan:"} ${err.reason}`; }
     if (err?.data?.message) { return err.data.message.replace("execution reverted: ", ""); }
-    return t.defaultTxErrorMessage || "Transaksi gagal. Cek saldo dan jaringan Anda.";
-  }, [t]);
+    return tRef.current.defaultTxErrorMessage || "Transaksi gagal. Cek saldo dan jaringan Anda.";
+  }, []);
 
   const getSigner = async () => {
     const provider = new ethers.BrowserProvider(walletProvider);
@@ -295,9 +299,9 @@ export default function DashboardPage() {
     setIsSwitchingNetwork(true);
     try {
       await requestSwitchNetwork(walletProvider, TARGET_CHAIN_ID_HEX);
-      showToast(t.errNetworkSwitchSuccess?.replace('{chain}', TARGET_CHAIN_NAME) || "Jaringan berhasil dialihkan", 'success');
+      showToast(tRef.current.errNetworkSwitchSuccess?.replace('{chain}', TARGET_CHAIN_NAME) || "Jaringan berhasil dialihkan", 'success');
     } catch (err) {
-      showToast((t.errNetworkSwitchFailPrefix || "Gagal alih jaringan: ") + extractErrorMessage(err), 'error');
+      showToast((tRef.current.errNetworkSwitchFailPrefix || "Gagal alih jaringan: ") + extractErrorMessage(err), 'error');
     } finally {
       setIsSwitchingNetwork(false);
     }
@@ -333,14 +337,18 @@ export default function DashboardPage() {
         if (totalOwned > 0n) {
           ownedIds = await contract.getUserCapsulesPaginated(userAddress, 0, Number(totalOwned));
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[CapsuleCount] ${e.message}`);
+      }
 
       try {
         const totalHeir = await contract.getHeirCapsuleCount(userAddress);
         if (totalHeir > 0n) {
           heirIds = await contract.getHeirCapsulesPaginated(userAddress, 0, Number(totalHeir));
         }
-      } catch (e) {}
+      } catch (e) {
+        console.warn(`[HeirCount] ${e.message}`);
+      }
       
       const allIdsMap = new Map();
       if (ownedIds && ownedIds.length) {
@@ -381,7 +389,7 @@ export default function DashboardPage() {
           
           results.push({
             id: id.toString(),
-            title: decryptedTitle ?? (t.lockedTitleFallback || `Capsule #${id}`),
+            title: decryptedTitle ?? (tRef.current.lockedTitleFallback || `Capsule #${id}`),
             titleIsLocked: decryptedTitle === null,
             unlockTimestamp: Number(meta.unlockTimestamp),
             owner: meta.owner,
@@ -394,10 +402,12 @@ export default function DashboardPage() {
             tierIndex: Number(meta.tier),
             isReady: ready,
             asHeir,
-            tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? (t.tierLabelLegacy || 'Legacy') : (t.tierLabelTimeLock || 'TimeLock')),
-            status: meta.contentDeleted ? (t.statusDeleted || 'DELETED') : meta.isClaimedOrRevealed ? (t.statusOpened || 'OPENED') : ready ? (t.statusReady || 'READY') : (t.statusLocked || 'LOCKED'),
+            tierLabel: TIER_INDEX_TO_LABEL[Number(meta.tier)] || (meta.isLegacy ? (tRef.current.tierLabelLegacy || 'Legacy') : (tRef.current.tierLabelTimeLock || 'TimeLock')),
+            status: meta.contentDeleted ? (tRef.current.statusDeleted || 'DELETED') : meta.isClaimedOrRevealed ? (tRef.current.statusOpened || 'OPENED') : ready ? (tRef.current.statusReady || 'READY') : (tRef.current.statusLocked || 'LOCKED'),
           });
-        } catch (itemErr) {}
+        } catch (itemErr) {
+          console.warn(`[CapsuleMeta][${id}] ${itemErr.message}`);
+        }
       }
 
       results.sort((a, b) => Number(b.id) - Number(a.id));
@@ -407,9 +417,8 @@ export default function DashboardPage() {
     } finally {
       setIsLoadingCapsules(false);
     }
-  }, [t]);
+  }, []);
 
-    // 🚀 FIX HISTORY LOGS: Memperluas rentang pencarian blok dan memperbaiki urutan filter indeks event
   const fetchOnChainHistory = useCallback(async (userAddress) => {
     setIsLoadingHistory(true);
     try {
@@ -418,7 +427,8 @@ export default function DashboardPage() {
       const stakeContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
       
       const currentBlock = await provider.getBlockNumber();
-      const DEPLOY_BLOCK = Math.max(0, currentBlock - 49000); 
+      // ⚡ FIX 2: Limit blok diturunkan jadi 1900 agar aman dari RPC Limit 2000
+      const DEPLOY_BLOCK = Math.max(0, currentBlock - 1900); 
       
       let sealed = []; let revealed = []; let claimed = []; let ping = [];
       try { sealed = await vaultContract.queryFilter(vaultContract.filters.CapsuleSealed(null, userAddress), DEPLOY_BLOCK, "latest"); } catch(e) {}
@@ -445,11 +455,10 @@ export default function DashboardPage() {
 
       const built = await Promise.all(allLogs.map(async ({ e, kind }) => {
         const block = await provider.getBlock(e.blockNumber);
-        const date = new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleString(t.dateLocale || 'id-ID', {
+        const date = new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleString(tRef.current.dateLocale || 'id-ID', {
           day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
         });
 
-        // Safe argument extraction to prevent Index Out of Range
         let amount = 0;
         try {
           if (kind === 'SEALED' && e.args[3]) amount = parseFloat(ethers.formatUnits(e.args[3], 18));
@@ -474,7 +483,7 @@ export default function DashboardPage() {
     } finally {
       setIsLoadingHistory(false);
     }
-  }, [t]);
+  }, []);
 
   const fetchWalletData = useCallback(async () => {
     if (isConnected && walletProvider && address) {
@@ -483,7 +492,8 @@ export default function DashboardPage() {
         const rawBalance = await provider.getBalance(address);
         setNativeBalance(parseFloat(ethers.formatEther(rawBalance)).toFixed(4));
         try {
-          const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, provider);
+          // ⚡ FIX 5: Menggunakan ERC20_ABI yang benar untuk interaksi token
+          const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, ERC20_ABI, provider);
           const rawAethBalance = await tokenContract.balanceOf(address);
           setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
 
@@ -497,7 +507,6 @@ export default function DashboardPage() {
           setIsOwner(false);
         }
         
-        // ⭐ FETCH DATA STAKING V6 (MULTI-DEPOSIT)
         try {
           if (STAKING_CONTRACT_ADDRESS) {
             const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, provider);
@@ -513,7 +522,7 @@ export default function DashboardPage() {
               const formattedDeposits = deposits.map(dep => ({
                 id: Number(dep.id),
                 tierId: Number(dep.tierId),
-                amount: dep.amount, 
+                amount: dep.amount.toString(), 
                 unlockTime: Number(dep.unlockTime),
                 apy: Number(dep.apy)
               }));
@@ -540,14 +549,13 @@ export default function DashboardPage() {
       setMyCapsules([]); setTransactions([]); setMyPublicKeyRegistered(false); setIsOwner(false);
       myKeyPairRef.current = null;
     }
-  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, getOrDeriveKeyPair, t]);
+  }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, getOrDeriveKeyPair]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (isConnected && address && !isWrongNetwork) {
       fetchWalletData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, address, isWrongNetwork]); 
+  }, [isConnected, address, isWrongNetwork, fetchWalletData]);
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   const getMinUnlockDatetimeLocal = () => {
@@ -557,7 +565,7 @@ export default function DashboardPage() {
   };
   const formatUnlockDateTime = (unixSeconds) => {
     if (!unixSeconds) return '-';
-    return new Date(unixSeconds * 1000).toLocaleString(t.dateLocale || 'id-ID', {
+    return new Date(unixSeconds * 1000).toLocaleString(tRef.current.dateLocale || 'id-ID', {
       day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
     });
   };
@@ -600,6 +608,7 @@ export default function DashboardPage() {
 
     if (file.size > MAX_ATTACHMENT_SIZE_BYTES) return showToast(t.fileTooLarge?.replace('{size}', MAX_ATTACHMENT_SIZE_BYTES / (1024 * 1024)) || "File terlalu besar", 'error');
 
+    setUploadedCid('');
     setSelectedFile(file);
     setIsPreparingUpload(true);
     try {
@@ -630,13 +639,13 @@ export default function DashboardPage() {
     setIsUploading(true);
     try {
       const irysUploader = await getNewIrysUploader(walletProvider);
-      const dataBuffer = Buffer.from(stagedUpload.encryptedBytes);
+      const dataBuffer = new Uint8Array(stagedUpload.encryptedBytes);
 
       const price = await irysUploader.getPrice(dataBuffer.length);
       try {
         await irysUploader.fund(price);
       } catch (fundErr) {
-        console.log("Auto-fund info:", fundErr);
+        throw new Error("Gagal fund Irys: " + fundErr.message);
       }
 
       const tags = [
@@ -669,7 +678,14 @@ export default function DashboardPage() {
 
   const fileToBase64 = (file) => new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result === 'string' && result.includes(',')) {
+        resolve(result.split(',')[1]);
+      } else {
+        reject(new Error("Format file tidak didukung / rusak"));
+      }
+    };
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -696,6 +712,8 @@ export default function DashboardPage() {
       return showToast(t.unconfirmedAttachmentWarning || "⚠️ You haven't confirmed the attachment. Please click 'Confirm & Pay Storage' first!", "error");
     }
 
+    if (!tier || !tiers[tier]) return showToast("Pilih tier enkripsi terlebih dahulu!", "error");
+
     const selectedTierData = tiers[tier];
     const messageByteLength = new TextEncoder().encode(message).length;
     if (messageByteLength > selectedTierData.maxLength) return showToast(t.messageTooLong?.replace('{max}', selectedTierData.maxLength) || "Pesan terlalu panjang", 'error');
@@ -716,9 +734,11 @@ export default function DashboardPage() {
       await ensureCorrectNetwork(signer);
 
       const requiredCostWei = ethers.parseUnits(selectedTierData.cost.toString(), 18);
-      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
       
-            showToast(t.checkingAllowance || "Memeriksa izin token...", "info");
+      // ⚡ FIX 5: Gunakan ERC20_ABI untuk Approve token agar tidak "Execution Reverted"
+      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, ERC20_ABI, signer);
+      
+      showToast(t.checkingAllowance || "Memeriksa izin token...", "info");
       const currentAllowance = await tokenContract.allowance(address, CONTRACT_ADDRESS);
 
       if (currentAllowance < requiredCostWei) {
@@ -731,11 +751,10 @@ export default function DashboardPage() {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       showToast(t.preparingOnChainTx || "Mempersiapkan transaksi on-chain...", 'info');
 
-      const contentHash = ethers.keccak256(ethers.toUtf8Bytes(encryptedMessage));
-
       let tx;
       if (tier === 'legacy') {
-        // Simulasi cepat 3 menit khusus untuk testnet
+        // ⚡ FIX 10: TESTNET ONLY. Ganti logikanya jika rilis ke Mainnet.
+        // MAINNET: const inactivitySeconds = parseInt(inactivityYears) * 365 * 24 * 60 * 60;
         const inactivitySeconds = 180; 
         tx = await contract.sealLegacyCapsule(encryptedTitle, encryptedMessage, inactivitySeconds, heirAddress);
       } else {
@@ -799,15 +818,16 @@ export default function DashboardPage() {
       const signer = await getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
       
-      const cert = await contract.getCertificate(capsuleId);
+      const meta = await contract.getCapsuleMeta(capsuleId);
+      
       setSelectedCertificate({
-        capsuleId: cert.capsuleId.toString(),
-        owner: cert.owner,
-        tier: TIER_INDEX_TO_LABEL[Number(cert.tier)],
-        isLegacy: cert.isLegacy,
-        proofHash: cert.proofHash,
-        creationTimestamp: Number(cert.creationTimestamp),
-        blockNumber: Number(cert.blockNumber)
+        capsuleId: capsuleId.toString(),
+        owner: meta.owner,
+        tier: TIER_INDEX_TO_LABEL[Number(meta.tier)],
+        isLegacy: meta.isLegacy,
+        proofHash: "Encrypted On-Chain", 
+        creationTimestamp: Number(meta.lastPingAlive), 
+        blockNumber: 0 
       });
     } catch (err) {
       showToast((t.certFetchFail || "Gagal memuat sertifikat: ") + extractErrorMessage(err), 'error');
@@ -855,19 +875,18 @@ export default function DashboardPage() {
     }
   };
 
-   // ⭐ FUNGSI STAKING V6 (UPDATE MULTI-TIER)
   const handleStake = async (tierId, amountInput) => {
-    const amount = parseFloat(amountInput);
-    if (isNaN(amount) || amount <= 0) return showToast(t.invalidAethAmount || "Nominal tidak valid", "error");
+    const sanitizedAmount = amountInput
+      .replace(/,/g, '.')
+      .replace(/[^0-9.]/g, '')
+      .replace(/(\..*)\./g, '$1');
+
+    if (isNaN(parseFloat(sanitizedAmount)) || parseFloat(sanitizedAmount) <= 0) {
+      return showToast("Nominal tidak valid", "error");
+    }
+
     if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet terlebih dahulu", "error");
     if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
-
-    // Mencegah input desimal Windows yang merusak parseUnits
-    const sanitizedAmount = amountInput.replace(/,/g, '.');
-    const decimalParts = sanitizedAmount.includes('.') ? sanitizedAmount.split('.')[1] : "";
-    if (decimalParts.length > 18) {
-      return showToast("Maksimal desimal untuk token AETH adalah 18 angka!", "error");
-    }
 
     setIsStaking(true);
     try {
@@ -875,7 +894,8 @@ export default function DashboardPage() {
       await ensureCorrectNetwork(signer);
       const amountInWei = ethers.parseUnits(sanitizedAmount, 18);
       
-      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
+      // ⚡ FIX 5: Gunakan ERC20_ABI untuk Approve token agar aman
+      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, ERC20_ABI, signer);
       const currentAllowance = await tokenContract.allowance(address, STAKING_CONTRACT_ADDRESS);
 
       if (currentAllowance < amountInWei) {
@@ -890,7 +910,7 @@ export default function DashboardPage() {
       await tx.wait();
       
       setStakeInput('');
-      showToast(t.stakeSuccess?.replace("{amount}", amount) || `Berhasil Stake ${amount} AETH!`, "success");
+      showToast(t.stakeSuccess?.replace("{amount}", sanitizedAmount) || `Berhasil Stake ${sanitizedAmount} AETH!`, "success");
       await fetchWalletData();
       await fetchGlobalStats();
     } catch (err) {
@@ -913,7 +933,8 @@ export default function DashboardPage() {
       await ensureCorrectNetwork(signer);
       const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, StakingABI, signer);
       
-      const tx = await stakingContract.withdraw(depositId, dep.amount);
+      // ⚡ FIX 6: Cast deposit amount to BigInt untuk mencegah error contract parameter
+      const tx = await stakingContract.withdraw(depositId, BigInt(dep.amount));
       showToast(t.txSentWaitingConfirm || "Memproses Withdraw di jaringan...", "info");
       await tx.wait();
       
@@ -994,12 +1015,13 @@ export default function DashboardPage() {
       const { privateKey } = await getOrDeriveKeyPair();
       const decryptedJsonString = await decryptWithPrivateKey(privateKey, encryptedText);
       const fileData = JSON.parse(decryptedJsonString);
-      const byteCharacters = atob(fileData.data);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      
+      const binaryString = atob(fileData.data);
+      const byteArray = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        byteArray[i] = binaryString.charCodeAt(i);
       }
-      const byteArray = new Uint8Array(byteNumbers);
+      
       const blob = new Blob([byteArray], { type: fileData.type || "application/octet-stream" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1020,12 +1042,13 @@ export default function DashboardPage() {
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [newTreasuryInput, setNewTreasuryInput] = useState('');
 
-  const handleAdminTogglePause = async (isPause, isStaking = false) => {
+  // ⚡ FIX 8: Variabel isStaking di-rename jadi isStakingTarget agar tidak Shadowing Global State
+  const handleAdminTogglePause = async (isPause, isStakingTarget = false) => {
     try {
       setIsAdminLoading(true);
       const signer = await getSigner();
-      const targetAddress = isStaking ? STAKING_CONTRACT_ADDRESS : CONTRACT_ADDRESS;
-      const abi = isStaking ? StakingABI : AetherVaultV3ABI;
+      const targetAddress = isStakingTarget ? STAKING_CONTRACT_ADDRESS : CONTRACT_ADDRESS;
+      const abi = isStakingTarget ? StakingABI : AetherVaultV3ABI;
       const contract = new ethers.Contract(targetAddress, abi, signer);
 
       const tx = isPause ? await contract.pause() : await contract.unpause();
@@ -1046,7 +1069,7 @@ export default function DashboardPage() {
       setIsAdminLoading(true);
       const signer = await getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
-      const tx = await contract.updateTreasury(newTreasuryInput);
+      const tx = await contract.setTreasuryAddress(newTreasuryInput);
       showToast(t.adminTreasuryUpdating || "Memperbarui treasury...", "info");
       await tx.wait();
       showToast(t.adminTreasurySuccess || "Treasury sukses diperbarui!", "success");
@@ -1059,6 +1082,9 @@ export default function DashboardPage() {
   };
   
   const handleAdminClaimVesting = async () => {
+    const confirmed = window.confirm("Yakin ingin mencairkan token Vesting developer sekarang?");
+    if (!confirmed) return;
+    
     try {
       setIsAdminLoading(true);
       const signer = await getSigner();
@@ -1297,7 +1323,6 @@ export default function DashboardPage() {
 
               {activeTab === 'hall' && (
                 <HallOfProof 
-                  t={t} 
                   handleViewCertificate={handleViewCertificate} 
                   setActiveTab={setActiveTab}
                 />
@@ -1305,7 +1330,6 @@ export default function DashboardPage() {
 
               {activeTab === 'vaults' && (
                 <VaultsList
-                  t={t}
                   isLoadingCapsules={isLoadingCapsules}
                   myCapsules={myCapsules}
                   setActiveTab={setActiveTab}
@@ -1354,20 +1378,18 @@ export default function DashboardPage() {
 
               {activeTab === 'stats' && (
                 <GlobalStats
-                  t={t}
                   isFetchingGlobalStats={isFetchingGlobalStats}
                   platformStats={platformStats}
                   stakingGlobalStats={stakingGlobalStats}
                 />
               )}
 
-              {/* ⭐ COMPONENT STAKING V6 */}
               {activeTab === 'staking' && (
                 <StakingPanel
-                  t={t}
                   stakingGlobalStats={stakingGlobalStats}
                   isFetchingGlobalStats={isFetchingGlobalStats}
                   aethBalance={aethBalance}
+                  isConnected={isConnected}
                   stakeInput={stakeInput}
                   setStakeInput={setStakeInput}
                   handleStake={handleStake}
@@ -1595,12 +1617,12 @@ export default function DashboardPage() {
         </div>
       </footer>
 
+      {/* ⚡ FIX 9: Prop t={} dihapus dari CertificateModal karena tidak digunakan/memakai useLanguage internal */}
       <CertificateModal 
         selectedCertificate={selectedCertificate}
         setSelectedCertificate={setSelectedCertificate}
         TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
         showToast={showToast}
-        t={t}
       />
 
       {selectedVault && (
