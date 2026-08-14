@@ -18,7 +18,8 @@ export default function CertificateModal({
 
   if (!selectedCertificate) return null;
 
-  const isProof = Boolean(selectedCertificate.category || (selectedCertificate.title && selectedCertificate.proofHash !== "Encrypted On-Chain"));
+  // FIX: Deteksi Proof yang lebih akurat (jika ada title atau proofHash berupa hex hash)
+  const isProof = Boolean(selectedCertificate.title || (selectedCertificate.proofHash && selectedCertificate.proofHash !== "Encrypted On-Chain"));
 
   const handleDownloadPNG = async () => {
     if (!certificateRef.current) return;
@@ -87,12 +88,12 @@ export default function CertificateModal({
             
             {isProof ? (
               // 🌟 AETHER PROOF: Web3 Dark Mode Futuristik dengan Logo /logo.png
-              <div ref={certificateRef} className="w-[842px] h-[595px] bg-[#0B0817] text-gray-200 rounded-2xl p-10 relative overflow-hidden shadow-[0_0_40px_rgba(6,182,212,0.15)] font-sans border border-cyan-500/40 mx-auto flex flex-col justify-between shrink-0 transform origin-top-left sm:origin-center scale-[0.6] sm:scale-100 mb-[-200px] sm:mb-0">
+              <div ref={certificateRef} className="w-[842px] h-[595px] bg-[#0B0817] text-gray-200 rounded-2xl p-8 relative overflow-hidden shadow-[0_0_40px_rgba(6,182,212,0.15)] font-sans border border-cyan-500/40 mx-auto flex flex-col justify-between shrink-0 transform origin-top-left sm:origin-center scale-[0.6] sm:scale-100 mb-[-200px] sm:mb-0">
                 
                 <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <div className="absolute top-8 right-8 flex items-center gap-2 z-20 bg-green-950/80 px-3.5 py-1.5 rounded-full border border-green-500/40 shadow-lg">
+                <div className="absolute top-6 right-6 flex items-center gap-2 z-20 bg-green-950/80 px-3.5 py-1.5 rounded-full border border-green-500/40 shadow-lg">
                   <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.8)]"></div>
                   <span className="text-[10px] font-bold text-green-300 uppercase tracking-widest font-mono">Verified on Binance</span>
                 </div>
@@ -113,7 +114,7 @@ export default function CertificateModal({
                     </h5>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 text-xs font-mono bg-[#05030F] p-5 border border-cyan-500/20 rounded-xl shadow-inner backdrop-blur-md">
+                  <div className="grid grid-cols-3 gap-4 text-xs font-mono bg-[#05030F] p-4 border border-cyan-500/20 rounded-xl shadow-inner backdrop-blur-md">
                     <div className="col-span-1 border-r border-neutral-800 pr-2">
                       <p className="text-[9px] uppercase tracking-widest text-neutral-500 mb-1">Token ID</p>
                       <p className="font-bold text-cyan-400 text-sm">#{selectedCertificate.capsuleId}</p>
@@ -127,19 +128,19 @@ export default function CertificateModal({
                       <p className="font-bold text-neutral-200">{dateStr}</p>
                     </div>
 
-                    <div className="col-span-1 border-r border-neutral-800 pr-2 pt-3 border-t border-neutral-800">
+                    <div className="col-span-1 border-r border-neutral-800 pr-2 pt-2 border-t border-neutral-800">
                       <p className="text-[9px] uppercase tracking-widest text-neutral-500 mb-1">Category</p>
                       <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2.5 py-0.5 rounded tracking-widest font-bold uppercase">
                         {selectedCertificate.category || 'General'}
                       </span>
                     </div>
 
-                    <div className="col-span-2 pl-2 pt-3 border-t border-neutral-800">
+                    <div className="col-span-2 pl-2 pt-2 border-t border-neutral-800">
                       <p className="text-[9px] uppercase tracking-widest text-neutral-500 mb-1">Smart Contract</p>
                       <p className="font-bold text-neutral-300 text-[11px] truncate">0xCda136B176baE8F92d0Dbc7851C0A1E282469265</p>
                     </div>
 
-                    <div className="col-span-3 border-t border-neutral-800 pt-3 mt-1">
+                    <div className="col-span-3 border-t border-neutral-800 pt-2 mt-1">
                       <p className="text-[9px] uppercase tracking-widest text-neutral-500 mb-1 flex items-center gap-1.5">
                         <Fingerprint className="w-3.5 h-3.5 text-cyan-400"/> SHA-256 File Hash
                       </p>
@@ -148,7 +149,7 @@ export default function CertificateModal({
                   </div>
                 </div>
 
-                <div className="relative z-10 pt-4 border-t border-neutral-800 flex flex-row items-end justify-between px-2 pb-1">
+                <div className="relative z-10 pt-3 border-t border-neutral-800 flex flex-row items-end justify-between px-2 pb-1">
                   <div className="text-left">
                     <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest leading-relaxed font-mono">
                       Certified & Registered By<br/>
@@ -158,7 +159,7 @@ export default function CertificateModal({
                   </div>
 
                   <div className="text-center px-4 flex flex-col items-center">
-                     <span className="font-display font-black text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 tracking-wider mb-0.5">AetherVault DAO</span>
+                     <span className="font-display font-black text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 tracking-wider mb-0.5">AetherVault</span>
                      <div className="w-36 border-b border-neutral-700 mb-1"></div>
                      <p className="text-[8px] uppercase tracking-widest text-neutral-500 font-mono">Digital Signature</p>
                   </div>
@@ -173,10 +174,10 @@ export default function CertificateModal({
 
               </div>
             ) : (
-              // 🌟 LEGACY / VAULT: Diperbaiki tata letak grid-nya agar tidak tumpuk
-              <div ref={certificateRef} className="w-[842px] h-[595px] bg-[#fdfbf7] text-[#171717] rounded-sm p-10 relative overflow-hidden shadow-2xl font-serif border border-[#d4d4d4] mx-auto flex flex-col justify-between shrink-0 transform origin-top-left sm:origin-center scale-[0.6] sm:scale-100 mb-[-200px] sm:mb-0">
+              // 🌟 LEGALI / VAULT: Padding atas dirapikan agar tidak terpotong, tanda tangan tanpa DAO
+              <div ref={certificateRef} className="w-[842px] h-[595px] bg-[#fdfbf7] text-[#171717] rounded-sm p-8 relative overflow-hidden shadow-2xl font-serif border border-[#d4d4d4] mx-auto flex flex-col justify-between shrink-0 transform origin-top-left sm:origin-center scale-[0.6] sm:scale-100 mb-[-200px] sm:mb-0">
                 
-                <div className="absolute top-8 right-8 flex items-center gap-2 z-20 bg-[rgba(255,255,255,0.9)] px-3 py-1.5 rounded-full border border-[#bbf7d0] shadow-sm">
+                <div className="absolute top-6 right-6 flex items-center gap-2 z-20 bg-[rgba(255,255,255,0.9)] px-3 py-1.5 rounded-full border border-[#bbf7d0] shadow-sm">
                   <div className="w-2.5 h-2.5 bg-[#22c55e] rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
                   <span className="text-[10px] font-bold text-[#15803d] uppercase tracking-widest">Verified on Binance</span>
                 </div>
@@ -185,12 +186,12 @@ export default function CertificateModal({
                 <div className="absolute inset-4 border-[4px] border-double border-[rgba(120,53,15,0.3)] pointer-events-none rounded-sm"></div>
                 <div className="absolute inset-6 border-[1px] border-[rgba(120,53,15,0.1)] pointer-events-none rounded-sm"></div>
                 
-                <div className="relative z-10 text-center mb-2 pt-2 border-b-2 border-[rgba(120,53,15,0.1)] pb-3">
-                  <h4 className="text-4xl font-black tracking-[0.25em] text-[#78350f] mb-1 font-display drop-shadow-sm">AETHERVAULT</h4>
-                  <p className="text-xs font-bold tracking-[0.3em] text-[#b45309] uppercase">Official Cryptographic Certificate</p>
+                <div className="relative z-10 text-center mb-1 pt-2 border-b-2 border-[rgba(120,53,15,0.1)] pb-2">
+                  <h4 className="text-3xl font-black tracking-[0.25em] text-[#78350f] mb-1 font-display drop-shadow-sm">AETHERVAULT</h4>
+                  <p className="text-[11px] font-bold tracking-[0.3em] text-[#b45309] uppercase">Official Cryptographic Certificate</p>
                 </div>
 
-                <div className="relative z-10 space-y-4 flex-1 flex flex-col justify-center px-4">
+                <div className="relative z-10 space-y-3 flex-1 flex flex-col justify-center px-4">
                   <div className="text-center mb-1">
                     <p className="text-[10px] uppercase tracking-widest text-[#737373] mb-1">This certifies the creation of</p>
                     <h5 className="text-2xl font-bold text-[#171717] font-display px-8 leading-snug">
@@ -198,8 +199,7 @@ export default function CertificateModal({
                     </h5>
                   </div>
 
-                  {/* FIX: Lebarkan jarak antar baris grid agar Creator dan Smart Contract tidak bertumpuk */}
-                  <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-xs font-mono bg-[rgba(255,255,255,0.2)] p-5 border border-[rgba(120,53,15,0.2)] rounded-sm shadow-sm backdrop-blur-sm">
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-xs font-mono bg-[rgba(255,255,255,0.2)] p-4 border border-[rgba(120,53,15,0.2)] rounded-sm shadow-sm backdrop-blur-sm">
                     <div className="border-r border-[rgba(120,53,15,0.1)] pr-4">
                       <p className="text-[8px] uppercase tracking-widest text-[rgba(146,64,14,0.7)] mb-1">Vault ID & Tier</p>
                       <div className="flex items-center gap-2">
@@ -215,24 +215,24 @@ export default function CertificateModal({
                       <p className="font-bold text-[#171717]">{dateStr}</p>
                     </div>
 
-                    <div className="border-r border-[rgba(120,53,15,0.1)] pr-4 pt-3 border-t border-[rgba(120,53,15,0.1)]">
+                    <div className="border-r border-[rgba(120,53,15,0.1)] pr-4 pt-2 border-t border-[rgba(120,53,15,0.1)]">
                       <p className="text-[8px] uppercase tracking-widest text-[rgba(146,64,14,0.7)] mb-1">Creator / Owner</p>
                       <p className="font-bold text-[#171717] text-[11px] truncate">{formatAddress(selectedCertificate.owner)}</p>
                     </div>
 
-                    <div className="pt-3 border-t border-[rgba(120,53,15,0.1)]">
+                    <div className="pt-2 border-t border-[rgba(120,53,15,0.1)]">
                       <p className="text-[8px] uppercase tracking-widest text-[rgba(146,64,14,0.7)] mb-1">Smart Contract</p>
                       <p className="font-bold text-[#171717] text-[11px] truncate">0xCda136B176baE8F92d0Dbc7851C0A1E282469265</p>
                     </div>
 
-                    <div className="col-span-2 border-t border-[rgba(120,53,15,0.2)] pt-3 mt-1">
+                    <div className="col-span-2 border-t border-[rgba(120,53,15,0.2)] pt-2 mt-1">
                       <p className="text-[9px] uppercase tracking-widest text-[rgba(146,64,14,0.7)] mb-1 flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> Security Status</p>
                       <p className="text-[10px] text-[#404040] font-bold tracking-tight">Encrypted On-Chain (Legacy Vault Protection)</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="relative z-10 mt-4 pt-3 border-t-2 border-[rgba(120,53,15,0.2)] flex flex-row items-end justify-between px-6 pb-2">
+                <div className="relative z-10 mt-3 pt-2 border-t-2 border-[rgba(120,53,15,0.2)] flex flex-row items-end justify-between px-6 pb-1">
                   <div className="text-left mb-1">
                     <p className="text-[8px] font-bold text-[#78350f] uppercase tracking-widest leading-relaxed">
                       Registered By<br/>
@@ -241,8 +241,9 @@ export default function CertificateModal({
                     <p className="text-[7px] text-[#737373] font-mono mt-1 tracking-widest bg-[rgba(120,53,15,0.05)] inline-block px-1.5 py-0.5 rounded">IMMUTABLE • BINANCE</p>
                   </div>
 
+                  {/* Tanda tangan tanpa kata DAO */}
                   <div className="text-center mb-1 px-8 flex flex-col items-center">
-                     <div className="font-signature text-3xl text-[rgba(120,53,15,0.8)] -rotate-3 mb-1" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault DAO</div>
+                     <div className="font-signature text-3xl text-[rgba(120,53,15,0.8)] -rotate-3 mb-1" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
                      <div className="w-32 border-b border-[rgba(120,53,15,0.4)] mb-1"></div>
                      <p className="text-[8px] uppercase tracking-widest text-[#737373] font-bold">Signature</p>
                   </div>
