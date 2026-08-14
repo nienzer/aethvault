@@ -1,6 +1,6 @@
 import React from 'react';
-// ⚡ FIX: UserX diganti jadi UserCheck
-import { Flame, UserCheck, Users, Loader2, Database, ShieldCheck, Award, Blocks, Activity } from 'lucide-react';
+// ⚡ FIX: Icon Award ditambahkan, UserCheck dihapus (karena Active Wallets diganti)
+import { Flame, Users, Loader2, Database, ShieldCheck, Award, Blocks, Activity } from 'lucide-react';
 
 export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformStats, stakingGlobalStats }) {
 
@@ -58,7 +58,7 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
         </div>
       </div>
 
-      {/* METRIC GRIDS (Aman - Hanya membaca props) */}
+      {/* METRIC GRIDS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         
         {/* Capsules */}
@@ -77,21 +77,21 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
           </div>
         </div>
 
-        {/* Wallets */}
-        <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-green-500/50 hover:shadow-[0_10px_20px_-10px_rgba(34,197,94,0.3)] hover:-translate-y-1 transition-all">
+        {/* 🚀 FIX: Active Wallets diubah menjadi Total Proofs */}
+        <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-fuchsia-500/50 hover:shadow-[0_10px_20px_-10px_rgba(217,70,239,0.3)] hover:-translate-y-1 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] uppercase text-neutral-500 font-bold font-mono tracking-widest">{t.wallets || "Active Wallets"}</span>
-            {/* ⚡ FIX: Gunakan UserCheck agar maknanya sesuai dengan Active Wallets */}
-          <UserCheck className="w-4 h-4 text-green-400 group-hover:scale-110 transition-transform" />
+            <span className="text-[10px] uppercase text-neutral-500 font-bold font-mono tracking-widest">{t.totalProofs || "Total Proofs"}</span>
+            <Award className="w-4 h-4 text-fuchsia-400 group-hover:scale-110 transition-transform" />
           </div>
           <div className="flex items-end justify-between">
             <span className="text-2xl font-black font-mono text-white">
-              {isFetchingGlobalStats ? <Loader2 className="w-4 h-4 animate-spin" /> : platformStats?.users?.toLocaleString() || "0"}
+              {/* Membaca nilai totalProofs dari platformStats (sesuai fungsi getPlatformStats di smart contract) */}
+              {isFetchingGlobalStats ? <Loader2 className="w-4 h-4 animate-spin" /> : platformStats?.proofs?.toLocaleString() || "0"}
             </span>
           </div>
           <div className="mt-3 flex items-center gap-1.5">
-             <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-             <span className="text-[9px] font-mono text-neutral-500 uppercase">{t.tracked || "Tracked"}</span>
+             <div className="w-1.5 h-1.5 bg-fuchsia-400 rounded-full animate-pulse"></div>
+             <span className="text-[9px] font-mono text-neutral-500 uppercase">{t.minted || "Minted On-Chain"}</span>
           </div>
         </div>
 

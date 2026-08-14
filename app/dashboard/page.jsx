@@ -181,7 +181,7 @@ export default function DashboardPage() {
         const stats = await vaultContract.getPlatformStats();
         setPlatformStats({
           capsules: Number(stats[0] || 0),
-          users: Number(stats[1] || 0), 
+          proofs: Number(stats[1] || 0), 
           burned: parseFloat(ethers.formatUnits(stats[2] || 0, 18)),
           supply: parseFloat(ethers.formatUnits(stats[3] || 0, 18))
         });
@@ -563,7 +563,11 @@ export default function DashboardPage() {
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   const getMinUnlockDatetimeLocal = () => {
-    const d = new Date(Date.now() + 5 * 60 * 1000);
+    // =========================================================
+    // 🚀 MAINNET NOTE: Waktu minimal kalender. 
+    // Sekarang Testnet (5 menit). Nanti ganti pengalinya, misal 1 hari: (24 * 60 * 60 * 1000)
+    // =========================================================
+    const d = new Date(Date.now() + 5 * 60 * 1000); 
     const pad = (n) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
@@ -744,7 +748,13 @@ export default function DashboardPage() {
 
       let tx;
       if (tier === 'legacy') {
+        // =========================================================
+        // 🚀 MAINNET NOTE: Ganti batas waktu Legacy!
+        // MATIKAN kode 180 (Testnet), dan HIDUPKAN kode rumus tahun (Mainnet) di bawahnya:
+        // =========================================================
         const inactivitySeconds = 180; 
+        // const inactivitySeconds = Number(inactivityYears) * 31536000;
+        
         tx = await contract.sealLegacyCapsule(encryptedTitle, encryptedMessage, inactivitySeconds, heirAddress);
       } else {
         if (!unlockDate) throw new Error(t.selectUnlockDateTime || "Pilih waktu buka");

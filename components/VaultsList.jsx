@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, Unlock, Clock, Shield, Trash2, Award, Activity, Eye, Loader2, KeyRound, Box, FileText, AlertTriangle } from 'lucide-react'; // ⚡ FIX 5: Import dibersihkan, AlertTriangle dipakai untuk banner
+import { Lock, Unlock, Clock, Shield, Trash2, Award, Activity, Eye, Loader2, KeyRound, Box, FileText, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function VaultsList({
@@ -48,7 +48,6 @@ export default function VaultsList({
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500 pb-16">
       
-      {/* ⚡ FIX 3: Banner Visual Feedback untuk Network Error */}
       {isWrongNetwork && (
         <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex items-center gap-3 text-amber-400 shadow-lg mb-4">
           <AlertTriangle className="w-5 h-5 shrink-0" />
@@ -71,23 +70,23 @@ export default function VaultsList({
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {myCapsules.map((capsule) => {
-          // ⚡ FIX 2: Legacy punya sertifikat warisan, jadi dikeluarkan dari list No-Cert
           const isSecretCapsule = ['Basic', 'VIP', 'Eternal'].includes(capsule.tierLabel);
-          
-          // ⚡ FIX 1: Deteksi status menggunakan string baku / konstan, BUKAN hasil terjemahan
           const isOpened = capsule.status === "OPENED";
           const isReady = capsule.status === "READY";
           const isDeleted = capsule.status === "DELETED";
-
-          // ⚡ FIX 6: Ekstrak logika Ping Alive biar lebih rapi & mudah dibaca
           const canPing = capsule.isLegacy && !capsule.asHeir && !capsule.isClaimedOrRevealed && !capsule.contentDeleted && !capsule.isReady;
+
+          const limitInSeconds = Number(capsule.inactivityLimit || 0);
+
+          // 🚀 CATATAN UNTUK NANTI SAAT MAINNET:
+          // Ganti angka 60 jadi 31536000, dan kata "Minutes" jadi "Years"
+          const limitDisplay = `${Math.floor(limitInSeconds / 60)} Minutes`;
 
           return (
             <div key={capsule.id} className="bg-[#0B0817] border border-neutral-800 rounded-3xl p-5 hover:border-cyan-500/40 transition-all duration-300 shadow-lg group hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)] flex flex-col">
               
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-2">
-                  {/* Warna dinamis menggunakan variabel boolean yang akurat */}
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-inner ${
                     isOpened ? 'bg-green-500/10 border-green-500/30 text-green-400' :
                     isReady ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
@@ -106,7 +105,6 @@ export default function VaultsList({
                       isDeleted ? 'bg-red-500/10 text-red-400 border-red-500/20' :
                       'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
                     }`}>
-                      {/* Render teks terjemahan ke UI */}
                       {isOpened ? (dashT.statusOpened || "OPENED") : 
                        isReady ? (dashT.statusReady || "READY") : 
                        isDeleted ? (dashT.statusDeleted || "DELETED") : 
@@ -135,19 +133,17 @@ export default function VaultsList({
                 {!capsule.isLegacy ? (
                   <div className="flex justify-between items-center text-[10px] sm:text-xs">
                     <span className="text-neutral-500 font-mono uppercase tracking-widest flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> {vaultT.unlocks || "UNLOCKS"}</span>
-                    {/* ⚡ FIX 4: Null-safety untuk timestamp */}
                     <span className="font-mono font-bold text-neutral-300">{capsule.unlockTimestamp ? formatUnlockDateTime(capsule.unlockTimestamp) : "—"}</span>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     <div className="flex justify-between items-center text-[10px] sm:text-xs">
                       <span className="text-neutral-500 font-mono uppercase tracking-widest flex items-center gap-1.5"><Activity className="w-3.5 h-3.5"/> {vaultT.lastPing || "LAST PING"}</span>
-                      {/* ⚡ FIX 4: Null-safety untuk timestamp */}
                       <span className="font-mono font-bold text-neutral-300">{capsule.lastPingAlive ? formatUnlockDateTime(capsule.lastPingAlive) : "—"}</span>
                     </div>
                     <div className="flex justify-between items-center text-[10px] sm:text-xs border-t border-neutral-800/50 pt-2">
                       <span className="text-neutral-500 font-mono uppercase tracking-widest">{vaultT.limit || "INACTIVITY LIMIT"}</span>
-                      <span className="font-mono font-bold text-red-400">{capsule.inactivityLimit / (365*24*60*60)} {vaultT.years || "Years"}</span>
+                      <span className="font-mono font-bold text-red-400">{limitDisplay}</span>
                     </div>
                   </div>
                 )}
@@ -171,7 +167,6 @@ export default function VaultsList({
                   </button>
                 )}
 
-               {/* Panggil extracted variable canPing */}
                {canPing && (
                  <button
                   onClick={() => handlePingAlive(capsule)}
