@@ -621,7 +621,10 @@ export default function DashboardPage() {
       const fileBase64 = await fileToBase64(file);
       const cipherPayload = JSON.stringify({ name: file.name, type: file.type, data: fileBase64 });
       const encryptedPayload = await encryptForPublicKey(recipientPublicKey, cipherPayload);
-      const encryptedBytes = new TextEncoder().encode(encryptedPayload);
+      
+      // ⚡ FIX: Pastikan diubah ke Uint8Array agar aman untuk Irys uploader
+      const textEncoder = new TextEncoder();
+      const encryptedBytes = textEncoder.encode(encryptedPayload);
       
       const irysUploader = await getNewIrysUploader(walletProvider);
       const price = await irysUploader.getPrice(encryptedBytes.byteLength);
@@ -644,7 +647,10 @@ export default function DashboardPage() {
     setIsUploading(true);
     try {
       const irysUploader = await getNewIrysUploader(walletProvider);
-      const dataBuffer = new Uint8Array(stagedUpload.encryptedBytes);
+      
+      // ⚡ FIX: Pastikan data benar-benar dikonversi menjadi Uint8Array murni
+      const rawData = stagedUpload.encryptedBytes;
+      const dataBuffer = rawData instanceof Uint8Array ? rawData : new Uint8Array(rawData);
 
       const price = await irysUploader.getPrice(dataBuffer.length);
       try {
@@ -660,10 +666,10 @@ export default function DashboardPage() {
       ];
 
       const receipt = await irysUploader.upload(dataBuffer, { tags });
-      const irysUrl = `https://devnet.irys.xyz/${receipt.id}`;
+      const irysUrl = `https://devnet.irys.xyz/${receipt.id}`[cite: 2];
       
       setUploadedCid(irysUrl);
-      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`);
+      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`[cite: 2]);
       showToast(t.fileUploadedSuccess || "Upload berhasil!", "success");
       setStagedUpload(null);
     } catch (error) {
