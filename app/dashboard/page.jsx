@@ -30,9 +30,14 @@ import AetherProofHub from '@/components/AetherProofHub';
 import HallOfProof from '@/components/HallOfProof';
 
 // ⭐ IMPORT ABI
-import AetherVaultV3ABI from '@/contracts/AetherVaultV3ABI.json';
-import StakingABI from '@/contracts/StakingABI.json';
-import TeamVestingABI from '@/contracts/TeamVestingABI.json';
+import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
+import StakingArtifact from '@/contracts/StakingABI.json';
+import TeamVestingArtifact from '@/contracts/TeamVestingABI.json';
+
+// ⚡ FIX: Ekstrak array ABI dari dalam objek JSON bawaan Hardhat
+const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
+const StakingABI = StakingArtifact.abi || StakingArtifact;
+const TeamVestingABI = TeamVestingArtifact.abi || TeamVestingArtifact;
 
 // ⚡ FIX 5: Buat Mini ABI khusus untuk fungsi Token ERC20 agar tidak error
 const ERC20_ABI = [
