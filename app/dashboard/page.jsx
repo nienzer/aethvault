@@ -1,6 +1,7 @@
 "use client";
 import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect } from '@web3modal/ethers/react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Buffer } from 'buffer';
 // ⚡ FIX 9: Unused imports dibersihkan
 import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -622,9 +623,8 @@ export default function DashboardPage() {
       const cipherPayload = JSON.stringify({ name: file.name, type: file.type, data: fileBase64 });
       const encryptedPayload = await encryptForPublicKey(recipientPublicKey, cipherPayload);
       
-      // ⚡ FIX: Pastikan diubah ke Uint8Array agar aman untuk Irys uploader
-      const textEncoder = new TextEncoder();
-      const encryptedBytes = textEncoder.encode(encryptedPayload);
+      // ✅ FIX: Konversi ke Buffer agar Irys SDK menerima (bukan Uint8Array)
+      const encryptedBytes = Buffer.from(encryptedPayload);
       
       const irysUploader = await getNewIrysUploader(walletProvider);
       const price = await irysUploader.getPrice(encryptedBytes.byteLength);
@@ -648,9 +648,10 @@ export default function DashboardPage() {
     try {
       const irysUploader = await getNewIrysUploader(walletProvider);
       
-      // ⚡ FIX: Pastikan data benar-benar dikonversi menjadi Uint8Array murni
-      const rawData = stagedUpload.encryptedBytes;
-      const dataBuffer = rawData instanceof Uint8Array ? rawData : new Uint8Array(rawData);
+      // ✅ FIX: Konversi ke Buffer agar Irys SDK menerima
+      const dataBuffer = Buffer.isBuffer(stagedUpload.encryptedBytes)
+        ? stagedUpload.encryptedBytes
+        : Buffer.from(stagedUpload.encryptedBytes);
 
       const price = await irysUploader.getPrice(dataBuffer.length);
       try {
