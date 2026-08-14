@@ -666,10 +666,10 @@ export default function DashboardPage() {
       ];
 
       const receipt = await irysUploader.upload(dataBuffer, { tags });
-      const irysUrl = `https://devnet.irys.xyz/${receipt.id}`[cite: 2];
+      const irysUrl = `https://devnet.irys.xyz/${receipt.id}`;
       
       setUploadedCid(irysUrl);
-      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`[cite: 2]);
+      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`);
       showToast(t.fileUploadedSuccess || "Upload berhasil!", "success");
       setStagedUpload(null);
     } catch (error) {
