@@ -15,7 +15,7 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
 
 // =========================================================
-// 🚀 GAYA WEB3 FUTURISTIK: KANVAS DITINGGIKAN (660px) AGAR FOOTER AMAN
+// 🚀 GAYA WEB3 FUTURISTIK: LAYOUT OPTIMAL (BADGE DI KANAN TENGAH)
 // =========================================================
 const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAddress, categoryConfig, AETHER_LOGO = '/logo.png' }, ref) => {
   const catKey = (proofData?.category || 'Software').toLowerCase().trim();
@@ -44,208 +44,203 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[65%] h-[3px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.7), rgba(139,92,246,0.8), rgba(245,158,11,0.8), transparent)' }} />
 
       {/* HEADER */}
-      <div className="flex justify-between items-center relative z-10 pb-3 border-b border-neutral-800/60 shrink-0">
+      <div className="flex justify-between items-center relative z-10 pb-2 border-b border-neutral-800/60 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center relative overflow-hidden border border-cyan-400/40 bg-black/50 shadow-[0_0_20px_rgba(6,182,212,0.25)]">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center relative overflow-hidden border border-cyan-400/40 bg-black/50 shadow-[0_0_20px_rgba(6,182,212,0.25)]">
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/15 via-violet-500/10 to-amber-500/20" />
-            <img src={AETHER_LOGO} alt="AetherVault" className="relative object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.7)]" style={{ width: '36px', height: '36px' }} />
+            <img src={AETHER_LOGO} alt="AetherVault" className="relative object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.7)]" style={{ width: '32px', height: '32px' }} />
           </div>
           <div>
-            <div className="font-display font-black text-xl tracking-[0.18em] leading-none">
+            <div className="font-display font-black text-lg tracking-[0.18em] leading-none">
               <span className="text-white">AETHER</span><span className="text-amber-400">VAULT</span>
             </div>
-            <p className="text-[7px] tracking-[0.3em] text-cyan-300/70 uppercase font-mono mt-1.5">Trustless • Verified • Timeless</p>
+            <p className="text-[7px] tracking-[0.3em] text-cyan-300/70 uppercase font-mono mt-1">Trustless • Verified • Timeless</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-neutral-950/80 px-3 py-1.5 rounded-full border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.15)]">
+          <div className="flex items-center gap-1.5 bg-neutral-950/80 px-3 py-1 rounded-full border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.15)]">
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.8)]" />
-            <span className="text-[9px] font-bold text-green-300 uppercase tracking-widest font-mono">VERIFIED ON-CHAIN</span>
+            <span className="text-[8px] font-bold text-green-300 uppercase tracking-widest font-mono">VERIFIED ON-CHAIN</span>
           </div>
-          <div className="bg-neutral-950/80 px-3 py-1.5 rounded-full border border-amber-500/30 flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+          <div className="bg-neutral-950/80 px-3 py-1 rounded-full border border-amber-500/30 flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
             <Globe className="w-3 h-3 text-amber-400" />
-            <span className="text-[9px] font-bold text-amber-300 uppercase tracking-widest font-mono">BNB CHAIN</span>
+            <span className="text-[8px] font-bold text-amber-300 uppercase tracking-widest font-mono">BNB CHAIN</span>
           </div>
         </div>
       </div>
 
       {/* TITLE */}
-      <div className="text-center relative z-10 shrink-0 mt-3 mb-3">
-        <div className="inline-flex items-center gap-2 mb-1.5">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          <span className="text-[11px] tracking-[0.4em] text-neutral-400 uppercase font-mono font-bold">Non-Fungible Token Certificate</span>
-          <Sparkles className="w-4 h-4 text-amber-400" />
+      <div className="text-center relative z-10 shrink-0 my-1.5">
+        <div className="inline-flex items-center gap-2 mb-1">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span className="text-[10px] tracking-[0.4em] text-neutral-400 uppercase font-mono font-bold">Non-Fungible Token Certificate</span>
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
         </div>
-        <h2 className="text-4xl font-black tracking-[0.15em] font-display text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-white to-amber-200" style={{ textShadow: '0 0 30px rgba(6,182,212,0.3)' }}>
+        <h2 className="text-3xl font-black tracking-[0.15em] font-display text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-white to-amber-200" style={{ textShadow: '0 0 30px rgba(6,182,212,0.3)' }}>
           CERTIFICATE OF AUTHENTICITY
         </h2>
-        <p className="text-[10px] tracking-[0.3em] text-neutral-500 uppercase font-mono mt-2">Blockchain Verified | Immutable | Decentralized</p>
+        <p className="text-[9px] tracking-[0.3em] text-neutral-500 uppercase font-mono mt-1">Blockchain Verified | Immutable | Decentralized</p>
       </div>
 
       {/* STRUKTUR DATA UTAMA */}
-      <div className="flex flex-col gap-4 relative z-10 flex-1 justify-center">
+      <div className="flex flex-col gap-2 relative z-10 flex-1 justify-center my-0.5">
 
-        {/* BARIS 1: INFO KARYA & CREATOR */}
-        <div className="flex gap-4 items-stretch">
+        {/* BARIS 1: INFO KARYA & BADGE KATEGORI DI KANAN TENGAH */}
+        <div className="flex gap-3.5 items-stretch">
           {/* Emblem Kiri */}
-          <div className="w-[130px] shrink-0 rounded-2xl border border-violet-500/30 relative overflow-hidden flex items-center justify-center bg-black/30">
-            <div className="absolute w-[100px] h-[100px] rounded-full blur-[25px] opacity-50" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.55), rgba(6,182,212,0.18), transparent 70%)' }} />
-            <div className="absolute w-[90px] h-[90px] border border-cyan-400/30 rotate-45 rounded-[16px]" />
-            <div className="absolute w-[70px] h-[70px] border border-violet-400/30 rotate-45 rounded-[12px]" />
-            <img src={AETHER_LOGO} alt="Emblem" className="relative z-10 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.65)] av-float" style={{ width: '65px', height: '65px' }} />
+          <div className="w-[115px] shrink-0 rounded-2xl border border-violet-500/30 relative overflow-hidden flex items-center justify-center bg-black/30">
+            <div className="absolute w-[90px] h-[90px] rounded-full blur-[25px] opacity-50" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.55), rgba(6,182,212,0.18), transparent 70%)' }} />
+            <div className="absolute w-[80px] h-[80px] border border-cyan-400/30 rotate-45 rounded-[16px]" />
+            <div className="absolute w-[60px] h-[60px] border border-violet-400/30 rotate-45 rounded-[12px]" />
+            <img src={AETHER_LOGO} alt="Emblem" className="relative z-10 object-contain drop-shadow-[0_0_20px_rgba(245,158,11,0.65)] av-float" style={{ width: '52px', height: '52px' }} />
           </div>
 
-          <div className="flex-1 bg-[#05030F]/60 border border-neutral-800/60 rounded-2xl p-4 shadow-inner backdrop-blur-md flex flex-col justify-between font-mono">
-            <div className="flex justify-between items-start mb-2">
+          <div className="flex-1 bg-[#05030F]/60 border border-neutral-800/60 rounded-2xl p-3.5 shadow-inner backdrop-blur-md flex flex-col justify-between font-mono">
+            <div className="flex justify-between items-center mb-1">
               <div className="flex-1 pr-3">
-                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-1 font-bold">Asset Title</p>
-                <p className="text-white font-bold text-base line-clamp-1">{proofData?.title || 'Aether Proof™'}</p>
+                <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5 font-bold">Asset Title</p>
+                <p className="text-white font-bold text-sm line-clamp-1">{proofData?.title || 'Aether Proof™'}</p>
               </div>
-              <div className="text-right shrink-0">
-                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-1 font-bold">Certificate ID</p>
-                <p className="text-cyan-400 font-bold text-sm tracking-wider drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
-                  #{proofData?.id || 'PENDING-MINT'}
-                </p>
+              
+              {/* 🌟 ASSET CATEGORY / BADGE PINDAH KE KANAN TENGAH (MENGGANTIKAN PENDING MINT) */}
+              <div className="shrink-0">
+                <div className="relative av-badge-pulse rounded-lg" style={{ color: cat.color }}>
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg border font-bold text-[9px] tracking-[0.15em] backdrop-blur-md shadow-md" style={{ background: cat.bg, borderColor: cat.border, color: cat.color }}>
+                    {CatIcon}
+                    <span>{cat.badgeLabel || cat.label?.toUpperCase() || 'AUTHENTIC'}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="mb-2 flex-1">
-              <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-1 font-bold">Description</p>
-              <p className="text-[11px] text-neutral-300 leading-snug line-clamp-2 pr-4">
+            <div className="mb-1.5 flex-1">
+              <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5 font-bold">Description</p>
+              <p className="text-[10px] text-neutral-300 leading-snug line-clamp-2 pr-4">
                 {proofData?.description || 'Authentic digital asset secured and verified permanently on the Binance Smart Chain.'}
               </p>
             </div>
 
-            <div className="flex justify-between items-center pt-2.5 border-t border-neutral-800/60">
+            <div className="flex justify-between items-center pt-2 border-t border-neutral-800/60">
               <div className="w-1/4 pr-2">
-                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-1 font-bold">Creator Name</p>
-                <p className="text-neutral-200 font-bold text-[11px] truncate">{proofData?.creator || 'Unknown Creator'}</p>
+                <p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5 font-bold">Creator Name</p>
+                <p className="text-neutral-200 font-bold text-[10px] truncate">{proofData?.creator || 'Unknown Creator'}</p>
               </div>
               <div className="w-1/4 pr-2">
-                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-1 font-bold">Owner Wallet</p>
-                <p className="text-neutral-200 font-bold text-[11px] truncate font-mono">{formatAddress(proofData?.wallet || '0x00...00')}</p>
+                <p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5 font-bold">Owner Wallet</p>
+                <p className="text-neutral-200 font-bold text-[10px] truncate font-mono">{formatAddress(proofData?.wallet || '0x00...00')}</p>
               </div>
               <div className="w-1/4 pr-2">
-                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-1 font-bold">Issued On</p>
-                <p className="text-neutral-200 font-bold text-[11px]">{proofData?.date || new Date().toLocaleDateString()} • UTC</p>
+                <p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5 font-bold">Issued On</p>
+                <p className="text-neutral-200 font-bold text-[10px]">{proofData?.date || new Date().toLocaleDateString()} • UTC</p>
               </div>
               <div className="w-1/4">
-                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-1 font-bold">Blockchain</p>
-                <p className="text-neutral-200 font-bold text-[11px] truncate">{proofData?.network || 'Binance Smart Chain'}</p>
+                <p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5 font-bold">Blockchain</p>
+                <p className="text-neutral-200 font-bold text-[10px] truncate">{proofData?.network || 'Binance Smart Chain'}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* BARIS 2: ON-CHAIN METADATA */}
-        <div className="bg-[#0a0a1a]/80 rounded-xl py-3 px-4 border border-cyan-500/20 shadow-lg flex items-center gap-4 w-full font-mono shrink-0">
-          <div className="flex items-center gap-2 pr-4 border-r border-neutral-800/80 shrink-0">
-            <Lock className="w-5 h-5 text-cyan-400" />
-            <p className="text-[10px] uppercase tracking-[0.3em] text-cyan-400 font-bold leading-tight">On-Chain<br/>Metadata</p>
+        <div className="bg-[#0a0a1a]/80 rounded-xl py-2.5 px-3.5 border border-cyan-500/20 shadow-lg flex items-center gap-3 w-full font-mono shrink-0">
+          <div className="flex items-center gap-2 pr-3 border-r border-neutral-800/80 shrink-0">
+            <Lock className="w-4 h-4 text-cyan-400" />
+            <p className="text-[8px] uppercase tracking-[0.3em] text-cyan-400 font-bold leading-tight">On-Chain<br/>Metadata</p>
           </div>
-          <div className="flex-1 flex justify-between items-center text-xs">
-            <div className="flex items-center gap-2 w-[15%]">
-              <Hash className="w-4 h-4 text-neutral-500 shrink-0" />
+          <div className="flex-1 flex justify-between items-center text-[10px]">
+            <div className="flex items-center gap-1.5 w-[15%]">
+              <Hash className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
               <div className="min-w-0">
-                <p className="text-[9px] text-neutral-500 uppercase mb-0.5 font-bold">Token ID</p>
+                <p className="text-[7px] text-neutral-500 uppercase mb-0.5 font-bold">Token ID</p>
                 <p className="text-white font-mono truncate">#{proofData?.tokenId || '0'}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 w-[15%]">
-              <Cpu className="w-4 h-4 text-neutral-500 shrink-0" />
+            <div className="flex items-center gap-1.5 w-[15%]">
+              <Cpu className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
               <div className="min-w-0">
-                <p className="text-[9px] text-neutral-500 uppercase mb-0.5 font-bold">Chain ID</p>
+                <p className="text-[7px] text-neutral-500 uppercase mb-0.5 font-bold">Chain ID</p>
                 <p className="text-white font-mono truncate">97</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 w-[25%] pr-2">
-              <FileDigit className="w-4 h-4 text-neutral-500 shrink-0" />
+            <div className="flex items-center gap-1.5 w-[25%] pr-2">
+              <FileDigit className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
               <div className="min-w-0 w-full">
-                <p className="text-[9px] text-neutral-500 uppercase mb-0.5 font-bold">Contract Address</p>
-                <p className="text-cyan-300 font-mono text-[11px] truncate w-full">{formatAddress(proofData?.contract || AETHER_VAULT_ADDRESS)}</p>
+                <p className="text-[7px] text-neutral-500 uppercase mb-0.5 font-bold">Contract Address</p>
+                <p className="text-cyan-300 font-mono text-[10px] truncate w-full">{formatAddress(proofData?.contract || AETHER_VAULT_ADDRESS)}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 w-[45%]">
-              <Code2 className="w-4 h-4 text-cyan-400 shrink-0" />
+            <div className="flex items-center gap-1.5 w-[45%]">
+              <Code2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
               <div className="min-w-0 w-full">
-                <p className="text-[9px] text-neutral-500 uppercase mb-0.5 font-bold">Tx Hash (SHA-256)</p>
-                <p className="text-cyan-300 font-mono text-[11px] truncate w-full">{proofData?.fileHash || 'Calculating...'}</p>
+                <p className="text-[7px] text-neutral-500 uppercase mb-0.5 font-bold">Tx Hash (SHA-256)</p>
+                <p className="text-cyan-300 font-mono text-[10px] truncate w-full">{proofData?.fileHash || 'Calculating...'}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* BARIS 3: NFT PREVIEW & QR CODE */}
-        <div className="flex gap-4 font-mono shrink-0">
-          <div className="flex-1 bg-[#05030F]/80 border rounded-2xl p-4 flex items-center gap-6 shadow-lg relative overflow-hidden" style={{ borderColor: cat.color + '40' }}>
+        {/* BARIS 3: NFT MINI CARD & QR CODE */}
+        <div className="flex gap-3.5 font-mono shrink-0">
+          <div className="flex-1 bg-[#05030F]/80 border rounded-2xl p-3 flex items-center gap-5 shadow-lg relative overflow-hidden" style={{ borderColor: cat.color + '40' }}>
             <div className="absolute inset-0 opacity-20 blur-2xl pointer-events-none" style={{ background: `radial-gradient(circle at left, ${cat.color}22, transparent 70%)` }} />
             
-            <div className="relative w-[76px] h-[90px] shrink-0">
+            <div className="relative w-[62px] h-[72px] shrink-0">
               <div className="absolute inset-0 rounded-lg transform rotate-3" style={{ background: `linear-gradient(135deg, ${cat.color}20, transparent)`, border: `1px solid ${cat.color}40` }} />
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-neutral-900 to-neutral-950 border overflow-hidden flex items-center justify-center p-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" style={{ borderColor: cat.color + '55' }}>
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-neutral-900 to-neutral-950 border overflow-hidden flex items-center justify-center p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" style={{ borderColor: cat.color + '55' }}>
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="av-ring-spin absolute w-[60px] h-[60px] rounded-full border border-cyan-400/35" style={{ borderTopColor: cat.color, borderBottomColor: 'rgba(139,92,246,.45)' }} />
-                  <div className="av-ring-reverse absolute w-[50px] h-[50px] rounded-full border border-violet-400/25 border-dashed" />
+                  <div className="av-ring-spin absolute w-[46px] h-[46px] rounded-full border border-cyan-400/35" style={{ borderTopColor: cat.color, borderBottomColor: 'rgba(139,92,246,.45)' }} />
+                  <div className="av-ring-reverse absolute w-[36px] h-[36px] rounded-full border border-violet-400/25 border-dashed" />
                 </div>
-                {React.cloneElement(cat.icon, { className: "relative z-10 w-8 h-8 drop-shadow-[0_0_10px_currentColor]", style: { color: cat.color } })}
+                {React.cloneElement(cat.icon, { className: "relative z-10 w-6 h-6 drop-shadow-[0_0_10px_currentColor]", style: { color: cat.color } })}
               </div>
             </div>
 
             <div className="flex flex-col justify-center z-10 flex-1">
-              <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold mb-1.5">Asset Category</p>
-              <div className="relative rounded-lg mb-2.5 w-fit">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded border font-bold text-[11px] tracking-[0.15em] backdrop-blur-md shadow-md" style={{ background: cat.bg, borderColor: cat.border, color: cat.color }}>
-                  {CatIcon}
-                  <span>{cat.badgeLabel || cat.label?.toUpperCase() || 'AUTHENTIC'}</span>
-                </div>
-              </div>
-              <div>
-                <p className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold">On-Chain Token ID</p>
-                <p className="text-base text-white font-bold mt-0.5">#{proofData?.tokenId || 'PENDING'}</p>
+              <p className="text-[8px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Certificate Serial</p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white font-bold font-mono">#{proofData?.id || 'PROOF-PREVIEW'}</span>
+                <span className="text-[8px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 uppercase font-mono">Immutable</span>
               </div>
             </div>
           </div>
 
-          <div className="w-[130px] bg-[#05030F]/80 border border-neutral-800/60 rounded-2xl p-3 flex flex-col items-center justify-center shadow-lg shrink-0">
-            <div className="w-[84px] h-[84px] bg-white p-1.5 rounded-lg shadow-sm flex items-center justify-center mb-2">
-              <QRCode value={proofData?.verifyUrl || "https://aethvault.xyz"} size={72} bgColor="#ffffff" fgColor="#0A0714" level="Q" />
+          <div className="w-[115px] bg-[#05030F]/80 border border-neutral-800/60 rounded-2xl p-2.5 flex flex-col items-center justify-center shadow-lg shrink-0">
+            <div className="w-[62px] h-[62px] bg-white p-1 rounded-lg shadow-sm flex items-center justify-center mb-1">
+              <QRCode value={proofData?.verifyUrl || "https://aethvault.xyz"} size={54} bgColor="#ffffff" fgColor="#0A0714" level="Q" />
             </div>
-            <span className="text-[8px] text-neutral-400 font-mono uppercase tracking-widest text-center leading-tight font-bold">Scan to<br/>Verify</span>
+            <span className="text-[7px] text-neutral-400 font-mono uppercase tracking-widest text-center leading-tight font-bold">Scan to<br/>Verify</span>
           </div>
         </div>
 
       </div>
 
       {/* FOOTER */}
-      <div className="relative z-10 pt-3 border-t border-neutral-800/60 flex flex-row items-center justify-between px-2 shrink-0 mt-3">
+      <div className="relative z-10 pt-2 border-t border-neutral-800/60 flex flex-row items-center justify-between px-2 shrink-0">
         <div>
-          <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Powered By</p>
-          <div className="flex items-center gap-2 mt-1.5">
-            <Hexagon className="w-5 h-5 text-cyan-500" />
-            <p className="text-xs font-bold text-white font-display tracking-wider">AETHERVAULT PROTOCOL</p>
+          <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Powered By</p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <Hexagon className="w-4 h-4 text-cyan-500" />
+            <p className="text-[10px] font-bold text-white font-display tracking-wider">AETHERVAULT PROTOCOL</p>
           </div>
-          <p className="text-[8px] text-neutral-600 font-mono mt-1">Decentralized Time-Lock & Legacy Infrastructure</p>
         </div>
 
         <div className="text-center">
-          <div className="relative w-24 h-16 mx-auto mb-1 flex items-center justify-center">
+          <div className="relative w-16 h-12 mx-auto mb-0.5 flex items-center justify-center">
             <div className="absolute inset-0 rounded-full border border-amber-500/20 animate-spin" style={{ animationDuration: '8s' }} />
-            <div className="absolute inset-2 rounded-full border border-cyan-500/20 animate-spin" style={{ animationDuration: '12s', animationDirection: 'reverse' }} />
-            <ShieldCheck className="w-9 h-9 text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
+            <ShieldCheck className="w-6 h-6 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
           </div>
-          <div className="font-signature text-2xl text-amber-200/90 tracking-wider" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
-          <div className="w-28 border-b border-neutral-700 my-1 mx-auto" />
-          <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Authorized Digital Signature</p>
+          <div className="font-signature text-xl text-amber-200/90 tracking-wider" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
+          <div className="w-24 border-b border-neutral-700 my-0.5 mx-auto" />
+          <p className="text-[7px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Authorized Digital Signature</p>
         </div>
 
         <div className="text-right">
-          <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Network</p>
-          <div className="flex items-center justify-end gap-2 mt-1.5">
-            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-            <span className="text-[10px] font-mono text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/30 font-bold">BSC TESTNET</span>
+          <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Network</p>
+          <div className="flex items-center justify-end gap-1.5 mt-0.5">
+            <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
+            <span className="text-[8px] font-mono text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30 font-bold">BSC TESTNET</span>
           </div>
-          <p className="text-[8px] text-neutral-600 font-mono mt-1">Chain ID: 97</p>
         </div>
       </div>
     </div>
@@ -253,6 +248,9 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
 });
 CertificateTemplate.displayName = "CertificateTemplate";
 
+// =========================================================
+// MAIN COMPONENT: AETHER PROOF HUB
+// =========================================================
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
   const { t: globalT } = useLanguage();
   const tHop = globalT.hallOfProof || {};
@@ -625,7 +623,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             </div>
           </div>
 
-          {/* ... Sisa stat & list Hall of proof dari code lama ... */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { label: tHop.totalProofs || "On-Chain Proofs", value: globalProtocolStats.totalProofs, icon: Award, color: "text-amber-400" },
