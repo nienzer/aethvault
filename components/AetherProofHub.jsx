@@ -15,7 +15,7 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
 
 // =========================================================
-// 🚀 GAYA WEB3 FUTURISTIK: LAYOUT OPTIMAL (BADGE DI KANAN TENGAH)
+// 🚀 GAYA WEB3 FUTURISTIK: FINAL OPTIMIZED LAYOUT
 // =========================================================
 const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAddress, categoryConfig, AETHER_LOGO = '/logo.png' }, ref) => {
   const catKey = (proofData?.category || 'Software').toLowerCase().trim();
@@ -60,7 +60,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
 
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 bg-neutral-950/80 px-3 py-1 rounded-full border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.15)]">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.8)]" />
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
             <span className="text-[8px] font-bold text-green-300 uppercase tracking-widest font-mono">VERIFIED ON-CHAIN</span>
           </div>
           <div className="bg-neutral-950/80 px-3 py-1 rounded-full border border-amber-500/30 flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
@@ -86,7 +86,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
       {/* STRUKTUR DATA UTAMA */}
       <div className="flex flex-col gap-2 relative z-10 flex-1 justify-center my-0.5">
 
-        {/* BARIS 1: INFO KARYA & BADGE KATEGORI DI KANAN TENGAH */}
+        {/* BARIS 1: INFO KARYA & BADGE KATEGORI + INFO KANAN TENGAH */}
         <div className="flex gap-3.5 items-stretch">
           {/* Emblem Kiri */}
           <div className="w-[115px] shrink-0 rounded-2xl border border-violet-500/30 relative overflow-hidden flex items-center justify-center bg-black/30">
@@ -103,8 +103,11 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
                 <p className="text-white font-bold text-sm line-clamp-1">{proofData?.title || 'Aether Proof™'}</p>
               </div>
               
-              {/* 🌟 ASSET CATEGORY / BADGE PINDAH KE KANAN TENGAH (MENGGANTIKAN PENDING MINT) */}
-              <div className="shrink-0">
+              {/* 🌟 AREA KANAN TENGAH: BADGE KATEGORI + LABEL ESTETIK PENGISI RUANG KOSONG */}
+              <div className="flex items-center gap-2.5 shrink-0">
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-950/30 border border-cyan-500/20 text-cyan-300 text-[8px] uppercase tracking-widest font-mono">
+                  <Shield className="w-3 h-3 text-cyan-400 animate-pulse" /> 100% On-Chain
+                </div>
                 <div className="relative av-badge-pulse rounded-lg" style={{ color: cat.color }}>
                   <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg border font-bold text-[9px] tracking-[0.15em] backdrop-blur-md shadow-md" style={{ background: cat.bg, borderColor: cat.border, color: cat.color }}>
                     {CatIcon}
@@ -171,7 +174,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
               </div>
             </div>
             <div className="flex items-center gap-1.5 w-[45%]">
-              <Code2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <Code2 className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
               <div className="min-w-0 w-full">
                 <p className="text-[7px] text-neutral-500 uppercase mb-0.5 font-bold">Tx Hash (SHA-256)</p>
                 <p className="text-cyan-300 font-mono text-[10px] truncate w-full">{proofData?.fileHash || 'Calculating...'}</p>
@@ -180,7 +183,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
           </div>
         </div>
 
-        {/* BARIS 3: NFT MINI CARD & QR CODE */}
+        {/* BARIS 3: NFT PREVIEW & QR CODE (BARCODE DIPERBESAR & TANPA TEKS DI BAWAHNYA) */}
         <div className="flex gap-3.5 font-mono shrink-0">
           <div className="flex-1 bg-[#05030F]/80 border rounded-2xl p-3 flex items-center gap-5 shadow-lg relative overflow-hidden" style={{ borderColor: cat.color + '40' }}>
             <div className="absolute inset-0 opacity-20 blur-2xl pointer-events-none" style={{ background: `radial-gradient(circle at left, ${cat.color}22, transparent 70%)` }} />
@@ -205,37 +208,37 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
             </div>
           </div>
 
-          <div className="w-[115px] bg-[#05030F]/80 border border-neutral-800/60 rounded-2xl p-2.5 flex flex-col items-center justify-center shadow-lg shrink-0">
-            <div className="w-[62px] h-[62px] bg-white p-1 rounded-lg shadow-sm flex items-center justify-center mb-1">
-              <QRCode value={proofData?.verifyUrl || "https://aethvault.xyz"} size={54} bgColor="#ffffff" fgColor="#0A0714" level="Q" />
+          {/* KOTAK QR CODE DIPERBESAR & BERSIH TANPA TEKS DI BAWAH */}
+          <div className="w-[100px] bg-[#05030F]/80 border border-neutral-800/60 rounded-2xl p-2 flex flex-col items-center justify-center shadow-lg shrink-0">
+            <div className="w-[84px] h-[84px] bg-white p-1 rounded-lg shadow-sm flex items-center justify-center">
+              <QRCode value={proofData?.verifyUrl || "https://aethvault.xyz"} size={74} bgColor="#ffffff" fgColor="#0A0714" level="Q" />
             </div>
-            <span className="text-[7px] text-neutral-400 font-mono uppercase tracking-widest text-center leading-tight font-bold">Scan to<br/>Verify</span>
           </div>
+
         </div>
 
       </div>
 
-      {/* FOOTER */}
-      <div className="relative z-10 pt-2 border-t border-neutral-800/60 flex flex-row items-center justify-between px-2 shrink-0">
-        <div>
+      {/* FOOTER - DIGESER LEBIH DEKAT KE GARIS SUDUT */}
+      <div className="relative z-10 pt-2 border-t border-neutral-800/60 flex flex-row items-center justify-between px-1 shrink-0">
+        <div className="pl-1">
           <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Powered By</p>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <Hexagon className="w-4 h-4 text-cyan-500" />
+            <Hexagon className="w-3.5 h-3.5 text-cyan-500" />
             <p className="text-[10px] font-bold text-white font-display tracking-wider">AETHERVAULT PROTOCOL</p>
           </div>
         </div>
 
         <div className="text-center">
-          <div className="relative w-16 h-12 mx-auto mb-0.5 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border border-amber-500/20 animate-spin" style={{ animationDuration: '8s' }} />
+          <div className="relative w-16 h-10 mx-auto mb-0.5 flex items-center justify-center">
             <ShieldCheck className="w-6 h-6 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
           </div>
-          <div className="font-signature text-xl text-amber-200/90 tracking-wider" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
-          <div className="w-24 border-b border-neutral-700 my-0.5 mx-auto" />
-          <p className="text-[7px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Authorized Digital Signature</p>
+          <div className="font-signature text-lg text-amber-200/90 tracking-wider" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
+          <div className="w-20 border-b border-neutral-700 my-0.5 mx-auto" />
+          <p className="text-[6px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Authorized Signature</p>
         </div>
 
-        <div className="text-right">
+        <div className="text-right pr-1">
           <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 font-mono font-bold">Network</p>
           <div className="flex items-center justify-end gap-1.5 mt-0.5">
             <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
