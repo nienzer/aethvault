@@ -15,20 +15,19 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
 
 // =========================================================
-// 🚀 GAYA WEB3 FUTURISTIK UNTUK LIVE PREVIEW
+// 🚀 GAYA WEB3 FUTURISTIK: LAYOUT MENYAMPING SUPER RAPI
 // =========================================================
 const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAddress, categoryConfig, AETHER_LOGO = '/logo.png' }, ref) => {
   const catKey = (proofData?.category || 'Software').toLowerCase().trim();
   const rawCatObj = categoryConfig ? Object.entries(categoryConfig).find(([key]) => key.toLowerCase() === catKey) : null;
   const cat = rawCatObj ? rawCatObj[1] : { badge: 'Verified Creator', icon: <Sparkles className="w-3.5 h-3.5" />, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.35)' };
   
-  // Karena icon dari config bawaan ukurannya besar (w-5 h-5), kita override agar kecil untuk badge
   const CatIcon = cat.icon ? React.cloneElement(cat.icon, { className: "w-3.5 h-3.5", style: { color: cat.color } }) : <Sparkles className="w-3.5 h-3.5" style={{ color: cat.color }} />;
 
   return (
-    <div ref={ref} className="w-[890px] h-[620px] bg-[#0A0714] text-gray-200 rounded-2xl p-8 relative overflow-hidden font-sans border border-amber-500/30 mx-auto flex flex-col justify-between shrink-0 shadow-[0_0_50px_rgba(139,92,246,0.15)]" style={{ background: 'radial-gradient(ellipse at 20% 0%, #11112d 0%, #090718 42%, #03020a 100%)', borderImage: 'linear-gradient(135deg, #06b6d4, #8b5cf6, #f59e0b, #8b5cf6, #06b6d4) 1', borderWidth: '2px', borderStyle: 'solid' }}>
+    <div id="cert-export-node" ref={ref} className="w-[890px] h-[620px] bg-[#0A0714] text-gray-200 rounded-2xl p-8 relative overflow-hidden font-sans border border-amber-500/30 mx-auto flex flex-col justify-between shrink-0 shadow-[0_0_50px_rgba(139,92,246,0.15)]" style={{ background: 'radial-gradient(ellipse at 20% 0%, #11112d 0%, #090718 42%, #03020a 100%)', borderImage: 'linear-gradient(135deg, #06b6d4, #8b5cf6, #f59e0b, #8b5cf6, #06b6d4) 1', borderWidth: '2px', borderStyle: 'solid' }}>
       
-      {/* Background Decor & CSS Animations (harus disisipkan jika belum ada di luar komponen) */}
+      {/* Background Decor */}
       <div className="absolute inset-0 opacity-30 pointer-events-none">
         <div className="absolute top-[-100px] right-[-100px] w-[500px] h-[500px] rounded-full blur-[120px]" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.35), transparent 70%)' }} />
         <div className="absolute bottom-[-100px] left-[-100px] w-[400px] h-[400px] rounded-full blur-[100px]" style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.22), transparent 70%)' }} />
@@ -45,11 +44,11 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[65%] h-[3px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.7), rgba(139,92,246,0.8), rgba(245,158,11,0.8), transparent)' }} />
 
       {/* HEADER */}
-      <div className="flex justify-between items-center relative z-10 pb-4 border-b border-neutral-800/60">
+      <div className="flex justify-between items-center relative z-10 pb-4 border-b border-neutral-800/60 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center relative overflow-hidden border border-cyan-400/40 bg-black/50 shadow-[0_0_25px_rgba(6,182,212,0.25)]">
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/15 via-violet-500/10 to-amber-500/20" />
-            <img src={AETHER_LOGO} alt="AetherVault" className="relative w-11 h-11 object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.7)]" />
+            <img src={AETHER_LOGO} alt="AetherVault" className="relative object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.7)]" style={{ width: '44px', height: '44px' }} />
           </div>
           <div>
             <div className="font-display font-black text-2xl tracking-[0.18em] leading-none">
@@ -72,8 +71,8 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
       </div>
 
       {/* TITLE */}
-      <div className="text-center relative z-10 my-2">
-        <div className="inline-flex items-center gap-2 mb-2">
+      <div className="text-center relative z-10 my-1 shrink-0">
+        <div className="inline-flex items-center gap-2 mb-1.5">
           <Sparkles className="w-4 h-4 text-amber-400" />
           <span className="text-[10px] tracking-[0.4em] text-neutral-400 uppercase font-mono">Non-Fungible Token Certificate</span>
           <Sparkles className="w-4 h-4 text-amber-400" />
@@ -81,141 +80,155 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
         <h2 className="text-3xl font-black tracking-[0.15em] font-display" style={{ background: 'linear-gradient(90deg, #22d3ee, #ffffff, #fbbf24, #ffffff, #22d3ee)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', textShadow: '0 0 30px rgba(6,182,212,0.3)' }}>
           CERTIFICATE OF AUTHENTICITY
         </h2>
-        <p className="text-[9px] tracking-[0.3em] text-neutral-500 uppercase font-mono mt-2">Blockchain Verified | Immutable | Decentralized</p>
+        <p className="text-[9px] tracking-[0.3em] text-neutral-500 uppercase font-mono mt-1.5">Blockchain Verified | Immutable | Decentralized</p>
       </div>
 
-      {/* MAIN CONTENT */}
-      <div className="grid grid-cols-12 gap-6 relative z-10 items-stretch my-1 flex-1">
+      {/* ========================================================
+          🌟 LAYOUT 3 BARIS MENYAMPING (TIDAK MELAR KE BAWAH)
+      ========================================================= */}
+      <div className="flex flex-col gap-3.5 relative z-10 flex-1 my-1">
         
-        {/* LEFT SIDE: EMBLEM & DATA */}
-        <div className="col-span-8 bg-[#05030F]/60 border border-neutral-800/60 rounded-2xl p-5 shadow-inner backdrop-blur-md flex gap-5 font-mono">
-          <div className="w-[180px] shrink-0 rounded-2xl border border-violet-500/30 relative overflow-hidden flex items-center justify-center bg-black/30">
-            <div className="absolute w-[150px] h-[150px] rounded-full blur-[35px] opacity-50" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.55), rgba(6,182,212,0.18), transparent 70%)' }} />
-            <div className="absolute w-[140px] h-[140px] border border-cyan-400/30 rotate-45 rounded-[24px]" />
-            <div className="absolute w-[120px] h-[120px] border border-violet-400/30 rotate-45 rounded-[20px]" />
-            <img src={AETHER_LOGO} alt="AetherVault Emblem" className="relative z-10 w-[100px] h-[100px] object-contain drop-shadow-[0_0_28px_rgba(245,158,11,0.65)]" />
-            <div className="absolute bottom-4 left-0 right-0 text-center z-20">
-              <span className="text-[7px] tracking-[0.35em] uppercase text-cyan-300/70">AUTHENTIC AETHER PROOF</span>
-            </div>
+        {/* BARIS 1: KOTAK INFO UTAMA (EMBLEM & DESKRIPSI) */}
+        <div className="bg-[#05030F]/60 border border-neutral-800/60 rounded-2xl p-4 shadow-inner backdrop-blur-md flex gap-5 font-mono items-center">
+          
+          <div className="w-[110px] h-[110px] shrink-0 rounded-2xl border border-violet-500/30 relative overflow-hidden flex items-center justify-center bg-black/30">
+            <div className="absolute w-[90px] h-[90px] rounded-full blur-[25px] opacity-50" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.55), rgba(6,182,212,0.18), transparent 70%)' }} />
+            <div className="absolute w-[80px] h-[80px] border border-cyan-400/30 rotate-45 rounded-[16px]" />
+            <div className="absolute w-[60px] h-[60px] border border-violet-400/30 rotate-45 rounded-[12px]" />
+            <img src={AETHER_LOGO} alt="Emblem" className="relative z-10 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.65)]" style={{ width: '50px', height: '50px' }} />
           </div>
-
-          <div className="flex-1 space-y-3">
-            <div className="pb-3 border-b border-neutral-800/40">
-              <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-1">Certificate ID</p>
-              <p className="text-cyan-400 font-bold text-lg tracking-wider drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
-                #{proofData?.id || 'PROOF-PREVIEW'}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          
+          <div className="flex-1 flex flex-col justify-center">
+            <div className="flex justify-between items-start mb-1.5">
               <div>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-1">Asset / Item</p>
-                <p className="text-white font-bold text-sm truncate">{proofData?.title || 'Aether Proof™'}</p>
+                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5">Asset Title</p>
+                <p className="text-white font-bold text-base line-clamp-1">{proofData?.title || 'Aether Proof™'}</p>
               </div>
-              <div>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-1">Owner</p>
-                <p className="text-neutral-200 font-bold text-sm truncate font-mono">{formatAddress(proofData?.wallet || '0x00...00')}</p>
+              <div className="text-right">
+                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5">Certificate ID</p>
+                <p className="text-cyan-400 font-bold text-sm tracking-wider drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">#{proofData?.id || 'PREVIEW'}</p>
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-1">Issued On</p>
-                <p className="text-neutral-200 font-bold text-sm">{proofData?.date || new Date().toLocaleDateString()} • UTC</p>
-              </div>
-              <div>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-1">Blockchain</p>
-                <p className="text-neutral-200 font-bold text-sm">{proofData?.network || 'Binance Smart Chain'}</p>
-              </div>
+            
+            <div className="mb-3">
+              <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5">Description</p>
+              <p className="text-[10px] text-neutral-300 leading-relaxed line-clamp-2 pr-4">{proofData?.description || 'Authentic digital asset secured and verified on the blockchain.'}</p>
             </div>
 
-            <div className="bg-[#0a0a1a]/80 rounded-xl p-4 border border-cyan-500/20 mt-2">
-              <div className="flex items-center gap-2 mb-3">
-                <Lock className="w-3.5 h-3.5 text-cyan-400" />
-                <p className="text-[9px] uppercase tracking-[0.3em] text-cyan-400 font-bold">On-Chain Metadata</p>
+            <div className="grid grid-cols-4 gap-4 pt-2 border-t border-neutral-800/60">
+              <div>
+                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Creator Name</p>
+                <p className="text-neutral-200 font-bold text-[10px] truncate">{proofData?.creator || 'Unknown Creator'}</p>
               </div>
-              <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-[11px]">
-                <div className="flex items-center">
-                  <Hash className="w-3 h-3 text-neutral-500 mr-1.5" />
-                  <span className="text-neutral-500">Token ID:</span>
-                  <span className="text-white ml-2 font-mono">{proofData?.tokenId || 'Pending'}</span>
-                </div>
-                <div className="flex items-center">
-                  <Cpu className="w-3 h-3 text-neutral-500 mr-1.5" />
-                  <span className="text-neutral-500">Chain ID:</span>
-                  <span className="text-white ml-2 font-mono">97</span>
-                </div>
-                <div className="col-span-2 flex items-center">
-                  <FileDigit className="w-3 h-3 text-neutral-500 mr-1.5" />
-                  <span className="text-neutral-500">Contract:</span>
-                  <span className="text-cyan-300 ml-2 font-mono text-[10px]">{formatAddress(proofData?.contract || AETHER_VAULT_ADDRESS)}</span>
-                </div>
-                <div className="col-span-2 flex items-center">
-                  <Code2 className="w-3.5 h-3.5 text-cyan-400 mr-1.5" />
-                  <span className="text-neutral-500">Tx Hash:</span>
-                  <span className="text-cyan-300 ml-2 font-mono text-[10px] truncate">{proofData?.fileHash || 'Calculating...'}</span>
-                </div>
+              <div>
+                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Owner Wallet</p>
+                <p className="text-neutral-200 font-bold text-[10px] truncate font-mono">{formatAddress(proofData?.wallet || '0x00...00')}</p>
+              </div>
+              <div>
+                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Issued On</p>
+                <p className="text-neutral-200 font-bold text-[10px]">{proofData?.date || new Date().toLocaleDateString()} • UTC</p>
+              </div>
+              <div>
+                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Blockchain</p>
+                <p className="text-neutral-200 font-bold text-[10px]">{proofData?.network || 'Binance Smart Chain'}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* RIGHT SIDE: PREVIEW & QR */}
-        <div className="col-span-4 flex flex-col gap-4">
-          <div className="bg-[#05030F]/80 border rounded-2xl p-5 flex flex-col items-center shadow-2xl relative flex-1" style={{ borderColor: cat.color ? cat.color + '40' : '#ffffff40' }}>
-            <div className="absolute inset-0 rounded-2xl opacity-20 blur-xl pointer-events-none" style={{ background: `radial-gradient(circle at center, ${cat.color || '#fff'}22, transparent 70%)` }} />
-            <span className="text-[9px] font-mono tracking-[0.3em] uppercase mb-3 border-b border-neutral-800 pb-2 w-full text-center" style={{ color: cat.color }}>NFT PREVIEW</span>
+        {/* BARIS 2: ON-CHAIN METADATA (DIBUAT KESAMPING FULL) */}
+        <div className="bg-[#0a0a1a]/80 rounded-xl p-3 border border-cyan-500/20 shadow-lg flex items-center gap-4 w-full">
+          <div className="flex items-center gap-1.5 pr-4 border-r border-neutral-800/80 shrink-0">
+            <Lock className="w-3.5 h-3.5 text-cyan-400" />
+            <p className="text-[8px] uppercase tracking-[0.3em] text-cyan-400 font-bold leading-tight">On-Chain<br/>Metadata</p>
+          </div>
+          <div className="flex-1 grid grid-cols-4 gap-4 text-[10px]">
+            <div className="flex items-center">
+              <Hash className="w-3.5 h-3.5 text-neutral-500 mr-1.5 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[7px] text-neutral-500 uppercase">Token ID</p>
+                <p className="text-white font-mono truncate">{proofData?.tokenId || 'Pending'}</p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <Cpu className="w-3.5 h-3.5 text-neutral-500 mr-1.5 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[7px] text-neutral-500 uppercase">Chain ID</p>
+                <p className="text-white font-mono">97</p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <FileDigit className="w-3.5 h-3.5 text-neutral-500 mr-1.5 shrink-0" />
+              <div className="min-w-0 w-full">
+                <p className="text-[7px] text-neutral-500 uppercase">Contract Address</p>
+                <p className="text-cyan-300 font-mono text-[9px] truncate w-full">{formatAddress(proofData?.contract || AETHER_VAULT_ADDRESS)}</p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <Code2 className="w-3.5 h-3.5 text-cyan-400 mr-1.5 shrink-0" />
+              <div className="min-w-0 w-full">
+                <p className="text-[7px] text-neutral-500 uppercase">Tx Hash (SHA-256)</p>
+                <p className="text-cyan-300 font-mono text-[9px] truncate w-full">{proofData?.fileHash || 'Calculating...'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <div className="relative w-32 h-40 mb-3">
-              <div className="absolute inset-0 rounded-xl transform rotate-3" style={{ background: `linear-gradient(135deg, ${cat.color || '#fff'}20, transparent)`, border: `1px solid ${cat.color || '#fff'}40` }} />
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-950 border overflow-hidden flex items-center justify-center p-3 shadow-[0_10px_40px_rgba(0,0,0,0.5)]" style={{ borderColor: cat.color ? cat.color + '55' : '#fff55' }}>
+        {/* BARIS 3: NFT PREVIEW & QR (DI BAWAH METADATA & MENYAMPING) */}
+        <div className="flex gap-4 h-[120px]">
+          {/* Horizontal Preview Card */}
+          <div className="flex-1 bg-[#05030F]/80 border rounded-2xl p-4 flex items-center gap-6 shadow-lg relative overflow-hidden" style={{ borderColor: cat.color + '40' }}>
+            <div className="absolute inset-0 opacity-20 blur-xl pointer-events-none" style={{ background: `radial-gradient(circle at left, ${cat.color}22, transparent 70%)` }} />
+            
+            <div className="relative w-20 h-24 shrink-0">
+              <div className="absolute inset-0 rounded-xl transform rotate-3" style={{ background: `linear-gradient(135deg, ${cat.color}20, transparent)`, border: `1px solid ${cat.color}40` }} />
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-950 border overflow-hidden flex items-center justify-center p-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" style={{ borderColor: cat.color + '55' }}>
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="av-ring-spin absolute w-[92px] h-[92px] rounded-full border border-cyan-400/35" style={{ borderTopColor: cat.color, borderBottomColor: 'rgba(139,92,246,.45)' }} />
-                  <div className="av-ring-reverse absolute w-[78px] h-[78px] rounded-full border border-violet-400/25 border-dashed" />
-                  <div className="absolute w-[62px] h-[62px] rounded-full border border-amber-400/20" />
-                  <div className="av-orbit-dot absolute w-1.5 h-1.5 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,.9)]" />
-                  <div className="absolute w-2 h-2 rounded-full bg-amber-300 shadow-[0_0_12px_rgba(251,191,36,.95)]" />
+                  <div className="av-ring-spin absolute w-[64px] h-[64px] rounded-full border border-cyan-400/35" style={{ borderTopColor: cat.color, borderBottomColor: 'rgba(139,92,246,.45)' }} />
+                  <div className="av-ring-reverse absolute w-[50px] h-[50px] rounded-full border border-violet-400/25 border-dashed" />
                 </div>
-                <img src={AETHER_LOGO} alt="AetherVault NFT" className="av-logo-pulse relative z-10 w-16 h-16 object-contain" />
-                <div className="av-light-sweep absolute top-[-25%] bottom-[-25%] left-[-35%] w-[24%] rotate-[18deg] bg-gradient-to-r from-transparent via-white/45 to-transparent blur-[3px] pointer-events-none z-20" />
-                <div className="absolute inset-2 rounded-lg border border-white/5 pointer-events-none" />
+                <img src={AETHER_LOGO} alt="NFT" className="av-logo-pulse relative z-10 object-contain" style={{ width: '40px', height: '40px' }} />
               </div>
             </div>
 
-            <div className="relative mb-3 av-badge-pulse rounded-lg" style={{ color: cat.color }}>
-              <div className="absolute inset-0 rounded-lg blur-md opacity-50" style={{ background: cat.color }} />
-              <div className="relative flex items-center gap-2 px-3 py-1.5 rounded-lg border font-bold text-[10px] tracking-[0.18em] font-mono backdrop-blur-md" style={{ background: cat.bg, borderColor: cat.border, color: cat.color }}>
-                {CatIcon}
-                <span>{cat.badge || 'AUTHENTIC'}</span>
+            <div className="flex flex-col justify-center h-full z-10 flex-1">
+              <span className="text-[8px] font-mono tracking-[0.3em] uppercase mb-1.5" style={{ color: cat.color }}>NFT PREVIEW</span>
+              <div className="relative av-badge-pulse rounded-lg mb-2.5 w-fit" style={{ color: cat.color }}>
+                <div className="relative flex items-center gap-1.5 px-2 py-1 rounded-lg border font-bold text-[9px] tracking-[0.15em] font-mono backdrop-blur-md" style={{ background: cat.bg, borderColor: cat.border, color: cat.color }}>
+                  {CatIcon}
+                  <span>{cat.badgeLabel || cat.badge || 'AUTHENTIC'}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-[7px] text-neutral-500 uppercase tracking-widest font-mono">Serial Number</p>
+                <p className="text-sm text-white font-mono font-bold mt-0.5">{proofData?.tokenId || 'PENDING'}</p>
               </div>
             </div>
-
-            <div className="text-center mb-3">
-              <p className="text-[7px] text-neutral-500 uppercase tracking-widest font-mono">Serial Number</p>
-              <p className="text-sm text-white font-mono font-bold mt-1">{proofData?.tokenId || 'PENDING'}</p>
+            
+            <div className="h-full flex flex-col justify-center items-end pr-2 opacity-50">
+               <span className="text-[7px] text-neutral-500 font-mono uppercase tracking-widest flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3"/> AUTHENTIC
+               </span>
             </div>
-
-            <div className="relative w-14 h-14 rounded-full border-2 border-dashed border-cyan-500/40 flex items-center justify-center mb-2" style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.1), rgba(139,92,246,0.1))' }}>
-              <img src={AETHER_LOGO} alt="Verified" className="w-9 h-9 object-contain drop-shadow-[0_0_8px_rgba(245,158,11,0.7)]" />
-            </div>
-            <span className="text-[7px] text-neutral-500 font-mono uppercase tracking-widest">AUTHENTIC</span>
           </div>
 
-          <div className="bg-[#05030F]/80 border border-neutral-800/60 rounded-2xl p-4 flex flex-col items-center">
-            <div className="w-20 h-20 bg-white p-1.5 rounded-lg shadow-lg flex items-center justify-center">
-              <QRCode value={proofData?.verifyUrl || "https://aethvault.xyz"} size={68} bgColor="#ffffff" fgColor="#0A0714" level="Q" />
+          {/* QR Code */}
+          <div className="w-[120px] bg-[#05030F]/80 border border-neutral-800/60 rounded-2xl p-3 flex flex-col items-center justify-center shadow-lg shrink-0">
+            <div className="w-[68px] h-[68px] bg-white p-1 rounded-lg shadow-sm flex items-center justify-center mb-1.5">
+              <QRCode value={proofData?.verifyUrl || "https://aethvault.xyz"} size={60} bgColor="#ffffff" fgColor="#0A0714" level="Q" />
             </div>
-            <span className="text-[7px] text-neutral-400 font-mono mt-2 uppercase tracking-widest">Scan to Verify</span>
+            <span className="text-[6px] text-neutral-400 font-mono uppercase tracking-widest text-center leading-relaxed">Scan to<br/>Verify</span>
           </div>
         </div>
+
       </div>
 
       {/* FOOTER */}
-      <div className="relative z-10 pt-4 border-t border-neutral-800/60 flex flex-row items-center justify-between px-2">
+      <div className="relative z-10 pt-4 border-t border-neutral-800/60 flex flex-row items-center justify-between px-2 shrink-0">
         <div>
           <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 font-mono">Powered By</p>
           <div className="flex items-center gap-2 mt-1">
-            <img src={AETHER_LOGO} alt="AetherVault" className="w-7 h-7 object-contain drop-shadow-[0_0_7px_rgba(245,158,11,0.5)]" />
+            <img src={AETHER_LOGO} alt="AetherVault" className="object-contain drop-shadow-[0_0_7px_rgba(245,158,11,0.5)]" style={{ width: '28px', height: '28px' }} />
             <p className="text-sm font-bold text-white font-display tracking-wider">AETHERVAULT PROTOCOL</p>
           </div>
           <p className="text-[7px] text-neutral-600 font-mono mt-0.5">Decentralized Time-Lock & Legacy Infrastructure</p>
@@ -225,7 +238,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
           <div className="relative w-24 h-20 mx-auto mb-1 flex items-center justify-center">
             <div className="absolute inset-0 rounded-full border border-amber-500/20 animate-spin" style={{ animationDuration: '8s' }} />
             <div className="absolute inset-2 rounded-full border border-cyan-500/20 animate-spin" style={{ animationDuration: '12s', animationDirection: 'reverse' }} />
-            <img src={AETHER_LOGO} alt="AetherVault Seal" className="w-12 h-12 object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.6)]" />
+            <img src={AETHER_LOGO} alt="Seal" className="object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.6)]" style={{ width: '48px', height: '48px' }} />
           </div>
           <div className="font-signature text-2xl text-amber-200/90 tracking-wider" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
           <div className="w-32 border-b border-neutral-700 my-1 mx-auto" />
@@ -245,7 +258,6 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
   );
 });
 CertificateTemplate.displayName = "CertificateTemplate";
-
 
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
   const { t: globalT } = useLanguage();
@@ -297,15 +309,9 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const currentConfig = categoryConfig[category];
   const realAddress = address || "0x0000000000000000000000000000000000000000";
 
-  // Mouse Handlers (Desktop)
   const handleMouseDown = (e) => {
     setIsDraggingPreview(true);
-    setDragStart({
-      x: e.pageX - previewScrollRef.current.offsetLeft,
-      y: e.pageY - previewScrollRef.current.offsetTop,
-      scrollLeft: previewScrollRef.current.scrollLeft,
-      scrollTop: previewScrollRef.current.scrollTop
-    });
+    setDragStart({ x: e.pageX - previewScrollRef.current.offsetLeft, y: e.pageY - previewScrollRef.current.offsetTop, scrollLeft: previewScrollRef.current.scrollLeft, scrollTop: previewScrollRef.current.scrollTop });
   };
   const handleMouseLeaveOrUp = () => setIsDraggingPreview(false);
   const handleMouseMove = (e) => {
@@ -313,29 +319,19 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
     e.preventDefault();
     const x = e.pageX - previewScrollRef.current.offsetLeft;
     const y = e.pageY - previewScrollRef.current.offsetTop;
-    const walkX = (x - dragStart.x) * 1.5; 
-    const walkY = (y - dragStart.y) * 1.5;
-    previewScrollRef.current.scrollLeft = dragStart.scrollLeft - walkX;
-    previewScrollRef.current.scrollTop = dragStart.scrollTop - walkY;
+    previewScrollRef.current.scrollLeft = dragStart.scrollLeft - (x - dragStart.x) * 1.5;
+    previewScrollRef.current.scrollTop = dragStart.scrollTop - (y - dragStart.y) * 1.5;
   };
-
   const handleTouchStart = (e) => {
     setIsDraggingPreview(true);
-    setDragStart({
-      x: e.touches[0].pageX - previewScrollRef.current.offsetLeft,
-      y: e.touches[0].pageY - previewScrollRef.current.offsetTop,
-      scrollLeft: previewScrollRef.current.scrollLeft,
-      scrollTop: previewScrollRef.current.scrollTop
-    });
+    setDragStart({ x: e.touches[0].pageX - previewScrollRef.current.offsetLeft, y: e.touches[0].pageY - previewScrollRef.current.offsetTop, scrollLeft: previewScrollRef.current.scrollLeft, scrollTop: previewScrollRef.current.scrollTop });
   };
   const handleTouchMove = (e) => {
     if (!isDraggingPreview) return;
     const x = e.touches[0].pageX - previewScrollRef.current.offsetLeft;
     const y = e.touches[0].pageY - previewScrollRef.current.offsetTop;
-    const walkX = (x - dragStart.x) * 1.5; 
-    const walkY = (y - dragStart.y) * 1.5;
-    previewScrollRef.current.scrollLeft = dragStart.scrollLeft - walkX;
-    previewScrollRef.current.scrollTop = dragStart.scrollTop - walkY;
+    previewScrollRef.current.scrollLeft = dragStart.scrollLeft - (x - dragStart.x) * 1.5;
+    previewScrollRef.current.scrollTop = dragStart.scrollTop - (y - dragStart.y) * 1.5;
   };
 
   const fetchOnChainHallOfProof = useCallback(async () => {
@@ -343,40 +339,33 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
     try {
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, provider);
-
       const filter = contract.filters.ProofMinted();
       const DEPLOY_BLOCK = 43345845; 
       const currentBlock = await provider.getBlockNumber();
       const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 4900);
-
       const events = await contract.queryFilter(filter, startBlock, "latest");
       
-      const parsedProofs = await Promise.all(
-        events.map(async (ev) => {
-          const block = await provider.getBlock(ev.blockNumber);
-          const args = ev.args;
-          return {
-            id: args[0].toString(),
-            title: `Aether Proof #${args[0].toString()}`,
-            category: args[2] || "Software",
-            owner: `${args[1].substring(0, 6)}...${args[1].substring(args[1].length - 4)}`,
-            ownerFull: args[1],
-            date: new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-            network: TARGET_CHAIN_NAME || "BSC Testnet",
-            hash: `${args[4].substring(0, 8)}...`,
-            fullHash: args[4],
-            status: "Verified On-Chain",
-            txHash: ev.transactionHash
-          };
-        })
-      );
+      const parsedProofs = await Promise.all(events.map(async (ev) => {
+        const block = await provider.getBlock(ev.blockNumber);
+        const args = ev.args;
+        return {
+          id: args[0].toString(),
+          title: `Aether Proof #${args[0].toString()}`,
+          category: args[2] || "Software",
+          owner: `${args[1].substring(0, 6)}...${args[1].substring(args[1].length - 4)}`,
+          ownerFull: args[1],
+          date: new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          network: TARGET_CHAIN_NAME || "BSC Testnet",
+          hash: `${args[4].substring(0, 8)}...`,
+          fullHash: args[4],
+          status: "Verified On-Chain",
+          txHash: ev.transactionHash
+        };
+      }));
 
       parsedProofs.reverse();
       setOnChainProofs(parsedProofs);
-      setGlobalProtocolStats({
-        totalProofs: parsedProofs.length,
-        burnedTotal: parsedProofs.length * 50
-      });
+      setGlobalProtocolStats({ totalProofs: parsedProofs.length, burnedTotal: parsedProofs.length * 50 });
     } catch (err) {
       console.error("Gagal memuat Hall of Proof on-chain:", err);
     } finally {
@@ -384,16 +373,13 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
     }
   }, [TARGET_CHAIN_NAME]);
 
-  useEffect(() => {
-    fetchOnChainHallOfProof();
-  }, [fetchOnChainHallOfProof]);
+  useEffect(() => { fetchOnChainHallOfProof(); }, [fetchOnChainHallOfProof]);
 
   const generateKeccak256 = async (dataBuffer) => {
     try {
       const uint8Array = new Uint8Array(dataBuffer);
       return ethers.keccak256(uint8Array);
     } catch (err) {
-      console.error("Hashing failed", err);
       throw new Error("File hashing failed / corrupted"); 
     }
   };
@@ -403,18 +389,13 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
     if (!uploadedFile) return;
     setFile(uploadedFile);
     setIsHashing(true);
-    
     try {
       const arrayBuffer = await uploadedFile.arrayBuffer();
       const hash = await generateKeccak256(arrayBuffer);
-      setTimeout(() => {
-        setFileHash(hash);
-        setIsHashing(false);
-      }, 800);
+      setTimeout(() => { setFileHash(hash); setIsHashing(false); }, 800);
     } catch (err) {
       alert("Gagal membaca file: " + err.message);
-      setIsHashing(false);
-      setFile(null);
+      setIsHashing(false); setFile(null);
     }
   };
 
@@ -423,7 +404,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       try {
         const metadata = JSON.stringify({
           name: title || "Aether Proof",
-          description: "Blockchain Certificate",
+          description: description || "Blockchain Certificate",
           attributes: [
             { trait_type: "Category", value: category },
             { trait_type: "Creator", value: creatorName || realAddress },
@@ -448,9 +429,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
     try {
       setMintStep(1);
       await new Promise(res => setTimeout(res, 500));
-      
       if (!window.ethereum) throw new Error("MetaMask not found!");
-      
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
 
@@ -474,12 +453,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       
       const safeTitle = (title || "Aether Proof").replace(/[<>&'"]/g, function (c) {
         switch (c) {
-          case '<': return '&lt;';
-          case '>': return '&gt;';
-          case '&': return '&amp;';
-          case '\'': return '&apos;';
-          case '"': return '&quot;';
-          default: return c;
+          case '<': return '&lt;'; case '>': return '&gt;'; case '&': return '&amp;'; case '\'': return '&apos;'; case '"': return '&quot;'; default: return c;
         }
       });
 
@@ -501,7 +475,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const tokenURIParam = `data:application/json;base64,${encodedJSON}`;
 
       setMintingStatusMsg('Harap konfirmasi transaksi pencetakan (Mint) di MetaMask...');
-      
       const tx = await contract.createProof(Number(tier), category, fileHash, tokenURIParam, true);
       
       setMintingStatusMsg('Menunggu validasi blok BSC Testnet...');
@@ -527,6 +500,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         contract: AETHER_VAULT_ADDRESS,
         category,
         title,
+        description: description || "Aether Proof Immutable Certificate. 100% On-Chain Verification.",
         badge: currentConfig.badge,
         badgeIcon: currentConfig.badgeIcon,
         creator: creatorName || formatAddressFunc(address),
@@ -556,9 +530,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       link.href = imgData;
       link.download = `${generatedProof.id}.png`;
       link.click();
-    } catch (error) {
-      console.error("PNG generation failed", error);
-    }
+    } catch (error) { console.error("PNG generation failed", error); }
   };
 
   const handleDownloadPDF = async () => {
@@ -571,9 +543,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, '', 'FAST');
       pdf.save(`${generatedProof.id}.pdf`);
-    } catch (error) {
-      console.error("PDF generation failed", error);
-    }
+    } catch (error) { console.error("PDF generation failed", error); }
   };
 
   const resetFormToMintAnother = () => {
@@ -593,32 +563,17 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       <style>{`
         @keyframes av-ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes av-ring-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-        @keyframes av-light-sweep {
-          0%, 55% { transform: translateX(-140%) skewX(-18deg); opacity: 0; }
-          65% { opacity: .8; }
-          82%, 100% { transform: translateX(140%) skewX(-18deg); opacity: 0; }
-        }
-        @keyframes av-logo-pulse {
-          0%, 100% { filter: drop-shadow(0 0 16px rgba(245,158,11,.45)); transform: scale(1); }
-          50% { filter: drop-shadow(0 0 28px rgba(245,158,11,.85)); transform: scale(1.025); }
-        }
-        @keyframes av-orbit-dot {
-          from { transform: rotate(0deg) translateX(43px) rotate(0deg); }
-          to { transform: rotate(360deg) translateX(43px) rotate(-360deg); }
-        }
-        @keyframes av-badge-pulse {
-          0%, 100% { box-shadow: 0 0 12px currentColor, inset 0 1px 0 rgba(255,255,255,.08); }
-          50% { box-shadow: 0 0 24px currentColor, inset 0 1px 0 rgba(255,255,255,.14); }
-        }
+        @keyframes av-light-sweep { 0%, 55% { transform: translateX(-140%) skewX(-18deg); opacity: 0; } 65% { opacity: .8; } 82%, 100% { transform: translateX(140%) skewX(-18deg); opacity: 0; } }
+        @keyframes av-logo-pulse { 0%, 100% { filter: drop-shadow(0 0 16px rgba(245,158,11,.45)); transform: scale(1); } 50% { filter: drop-shadow(0 0 28px rgba(245,158,11,.85)); transform: scale(1.025); } }
+        @keyframes av-orbit-dot { from { transform: rotate(0deg) translateX(43px) rotate(0deg); } to { transform: rotate(360deg) translateX(43px) rotate(-360deg); } }
+        @keyframes av-badge-pulse { 0%, 100% { box-shadow: 0 0 12px currentColor, inset 0 1px 0 rgba(255,255,255,.08); } 50% { box-shadow: 0 0 24px currentColor, inset 0 1px 0 rgba(255,255,255,.14); } }
         .av-ring-spin { animation: av-ring-spin 12s linear infinite; }
         .av-ring-reverse { animation: av-ring-reverse 8s linear infinite; }
         .av-light-sweep { animation: av-light-sweep 4.5s ease-in-out infinite; }
         .av-logo-pulse { animation: av-logo-pulse 3.8s ease-in-out infinite; }
         .av-badge-pulse { animation: av-badge-pulse 2.8s ease-in-out infinite; }
         .av-orbit-dot { animation: av-orbit-dot 6s linear infinite; }
-        @media (prefers-reduced-motion: reduce) {
-          .av-ring-spin, .av-ring-reverse, .av-light-sweep, .av-logo-pulse, .av-badge-pulse, .av-orbit-dot { animation: none !important; }
-        }
+        @media (prefers-reduced-motion: reduce) { .av-ring-spin, .av-ring-reverse, .av-light-sweep, .av-logo-pulse, .av-badge-pulse, .av-orbit-dot { animation: none !important; } }
       `}</style>
 
       {view === 'hub' && (
@@ -655,7 +610,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
 
               <div className="lg:col-span-5 hidden lg:flex flex-col items-center justify-center bg-[#05030F]/80 border border-neutral-800 p-6 rounded-2xl relative shadow-inner">
                 <span className="absolute top-3 right-3 text-[9px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 uppercase">Live Pipeline</span>
-                
                 <div className="space-y-3 w-full max-w-[240px] text-center">
                   <div className="p-3 bg-neutral-900 border border-neutral-800 rounded-xl text-xs font-mono font-bold text-white flex items-center justify-center gap-2 shadow">
                     <Globe className="w-4 h-4 text-purple-400 animate-spin" /> Binance Smart Chain
@@ -699,7 +653,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                 </h4>
               </div>
             </div>
-
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {Object.entries(categoryConfig).map(([key, val], idx) => (
                 <div 
@@ -716,7 +669,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                     </div>
                     <h5 className="font-bold text-white text-xs sm:text-base mb-1 group-hover:text-amber-300 transition-colors truncate">{key}</h5>
                   </div>
-
                   <div className="pt-2 sm:pt-3 border-t border-neutral-800/80 flex items-center justify-between mt-2">
                     <span className="text-[9px] sm:text-[11px] font-bold text-neutral-300 flex items-center gap-1 sm:gap-1.5 truncate pr-1">
                       <span className="shrink-0">{val.badgeIcon}</span> <span className="truncate">{val.badge}</span>
@@ -736,7 +688,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                 </h4>
               </div>
             </div>
-
             {isLoadingHall ? (
               <div className="text-center py-12 text-neutral-500 text-xs flex items-center justify-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin text-cyan-400" /> Fetching...
@@ -757,7 +708,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                       <h5 className="font-bold text-white text-sm line-clamp-2 group-hover:text-cyan-300 transition-colors">{item.title}</h5>
                       <p className="text-[10px] text-neutral-400 font-mono">Hash: {item.hash}</p>
                     </div>
-
                     <div className="pt-4 mt-4 border-t border-neutral-800 space-y-2">
                       <div className="flex justify-between text-[10px] text-neutral-500 font-mono">
                         <span>{tHop.creator || 'Owner'}</span>
@@ -815,7 +765,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)} 
                   placeholder="Short description about this proof..." 
-                  className="w-full bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 font-medium resize-none h-20" 
+                  className="w-full bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 font-medium resize-none h-20 custom-scrollbar" 
                 />
               </div>
 
@@ -846,7 +796,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                   <div className="flex justify-between text-xs font-mono"><span className="text-neutral-500 flex items-center gap-1"><Building2 className="w-3 h-3 text-yellow-400"/> Treasury Reserve</span><span className="text-yellow-400">+{currentConfig.price * 0.4} AETH</span></div>
                   <div className="flex justify-between text-xs font-mono border-t border-neutral-800 pt-2"><span className="text-neutral-400">Est. Gas Fee</span><span className="text-white">~0.0005 tBNB</span></div>
                 </div>
-
                 <button type="submit" disabled={!title || isHashing} className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-white font-bold py-4 rounded-full text-xs sm:text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center justify-center gap-2 cursor-pointer transition-all">
                   <Award className="w-4 h-4" /> Mint & Issue Proof
                 </button>
@@ -896,6 +845,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                     id: 'AETH-PROOF-PREVIEW',
                     category,
                     title: title || 'Proof Title Preview',
+                    description: description || 'Authentic digital asset secured and verified on the blockchain.',
                     badge: currentConfig.badge,
                     badgeIcon: currentConfig.badgeIcon,
                     creator: creatorName || formatAddressFunc(address),
@@ -911,7 +861,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
               </div>
             </div>
           </div>
-
         </div>
       )}
 
