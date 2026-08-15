@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Award, ShieldCheck, Download, CheckCircle2, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Microscope, Building2, Scale, Box, User, Link as LinkIcon, UploadCloud, Lock, ChevronLeft, Loader2, FileImage, Cpu, Flame, Fingerprint, Image as ImageIcon, ExternalLink, QrCode, Eye, Sparkles, Activity, Layers, ArrowUpRight, Check, Compass, Shield, Hash, FileDigit } from 'lucide-react';
+import { Award, ShieldCheck, Download, CheckCircle2, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Microscope, Building2, Scale, Box, User, Link as LinkIcon, UploadCloud, Lock, ChevronLeft, Loader2, FileImage, Cpu, Flame, Fingerprint, Image as ImageIcon, ExternalLink, QrCode, Eye, Sparkles, Activity, Layers, ArrowUpRight, Check, Compass, Shield, Hash, FileDigit, Hexagon } from 'lucide-react';
 import { ethers } from 'ethers';
 import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
@@ -15,7 +15,7 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
 
 // =========================================================
-// 🚀 GAYA WEB3 FUTURISTIK: LAYOUT MENYAMPING SUPER RAPI
+// 🚀 SERTIFIKAT TEMPLATE (Sudah Futuristik & Web3)
 // =========================================================
 const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAddress, categoryConfig, AETHER_LOGO = '/logo.png' }, ref) => {
   const catKey = (proofData?.category || 'Software').toLowerCase().trim();
@@ -25,7 +25,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
   const CatIcon = cat.icon ? React.cloneElement(cat.icon, { className: "w-3.5 h-3.5", style: { color: cat.color } }) : <Sparkles className="w-3.5 h-3.5" style={{ color: cat.color }} />;
 
   return (
-    <div id="cert-export-node" ref={ref} className="w-[890px] h-[620px] bg-[#0A0714] text-gray-200 rounded-2xl p-8 relative overflow-hidden font-sans border border-amber-500/30 mx-auto flex flex-col justify-between shrink-0 shadow-[0_0_50px_rgba(139,92,246,0.15)]" style={{ background: 'radial-gradient(ellipse at 20% 0%, #11112d 0%, #090718 42%, #03020a 100%)', borderImage: 'linear-gradient(135deg, #06b6d4, #8b5cf6, #f59e0b, #8b5cf6, #06b6d4) 1', borderWidth: '2px', borderStyle: 'solid' }}>
+    <div id="cert-export-node" ref={ref} className="w-[890px] h-[620px] bg-[#0A0714] text-gray-200 rounded-2xl p-6 relative overflow-hidden font-sans border border-amber-500/30 mx-auto flex flex-col justify-between shrink-0 shadow-[0_0_50px_rgba(139,92,246,0.15)]" style={{ background: 'radial-gradient(ellipse at 20% 0%, #11112d 0%, #090718 42%, #03020a 100%)', borderImage: 'linear-gradient(135deg, #06b6d4, #8b5cf6, #f59e0b, #8b5cf6, #06b6d4) 1', borderWidth: '2px', borderStyle: 'solid' }}>
       
       {/* Background Decor */}
       <div className="absolute inset-0 opacity-30 pointer-events-none">
@@ -44,128 +44,125 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[65%] h-[3px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.7), rgba(139,92,246,0.8), rgba(245,158,11,0.8), transparent)' }} />
 
       {/* HEADER */}
-      <div className="flex justify-between items-center relative z-10 pb-4 border-b border-neutral-800/60 shrink-0">
+      <div className="flex justify-between items-center relative z-10 pb-3 border-b border-neutral-800/60 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center relative overflow-hidden border border-cyan-400/40 bg-black/50 shadow-[0_0_25px_rgba(6,182,212,0.25)]">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center relative overflow-hidden border border-cyan-400/40 bg-black/50 shadow-[0_0_20px_rgba(6,182,212,0.25)]">
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/15 via-violet-500/10 to-amber-500/20" />
-            <img src={AETHER_LOGO} alt="AetherVault" className="relative object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.7)]" style={{ width: '44px', height: '44px' }} />
+            <img src={AETHER_LOGO} alt="AetherVault" className="relative object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.7)]" style={{ width: '36px', height: '36px' }} />
           </div>
           <div>
-            <div className="font-display font-black text-2xl tracking-[0.18em] leading-none">
+            <div className="font-display font-black text-xl tracking-[0.18em] leading-none">
               <span className="text-white">AETHER</span><span className="text-amber-400">VAULT</span>
             </div>
-            <p className="text-[8px] tracking-[0.3em] text-cyan-300/70 uppercase font-mono mt-1">Trustless • Verified • Timeless</p>
+            <p className="text-[7px] tracking-[0.3em] text-cyan-300/70 uppercase font-mono mt-1">Trustless • Verified • Timeless</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-neutral-950/80 px-4 py-2 rounded-full border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.15)]">
-            <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.8)]" />
-            <span className="text-[10px] font-bold text-green-300 uppercase tracking-widest font-mono">VERIFIED ON-CHAIN</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-neutral-950/80 px-3 py-1.5 rounded-full border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.15)]">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.8)]" />
+            <span className="text-[8px] font-bold text-green-300 uppercase tracking-widest font-mono">VERIFIED ON-CHAIN</span>
           </div>
-          <div className="bg-neutral-950/80 px-4 py-2 rounded-full border border-amber-500/30 flex items-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
-            <Globe className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-[10px] font-bold text-amber-300 uppercase tracking-widest font-mono">BNB CHAIN</span>
+          <div className="bg-neutral-950/80 px-3 py-1.5 rounded-full border border-amber-500/30 flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+            <Globe className="w-3 h-3 text-amber-400" />
+            <span className="text-[8px] font-bold text-amber-300 uppercase tracking-widest font-mono">BNB CHAIN</span>
           </div>
         </div>
       </div>
 
       {/* TITLE */}
-      <div className="text-center relative z-10 my-1 shrink-0">
-        <div className="inline-flex items-center gap-2 mb-1.5">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          <span className="text-[10px] tracking-[0.4em] text-neutral-400 uppercase font-mono">Non-Fungible Token Certificate</span>
-          <Sparkles className="w-4 h-4 text-amber-400" />
+      <div className="text-center relative z-10 shrink-0 mt-2 mb-3">
+        <div className="inline-flex items-center gap-2 mb-1">
+          <Sparkles className="w-3 h-3 text-amber-400" />
+          <span className="text-[9px] tracking-[0.4em] text-neutral-400 uppercase font-mono">Non-Fungible Token Certificate</span>
+          <Sparkles className="w-3 h-3 text-amber-400" />
         </div>
-        <h2 className="text-3xl font-black tracking-[0.15em] font-display" style={{ background: 'linear-gradient(90deg, #22d3ee, #ffffff, #fbbf24, #ffffff, #22d3ee)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', textShadow: '0 0 30px rgba(6,182,212,0.3)' }}>
+        <h2 className="text-3xl font-black tracking-[0.15em] font-display text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-white to-amber-200" style={{ textShadow: '0 0 30px rgba(6,182,212,0.3)' }}>
           CERTIFICATE OF AUTHENTICITY
         </h2>
-        <p className="text-[9px] tracking-[0.3em] text-neutral-500 uppercase font-mono mt-1.5">Blockchain Verified | Immutable | Decentralized</p>
+        <p className="text-[8px] tracking-[0.3em] text-neutral-500 uppercase font-mono mt-1">Blockchain Verified | Immutable | Decentralized</p>
       </div>
 
-      {/* ========================================================
-          🌟 LAYOUT 3 BARIS MENYAMPING (TIDAK MELAR KE BAWAH)
-      ========================================================= */}
-      <div className="flex flex-col gap-3.5 relative z-10 flex-1 my-1">
-        
-        {/* BARIS 1: KOTAK INFO UTAMA (EMBLEM & DESKRIPSI) */}
-        <div className="bg-[#05030F]/60 border border-neutral-800/60 rounded-2xl p-4 shadow-inner backdrop-blur-md flex gap-5 font-mono items-center">
-          
-          <div className="w-[110px] h-[110px] shrink-0 rounded-2xl border border-violet-500/30 relative overflow-hidden flex items-center justify-center bg-black/30">
-            <div className="absolute w-[90px] h-[90px] rounded-full blur-[25px] opacity-50" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.55), rgba(6,182,212,0.18), transparent 70%)' }} />
-            <div className="absolute w-[80px] h-[80px] border border-cyan-400/30 rotate-45 rounded-[16px]" />
-            <div className="absolute w-[60px] h-[60px] border border-violet-400/30 rotate-45 rounded-[12px]" />
-            <img src={AETHER_LOGO} alt="Emblem" className="relative z-10 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.65)]" style={{ width: '50px', height: '50px' }} />
-          </div>
-          
-          <div className="flex-1 flex flex-col justify-center">
-            <div className="flex justify-between items-start mb-1.5">
-              <div>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5">Asset Title</p>
-                <p className="text-white font-bold text-base line-clamp-1">{proofData?.title || 'Aether Proof™'}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5">Certificate ID</p>
-                <p className="text-cyan-400 font-bold text-sm tracking-wider drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">#{proofData?.id || 'PREVIEW'}</p>
-              </div>
-            </div>
-            
-            <div className="mb-3">
-              <p className="text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5">Description</p>
-              <p className="text-[10px] text-neutral-300 leading-relaxed line-clamp-2 pr-4">{proofData?.description || 'Authentic digital asset secured and verified on the blockchain.'}</p>
-            </div>
+      {/* STRUKTUR MENYAMPING DI DALAM SERTIFIKAT */}
+      <div className="flex flex-col gap-3 relative z-10 flex-1 justify-center">
 
-            <div className="grid grid-cols-4 gap-4 pt-2 border-t border-neutral-800/60">
-              <div>
-                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Creator Name</p>
-                <p className="text-neutral-200 font-bold text-[10px] truncate">{proofData?.creator || 'Unknown Creator'}</p>
+        <div className="flex gap-4 h-[130px]">
+          <div className="w-[130px] h-[130px] shrink-0 rounded-2xl border border-violet-500/30 relative overflow-hidden flex items-center justify-center bg-black/30">
+            <div className="absolute w-[100px] h-[100px] rounded-full blur-[25px] opacity-50" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.55), rgba(6,182,212,0.18), transparent 70%)' }} />
+            <div className="absolute w-[90px] h-[90px] border border-cyan-400/30 rotate-45 rounded-[16px]" />
+            <div className="absolute w-[70px] h-[70px] border border-violet-400/30 rotate-45 rounded-[12px]" />
+            <img src={AETHER_LOGO} alt="Emblem" className="relative z-10 object-contain drop-shadow-[0_0_15px_rgba(245,158,11,0.65)]" style={{ width: '60px', height: '60px' }} />
+          </div>
+
+          <div className="flex-1 bg-[#05030F]/60 border border-neutral-800/60 rounded-2xl p-4 shadow-inner backdrop-blur-md flex flex-col justify-between font-mono">
+            <div className="flex justify-between items-start mb-1">
+              <div className="flex-1 pr-2">
+                <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5">Asset Title</p>
+                <p className="text-white font-bold text-sm line-clamp-1">{proofData?.title || 'Aether Proof™'}</p>
               </div>
-              <div>
-                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Owner Wallet</p>
-                <p className="text-neutral-200 font-bold text-[10px] truncate font-mono">{formatAddress(proofData?.wallet || '0x00...00')}</p>
+              <div className="text-right shrink-0">
+                <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5">Certificate ID</p>
+                <p className="text-cyan-400 font-bold text-xs tracking-wider drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]">
+                  #{proofData?.id || 'PROOF-PREVIEW'}
+                </p>
               </div>
-              <div>
-                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Issued On</p>
-                <p className="text-neutral-200 font-bold text-[10px]">{proofData?.date || new Date().toLocaleDateString()} • UTC</p>
+            </div>
+            <div className="mb-2 flex-1">
+              <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 mb-0.5">Description</p>
+              <p className="text-[9px] text-neutral-300 leading-snug line-clamp-2 pr-4">
+                {proofData?.description || 'Authentic digital asset secured and verified permanently on the Binance Smart Chain.'}
+              </p>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-neutral-800/60">
+              <div className="w-1/4 pr-2">
+                <p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Creator Name</p>
+                <p className="text-neutral-200 font-bold text-[9px] truncate">{proofData?.creator || 'Unknown Creator'}</p>
               </div>
-              <div>
-                <p className="text-[8px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Blockchain</p>
-                <p className="text-neutral-200 font-bold text-[10px]">{proofData?.network || 'Binance Smart Chain'}</p>
+              <div className="w-1/4 pr-2">
+                <p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Owner Wallet</p>
+                <p className="text-neutral-200 font-bold text-[9px] truncate font-mono">{formatAddress(proofData?.wallet || '0x00...00')}</p>
+              </div>
+              <div className="w-1/4 pr-2">
+                <p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Issued On</p>
+                <p className="text-neutral-200 font-bold text-[9px]">{proofData?.date || new Date().toLocaleDateString()} • UTC</p>
+              </div>
+              <div className="w-1/4">
+                <p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5">Blockchain</p>
+                <p className="text-neutral-200 font-bold text-[9px] truncate">{proofData?.network || 'Binance Smart Chain'}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* BARIS 2: ON-CHAIN METADATA (DIBUAT KESAMPING FULL) */}
-        <div className="bg-[#0a0a1a]/80 rounded-xl p-3 border border-cyan-500/20 shadow-lg flex items-center gap-4 w-full">
-          <div className="flex items-center gap-1.5 pr-4 border-r border-neutral-800/80 shrink-0">
-            <Lock className="w-3.5 h-3.5 text-cyan-400" />
+        <div className="bg-[#0a0a1a]/80 rounded-xl p-3 border border-cyan-500/20 shadow-lg flex items-center gap-3 w-full font-mono shrink-0 h-[60px]">
+          <div className="flex items-center gap-1.5 pr-3 border-r border-neutral-800/80 shrink-0">
+            <Lock className="w-4 h-4 text-cyan-400" />
             <p className="text-[8px] uppercase tracking-[0.3em] text-cyan-400 font-bold leading-tight">On-Chain<br/>Metadata</p>
           </div>
-          <div className="flex-1 grid grid-cols-4 gap-4 text-[10px]">
-            <div className="flex items-center">
-              <Hash className="w-3.5 h-3.5 text-neutral-500 mr-1.5 shrink-0" />
+          <div className="flex-1 flex justify-between items-center text-[10px]">
+            <div className="flex items-center gap-1.5 w-[15%]">
+              <Hash className="w-3 h-3 text-neutral-500 shrink-0" />
               <div className="min-w-0">
                 <p className="text-[7px] text-neutral-500 uppercase">Token ID</p>
-                <p className="text-white font-mono truncate">{proofData?.tokenId || 'Pending'}</p>
+                <p className="text-white font-mono truncate">#{proofData?.tokenId || '0'}</p>
               </div>
             </div>
-            <div className="flex items-center">
-              <Cpu className="w-3.5 h-3.5 text-neutral-500 mr-1.5 shrink-0" />
+            <div className="flex items-center gap-1.5 w-[15%]">
+              <Cpu className="w-3 h-3 text-neutral-500 shrink-0" />
               <div className="min-w-0">
                 <p className="text-[7px] text-neutral-500 uppercase">Chain ID</p>
-                <p className="text-white font-mono">97</p>
+                <p className="text-white font-mono truncate">97</p>
               </div>
             </div>
-            <div className="flex items-center">
-              <FileDigit className="w-3.5 h-3.5 text-neutral-500 mr-1.5 shrink-0" />
+            <div className="flex items-center gap-1.5 w-[25%] pr-2">
+              <FileDigit className="w-3 h-3 text-neutral-500 shrink-0" />
               <div className="min-w-0 w-full">
                 <p className="text-[7px] text-neutral-500 uppercase">Contract Address</p>
                 <p className="text-cyan-300 font-mono text-[9px] truncate w-full">{formatAddress(proofData?.contract || AETHER_VAULT_ADDRESS)}</p>
               </div>
             </div>
-            <div className="flex items-center">
-              <Code2 className="w-3.5 h-3.5 text-cyan-400 mr-1.5 shrink-0" />
+            <div className="flex items-center gap-1.5 w-[45%]">
+              <Code2 className="w-3 h-3 text-cyan-400 shrink-0" />
               <div className="min-w-0 w-full">
                 <p className="text-[7px] text-neutral-500 uppercase">Tx Hash (SHA-256)</p>
                 <p className="text-cyan-300 font-mono text-[9px] truncate w-full">{proofData?.fileHash || 'Calculating...'}</p>
@@ -174,84 +171,78 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
           </div>
         </div>
 
-        {/* BARIS 3: NFT PREVIEW & QR (DI BAWAH METADATA & MENYAMPING) */}
-        <div className="flex gap-4 h-[120px]">
-          {/* Horizontal Preview Card */}
-          <div className="flex-1 bg-[#05030F]/80 border rounded-2xl p-4 flex items-center gap-6 shadow-lg relative overflow-hidden" style={{ borderColor: cat.color + '40' }}>
+        <div className="flex gap-4 h-[100px] font-mono shrink-0">
+          <div className="flex-1 bg-[#05030F]/80 border rounded-2xl p-3 flex items-center gap-5 shadow-lg relative overflow-hidden" style={{ borderColor: cat.color + '40' }}>
             <div className="absolute inset-0 opacity-20 blur-xl pointer-events-none" style={{ background: `radial-gradient(circle at left, ${cat.color}22, transparent 70%)` }} />
-            
-            <div className="relative w-20 h-24 shrink-0">
-              <div className="absolute inset-0 rounded-xl transform rotate-3" style={{ background: `linear-gradient(135deg, ${cat.color}20, transparent)`, border: `1px solid ${cat.color}40` }} />
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-neutral-900 to-neutral-950 border overflow-hidden flex items-center justify-center p-2 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" style={{ borderColor: cat.color + '55' }}>
+            <div className="relative w-[64px] h-[76px] shrink-0">
+              <div className="absolute inset-0 rounded-lg transform rotate-3" style={{ background: `linear-gradient(135deg, ${cat.color}20, transparent)`, border: `1px solid ${cat.color}40` }} />
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-neutral-900 to-neutral-950 border overflow-hidden flex items-center justify-center p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]" style={{ borderColor: cat.color + '55' }}>
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="av-ring-spin absolute w-[64px] h-[64px] rounded-full border border-cyan-400/35" style={{ borderTopColor: cat.color, borderBottomColor: 'rgba(139,92,246,.45)' }} />
-                  <div className="av-ring-reverse absolute w-[50px] h-[50px] rounded-full border border-violet-400/25 border-dashed" />
+                  <div className="av-ring-spin absolute w-[50px] h-[50px] rounded-full border border-cyan-400/35" style={{ borderTopColor: cat.color, borderBottomColor: 'rgba(139,92,246,.45)' }} />
+                  <div className="av-ring-reverse absolute w-[40px] h-[40px] rounded-full border border-violet-400/25 border-dashed" />
                 </div>
-                <img src={AETHER_LOGO} alt="NFT" className="av-logo-pulse relative z-10 object-contain" style={{ width: '40px', height: '40px' }} />
+                {React.cloneElement(cat.icon, { className: "relative z-10 w-7 h-7 drop-shadow-[0_0_10px_currentColor]", style: { color: cat.color } })}
               </div>
             </div>
 
-            <div className="flex flex-col justify-center h-full z-10 flex-1">
-              <span className="text-[8px] font-mono tracking-[0.3em] uppercase mb-1.5" style={{ color: cat.color }}>NFT PREVIEW</span>
-              <div className="relative av-badge-pulse rounded-lg mb-2.5 w-fit" style={{ color: cat.color }}>
-                <div className="relative flex items-center gap-1.5 px-2 py-1 rounded-lg border font-bold text-[9px] tracking-[0.15em] font-mono backdrop-blur-md" style={{ background: cat.bg, borderColor: cat.border, color: cat.color }}>
+            <div className="flex flex-col justify-center z-10 flex-1">
+              <span className="text-[7px] tracking-[0.3em] uppercase mb-1" style={{ color: cat.color }}>NFT PREVIEW</span>
+              <div className="relative rounded-lg mb-1.5 w-fit">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border font-bold text-[8px] tracking-[0.15em] backdrop-blur-md" style={{ background: cat.bg, borderColor: cat.border, color: cat.color }}>
                   {CatIcon}
-                  <span>{cat.badgeLabel || cat.badge || 'AUTHENTIC'}</span>
+                  <span>{cat.badgeLabel || cat.label?.toUpperCase() || 'AUTHENTIC'}</span>
                 </div>
               </div>
               <div>
-                <p className="text-[7px] text-neutral-500 uppercase tracking-widest font-mono">Serial Number</p>
-                <p className="text-sm text-white font-mono font-bold mt-0.5">{proofData?.tokenId || 'PENDING'}</p>
+                <p className="text-[6px] text-neutral-500 uppercase tracking-widest">Serial Number</p>
+                <p className="text-xs text-white font-bold mt-0.5">#{proofData?.tokenId || '7X9K2J'}</p>
               </div>
             </div>
             
-            <div className="h-full flex flex-col justify-center items-end pr-2 opacity-50">
-               <span className="text-[7px] text-neutral-500 font-mono uppercase tracking-widest flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3"/> AUTHENTIC
-               </span>
+            <div className="h-full flex items-center pr-6 opacity-20">
+               {React.cloneElement(cat.icon, { className: "w-16 h-16", style: { color: cat.color } })}
             </div>
           </div>
 
-          {/* QR Code */}
-          <div className="w-[120px] bg-[#05030F]/80 border border-neutral-800/60 rounded-2xl p-3 flex flex-col items-center justify-center shadow-lg shrink-0">
-            <div className="w-[68px] h-[68px] bg-white p-1 rounded-lg shadow-sm flex items-center justify-center mb-1.5">
-              <QRCode value={proofData?.verifyUrl || "https://aethvault.xyz"} size={60} bgColor="#ffffff" fgColor="#0A0714" level="Q" />
+          <div className="w-[100px] bg-[#05030F]/80 border border-neutral-800/60 rounded-2xl p-2 flex flex-col items-center justify-center shadow-lg shrink-0">
+            <div className="w-[52px] h-[52px] bg-white p-1 rounded-md shadow-sm flex items-center justify-center mb-1">
+              <QRCode value={proofData?.verifyUrl || "https://aethvault.xyz"} size={44} bgColor="#ffffff" fgColor="#0A0714" level="Q" />
             </div>
-            <span className="text-[6px] text-neutral-400 font-mono uppercase tracking-widest text-center leading-relaxed">Scan to<br/>Verify</span>
+            <span className="text-[5px] text-neutral-400 font-mono uppercase tracking-widest text-center leading-tight">Scan to<br/>Verify</span>
           </div>
         </div>
 
       </div>
 
       {/* FOOTER */}
-      <div className="relative z-10 pt-4 border-t border-neutral-800/60 flex flex-row items-center justify-between px-2 shrink-0">
+      <div className="relative z-10 pt-3 border-t border-neutral-800/60 flex flex-row items-center justify-between px-2 shrink-0 mt-2">
         <div>
-          <p className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 font-mono">Powered By</p>
-          <div className="flex items-center gap-2 mt-1">
-            <img src={AETHER_LOGO} alt="AetherVault" className="object-contain drop-shadow-[0_0_7px_rgba(245,158,11,0.5)]" style={{ width: '28px', height: '28px' }} />
-            <p className="text-sm font-bold text-white font-display tracking-wider">AETHERVAULT PROTOCOL</p>
+          <p className="text-[7px] uppercase tracking-[0.3em] text-neutral-500 font-mono">Powered By</p>
+          <div className="flex items-center gap-1.5 mt-1">
+            <Hexagon className="w-4 h-4 text-cyan-500" />
+            <p className="text-[11px] font-bold text-white font-display tracking-wider">AETHERVAULT PROTOCOL</p>
           </div>
-          <p className="text-[7px] text-neutral-600 font-mono mt-0.5">Decentralized Time-Lock & Legacy Infrastructure</p>
+          <p className="text-[6px] text-neutral-600 font-mono mt-0.5">Decentralized Time-Lock & Legacy Infrastructure</p>
         </div>
 
         <div className="text-center">
-          <div className="relative w-24 h-20 mx-auto mb-1 flex items-center justify-center">
+          <div className="relative w-20 h-16 mx-auto mb-1 flex items-center justify-center">
             <div className="absolute inset-0 rounded-full border border-amber-500/20 animate-spin" style={{ animationDuration: '8s' }} />
             <div className="absolute inset-2 rounded-full border border-cyan-500/20 animate-spin" style={{ animationDuration: '12s', animationDirection: 'reverse' }} />
-            <img src={AETHER_LOGO} alt="Seal" className="object-contain drop-shadow-[0_0_12px_rgba(245,158,11,0.6)]" style={{ width: '48px', height: '48px' }} />
+            <ShieldCheck className="w-8 h-8 text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
           </div>
-          <div className="font-signature text-2xl text-amber-200/90 tracking-wider" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
-          <div className="w-32 border-b border-neutral-700 my-1 mx-auto" />
-          <p className="text-[7px] uppercase tracking-[0.3em] text-neutral-500 font-mono">Authorized Digital Signature</p>
+          <div className="font-signature text-xl text-amber-200/90 tracking-wider" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
+          <div className="w-24 border-b border-neutral-700 my-0.5 mx-auto" />
+          <p className="text-[6px] uppercase tracking-[0.3em] text-neutral-500 font-mono">Authorized Digital Signature</p>
         </div>
 
         <div className="text-right">
           <p className="text-[7px] uppercase tracking-[0.3em] text-neutral-500 font-mono">Network</p>
-          <div className="flex items-center justify-end gap-2 mt-1">
-            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-            <span className="text-[10px] font-mono text-amber-300 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">BSC TESTNET</span>
+          <div className="flex items-center justify-end gap-1.5 mt-1">
+            <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
+            <span className="text-[8px] font-mono text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">BSC TESTNET</span>
           </div>
-          <p className="text-[7px] text-neutral-600 font-mono mt-1">Chain ID: 97</p>
+          <p className="text-[6px] text-neutral-600 font-mono mt-1">Chain ID: 97</p>
         </div>
       </div>
     </div>
@@ -259,6 +250,9 @@ const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAd
 });
 CertificateTemplate.displayName = "CertificateTemplate";
 
+// =========================================================
+// MAIN COMPONENT: AETHER PROOF HUB
+// =========================================================
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
   const { t: globalT } = useLanguage();
   const tHop = globalT.hallOfProof || {};
@@ -270,7 +264,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const certificateRef = useRef(null);
 
   const previewScrollRef = useRef(null);
-  const [previewZoom, setPreviewZoom] = useState(0.6);
+  const [previewZoom, setPreviewZoom] = useState(0.8);
   const [isDraggingPreview, setIsDraggingPreview] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
@@ -309,6 +303,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const currentConfig = categoryConfig[category];
   const realAddress = address || "0x0000000000000000000000000000000000000000";
 
+  // Navigation drag
   const handleMouseDown = (e) => {
     setIsDraggingPreview(true);
     setDragStart({ x: e.pageX - previewScrollRef.current.offsetLeft, y: e.pageY - previewScrollRef.current.offsetTop, scrollLeft: previewScrollRef.current.scrollLeft, scrollTop: previewScrollRef.current.scrollTop });
@@ -576,6 +571,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         @media (prefers-reduced-motion: reduce) { .av-ring-spin, .av-ring-reverse, .av-light-sweep, .av-logo-pulse, .av-badge-pulse, .av-orbit-dot { animation: none !important; } }
       `}</style>
 
+      {/* TAMPILAN HUB UTAMA */}
       {view === 'hub' && (
         <>
           <div className="bg-gradient-to-br from-[#0B0817] via-neutral-900 to-[#05030F] border border-neutral-800/80 p-6 sm:p-10 rounded-3xl shadow-2xl relative overflow-hidden">
@@ -627,6 +623,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
             </div>
           </div>
 
+          {/* ... Sisa stat & list Hall of proof dari code lama ... */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               { label: tHop.totalProofs || "On-Chain Proofs", value: globalProtocolStats.totalProofs, icon: Award, color: "text-amber-400" },
@@ -732,86 +729,117 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         </>
       )}
 
+      {/* =========================================================
+          🌟 TAMPILAN HALAMAN FORM: LAYOUT DIROMBAK TOTAL
+      ========================================================= */}
       {view === 'form' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 animate-in slide-in-from-bottom-4 duration-300">
+        <div className="flex flex-col gap-6 lg:gap-8 animate-in slide-in-from-bottom-4 duration-300">
           
-          <div className="lg:col-span-5 bg-[#0B0817] border border-amber-500/30 p-6 rounded-3xl shadow-xl flex flex-col h-full">
+          {/* 1. KOTAK METADATA DETAILS (DI ATAS, MENYAMPING) */}
+          <div className="bg-[#0B0817] border border-amber-500/30 p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col w-full">
             <button onClick={() => setView('hub')} className="mb-4 flex items-center gap-2 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer w-fit">
               <ChevronLeft className="w-4 h-4" /> Back to Hub
             </button>
-            <h3 className="font-display text-xl font-extrabold text-white mb-6">Metadata Details</h3>
+            
+            <div className="flex items-center justify-between mb-6 border-b border-neutral-800/60 pb-4">
+              <h3 className="font-display text-xl sm:text-2xl font-extrabold text-white">Metadata Details</h3>
+              <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">STEP 1: CONFIGURATION</span>
+            </div>
 
-            <form onSubmit={handleMintSequence} className="space-y-5 flex-1 flex flex-col">
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono">{tHop.categories || 'Category'}</label>
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 cursor-pointer font-mono">
-                  {Object.keys(categoryConfig).map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono">Title *</label>
-                <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Core Smart Contract v1" className="w-full bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 font-medium" />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono">{tHop.creator || 'Creator Name'}</label>
-                <input type="text" value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder="e.g., Satoshi Nakamoto" className="w-full bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 font-medium" />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono">Description</label>
-                <textarea 
-                  value={description} 
-                  onChange={(e) => setDescription(e.target.value)} 
-                  placeholder="Short description about this proof..." 
-                  className="w-full bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 font-medium resize-none h-20 custom-scrollbar" 
-                />
-              </div>
-
-              <div className="space-y-1.5 pt-2 border-t border-neutral-800">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> Target File</label>
-                {!file ? (
-                  <div className="border-2 border-dashed border-neutral-800 hover:border-amber-500/50 bg-[#05030F] rounded-2xl p-5 text-center cursor-pointer relative">
-                    <input type="file" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                    <UploadCloud className="w-7 h-7 text-amber-400 mx-auto mb-2" />
-                    <p className="text-xs text-white font-bold">Drop your file here</p>
-                  </div>
-                ) : (
-                  <div className="bg-[#05030F] border border-cyan-500/30 p-3.5 rounded-2xl flex items-center justify-between">
-                    <div className="flex items-center gap-2 truncate">
-                      <FileImage className="w-4 h-4 text-cyan-400 shrink-0" />
-                      <span className="text-xs text-white truncate font-medium">{file.name}</span>
-                    </div>
-                    <button type="button" onClick={() => {setFile(null); setFileHash('0x0000000000000000000000000000000000000000000000000000000000000000');}} className="text-[10px] text-red-400 shrink-0 cursor-pointer font-bold">Remove</button>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-auto pt-6">
-                <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-2.5 mb-4">
-                  <div className="flex justify-between text-xs font-mono"><span className="text-neutral-400">Mint Cost</span><span className="text-white font-bold">{currentConfig.price} AETH</span></div>
-                  <div className="flex justify-between text-xs font-mono"><span className="text-neutral-500 flex items-center gap-1"><Flame className="w-3 h-3 text-red-400"/> {tStats.burn || 'Burn'}</span><span className="text-red-400">-{currentConfig.price * 0.2} AETH</span></div>
-                  <div className="flex justify-between text-xs font-mono"><span className="text-neutral-500 flex items-center gap-1"><Activity className="w-3 h-3 text-green-400"/> Staking Pool</span><span className="text-green-400">+{currentConfig.price * 0.4} AETH</span></div>
-                  <div className="flex justify-between text-xs font-mono"><span className="text-neutral-500 flex items-center gap-1"><Building2 className="w-3 h-3 text-yellow-400"/> Treasury Reserve</span><span className="text-yellow-400">+{currentConfig.price * 0.4} AETH</span></div>
-                  <div className="flex justify-between text-xs font-mono border-t border-neutral-800 pt-2"><span className="text-neutral-400">Est. Gas Fee</span><span className="text-white">~0.0005 tBNB</span></div>
+            <form onSubmit={handleMintSequence} className="space-y-6">
+              
+              {/* GRID INPUT BARIS 1 (3 Kolom) */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono">{tHop.categories || 'Category'}</label>
+                  <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 cursor-pointer font-mono">
+                    {Object.keys(categoryConfig).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
                 </div>
-                <button type="submit" disabled={!title || isHashing} className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-white font-bold py-4 rounded-full text-xs sm:text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center justify-center gap-2 cursor-pointer transition-all">
-                  <Award className="w-4 h-4" /> Mint & Issue Proof
+
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono">Title *</label>
+                  <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Core Smart Contract v1" className="w-full bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 font-medium" />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono">{tHop.creator || 'Creator Name'}</label>
+                  <input type="text" value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder="e.g., Satoshi Nakamoto" className="w-full bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 font-medium" />
+                </div>
+              </div>
+
+              {/* GRID INPUT BARIS 2 (2 Kolom: Textarea & File) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-1.5 h-full">
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono">Description</label>
+                  <textarea 
+                    value={description} 
+                    onChange={(e) => setDescription(e.target.value)} 
+                    placeholder="Short description about this proof..." 
+                    className="w-full h-[110px] bg-[#05030F] border border-neutral-800 rounded-2xl p-3.5 text-xs text-white outline-none focus:border-amber-500 font-medium resize-none custom-scrollbar" 
+                  />
+                </div>
+
+                <div className="space-y-1.5 flex flex-col">
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest font-mono flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> Target File</label>
+                  <div className="flex-1 h-[110px]">
+                    {!file ? (
+                      <div className="h-full border-2 border-dashed border-neutral-800 hover:border-amber-500/50 bg-[#05030F] rounded-2xl flex flex-col items-center justify-center cursor-pointer relative transition-all">
+                        <input type="file" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        <UploadCloud className="w-6 h-6 text-amber-400 mb-1" />
+                        <p className="text-[11px] text-white font-bold">Drop your file here</p>
+                      </div>
+                    ) : (
+                      <div className="h-full bg-[#05030F] border border-cyan-500/30 p-4 rounded-2xl flex flex-col justify-center gap-3">
+                        <div className="flex items-center gap-3 truncate">
+                          <div className="p-2 bg-cyan-500/10 rounded-lg"><FileImage className="w-5 h-5 text-cyan-400 shrink-0" /></div>
+                          <div className="min-w-0">
+                             <span className="text-xs text-white truncate font-bold block mb-0.5">{file.name}</span>
+                             <span className="text-[9px] text-cyan-500 font-mono block truncate">{fileHash}</span>
+                          </div>
+                        </div>
+                        <button type="button" onClick={() => {setFile(null); setFileHash('0x0000000000000000000000000000000000000000000000000000000000000000');}} className="text-[10px] bg-red-500/10 text-red-400 hover:bg-red-500/20 py-1.5 px-3 rounded-lg w-fit cursor-pointer font-bold border border-red-500/20 transition-colors">Remove File</button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* BARIS BAWAH: RINCIAN BIAYA & TOMBOL MINT */}
+              <div className="mt-4 pt-6 border-t border-neutral-800/60 flex flex-col lg:flex-row gap-6 items-center justify-between">
+                <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                  <div className="bg-[#05030F] border border-neutral-800 py-2.5 px-4 rounded-xl flex items-center gap-3 shadow-inner">
+                    <span className="text-[10px] font-mono text-neutral-500">Mint Cost</span>
+                    <span className="text-xs text-white font-bold">{currentConfig.price} AETH</span>
+                  </div>
+                  <div className="bg-[#05030F] border border-neutral-800 py-2.5 px-4 rounded-xl flex items-center gap-3 shadow-inner">
+                    <span className="text-[10px] font-mono text-neutral-500 flex items-center gap-1"><Flame className="w-3 h-3 text-red-400"/> Burn</span>
+                    <span className="text-xs text-red-400 font-bold">-{currentConfig.price * 0.2}</span>
+                  </div>
+                  <div className="bg-[#05030F] border border-neutral-800 py-2.5 px-4 rounded-xl flex items-center gap-3 shadow-inner">
+                    <span className="text-[10px] font-mono text-neutral-500 flex items-center gap-1"><Activity className="w-3 h-3 text-green-400"/> Staking Pool</span>
+                    <span className="text-xs text-green-400 font-bold">+{currentConfig.price * 0.4}</span>
+                  </div>
+                </div>
+
+                <button type="submit" disabled={!title || isHashing} className="w-full lg:w-auto px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-white font-bold py-4 rounded-xl text-xs sm:text-sm shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap">
+                  <Award className="w-5 h-5" /> Mint & Issue Proof
                 </button>
               </div>
+
             </form>
           </div>
 
-          <div className="lg:col-span-7 bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-3xl flex flex-col relative overflow-hidden shadow-xl">
-            <div className="absolute top-4 left-4 flex items-center gap-2 text-cyan-500 font-mono text-[10px] uppercase tracking-widest z-20">
-              <Eye className="w-3.5 h-3.5"/> Live NFT Preview
+          {/* 2. KOTAK LIVE NFT PREVIEW (DI BAWAH, MEMBENTANG) */}
+          <div className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-3xl flex flex-col relative overflow-hidden shadow-xl w-full">
+            <div className="absolute top-6 left-6 flex items-center gap-2 text-cyan-500 font-mono text-[10px] uppercase tracking-widest z-20 bg-[#0B0817]/80 px-4 py-2 rounded-lg border border-neutral-800 backdrop-blur-md">
+              <Eye className="w-4 h-4"/> Live NFT Preview
             </div>
             
-            <div className="absolute top-4 right-4 flex items-center gap-2 z-20 bg-[#0B0817] p-1 border border-neutral-800 rounded-lg shadow-lg">
-              <button type="button" onClick={() => setPreviewZoom(p => Math.max(0.3, p - 0.1))} className="w-7 h-7 flex items-center justify-center text-white bg-neutral-800 hover:bg-neutral-700 rounded-md cursor-pointer font-bold transition-colors">-</button>
-              <span className="text-[10px] text-cyan-400 font-mono w-10 text-center font-bold">{Math.round(previewZoom * 100)}%</span>
-              <button type="button" onClick={() => setPreviewZoom(p => Math.min(2.0, p + 0.1))} className="w-7 h-7 flex items-center justify-center text-white bg-neutral-800 hover:bg-neutral-700 rounded-md cursor-pointer font-bold transition-colors">+</button>
+            <div className="absolute top-6 right-6 flex items-center gap-2 z-20 bg-[#0B0817]/80 p-1 border border-neutral-800 rounded-lg shadow-lg backdrop-blur-md">
+              <button type="button" onClick={() => setPreviewZoom(p => Math.max(0.3, p - 0.1))} className="w-8 h-8 flex items-center justify-center text-white bg-neutral-800 hover:bg-neutral-700 rounded-md cursor-pointer font-bold transition-colors">-</button>
+              <span className="text-xs text-cyan-400 font-mono w-12 text-center font-bold">{Math.round(previewZoom * 100)}%</span>
+              <button type="button" onClick={() => setPreviewZoom(p => Math.min(2.0, p + 0.1))} className="w-8 h-8 flex items-center justify-center text-white bg-neutral-800 hover:bg-neutral-700 rounded-md cursor-pointer font-bold transition-colors">+</button>
             </div>
             
             <div 
@@ -823,17 +851,18 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
               onTouchStart={handleTouchStart} 
               onTouchEnd={handleMouseLeaveOrUp}
               onTouchMove={handleTouchMove}
-              className={`w-full flex justify-start overflow-auto py-8 mt-10 custom-scrollbar ${isDraggingPreview ? 'cursor-grabbing' : 'cursor-grab'}`}
-              style={{ maxHeight: '600px' }}
+              className={`w-full flex justify-center overflow-auto py-16 mt-8 custom-scrollbar ${isDraggingPreview ? 'cursor-grabbing' : 'cursor-grab'} rounded-2xl bg-[#030208] border border-neutral-900/50`}
+              style={{ minHeight: '650px' }}
             >
               <div 
-                className="mx-auto origin-top-left shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-neutral-800 rounded-sm shrink-0 transition-transform duration-200"
+                className="mx-auto shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-neutral-800 rounded-sm shrink-0 transition-transform duration-200"
                 style={{ 
                   transform: `scale(${previewZoom})`, 
                   width: '890px', 
                   height: '620px',
                   marginBottom: `${(previewZoom > 1 ? (previewZoom - 1) * 620 : 0)}px`,
-                  marginRight: `${(previewZoom > 1 ? (previewZoom - 1) * 890 : 0)}px` 
+                  marginRight: `${(previewZoom > 1 ? (previewZoom - 1) * 890 : 0)}px`,
+                  transformOrigin: 'center'
                 }}
               >
                 <CertificateTemplate 
@@ -845,16 +874,14 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                     id: 'AETH-PROOF-PREVIEW',
                     category,
                     title: title || 'Proof Title Preview',
-                    description: description || 'Authentic digital asset secured and verified on the blockchain.',
-                    badge: currentConfig.badge,
-                    badgeIcon: currentConfig.badgeIcon,
-                    creator: creatorName || formatAddressFunc(address),
-                    wallet: realAddress,
+                    description: description || 'Authentic digital asset secured and verified permanently on the Binance Smart Chain.',
+                    creator: creatorName || 'Unknown Creator',
+                    wallet: address || '0x0000...0000',
                     fileHash: isHashing ? 'Calculating Keccak256...' : fileHash,
-                    metaHash: metadataHash,
+                    tokenId: '0',
+                    contract: AETHER_VAULT_ADDRESS,
                     date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
                     network: TARGET_CHAIN_NAME || "BSC Testnet",
-                    contract: AETHER_VAULT_ADDRESS,
                     verifyUrl: "https://testnet.bscscan.com/address/" + AETHER_VAULT_ADDRESS
                   }} 
                 />
