@@ -258,7 +258,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const certificateRef = useRef(null);
 
   const previewScrollRef = useRef(null);
-  const [previewZoom, setPreviewZoom] = useState(0.65);
+  const [previewZoom, setPreviewZoom] = useState(0.5);
   const [isDraggingPreview, setIsDraggingPreview] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
