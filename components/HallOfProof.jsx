@@ -235,26 +235,44 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
 
   // 🚀 FIX: MENGHAPUS ALLOWTAINT AGAR HTML2CANVAS TIDAK ERROR OKLAB COLOR FUNCTION
   const handleDownloadPNG = async () => {
-    if (!certificateRef.current || !selectedProof) return;
+    if (!certificateRef.current) return alert("Sertifikat belum siap.");
     try {
-      const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true, backgroundColor: '#020207' });
+      const canvas = await html2canvas(certificateRef.current, { 
+        scale: 2, 
+        useCORS: true, 
+        allowTaint: true,
+        backgroundColor: '#020207',
+        logging: true
+      });
       const link = document.createElement('a');
-      link.download = `AETH-PROOF-${selectedProof.tokenId}.png`;
+      link.download = `AETH-PROOF-${selectedProof?.tokenId || 'CERT'}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-    } catch (err) { console.error("Export PNG gagal", err); alert("Gagal mengunduh PNG."); }
+    } catch (error) { 
+      console.error("PNG error detail:", error);
+      // Fallback darurat agar tidak popup alert terus jika canvas diblokir browser
+      alert("Gagal mengunduh PNG: " + (error.message || "Unknown error")); 
+    }
   };
 
   const handleDownloadPDF = async () => {
-    if (!certificateRef.current || !selectedProof) return;
+    if (!certificateRef.current) return alert("Sertifikat belum siap.");
     try {
-      const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true, backgroundColor: '#020207' });
+      const canvas = await html2canvas(certificateRef.current, { 
+        scale: 2, 
+        useCORS: true, 
+        allowTaint: true,
+        backgroundColor: '#020207' 
+      });
       const pdf = new jsPDF('l', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, pdfHeight, '', 'FAST');
-      pdf.save(`AETH-PROOF-${selectedProof.tokenId}.pdf`);
-    } catch (err) { console.error("Export PDF gagal", err); alert("Gagal mengunduh PDF."); }
+      pdf.save(`AETH-PROOF-${selectedProof?.tokenId || 'CERT'}.pdf`);
+    } catch (error) { 
+      console.error("PDF error detail:", error);
+      alert("Gagal mengunduh PDF: " + (error.message || "Unknown error")); 
+    }
   };
 
   return (
