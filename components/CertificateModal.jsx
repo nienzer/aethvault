@@ -147,7 +147,7 @@ export default function CertificateModal({ selectedCertificate, setSelectedCerti
     if (!certificateRef.current) return;
     try {
       if (showToast) showToast("Menyiapkan file PNG...", "info");
-      const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#020207' });
+      const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true, backgroundColor: '#020207' });
       const link = document.createElement('a');
       link.download = `VAULT-CERT-${selectedCertificate.capsuleId}.png`;
       link.href = canvas.toDataURL('image/png');
@@ -159,7 +159,7 @@ export default function CertificateModal({ selectedCertificate, setSelectedCerti
     if (!certificateRef.current) return;
     try {
       if (showToast) showToast("Menyiapkan file PDF...", "info");
-      const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#020207' });
+      const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true, backgroundColor: '#020207' });
       const pdf = new jsPDF('l', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;

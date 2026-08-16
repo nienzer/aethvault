@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Award, ShieldCheck, Download, CheckCircle2, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Microscope, Building2, Scale, Box, User, Link as LinkIcon, UploadCloud, Lock, ChevronLeft, Loader2, FileImage, Cpu, Flame, Fingerprint, Image as ImageIcon, ExternalLink, QrCode, Eye, Sparkles, Activity, Layers, ArrowUpRight, Check, Compass, Shield, Hash, FileDigit, Hexagon, KeyRound } from 'lucide-react';
+import { Award, ShieldCheck, Download, CheckCircle2, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Microscope, Building2, Scale, Box, User, Link as LinkIcon, UploadCloud, Lock, ChevronLeft, Loader2, FileImage, Cpu, Flame, Fingerprint, Image as ImageIcon, ExternalLink, QrCode, Eye, Sparkles, Activity, Layers, ArrowUpRight, Check, Compass, Shield, Hash, FileDigit, Hexagon } from 'lucide-react';
 import { ethers } from 'ethers';
 import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
@@ -18,25 +18,27 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
 
 // =========================================================
-// 🚀 TEMPLATE SERTIFIKAT AETHER PROOF (VERSI LEGACY 1200x760)
+// 🚀 GAYA WEB3 PREMIUM: 1200x760 (SAMA DENGAN LEGACY)
 // =========================================================
 const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHER_LOGO = '/logo.png' }, ref) => {
   const catKey = (proofData?.category || 'Software').toLowerCase().trim();
   const rawCatObj = categoryConfig ? Object.entries(categoryConfig).find(([key]) => key.toLowerCase() === catKey) : null;
   const cat = rawCatObj ? rawCatObj[1] : { badge: 'Verified Creator', icon: <Sparkles className="w-4 h-4" />, color: '#60a5fa' };
   
-  const CatIcon = cat.icon ? React.cloneElement(cat.icon, { className: "w-4 h-4 drop-shadow-[0_0_8px_currentColor]", style: { color: cat.color } }) : <Sparkles className="w-4 h-4" style={{ color: cat.color }} />;
+  const CatIcon = cat.icon ? React.cloneElement(cat.icon, { className: "w-4 h-4", style: { color: cat.color } }) : <Sparkles className="w-4 h-4" style={{ color: cat.color }} />;
 
   const title = proofData?.title || "Aether Proof™";
   const creator = proofData?.creator || "Unknown Creator";
-  const owner = proofData?.wallet ? formatAddressFunc(proofData.wallet) : "0x00...00";
-  const certificateId = proofData?.id || proofData?.tokenId || "PENDING";
+  const owner = formatAddressFunc(proofData?.wallet || "0x00...00");
+  const tokenId = proofData?.tokenId || "PENDING";
+  const certificateId = proofData?.id || tokenId;
   const date = proofData?.date || new Date().toLocaleDateString("en-GB");
   const network = proofData?.network || "BSC Testnet";
-  const contract = proofData?.contract ? formatAddressFunc(proofData.contract) : "0x00...00";
-  const fileHash = proofData?.fileHash || "Calculating...";
+  const contract = formatAddressFunc(proofData?.contract || AETHER_VAULT_ADDRESS);
+  const fileHash = proofData?.fileHash || "Awaiting verification";
   const verifyUrl = proofData?.verifyUrl || "https://aethvault.xyz";
-  const badgeText = cat.badgeLabel || cat.badge || "AUTHENTIC";
+
+  const badgeText = cat.badgeLabel || cat.label?.toUpperCase() || cat.badge || "AUTHENTIC";
 
   return (
     <div id="cert-export-node" ref={ref} className="relative mx-auto shrink-0 overflow-hidden w-[1200px] h-[760px] rounded-[28px] border border-amber-300/20 bg-[#020207] text-white font-sans shadow-[0_0_100px_rgba(0,0,0,.95)]">
@@ -60,6 +62,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHE
       <div className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-violet-600/10 blur-[130px]" />
       <div className="absolute -bottom-48 -right-40 w-[560px] h-[560px] rounded-full bg-cyan-500/10 blur-[140px]" />
 
+      {/* FRAME */}
       <div className="absolute inset-[14px] rounded-[22px] border border-amber-300/15 pointer-events-none" />
       <div className="absolute inset-[22px] rounded-[18px] border border-white/[.035] pointer-events-none" />
       <div className="absolute top-[22px] left-[22px] w-12 h-12 border-t-2 border-l-2 border-amber-300/70 rounded-tl-xl" />
@@ -89,7 +92,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHE
         </div>
       </div>
 
-      {/* TITLE NFT */}
+      {/* TITLE */}
       <div className="absolute top-[132px] left-[58px] z-20">
         <div className="flex items-center gap-3 mb-3">
           <span className="w-12 h-px bg-gradient-to-r from-transparent to-amber-300" />
@@ -123,17 +126,17 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHE
           </div>
           <div>
             <div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">OWNER WALLET</div>
-            <div className="text-[11px] text-neutral-200 font-mono truncate">{proofData?.wallet || "0x00...00"}</div>
+            <div className="text-[11px] text-neutral-200 font-mono truncate">{owner}</div>
           </div>
           <div>
             <div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">CATEGORY / BADGE</div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border" style={{ color: cat.color, borderColor: `${cat.color}55`, background: `${cat.color}10` }}>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border" style={{ color: cat.color || "#60a5fa", borderColor: `${cat.color || "#60a5fa"}55`, background: `${cat.color || "#60a5fa"}10` }}>
               {CatIcon}
-              <span className="text-[9px] font-black tracking-[.18em]">{badgeText.toUpperCase()}</span>
+              <span className="text-[9px] font-black tracking-[.18em]">{badgeText}</span>
             </div>
           </div>
           <div>
-            <div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">ISSUED ON</div>
+            <div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">ISSUED</div>
             <div className="text-[11px] text-white font-mono">{date}</div>
           </div>
         </div>
@@ -148,7 +151,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHE
         <div className="absolute bottom-5 left-6 right-6 flex items-center justify-between">
           <div>
             <div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">TOKEN ID</div>
-            <div className="text-[10px] text-cyan-300 font-mono mt-1">#{proofData?.tokenId || '0'}</div>
+            <div className="text-[10px] text-cyan-300 font-mono mt-1">#{tokenId}</div>
           </div>
           <div>
             <div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">CHAIN ID</div>
@@ -156,12 +159,12 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHE
           </div>
           <div className="max-w-[210px]">
             <div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">CONTRACT</div>
-            <div className="text-[9px] text-neutral-300 font-mono mt-1 truncate">{CONTRACT_ADDRESS}</div>
+            <div className="text-[9px] text-neutral-300 font-mono mt-1 truncate">{contract}</div>
           </div>
         </div>
       </div>
 
-      {/* RIGHT NFT ARTIFACT (ORBIT) */}
+      {/* RIGHT NFT ARTIFACT */}
       <div className="absolute right-[58px] top-[226px] w-[470px] h-[430px] z-20">
         <div className="absolute inset-0 rounded-[30px] border border-cyan-300/15 bg-black/30 shadow-[0_0_80px_rgba(34,211,238,.08)] overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[.04] via-transparent to-violet-500/[.06]" />
@@ -187,9 +190,9 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHE
         </div>
 
         <div className="absolute top-[18px] left-1/2 -translate-x-1/2">
-          <div className="flex items-center gap-2 px-5 py-2 rounded-full border backdrop-blur-xl shadow-[0_0_25px_rgba(255,255,255,.06)]" style={{ color: cat.color, borderColor: `${cat.color}66`, background: `${cat.color}12` }}>
+          <div className="flex items-center gap-2 px-5 py-2 rounded-full border backdrop-blur-xl shadow-[0_0_25px_rgba(255,255,255,.06)]" style={{ color: cat.color || "#60a5fa", borderColor: `${cat.color || "#60a5fa"}66`, background: `${cat.color || "#60a5fa"}12` }}>
             {CatIcon}
-            <span className="text-[10px] font-black tracking-[.25em]">AUTHENTIC PROOF</span>
+            <span className="text-[10px] font-black tracking-[.25em]">{badgeText}</span>
           </div>
         </div>
 
@@ -231,7 +234,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHE
       <div className="absolute bottom-[25px] left-[58px] right-[58px] flex items-center justify-between text-[7px] font-mono tracking-[.22em] text-neutral-600 z-20">
         <span>VERIFIABLE • IMMUTABLE • FOREVER</span>
         <span className="text-amber-300/70">POWERED BY AETHERVAULT PROTOCOL</span>
-        <span>{String(fileHash).slice(0, 30)}...</span>
+        <span>{String(fileHash).slice(0, 28)}...</span>
       </div>
 
       {/* animated light sweep */}
@@ -239,7 +242,6 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHE
     </div>
   );
 });
-
 CertificateTemplate.displayName = "CertificateTemplate";
 
 // =========================================================
@@ -516,7 +518,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const canvas = await html2canvas(certificateRef.current, { 
         scale: 2, 
         useCORS: true, 
-        allowTaint: true, // Fix untuk error rendering asset silang
         backgroundColor: '#020207' 
       });
       const link = document.createElement('a');
@@ -535,7 +536,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const canvas = await html2canvas(certificateRef.current, { 
         scale: 2, 
         useCORS: true, 
-        allowTaint: true,
         backgroundColor: '#020207' 
       });
       const pdf = new jsPDF('l', 'mm', 'a4');
@@ -768,9 +768,8 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                   <label className="text-[9px] font-bold text-cyan-400 uppercase tracking-widest font-mono flex items-center gap-1.5 drop-shadow-sm"><Fingerprint className="w-3 h-3"/> Target File</label>
                   <div className="flex-1 h-[110px]">
                     {!file ? (
-                      // 🚀 FIX: TOMBOL UPLOAD SEKARANG MEMAKAI <label> AGAR BEBAS ERROR Z-INDEX & BISA DIKLIK MANTAP
-                      <label className="h-full w-full border-2 border-dashed border-neutral-700 hover:border-cyan-500/60 bg-[#05030F] rounded-2xl flex flex-col items-center justify-center cursor-pointer relative transition-all group overflow-hidden">
-                        <input type="file" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-[100]" />
+                      // 🚀 FIX: TOMBOL UPLOAD SEKARANG MEMAKAI <label> AGAR BISA KLIK DIMANA SAJA
+                      <label htmlFor="file-upload" className="h-full w-full border-2 border-dashed border-neutral-700 hover:border-cyan-500/60 bg-[#05030F] rounded-2xl flex flex-col items-center justify-center cursor-pointer relative transition-all group overflow-hidden">
                         <UploadCloud className="w-6 h-6 text-cyan-500 mb-1 group-hover:scale-110 transition-transform relative z-10 pointer-events-none" />
                         <p className="text-[11px] text-neutral-300 font-bold group-hover:text-cyan-300 transition-colors relative z-10 pointer-events-none">Click to Browse or Drop File</p>
                       </label>
@@ -786,6 +785,8 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
                         <button type="button" onClick={() => {setFile(null); setFileHash('0x0000000000000000000000000000000000000000000000000000000000000000');}} className="text-[10px] bg-red-950/50 text-red-400 hover:bg-red-900/70 py-1.5 px-3 rounded-lg w-fit cursor-pointer font-bold border border-red-500/30 transition-colors">Remove File</button>
                       </div>
                     )}
+                    {/* Input file disembunyikan dan di-bind dengan label */}
+                    <input id="file-upload" type="file" onChange={handleFileUpload} className="hidden" />
                   </div>
                 </div>
               </div>
