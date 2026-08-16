@@ -6,16 +6,18 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import AetherVaultV3ABI from '../contracts/AetherVaultV3ABI.json';
 
-const AETHER_VAULT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265";
+const AETHER_VAULT_ADDRESS = '0xCda136B176baE8F92d0Dbc7851C0A1E282469265';
 const BSC_TESTNET_CHAIN_ID = 97;
-const BSC_TESTNET_NAME = "BNB Smart Chain Testnet";
-const BSC_TESTNET_EXPLORER = "https://testnet.bscscan.com";
+const BSC_TESTNET_HEX = '0x61';
+const BSC_TESTNET_NAME = 'BNB Smart Chain Testnet';
+const BSC_TESTNET_EXPLORER = 'https://testnet.bscscan.com';
 
 export default function AetherProofHub({ t, handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
   const [view, setView] = useState('hub');
   const certificateRef = useRef(null);
-  const previewContainerRef = useRef(null);
-  const [previewScale, setPreviewScale] = useState(0.65);
+  const previewViewportRef = useRef(null);
+  const [previewScale, setPreviewScale] = useState(0.7);
+  const [logoDataUrl, setLogoDataUrl] = useState(null);
 
   const [category, setCategory] = useState('Software');
   const [title, setTitle] = useState('');
@@ -46,7 +48,40 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
 
   const currentConfig = categoryConfig[category];
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '0xA5E3...7Fa2';
-  const realAddress = address || "0xA5E3000000000000000000000000000000007Fa2";
+  const realAddress = address || "";
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/logo.png', { cache: 'force-cache' })
+      .then((res) => {
+        if (!res.ok) throw new Error('logo.png not found');
+        return res.blob();
+      })
+      .then((blob) => {
+        const reader = new FileReader();
+        reader.onload = () => { if (!cancelled) setLogoDataUrl(reader.result); };
+        reader.readAsDataURL(blob);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    const updateScale = () => {
+      const el = previewViewportRef.current;
+      if (!el) return;
+      const available = Math.max(280, el.clientWidth - 24);
+      setPreviewScale(Math.min(0.82, Math.max(0.28, available / 1200)));
+    };
+    updateScale();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateScale) : null;
+    if (ro && previewViewportRef.current) ro.observe(previewViewportRef.current);
+    window.addEventListener('resize', updateScale);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', updateScale);
+    };
+  }, []);
 
   const generateKeccak256 = async (dataBuffer) => {
     try {
@@ -54,7 +89,7 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
       return ethers.keccak256(uint8Array);
     } catch (err) {
       console.error("Hashing failed", err);
-      return '0x' + Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+      throw err;
     }
   };
 
@@ -74,22 +109,6 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
   };
 
   useEffect(() => {
-    const updatePreviewScale = () => {
-      if (!previewContainerRef.current) return;
-      const width = previewContainerRef.current.clientWidth;
-      setPreviewScale(Math.min(0.82, Math.max(0.36, (width - 8) / 842)));
-    };
-    updatePreviewScale();
-    const observer = new ResizeObserver(updatePreviewScale);
-    if (previewContainerRef.current) observer.observe(previewContainerRef.current);
-    window.addEventListener('resize', updatePreviewScale);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', updatePreviewScale);
-    };
-  }, [view]);
-
-  useEffect(() => {
     const updateMetadataHash = async () => {
       const metadata = JSON.stringify({
         name: title || "Aether Proof",
@@ -107,78 +126,186 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
     updateMetadataHash();
   }, [title, description, category, creatorName, fileHash, realAddress]);
 
+
+  const safeSvg = (value = '') =>
+    String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+  const buildNftImage = ({ serial = 'PREVIEW' } = {}) => {
+    const colorMap = {
+      Writing: '#22d3ee', Photography: '#f472b6', Design: '#a78bfa',
+      Music: '#fbbf24', Video: '#f87171', Software: '#4ade80',
+      Research: '#60a5fa', Business: '#fb923c', Legal: '#c084fc', Other: '#94a3b8'
+    };
+    const color = colorMap[category] || '#fbbf24';
+    const logo = logoDataUrl
+      ? `<image href="${logoDataUrl}" x="118" y="205" width="190" height="190" preserveAspectRatio="xMidYMid meet"/>`
+      : `<text x="213" y="325" text-anchor="middle" fill="#ffd447" font-size="120" font-family="Arial" font-weight="900">A</text>`;
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+        <defs>
+          <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#20e7ff"/><stop offset=".48" stop-color="#8b5cf6"/><stop offset="1" stop-color="#ffd447"/>
+          </linearGradient>
+          <radialGradient id="bg" cx="50%" cy="42%" r="80%">
+            <stop offset="0" stop-color="#17113a"/><stop offset=".55" stop-color="#070512"/><stop offset="1" stop-color="#010107"/>
+          </radialGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect width="1200" height="760" rx="34" fill="url(#bg)"/>
+        <rect x="15" y="15" width="1170" height="730" rx="26" fill="none" stroke="url(#edge)" stroke-width="3"/>
+        <rect x="28" y="28" width="1144" height="704" rx="20" fill="none" stroke="#ffffff" stroke-opacity=".08"/>
+        <path d="M55 92 H330 M870 92 H1145" stroke="#22d3ee" stroke-opacity=".45"/>
+        <text x="62" y="70" fill="#ffffff" font-family="Arial" font-size="22" font-weight="800" letter-spacing="5">AETHERVAULT</text>
+        <text x="62" y="116" fill="#94a3b8" font-family="Arial" font-size="11" letter-spacing="4">TRUSTLESS • VERIFIED • TIMELESS</text>
+        <rect x="890" y="48" width="245" height="52" rx="26" fill="#07140f" stroke="#22c55e" stroke-opacity=".45"/>
+        <circle cx="916" cy="74" r="7" fill="#22c55e"/><text x="934" y="80" fill="#86efac" font-family="Arial" font-size="12" font-weight="700">VERIFIED ON-CHAIN</text>
+        <text x="600" y="74" text-anchor="middle" fill="#eaf8ff" font-family="Arial" font-size="38" font-weight="900" letter-spacing="8">CERTIFICATE OF AUTHENTICITY</text>
+        <text x="600" y="111" text-anchor="middle" fill="#8deeff" font-family="Arial" font-size="13" letter-spacing="6">BLOCKCHAIN VERIFIED • NFT CERTIFICATE</text>
+
+        <rect x="58" y="145" width="345" height="530" rx="22" fill="#05030f" stroke="#22d3ee" stroke-opacity=".35"/>
+        <circle cx="230" cy="295" r="155" fill="none" stroke="#22d3ee" stroke-opacity=".3" stroke-width="2" stroke-dasharray="12 18"/>
+        <circle cx="230" cy="295" r="130" fill="none" stroke="#8b5cf6" stroke-opacity=".4" stroke-width="2" stroke-dasharray="4 14"/>
+        <circle cx="230" cy="295" r="103" fill="#03020a" stroke="${color}" stroke-opacity=".45" stroke-width="2"/>
+        <g filter="url(#glow)">${logo}</g>
+        <text x="230" y="445" text-anchor="middle" fill="#67e8f9" font-family="Arial" font-size="13" font-weight="700" letter-spacing="4">AETHER PROOF</text>
+        <text x="230" y="474" text-anchor="middle" fill="#71717a" font-family="Arial" font-size="10" letter-spacing="3">AUTHENTIC DIGITAL ASSET</text>
+
+        <rect x="438" y="145" width="470" height="530" rx="22" fill="#05030f" stroke="#ffffff" stroke-opacity=".1"/>
+        <text x="472" y="180" fill="#22d3ee" font-family="Arial" font-size="10" font-weight="700" letter-spacing="3">PROOF RECORD</text>
+        <text x="472" y="225" fill="#737b8c" font-family="Arial" font-size="11">CERTIFICATE ID</text>
+        <text x="472" y="252" fill="#ffffff" font-family="monospace" font-size="17" font-weight="700">AETH-PROOF-${safeSvg(serial)}</text>
+        <line x1="472" y1="272" x2="874" y2="272" stroke="#ffffff" stroke-opacity=".1"/>
+        <text x="472" y="304" fill="#737b8c" font-family="Arial" font-size="11">TITLE / ASSET</text>
+        <text x="472" y="331" fill="#ffffff" font-family="Arial" font-size="20" font-weight="700">${safeSvg(title || 'Proof Title Preview').slice(0, 38)}</text>
+        <text x="472" y="370" fill="#737b8c" font-family="Arial" font-size="11">CREATOR / USERNAME</text>
+        <text x="472" y="397" fill="#ffffff" font-family="Arial" font-size="17">${safeSvg(creatorName || 'Not Connected').slice(0, 34)}</text>
+        <line x1="472" y1="418" x2="874" y2="418" stroke="#ffffff" stroke-opacity=".1"/>
+        <text x="472" y="450" fill="#737b8c" font-family="Arial" font-size="11">CATEGORY / BADGE</text>
+        <rect x="472" y="466" width="260" height="42" rx="21" fill="${color}" fill-opacity=".12" stroke="${color}" stroke-opacity=".65"/>
+        <text x="602" y="493" text-anchor="middle" fill="${color}" font-family="Arial" font-size="13" font-weight="800" letter-spacing="3">${safeSvg(category).toUpperCase()}</text>
+        <text x="472" y="548" fill="#737b8c" font-family="Arial" font-size="11">FILE HASH</text>
+        <text x="472" y="573" fill="#a5f3fc" font-family="monospace" font-size="10">${safeSvg(fileHash).slice(0, 57)}</text>
+        <text x="472" y="610" fill="#737b8c" font-family="Arial" font-size="11">NETWORK</text>
+        <text x="472" y="635" fill="#fbbf24" font-family="Arial" font-size="12" font-weight="700">BNB SMART CHAIN TESTNET • CHAIN 97</text>
+
+        <rect x="930" y="145" width="212" height="530" rx="22" fill="#05030f" stroke="#8b5cf6" stroke-opacity=".4"/>
+        <text x="1036" y="180" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="11" font-weight="700" letter-spacing="3">NFT PREVIEW</text>
+        <rect x="958" y="205" width="156" height="190" rx="18" fill="#02020a" stroke="${color}" stroke-opacity=".4"/>
+        <circle cx="1036" cy="300" r="67" fill="none" stroke="#22d3ee" stroke-opacity=".35" stroke-width="2" stroke-dasharray="7 12"/>
+        ${logo.replace(/x="118" y="205" width="190" height="190"/, 'x="981" y="245" width="110" height="110"')}
+        <text x="1036" y="430" text-anchor="middle" fill="${color}" font-family="Arial" font-size="12" font-weight="900" letter-spacing="3">${safeSvg(category).toUpperCase()}</text>
+        <text x="1036" y="478" text-anchor="middle" fill="#737b8c" font-family="Arial" font-size="9" letter-spacing="3">TOKEN / SERIAL</text>
+        <text x="1036" y="505" text-anchor="middle" fill="#ffffff" font-family="monospace" font-size="15" font-weight="700">${safeSvg(serial)}</text>
+        <rect x="981" y="535" width="110" height="110" fill="#ffffff" rx="8"/>
+        <text x="1036" y="575" text-anchor="middle" fill="#111827" font-family="Arial" font-size="9" font-weight="700">SCAN TO VERIFY</text>
+        <text x="1036" y="594" text-anchor="middle" fill="#111827" font-family="monospace" font-size="8">ON-CHAIN</text>
+        <text x="1036" y="625" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="7">QR GENERATED IN APP</text>
+      </svg>`;
+    return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+  };
+
+  const buildTokenMetadataUri = (serial) => {
+    const image = buildNftImage({ serial });
+    const metadata = {
+      name: title.trim() || 'Aether Proof',
+      description: description.trim() || 'AetherVault Cryptographic Certificate of Authenticity',
+      image,
+      external_url: `${BSC_TESTNET_EXPLORER}/address/${AETHER_VAULT_ADDRESS}`,
+      attributes: [
+        { trait_type: 'Category', value: category },
+        { trait_type: 'Badge', value: currentConfig.badge },
+        { trait_type: 'Creator', value: creatorName.trim() || realAddress || 'Not Connected' },
+        { trait_type: 'File Hash', value: fileHash },
+        { trait_type: 'Metadata Hash', value: metadataHash },
+        { trait_type: 'Network', value: BSC_TESTNET_NAME },
+        { trait_type: 'Chain ID', value: 97 },
+        { trait_type: 'Contract', value: AETHER_VAULT_ADDRESS }
+      ]
+    };
+    return `data:application/json;base64,${btoa(unescape(encodeURIComponent(JSON.stringify(metadata))))}`;
+  };
+
   const handleMintSequence = async (e) => {
     e.preventDefault();
+    if (!title.trim()) return;
     setView('minting');
-    
+
     try {
       setMintStep(1);
-      await new Promise(res => setTimeout(res, 1000));
-      
-      setMintStep(2);
-      await new Promise(res => setTimeout(res, 1000));
-      
-      setMintStep(3);
-      if (!window.ethereum) throw new Error("MetaMask not found!");
-      
+      if (!window.ethereum) throw new Error('MetaMask / wallet Web3 tidak ditemukan.');
+
       const provider = new ethers.BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
+
       if (Number(network.chainId) !== BSC_TESTNET_CHAIN_ID) {
-        try {
-          await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x61' }] });
-        } catch (switchError) {
-          if (switchError?.code === 4902) {
-            await window.ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [{
-                chainId: '0x61',
-                chainName: BSC_TESTNET_NAME,
-                nativeCurrency: { name: 'tBNB', symbol: 'tBNB', decimals: 18 },
-                rpcUrls: ['https://data-seed-prebsc-1-s1.bnbchain.org:8545'],
-                blockExplorerUrls: [BSC_TESTNET_EXPLORER]
-              }]
-            });
-          } else throw switchError;
-        }
+        await provider.send('wallet_switchEthereumChain', [{ chainId: BSC_TESTNET_HEX }]);
       }
+
+      setMintStep(2);
       const signer = await provider.getSigner();
+      const signerAddress = await signer.getAddress();
+
+      const tokenURIParam = buildTokenMetadataUri('ON-CHAIN');
+
+      setMintStep(3);
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, signer);
+      const tx = await contract.createProof(tier, category, fileHash, tokenURIParam, true);
 
       setMintStep(4);
-      const tokenURIParam = `https://gateway.pinata.cloud/ipfs/bafybeig...preview`;
-      const tx = await contract.createProof(tier, category, fileHash, tokenURIParam, true);
-      
-      setMintStep(5);
       const receipt = await tx.wait();
 
-      const mockTokenId = Math.floor(8000 + Math.random() * 2000);
-      
+      let tokenId = null;
+      for (const log of receipt.logs) {
+        try {
+          const parsed = contract.interface.parseLog({ topics: log.topics, data: log.data });
+          if (parsed?.name === 'ProofMinted') {
+            tokenId = parsed.args.tokenId.toString();
+            break;
+          }
+        } catch (_) {}
+      }
+
+      if (tokenId === null) {
+        throw new Error('Transaksi berhasil, tetapi Token ID tidak ditemukan pada event ProofMinted.');
+      }
+
+      setMintStep(5);
+      const block = await provider.getBlock(receipt.blockNumber);
+      const creator = creatorName.trim() || signerAddress;
+      const finalTokenURI = buildTokenMetadataUri(tokenId);
+
       setGeneratedProof({
-        tokenId: mockTokenId,
-        id: `AETH-PROOF-${mockTokenId}`,
+        tokenId,
+        id: `AETH-PROOF-${tokenId}`,
         txHash: receipt.hash,
-        blockNumber: receipt.blockNumber || 4350122,
+        blockNumber: receipt.blockNumber,
         contract: AETHER_VAULT_ADDRESS,
         category,
-        title,
+        title: title.trim(),
+        description: description.trim(),
         badge: currentConfig.badge,
         badgeIcon: currentConfig.badgeIcon,
-        creator: creatorName || formatAddress(address),
-        wallet: realAddress,
-        fileHash: fileHash,
+        creator,
+        wallet: signerAddress,
+        fileHash,
         metaHash: metadataHash,
-        date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        date: new Date((block?.timestamp || Math.floor(Date.now()/1000)) * 1000).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
         network: BSC_TESTNET_NAME,
-        verifyUrl: `${BSC_TESTNET_EXPLORER}/address/${AETHER_VAULT_ADDRESS}`
+        chainId: BSC_TESTNET_CHAIN_ID,
+        tokenURI: finalTokenURI,
+        verifyUrl: `${BSC_TESTNET_EXPLORER}/tx/${receipt.hash}`,
+        image: buildNftImage({ serial: tokenId })
       });
-      
+
       setView('success');
     } catch (error) {
-      console.error("Minting failed:", error);
-      alert("Transaction failed or rejected: " + (error.reason || error.message));
+      console.error('Minting failed:', error);
+      alert('Transaction failed or rejected: ' + (error?.reason || error?.shortMessage || error?.message || 'Unknown error'));
       setView('form');
     }
   };
+
 
   const handleDownloadPNG = async () => {
     if (!certificateRef.current) return;
@@ -209,100 +336,125 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
     }
   };
 
-  const CertificateTemplate = ({ proofData }) => (
-    <div ref={certificateRef} className="w-[842px] h-[595px] bg-[#fdfbf7] text-neutral-900 rounded-sm p-10 relative overflow-hidden shadow-2xl font-serif border border-neutral-300 mx-auto flex flex-col justify-between shrink-0">
-      <div className="absolute top-8 right-8 flex items-center gap-2 z-20 bg-white/90 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
-        <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
-        <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">Verified on BNB Smart Chain Testnet</span>
-      </div>
+  const CertificateTemplate = ({ proofData }) => {
+    const data = proofData || {
+      id: 'AETH-PROOF-PREVIEW',
+      category,
+      title: title || 'Proof Title Preview',
+      badge: currentConfig.badge,
+      badgeIcon: currentConfig.badgeIcon,
+      creator: creatorName || 'Not Connected',
+      wallet: realAddress || 'Not Connected',
+      fileHash: isHashing ? 'Calculating Keccak256...' : fileHash,
+      metaHash: metadataHash,
+      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      network: BSC_TESTNET_NAME,
+      contract: AETHER_VAULT_ADDRESS,
+      verifyUrl: `${BSC_TESTNET_EXPLORER}/address/${AETHER_VAULT_ADDRESS}`
+    };
+    const colorMap = {
+      Writing:'#22d3ee', Photography:'#f472b6', Design:'#a78bfa', Music:'#fbbf24',
+      Video:'#f87171', Software:'#4ade80', Research:'#60a5fa', Business:'#fb923c',
+      Legal:'#c084fc', Other:'#94a3b8'
+    };
+    const accent = colorMap[data.category] || '#fbbf24';
+    return (
+      <div ref={certificateRef} className="relative w-[1200px] h-[760px] shrink-0 overflow-hidden rounded-[26px] bg-[#03020a] text-white border border-white/10 shadow-[0_0_80px_rgba(34,211,238,.12)] font-sans">
+        <style>{`
+          @keyframes avSpin{to{transform:rotate(360deg)}} 
+          @keyframes avSpinR{to{transform:rotate(-360deg)}} 
+          @keyframes avPulse{0%,100%{opacity:.4;transform:scale(.96)}50%{opacity:.95;transform:scale(1.04)}} 
+          @keyframes avSweep{0%,55%{transform:translateX(-140%);opacity:0}65%{opacity:.75}85%,100%{transform:translateX(140%);opacity:0}}
+        `}</style>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(79,70,229,.22),transparent_42%),radial-gradient(circle_at_15%_75%,rgba(34,211,238,.12),transparent_30%),radial-gradient(circle_at_90%_75%,rgba(245,158,11,.10),transparent_28%)]"/>
+        <div className="absolute inset-4 rounded-[20px] border border-cyan-300/25"/>
+        <div className="absolute inset-6 rounded-[18px] border border-violet-400/15"/>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[320px] h-1 bg-gradient-to-r from-cyan-400 via-violet-500 to-amber-400"/>
 
-      <img src="/whatermark.png" alt="Watermark" className="absolute inset-0 w-full h-full object-contain opacity-[0.05] pointer-events-none grayscale mix-blend-multiply p-20" />
-
-      <div className="absolute inset-4 border-[4px] border-double border-amber-900/30 pointer-events-none rounded-sm"></div>
-      <div className="absolute inset-6 border-[1px] border-amber-900/10 pointer-events-none rounded-sm"></div>
-      
-      <div className="relative z-10 text-center mb-4 pt-4 border-b-2 border-amber-900/10 pb-4">
-        <h4 className="text-4xl font-black tracking-[0.25em] text-amber-900 mb-2 font-display drop-shadow-sm">AETHER PROOF™</h4>
-        <p className="text-xs font-bold tracking-[0.3em] text-amber-700 uppercase">Cryptographic Certificate of Authenticity</p>
-      </div>
-
-      <div className="relative z-10 space-y-6 flex-1 flex flex-col justify-center px-4">
-        <div className="text-center mb-2">
-          <p className="text-[10px] uppercase tracking-widest text-neutral-500 mb-2">This unalterable document officially certifies the registration of</p>
-          <h5 className="text-3xl font-bold text-neutral-900 font-display px-8 leading-snug">"{proofData?.title || 'Untitled Proof'}"</h5>
-        </div>
-
-        <div className="grid grid-cols-3 gap-y-5 gap-x-6 text-xs font-mono bg-white/60 p-6 border border-amber-900/20 rounded-sm shadow-sm backdrop-blur-sm">
-          <div className="col-span-1 border-r border-amber-900/10">
-            <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">Certificate ID</p>
-            <p className="font-bold text-neutral-900">{proofData?.id || 'AETH-PROOF-XXXX'}</p>
-          </div>
-          <div className="col-span-1 border-r border-amber-900/10 pl-2">
-            <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">Creator / Owner</p>
-            <p className="font-bold text-neutral-900 truncate pr-2">{proofData?.creator || 'Unknown'}</p>
-          </div>
-          <div className="col-span-1 pl-2">
-            <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">Timestamp</p>
-            <p className="font-bold text-neutral-900">{proofData?.date || new Date().toLocaleDateString()}</p>
-          </div>
-
-          <div className="col-span-1 border-r border-amber-900/10 pt-2 border-t">
-            <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">Role / Badge</p>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-neutral-900">{proofData?.category || 'Category'}</span>
-              <span className="text-[8px] bg-amber-900 text-amber-100 px-1.5 py-0.5 rounded-sm tracking-widest flex items-center gap-1">
-                {proofData?.badgeIcon || '✨'} {proofData?.badge || 'Verified'}
-              </span>
-            </div>
-          </div>
-          <div className="col-span-1 border-r border-amber-900/10 pl-2 pt-2 border-t">
-            <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">Wallet Address</p>
-            <p className="font-bold text-neutral-900 text-[10px]">{proofData?.wallet || '0x...'}</p>
-          </div>
-          <div className="col-span-1 pl-2 pt-2 border-t">
-            <p className="text-[8px] uppercase tracking-widest text-amber-800/70 mb-1">Smart Contract</p>
-            <p className="font-bold text-neutral-900 text-[10px]">{formatAddress(proofData?.contract || AETHER_VAULT_ADDRESS)}</p>
-          </div>
-
-          <div className="col-span-3 border-t border-amber-900/20 pt-4 mt-2 flex flex-col gap-3">
-            <div className="flex justify-between items-center">
+        <div className="relative z-10 flex items-center justify-between px-12 pt-9">
+          <div>
+            <div className="flex items-center gap-3">
+              {logoDataUrl ? <img src={logoDataUrl} alt="" className="w-12 h-12 object-contain"/> : <div className="w-12 h-12 rounded-xl border border-amber-400/40 flex items-center justify-center text-amber-300 font-black text-2xl">A</div>}
               <div>
-                <p className="text-[9px] uppercase tracking-widest text-amber-800/70 mb-1 flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> File Proof Hash (Keccak256)</p>
-                <p className="text-[10px] text-neutral-700 font-bold tracking-tight">{proofData?.fileHash || '0x...'}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[9px] uppercase tracking-widest text-amber-800/70 mb-1 flex items-center justify-end gap-1.5"><Lock className="w-3 h-3"/> Metadata Hash</p>
-                <p className="text-[10px] text-neutral-700 font-bold tracking-tight">{proofData?.metaHash || '0x...'}</p>
+                <div className="text-2xl font-black tracking-[.18em]">AETHER<span className="text-amber-300">VAULT</span></div>
+                <div className="text-[9px] tracking-[.35em] text-slate-400">TRUSTLESS • VERIFIED • TIMELESS</div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="relative z-10 mt-6 pt-4 border-t-2 border-amber-900/20 flex flex-row items-end justify-between px-6 pb-2">
-        <div className="text-left mb-2">
-          <p className="text-[8px] font-bold text-amber-900 uppercase tracking-widest leading-relaxed">
-            Certified & Permanently Registered by<br/>
-            <span className="text-xs font-black mt-0.5 block">AETHERVAULT™ REGISTRY</span>
-          </p>
-          <p className="text-[7px] text-neutral-500 font-mono mt-1.5 tracking-widest bg-amber-900/5 inline-block px-1.5 py-0.5 rounded">IMMUTABLE • ON-CHAIN • {proofData?.network || 'POLYGON'}</p>
-        </div>
-
-        <div className="text-center mb-2 px-8 flex flex-col items-center">
-           <div className="font-signature text-3xl text-amber-900/80 -rotate-3 mb-1" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault DAO</div>
-           <div className="w-32 border-b border-amber-900/40 mb-1"></div>
-           <p className="text-[8px] uppercase tracking-widest text-neutral-500 font-bold">Digital Signature</p>
-        </div>
-
-        <div className="flex flex-col items-center">
-          <div className="w-20 h-20 bg-white border border-neutral-200 p-1.5 rounded-sm shadow-sm flex items-center justify-center">
-            <QRCode value={proofData?.verifyUrl || 'https://aethvault.xyz'} size={68} bgColor="#ffffff" fgColor="#451a03" level="Q" />
+          <div className="px-5 py-3 rounded-2xl border border-emerald-400/30 bg-emerald-400/5">
+            <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold tracking-widest"><span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/> VERIFIED ON-CHAIN</div>
+            <div className="text-[10px] text-amber-300 mt-1 tracking-widest text-right">BNB SMART CHAIN TESTNET</div>
           </div>
-          <p className="text-[7px] uppercase tracking-widest mt-1.5 text-amber-900 font-bold">Scan to Verify</p>
         </div>
+
+        <div className="relative z-10 text-center mt-4">
+          <h4 className="text-[42px] leading-none font-black tracking-[.14em] bg-gradient-to-r from-cyan-200 via-white to-fuchsia-200 bg-clip-text text-transparent">CERTIFICATE OF AUTHENTICITY</h4>
+          <p className="mt-3 text-[13px] tracking-[.55em] text-slate-400">BLOCKCHAIN VERIFIED &nbsp;|&nbsp; NFT CERTIFICATE</p>
+        </div>
+
+        <div className="relative z-10 grid grid-cols-[350px_1fr_220px] gap-5 px-12 mt-6">
+          <div className="relative h-[480px] rounded-[24px] border border-cyan-300/25 bg-black/30 overflow-hidden flex flex-col items-center justify-center">
+            <div className="absolute w-[310px] h-[310px] rounded-full border border-cyan-400/25" style={{animation:'avSpin 10s linear infinite'}}/>
+            <div className="absolute w-[270px] h-[270px] rounded-full border border-violet-400/25 border-dashed" style={{animation:'avSpinR 7s linear infinite'}}/>
+            <div className="absolute w-[225px] h-[225px] rounded-full border border-amber-400/20" style={{animation:'avSpin 14s linear infinite'}}/>
+            <div className="absolute w-[190px] h-[190px] rounded-full bg-amber-400/10 blur-3xl" style={{animation:'avPulse 3s ease-in-out infinite'}}/>
+            <div className="relative z-10 w-[150px] h-[150px] flex items-center justify-center">
+              {logoDataUrl ? <img src={logoDataUrl} alt="AetherVault" className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(251,191,36,.65)]" style={{animation:'avPulse 3.4s ease-in-out infinite'}}/> : <div className="text-8xl text-amber-300 font-black">A</div>}
+            </div>
+            <div className="absolute bottom-9 text-[11px] tracking-[.35em] text-cyan-300">AUTHENTIC AETHER PROOF</div>
+          </div>
+
+          <div className="h-[480px] rounded-[24px] border border-white/10 bg-black/25 p-7">
+            <div className="text-[10px] text-cyan-300 tracking-[.3em] font-bold">PROOF RECORD</div>
+            <div className="mt-5 grid grid-cols-2 gap-x-8 gap-y-6">
+              <div className="col-span-2"><div className="label">CERTIFICATE ID</div><div className="value text-cyan-300">#{data.id}</div></div>
+              <div><div className="label">TITLE / ASSET</div><div className="value">{data.title || 'Untitled Proof'}</div></div>
+              <div><div className="label">CREATOR / USERNAME</div><div className="value truncate">@{String(data.creator || 'Not Connected').replace(/^@/,'')}</div></div>
+              <div><div className="label">ISSUED ON</div><div className="value">{data.date}</div></div>
+              <div><div className="label">BLOCKCHAIN</div><div className="value text-amber-300">BNB Smart Chain Testnet</div></div>
+              <div><div className="label">CATEGORY / BADGE</div><div className="value" style={{color:accent}}>{data.badgeIcon} {data.badge}</div></div>
+              <div><div className="label">OWNER WALLET</div><div className="value font-mono text-[12px]">{formatAddress(data.wallet)}</div></div>
+              <div className="col-span-2"><div className="label">TRANSACTION HASH</div><div className="value font-mono text-[11px] break-all">{data.txHash || 'Pending mint'}</div></div>
+              <div className="col-span-2 rounded-xl border border-cyan-400/10 bg-cyan-400/5 p-4">
+                <div className="text-[10px] text-cyan-300 tracking-[.25em] font-bold mb-3">ON-CHAIN METADATA</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div><div className="label">TOKEN ID</div><div className="value">{data.tokenId || 'PREVIEW'}</div></div>
+                  <div><div className="label">CHAIN ID</div><div className="value">97</div></div>
+                  <div className="col-span-2"><div className="label">CONTRACT</div><div className="value font-mono text-[10px]">{data.contract}</div></div>
+                  <div className="col-span-2"><div className="label">FILE HASH / KECCAK256</div><div className="value font-mono text-[10px] break-all">{data.fileHash}</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-[480px] rounded-[24px] border bg-black/25 p-4 flex flex-col items-center" style={{borderColor:`${accent}55`}}>
+            <div className="text-[10px] tracking-[.3em] text-white mb-4">NFT PREVIEW</div>
+            <div className="relative w-[178px] h-[210px] rounded-[18px] border overflow-hidden bg-[#02020a]" style={{borderColor:`${accent}70`}}>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(139,92,246,.35),transparent_55%)]"/>
+              <div className="absolute inset-3 rounded-xl border border-cyan-300/15"/>
+              <div className="absolute inset-0 flex items-center justify-center">
+                {logoDataUrl ? <img src={logoDataUrl} alt="" className="w-24 h-24 object-contain drop-shadow-[0_0_20px_rgba(251,191,36,.7)]" style={{animation:'avPulse 2.8s ease-in-out infinite'}}/> : <div className="text-6xl text-amber-300 font-black">A</div>}
+              </div>
+              <div className="absolute inset-x-0 bottom-3 text-center text-[9px] tracking-[.2em]" style={{color:accent}}>{String(data.category).toUpperCase()}</div>
+            </div>
+            <div className="mt-5 text-[9px] tracking-[.28em] text-slate-500">SERIAL / TOKEN ID</div>
+            <div className="mt-1 font-mono font-bold text-white">{data.tokenId || 'PREVIEW'}</div>
+            <div className="mt-5 w-[110px] h-[110px] bg-white rounded-lg p-2 flex items-center justify-center">
+              <QRCode value={data.verifyUrl || `${BSC_TESTNET_EXPLORER}/address/${AETHER_VAULT_ADDRESS}`} size={92} level="M"/>
+            </div>
+            <div className="mt-3 text-[8px] tracking-[.18em] text-slate-400 text-center">SCAN TO VERIFY ON-CHAIN</div>
+          </div>
+        </div>
+
+        <div className="absolute bottom-4 left-12 right-12 z-10 flex justify-between items-center text-[9px] font-mono tracking-[.18em] text-slate-500">
+          <span>AETHERVAULT™ REGISTRY</span><span>CHAIN 97</span><span>{formatAddress(data.contract)}</span>
+        </div>
+        <div className="absolute top-0 bottom-0 left-0 w-24 bg-white/10 blur-2xl pointer-events-none" style={{animation:'avSweep 5.5s ease-in-out infinite', transform:'translateX(-150%) skewX(-18deg)'}}/>
+        <style>{`.label{font-size:9px;letter-spacing:.2em;color:#64748b;text-transform:uppercase;margin-bottom:4px}.value{font-size:14px;font-weight:700;color:#f8fafc;line-height:1.25}`}</style>
       </div>
-    </div>
-  );
+    );
+  };
+
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
@@ -338,13 +490,7 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.entries(categoryConfig).map(([key, val], idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => { setCategory(key); setView('form'); }}
-                  className={`w-full text-left bg-[#05030F] border p-4 rounded-2xl transition-all duration-200 cursor-pointer hover:-translate-y-0.5 hover:border-cyan-400/50 hover:bg-[#090617] hover:shadow-[0_0_24px_rgba(34,211,238,0.10)] ${category === key ? 'border-cyan-400/60 ring-1 ring-cyan-400/20' : 'border-neutral-800'}`}
-                  aria-label={`Create ${key} Aether Proof`}
-                >
+                <div key={idx} className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="text-cyan-400">{val.icon}</div>
@@ -352,11 +498,10 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
                     </div>
                     <span className="text-[10px] font-mono font-bold text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">{val.price} AETH</span>
                   </div>
-                  <div className="mt-3 flex items-center justify-between gap-1.5 text-[10px] text-neutral-400 bg-neutral-900/50 py-1.5 px-2 rounded-lg border border-neutral-800/50">
-                    <span className="flex items-center gap-1.5"><span>{val.badgeIcon}</span> <span className="font-bold">{val.badge}</span></span>
-                    <span className="text-cyan-400 font-bold">Create →</span>
+                  <div className="mt-3 flex items-center gap-1.5 text-[10px] text-neutral-400 bg-neutral-900/50 py-1.5 px-2 rounded-lg border border-neutral-800/50">
+                    <span>{val.badgeIcon}</span> <span className="font-bold">{val.badge}</span>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           </div>
@@ -364,105 +509,106 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
       )}
 
       {view === 'form' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 animate-in slide-in-from-bottom-4 duration-300">
-          
-          <div className="lg:col-span-5 bg-[#0B0817] border border-amber-500/30 p-6 rounded-2xl shadow-xl flex flex-col h-full">
-            <button onClick={() => setView('hub')} className="mb-4 flex items-center gap-2 text-xs text-neutral-400 hover:text-white transition-colors cursor-pointer w-fit">
-              <ChevronLeft className="w-4 h-4" /> Back
-            </button>
-            <h3 className="font-display text-xl font-extrabold text-white mb-6">Metadata Details</h3>
-
-            <form onSubmit={handleMintSequence} className="space-y-5 flex-1 flex flex-col">
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Category</label>
-                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-[#05030F] border border-neutral-800 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-500 cursor-pointer">
-                  {Object.keys(categoryConfig).map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Title *</label>
-                <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Core Smart Contract v1" className="w-full bg-[#05030F] border border-neutral-800 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-500" />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Creator Name</label>
-                <input type="text" value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder="e.g., Satoshi Nakamoto" className="w-full bg-[#05030F] border border-neutral-800 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-500" />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Description</label>
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the work or intellectual property..." rows={3} className="w-full resize-none bg-[#05030F] border border-neutral-800 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-500" />
-              </div>
-
-              <div className="space-y-1.5 pt-2 border-t border-neutral-800">
-                <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> Target File (Generate Hash)</label>
-                {!file ? (
-                  <div className="border-2 border-dashed border-neutral-800 hover:border-amber-500/50 bg-[#05030F] rounded-xl p-4 text-center cursor-pointer relative">
-                    <input type="file" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                    <UploadCloud className="w-6 h-6 text-neutral-600 mx-auto mb-1" />
-                    <p className="text-[10px] text-white font-bold">Select File for Keccak256</p>
-                  </div>
-                ) : (
-                  <div className="bg-[#05030F] border border-cyan-500/30 p-3 rounded-xl flex items-center justify-between">
-                    <div className="flex items-center gap-2 truncate">
-                      <FileImage className="w-4 h-4 text-cyan-400 shrink-0" />
-                      <span className="text-[10px] text-white truncate">{file.name}</span>
-                    </div>
-                    <button type="button" onClick={() => {setFile(null); setFileHash('0x0000000000000000000000000000000000000000000000000000000000000000');}} className="text-[9px] text-red-400 shrink-0 cursor-pointer">Remove</button>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-auto pt-6">
-                <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-xl space-y-2.5 mb-4">
-                  <div className="flex justify-between text-[10px] font-mono"><span className="text-neutral-400">Mint Cost</span><span className="text-white font-bold">{currentConfig.price} AETH</span></div>
-                  <div className="flex justify-between text-[10px] font-mono"><span className="text-neutral-500 flex items-center gap-1"><Flame className="w-2.5 h-2.5 text-red-400"/> Burn (20%)</span><span className="text-red-400">-{currentConfig.price * 0.2} AETH</span></div>
-                  <div className="flex justify-between text-[10px] font-mono"><span className="text-neutral-500 flex items-center gap-1"><ShieldCheck className="w-2.5 h-2.5 text-blue-400"/> Treasury (80%)</span><span className="text-blue-400">{currentConfig.price * 0.8} AETH</span></div>
-                  <div className="flex justify-between text-[10px] font-mono border-t border-neutral-800 pt-2"><span className="text-neutral-400">Est. Gas Fee</span><span className="text-white">~0.0005 tBNB</span></div>
-                </div>
-
-                <button type="submit" disabled={!title || isHashing} className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl text-xs shadow-lg flex items-center justify-center gap-2 cursor-pointer">
-                  <Award className="w-4 h-4" /> Mint & Issue Proof
+        <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-[#0B0817] border border-amber-500/30 p-6 sm:p-8 rounded-2xl shadow-xl">
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <div>
+                <button onClick={() => setView('hub')} className="mb-3 flex items-center gap-2 text-xs text-neutral-400 hover:text-white cursor-pointer">
+                  <ChevronLeft className="w-4 h-4"/> Back
                 </button>
+                <h3 className="font-display text-xl sm:text-2xl font-extrabold text-white">Metadata Details</h3>
+                <p className="text-[10px] text-neutral-500 mt-1">Create the proof metadata that will appear on the NFT certificate.</p>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 text-[9px] font-mono text-emerald-400 border border-emerald-500/20 rounded-full px-3 py-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/> BSC TESTNET • CHAIN 97
+              </div>
+            </div>
+
+            <form onSubmit={handleMintSequence} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div>
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Category</label>
+                  <select value={category} onChange={(e) => setCategory(e.target.value)} className="mt-1.5 w-full bg-[#05030F] border border-neutral-800 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-500 cursor-pointer">
+                    {Object.keys(categoryConfig).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Title *</label>
+                  <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Core Smart Contract v1" className="mt-1.5 w-full bg-[#05030F] border border-neutral-800 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-500"/>
+                </div>
+                <div>
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Creator / Username</label>
+                  <input type="text" value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder="e.g. AetherMusic" className="mt-1.5 w-full bg-[#05030F] border border-neutral-800 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-500"/>
+                </div>
+                <div>
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Description</label>
+                  <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short certificate description" className="mt-1.5 w-full bg-[#05030F] border border-neutral-800 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-500"/>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_330px] gap-4 pt-2 border-t border-neutral-800">
+                <div>
+                  <label className="text-[9px] font-bold text-amber-500 uppercase tracking-widest flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> Target File — Generate Keccak256</label>
+                  {!file ? (
+                    <div className="mt-1.5 border-2 border-dashed border-neutral-800 hover:border-amber-500/50 bg-[#05030F] rounded-xl p-5 text-center cursor-pointer relative">
+                      <input type="file" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
+                      <UploadCloud className="w-7 h-7 text-neutral-600 mx-auto mb-1"/>
+                      <p className="text-[10px] text-white font-bold">Select File for Keccak256</p>
+                      <p className="text-[8px] text-neutral-600 mt-1">The file itself is hashed locally in your browser.</p>
+                    </div>
+                  ) : (
+                    <div className="mt-1.5 bg-[#05030F] border border-cyan-500/30 p-3 rounded-xl flex items-center justify-between">
+                      <div className="flex items-center gap-2 truncate"><FileImage className="w-4 h-4 text-cyan-400 shrink-0"/><span className="text-[10px] text-white truncate">{file.name}</span></div>
+                      <button type="button" onClick={() => {setFile(null); setFileHash('0x' + '00'.repeat(32));}} className="text-[9px] text-red-400 shrink-0 cursor-pointer">Remove</button>
+                    </div>
+                  )}
+                  <p className="text-[8px] text-neutral-600 font-mono mt-2 break-all">{isHashing ? 'Calculating Keccak256…' : fileHash}</p>
+                </div>
+                <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-xl">
+                  <div className="flex justify-between text-[10px] font-mono mb-2"><span className="text-neutral-400">Mint Cost</span><span className="text-white font-bold">{currentConfig.price} AETH</span></div>
+                  <div className="flex justify-between text-[10px] font-mono mb-2"><span className="text-neutral-500">Category Badge</span><span style={{color: currentConfig.badge === 'Verified Artist' ? '#fbbf24' : '#22d3ee'}}>{currentConfig.badgeIcon} {currentConfig.badge}</span></div>
+                  <div className="flex justify-between text-[10px] font-mono border-t border-neutral-800 pt-2"><span className="text-neutral-400">Network</span><span className="text-emerald-400">BSC Testnet / 97</span></div>
+                  <button type="submit" disabled={!title || isHashing} className="mt-4 w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl text-xs shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+                    <Award className="w-4 h-4"/> Mint & Issue Proof
+                  </button>
+                </div>
               </div>
             </form>
           </div>
 
-          <div className="lg:col-span-7 bg-[#05030F] border border-neutral-900 p-6 rounded-2xl flex flex-col justify-center items-center relative overflow-hidden">
-            <div className="absolute top-4 left-4 flex items-center gap-2 text-cyan-500 font-mono text-[9px] uppercase tracking-widest"><Eye className="w-3 h-3"/> Live NFT Preview</div>
-            
-            <div
-              ref={previewContainerRef}
-              className="w-full max-w-[842px] mx-auto rounded-xl border border-neutral-800 bg-[#02010A] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden"
-              style={{ height: `${595 * previewScale}px` }}
-            >
-              <div
-                className="origin-top-left"
-                style={{ width: '842px', height: '595px', transform: `scale(${previewScale})`, transformOrigin: 'top left' }}
-              >
-                <CertificateTemplate proofData={{
-                id: 'AETH-PROOF-PREVIEW',
-                category,
-                title: title || 'Proof Title Preview',
-                badge: currentConfig.badge,
-                badgeIcon: currentConfig.badgeIcon,
-                creator: creatorName || formatAddress(address),
-                wallet: realAddress,
-                fileHash: isHashing ? 'Calculating Keccak256...' : fileHash,
-                metaHash: metadataHash,
-                date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-                network: BSC_TESTNET_NAME,
-                contract: AETHER_VAULT_ADDRESS,
-                verifyUrl: BSC_TESTNET_EXPLORER + "/address/" + AETHER_VAULT_ADDRESS
-                }} />
+          <div ref={previewViewportRef} className="bg-[#05030F] border border-neutral-900 p-4 sm:p-6 rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2 text-cyan-400 font-mono text-[9px] uppercase tracking-widest"><Eye className="w-3 h-3"/> Live NFT Preview</div>
+              <div className="flex items-center gap-1 bg-[#0B0817] border border-neutral-800 rounded-xl p-1">
+                <button type="button" onClick={() => setPreviewScale(s => Math.max(0.28, +(s - 0.05).toFixed(2)))} className="w-8 h-8 rounded-lg text-white hover:bg-white/10">−</button>
+                <button type="button" onClick={() => { const el = previewViewportRef.current; if (el) setPreviewScale(Math.min(0.82, Math.max(0.28, (el.clientWidth - 32) / 1200))); }} className="px-3 h-8 rounded-lg text-cyan-300 text-[10px] font-mono">{Math.round(previewScale*100)}%</button>
+                <button type="button" onClick={() => setPreviewScale(s => Math.min(0.82, +(s + 0.05).toFixed(2)))} className="w-8 h-8 rounded-lg text-white hover:bg-white/10">+</button>
+              </div>
+            </div>
+            <div className="overflow-auto rounded-xl border border-white/5 bg-[#02010A]">
+              <div className="origin-top-left" style={{width: `${1200 * previewScale}px`, height: `${760 * previewScale}px`}}>
+                <div style={{width:'1200px', height:'760px', transform:`scale(${previewScale})`, transformOrigin:'top left'}}>
+                  <CertificateTemplate proofData={{
+                    id:'AETH-PROOF-PREVIEW',
+                    category,
+                    title:title || 'Proof Title Preview',
+                    badge:currentConfig.badge,
+                    badgeIcon:currentConfig.badgeIcon,
+                    creator:creatorName || 'Not Connected',
+                    wallet:realAddress || 'Not Connected',
+                    fileHash:isHashing ? 'Calculating Keccak256...' : fileHash,
+                    metaHash:metadataHash,
+                    date:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),
+                    network:BSC_TESTNET_NAME,
+                    contract:AETHER_VAULT_ADDRESS,
+                    verifyUrl:`${BSC_TESTNET_EXPLORER}/address/${AETHER_VAULT_ADDRESS}`
+                  }}/>
+                </div>
               </div>
             </div>
           </div>
-
         </div>
       )}
-
       {view === 'minting' && (
         <div className="bg-[#0B0817] border border-amber-500/30 p-10 sm:p-16 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col items-center justify-center min-h-[400px]">
           <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-8" />
@@ -501,9 +647,7 @@ export default function AetherProofHub({ t, handleViewCertificate, setActiveTab,
           <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-2 text-center">Aether Proof Minted On-Chain!</h3>
           <p className="text-xs text-neutral-400 mb-8 text-center max-w-md">Your intellectual property has been permanently recorded on BNB Smart Chain Testnet Block #{generatedProof.blockNumber}.</p>
 
-          <div className="w-full max-w-[900px] overflow-x-auto custom-scrollbar shadow-2xl">
-             <CertificateTemplate proofData={generatedProof} />
-          </div>
+          <div className="w-full overflow-auto custom-scrollbar shadow-2xl rounded-2xl"><CertificateTemplate proofData={generatedProof} /></div>
 
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl">
             <button onClick={handleDownloadPDF} className="bg-[#05030F] border border-amber-900/50 hover:bg-neutral-900 text-white font-bold py-3.5 rounded-xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg">
