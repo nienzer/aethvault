@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import AetherVaultV3ABI from './AetherVaultV3ABI.json';
+import AetherVaultV3ABI from '../contracts/AetherVaultV3ABI.json';
 
 const AETHER_VAULT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265";
 const BSC_TESTNET_CHAIN_ID = 97;
