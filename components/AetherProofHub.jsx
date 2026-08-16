@@ -15,177 +15,248 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
 
 // =========================================================
-// 🚀 GAYA WEB3 FUTURISTIK: SUPER KEREN, PRESISI & UTUH
+// AETHERVAULT — PREMIUM WEB3 NFT CERTIFICATE (DESAIN DARI BOS)
 // =========================================================
-const CertificateTemplate = React.forwardRef(({ proofData, tDash, tHop, formatAddress, categoryConfig, AETHER_LOGO = '/logo.png' }, ref) => {
-  const catKey = (proofData?.category || 'Software').toLowerCase().trim();
-  const rawCatObj = categoryConfig ? Object.entries(categoryConfig).find(([key]) => key.toLowerCase() === catKey) : null;
-  const cat = rawCatObj ? rawCatObj[1] : { badge: 'Verified Creator', icon: <Sparkles className="w-4 h-4" />, color: '#94a3b8', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.35)' };
-  const CatIcon = cat.icon ? React.cloneElement(cat.icon, { className: "w-4 h-4", style: { color: cat.color } }) : <Sparkles className="w-4 h-4" style={{ color: cat.color }} />;
+const CertificateTemplate = React.forwardRef(
+  (
+    {
+      proofData,
+      tDash,
+      tHop,
+      formatAddress,
+      categoryConfig,
+      AETHER_LOGO = "/logo.png",
+    },
+    ref
+  ) => {
+    const catKey = (proofData?.category || "Software").toLowerCase().trim();
 
-  return (
-    <div id="cert-export-node" ref={ref} className="w-[890px] h-[660px] bg-[#0A0714] text-gray-200 rounded-2xl p-6 pb-4 relative overflow-hidden font-sans border border-amber-500/30 mx-auto flex flex-col justify-between shrink-0 shadow-[0_0_60px_rgba(6,182,212,0.15)]" style={{ background: 'radial-gradient(ellipse at 50% 0%, #1a1a3a 0%, #0c0a1f 45%, #05030f 100%)', borderImage: 'linear-gradient(135deg, #06b6d4, #8b5cf6, #f59e0b, #8b5cf6, #06b6d4) 1', borderWidth: '2px', borderStyle: 'solid' }}>
-      
-      {/* Background Decor & Cyber Grid */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-[-150px] right-[-100px] w-[600px] h-[600px] rounded-full blur-[130px]" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.35), transparent 70%)' }} />
-        <div className="absolute bottom-[-100px] left-[-150px] w-[500px] h-[500px] rounded-full blur-[120px]" style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.25), transparent 70%)' }} />
-      </div>
+    const rawCatObj = categoryConfig
+      ? Object.entries(categoryConfig).find(
+          ([key]) => key.toLowerCase() === catKey
+        )
+      : null;
 
-      {/* Cybernetic Accent Corners */}
-      <div className="absolute top-4 left-4 w-16 h-16 border-l-2 border-t-2 border-cyan-400/60 rounded-tl-xl shadow-[inset_4px_4px_10px_rgba(6,182,212,0.1)] pointer-events-none" />
-      <div className="absolute top-4 right-4 w-16 h-16 border-r-2 border-t-2 border-amber-500/60 rounded-tr-xl shadow-[inset_-4px_4px_10px_rgba(245,158,11,0.1)] pointer-events-none" />
-      <div className="absolute bottom-4 left-4 w-16 h-16 border-l-2 border-b-2 border-amber-500/60 rounded-bl-xl shadow-[inset_4px_-4px_10px_rgba(245,158,11,0.1)] pointer-events-none" />
-      <div className="absolute bottom-4 right-4 w-16 h-16 border-r-2 border-b-2 border-cyan-400/60 rounded-br-xl shadow-[inset_-4px_-4px_10px_rgba(6,182,212,0.1)] pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-[3px]" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.8), rgba(139,92,246,0.9), rgba(245,158,11,0.8), transparent)' }} />
+    const cat = rawCatObj
+      ? rawCatObj[1]
+      : {
+          badge: "Verified Creator",
+          badgeLabel: "AUTHENTIC",
+          label: "AUTHENTIC",
+          icon: <Sparkles className="w-4 h-4" />,
+          color: "#60a5fa",
+        };
 
-      {/* HEADER */}
-      <div className="flex justify-between items-center relative z-10 pb-3 border-b border-cyan-900/40 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-cyan-400/50 bg-black/60 shadow-[0_0_25px_rgba(6,182,212,0.3)] backdrop-blur-sm"><img src={AETHER_LOGO} alt="AetherVault" style={{ width: '34px', height: '34px' }} className="drop-shadow-[0_0_10px_rgba(245,158,11,0.8)]" /></div>
-          <div><div className="font-display font-black text-xl tracking-[0.18em] text-white drop-shadow-md">AETHER<span className="text-amber-400">VAULT</span></div><p className="text-[7px] tracking-[0.3em] text-cyan-300/80 uppercase font-mono mt-1 font-bold">Trustless • Verified • Timeless</p></div>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5 bg-neutral-950/90 px-3.5 py-1.5 rounded-full border border-green-500/40 shadow-[0_0_20px_rgba(34,197,94,0.15)]"><div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.9)]" /><span className="text-[8px] font-bold text-green-300 uppercase tracking-widest font-mono">VERIFIED ON-CHAIN</span></div>
-          <div className="bg-neutral-950/90 px-3.5 py-1.5 rounded-full border border-amber-500/40 flex items-center gap-1.5 shadow-[0_0_20px_rgba(245,158,11,0.15)]"><Globe className="w-3 h-3 text-amber-400" /><span className="text-[8px] font-bold text-amber-300 uppercase tracking-widest font-mono">BNB CHAIN</span></div>
-        </div>
-      </div>
+    const CatIcon = cat.icon
+      ? React.cloneElement(cat.icon, {
+          className: "w-4 h-4",
+          style: { color: cat.color },
+        })
+      : <Sparkles className="w-4 h-4" style={{ color: cat.color }} />;
 
-      {/* TITLE */}
-      <div className="text-center relative z-10 shrink-0 my-2">
-        <div className="inline-flex items-center gap-2 mb-1">
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-[10px] tracking-[0.4em] text-cyan-200/80 uppercase font-mono font-bold">Non-Fungible Token Certificate</span>
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-        </div>
-        <h2 className="text-[34px] font-black tracking-[0.15em] font-display text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-white to-amber-300" style={{ textShadow: '0 0 40px rgba(6,182,212,0.4)' }}>CERTIFICATE OF AUTHENTICITY</h2>
-      </div>
+    const title = proofData?.title || "Aether Proof™";
+    const creator = proofData?.creator || "Unknown Creator";
+    const owner = formatAddress
+      ? formatAddress(proofData?.wallet || "0x00...00")
+      : proofData?.wallet || "0x00...00";
+    const tokenId = proofData?.tokenId || "PENDING";
+    const certificateId = proofData?.id || tokenId;
+    const date = proofData?.date || new Date().toLocaleDateString("en-GB");
+    const network = proofData?.network || "BSC Testnet";
+    const contract = formatAddress
+        ? formatAddress(proofData?.contract || "0x0000000000000000000000000000000000000000")
+        : proofData?.contract || "0x0000000000000000000000000000000000000000";
+    const fileHash = proofData?.fileHash || "Awaiting verification";
+    const verifyUrl = proofData?.verifyUrl || "https://aethvault.xyz";
 
-      {/* STRUKTUR UTAMA */}
-      <div className="flex flex-col gap-2.5 relative z-10 flex-1 justify-center my-0.5">
-        
-        {/* BARIS 1: ASSET INFO */}
-        <div className="flex gap-4 items-stretch">
-          <div className="w-[125px] shrink-0 rounded-2xl border border-violet-500/40 relative overflow-hidden flex items-center justify-center bg-black/40 shadow-[inset_0_0_30px_rgba(139,92,246,0.2)]">
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-purple-500/10"></div>
-            <img src={AETHER_LOGO} alt="Emblem" className="relative z-10 object-contain drop-shadow-[0_0_25px_rgba(245,158,11,0.8)] av-float" style={{ width: '60px', height: '60px' }} />
+    const badgeText = cat.badgeLabel || cat.label?.toUpperCase() || cat.badge || "AUTHENTIC";
+
+    return (
+      <div
+        id="cert-export-node"
+        ref={ref}
+        className="
+          relative mx-auto shrink-0 overflow-hidden
+          w-[1200px] h-[760px]
+          rounded-[28px]
+          border border-amber-300/20
+          bg-[#020207] text-white
+          font-sans
+          shadow-[0_0_100px_rgba(0,0,0,.95)]
+        "
+      >
+        <style>{`
+          @keyframes av-orbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes av-orbit-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+          }
+          @keyframes av-logo-pulse {
+            0%,100% {
+              transform: scale(0.97);
+              filter: drop-shadow(0 0 12px rgba(251,191,36,.35));
+            }
+            50% {
+              transform: scale(1.035);
+              filter: drop-shadow(0 0 30px rgba(251,191,36,.9));
+            }
+          }
+          @keyframes av-sweep {
+            0%,55% { transform: translateX(-150%) skewX(-18deg); opacity:0; }
+            65% { opacity:.65; }
+            90%,100% { transform: translateX(260%) skewX(-18deg); opacity:0; }
+          }
+          @keyframes av-pulse {
+            0%,100% { opacity:.35; transform:scale(.96); }
+            50% { opacity:.9; transform:scale(1.04); }
+          }
+          @keyframes av-dot {
+            from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+          }
+          .av-orbit { animation: av-orbit 13s linear infinite; }
+          .av-orbit-reverse { animation: av-orbit-reverse 9s linear infinite; }
+          .av-logo-pulse { animation: av-logo-pulse 3.8s ease-in-out infinite; }
+          .av-sweep { animation: av-sweep 5s ease-in-out infinite; }
+          .av-pulse { animation: av-pulse 3.5s ease-in-out infinite; }
+          .av-dot { animation: av-dot 7s linear infinite; }
+          @media (prefers-reduced-motion: reduce) {
+            .av-orbit,.av-orbit-reverse,.av-logo-pulse,.av-sweep,.av-pulse,.av-dot {
+              animation:none !important;
+            }
+          }
+        `}</style>
+
+        {/* BACKGROUND */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 58% 45%, rgba(124,58,237,.12), transparent 28%), radial-gradient(circle at 90% 80%, rgba(6,182,212,.08), transparent 28%), radial-gradient(circle at 20% 10%, rgba(251,191,36,.07), transparent 24%), linear-gradient(135deg,#020207 0%,#080812 48%,#010105 100%)" }} />
+        <div className="absolute inset-0 opacity-[.08] pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)", backgroundSize: "32px 32px" }} />
+        <div className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-violet-600/10 blur-[130px]" />
+        <div className="absolute -bottom-48 -right-40 w-[560px] h-[560px] rounded-full bg-cyan-500/10 blur-[140px]" />
+        <div className="absolute inset-[14px] rounded-[22px] border border-amber-300/15 pointer-events-none" />
+        <div className="absolute inset-[22px] rounded-[18px] border border-white/[.035] pointer-events-none" />
+        <div className="absolute top-[22px] left-[22px] w-12 h-12 border-t-2 border-l-2 border-amber-300/70 rounded-tl-xl" />
+        <div className="absolute top-[22px] right-[22px] w-12 h-12 border-t-2 border-r-2 border-amber-300/70 rounded-tr-xl" />
+        <div className="absolute bottom-[22px] left-[22px] w-12 h-12 border-b-2 border-l-2 border-amber-300/70 rounded-bl-xl" />
+        <div className="absolute bottom-[22px] right-[22px] w-12 h-12 border-b-2 border-r-2 border-amber-300/70 rounded-br-xl" />
+
+        {/* HEADER */}
+        <div className="absolute top-[48px] left-[58px] right-[58px] flex items-center justify-between z-20">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/[.035] border border-white/[.1] flex items-center justify-center shadow-[inset_0_0_24px_rgba(255,255,255,.03)]">
+              <img src={AETHER_LOGO} alt="AetherVault" className="w-8 h-8 object-contain" />
+            </div>
+            <div>
+              <div className="font-black tracking-[.22em] text-[21px]">AETHER<span className="text-amber-300">VAULT</span></div>
+              <div className="text-[8px] tracking-[.42em] text-neutral-500 font-mono mt-1">TRUSTLESS • VERIFIED • TIMELESS</div>
+            </div>
           </div>
+          <div className="flex items-center gap-3">
+            <div className="px-4 py-2 rounded-full bg-emerald-500/[.07] border border-emerald-400/30 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(52,211,153,.8)]" />
+              <span className="text-[9px] font-bold tracking-[.18em] text-emerald-300">VERIFIED ON-CHAIN</span>
+            </div>
+            <div className="px-4 py-2 rounded-full bg-amber-500/[.06] border border-amber-300/25">
+              <span className="text-[9px] font-bold tracking-[.18em] text-amber-200">{String(network).toUpperCase()}</span>
+            </div>
+          </div>
+        </div>
 
-          <div className="flex-1 bg-[#05030F]/70 border border-cyan-900/50 rounded-2xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.5)] backdrop-blur-md flex flex-col justify-between font-mono relative overflow-hidden">
-            <div className="absolute right-0 top-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl"></div>
-            <div className="flex justify-between items-start mb-1 relative z-10">
-              <div className="flex-1 pr-3">
-                <p className="text-[8px] uppercase tracking-[0.3em] text-cyan-500/80 mb-0.5 font-bold">Asset Title</p>
-                <p className="text-white font-bold text-sm sm:text-base line-clamp-1 drop-shadow-sm">{proofData?.title || 'Aether Proof™'}</p>
+        {/* TITLE */}
+        <div className="absolute top-[132px] left-[58px] z-20">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="w-12 h-px bg-gradient-to-r from-transparent to-amber-300" />
+            <span className="text-[9px] tracking-[.48em] text-cyan-300 uppercase font-mono">Blockchain Verified • NFT Certificate</span>
+          </div>
+          <h1 className="text-[34px] font-black tracking-[.16em] text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-white to-cyan-100">CERTIFICATE OF AUTHENTICITY</h1>
+          <p className="text-[11px] text-neutral-500 tracking-[.18em] mt-2">IMMUTABLE DIGITAL PROOF OF OWNERSHIP & AUTHENTICITY</p>
+        </div>
+
+        {/* LEFT DATA PANEL */}
+        <div className="absolute left-[58px] top-[238px] w-[560px] h-[390px] z-20 rounded-[24px] border border-white/[.08] bg-white/[.025] backdrop-blur-xl p-6 shadow-[0_20px_60px_rgba(0,0,0,.35)]">
+          <div className="flex justify-between items-start pb-4 border-b border-white/[.07]">
+            <div className="min-w-0 pr-5">
+              <div className="text-[8px] tracking-[.3em] text-neutral-500 font-bold mb-2">ASSET TITLE</div>
+              <div className="text-[18px] font-bold text-white truncate">{title}</div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-[8px] tracking-[.3em] text-neutral-500 font-bold mb-2">CERTIFICATE ID</div>
+              <div className="px-3 py-1.5 rounded-lg border border-cyan-400/20 bg-cyan-400/[.04] text-cyan-300 text-[11px] font-mono font-bold">#{certificateId}</div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-5 pt-5">
+            <div><div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">CREATOR / USERNAME</div><div className="text-[12px] text-white font-semibold truncate">{creator}</div></div>
+            <div><div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">OWNER WALLET</div><div className="text-[11px] text-neutral-200 font-mono truncate">{owner}</div></div>
+            <div>
+              <div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">CATEGORY / BADGE</div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border" style={{ color: cat.color || "#60a5fa", borderColor: `${cat.color || "#60a5fa"}55`, background: `${cat.color || "#60a5fa"}10` }}>
+                {CatIcon} <span className="text-[9px] font-black tracking-[.18em]">{badgeText}</span>
               </div>
-              <div className="text-right shrink-0">
-                <p className="text-[8px] uppercase tracking-[0.3em] text-cyan-500/80 mb-0.5 font-bold">Certificate ID</p>
-                <p className="text-cyan-400 font-bold text-xs sm:text-sm tracking-wider drop-shadow-[0_0_10px_rgba(6,182,212,0.6)]">
-                  #{proofData?.id || 'PENDING-MINT'}
-                </p>
-              </div>
             </div>
-
-            <div className="mb-2 flex-1 relative z-10">
-              <p className="text-[8px] uppercase tracking-[0.3em] text-cyan-500/80 mb-0.5 font-bold">Description</p>
-              <p className="text-[10px] sm:text-xs text-neutral-300 leading-relaxed line-clamp-2 pr-4">
-                {proofData?.description || 'Authentic digital asset secured and verified permanently on the Binance Smart Chain.'}
-              </p>
-            </div>
-
-            <div className="flex justify-between items-center pt-2.5 border-t border-cyan-900/40 relative z-10">
-              <div className="w-1/4 pr-2"><p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5 font-bold">Creator Name</p><p className="text-neutral-100 font-bold text-[10px] sm:text-xs truncate">{proofData?.creator || 'Unknown Creator'}</p></div>
-              <div className="w-1/4 pr-2"><p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5 font-bold">Owner Wallet</p><p className="text-cyan-100 font-bold text-[10px] sm:text-xs truncate font-mono">{formatAddress(proofData?.wallet || '0x00...00')}</p></div>
-              <div className="w-1/4 pr-2"><p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5 font-bold">Issued On</p><p className="text-neutral-100 font-bold text-[10px] sm:text-xs">{proofData?.date || new Date().toLocaleDateString()} • UTC</p></div>
-              <div className="w-1/4"><p className="text-[7px] uppercase tracking-[0.2em] text-neutral-500 mb-0.5 font-bold">Blockchain</p><p className="text-amber-200 font-bold text-[10px] sm:text-xs truncate drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]">{proofData?.network || 'Binance Smart Chain'}</p></div>
-            </div>
+            <div><div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">ISSUED</div><div className="text-[11px] text-white font-mono">{date}</div></div>
+          </div>
+          <div className="mt-6 pt-5 border-t border-white/[.07]">
+            <div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-2">DESCRIPTION</div>
+            <div className="text-[10px] leading-relaxed text-neutral-300 line-clamp-2">{proofData?.description || "Authentic digital asset secured and verified permanently on the decentralized network."}</div>
+          </div>
+          <div className="absolute bottom-5 left-6 right-6 flex items-center justify-between">
+            <div><div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">TOKEN ID</div><div className="text-[10px] text-cyan-300 font-mono mt-1">#{tokenId}</div></div>
+            <div><div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">CHAIN ID</div><div className="text-[10px] text-amber-200 font-mono mt-1">97</div></div>
+            <div className="max-w-[210px]"><div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">CONTRACT</div><div className="text-[9px] text-neutral-300 font-mono mt-1 truncate">{contract}</div></div>
           </div>
         </div>
 
-        {/* BARIS 2: METADATA */}
-        <div className="bg-[#05030f]/80 rounded-xl py-2.5 px-4 border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.1)] flex items-center gap-3 w-full font-mono shrink-0 relative overflow-hidden">
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)]"></div>
-          <div className="flex items-center gap-2 pr-4 border-r border-cyan-900/50 shrink-0 pl-1">
-            <Lock className="w-4 h-4 text-cyan-400" />
-            <p className="text-[8px] uppercase tracking-[0.3em] text-cyan-400 font-bold leading-tight drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]">On-Chain<br/>Metadata</p>
+        {/* RIGHT NFT ARTIFACT */}
+        <div className="absolute right-[58px] top-[226px] w-[470px] h-[430px] z-20">
+          <div className="absolute inset-0 rounded-[30px] border border-cyan-300/15 bg-black/30 shadow-[0_0_80px_rgba(34,211,238,.08)] overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[.04] via-transparent to-violet-500/[.06]" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
           </div>
-          <div className="flex-1 flex justify-between items-center text-[10px] sm:text-xs">
-            <div className="flex items-center gap-2 w-[15%]"><Hash className="w-3.5 h-3.5 text-neutral-400 shrink-0" /><div className="min-w-0"><p className="text-[7px] text-neutral-500 uppercase font-bold">Token ID</p><p className="text-white font-mono truncate font-bold drop-shadow-sm">#{proofData?.tokenId || '0'}</p></div></div>
-            <div className="flex items-center gap-2 w-[15%]"><Cpu className="w-3.5 h-3.5 text-neutral-400 shrink-0" /><div className="min-w-0"><p className="text-[7px] text-neutral-500 uppercase font-bold">Chain ID</p><p className="text-white font-mono truncate font-bold drop-shadow-sm">97</p></div></div>
-            <div className="flex items-center gap-2 w-[25%] pr-2"><FileDigit className="w-3.5 h-3.5 text-neutral-400 shrink-0" /><div className="min-w-0 w-full"><p className="text-[7px] text-neutral-500 uppercase font-bold">Contract</p><p className="text-cyan-300 font-mono text-[10px] truncate w-full font-bold">{formatAddress(proofData?.contract || AETHER_VAULT_ADDRESS)}</p></div></div>
-            <div className="flex items-center gap-2 w-[45%]"><Code2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" /><div className="min-w-0 w-full"><p className="text-[7px] text-neutral-500 uppercase font-bold">Tx Hash (SHA-256)</p><p className="text-cyan-300 font-mono text-[10px] truncate w-full font-bold">{proofData?.fileHash || 'Calculating...'}</p></div></div>
+          <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full bg-amber-400/[.07] blur-[55px] av-pulse" />
+          <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[210px] h-[210px] rounded-full bg-violet-500/[.08] blur-[45px]" />
+          <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[290px] h-[290px] rounded-full border border-cyan-300/15 av-orbit"><div className="absolute -top-1 left-1/2 w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,1)]" /></div>
+          <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[230px] h-[230px] rounded-full border border-amber-300/20 border-dashed av-orbit-reverse"><div className="absolute top-1/2 -right-1 w-2 h-2 rounded-full bg-amber-300 shadow-[0_0_18px_rgba(251,191,36,1)]" /></div>
+          <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[164px] h-[164px] rounded-full bg-black/80 border border-amber-200/20 flex items-center justify-center shadow-[inset_0_0_45px_rgba(251,191,36,.08),0_0_50px_rgba(251,191,36,.12)]">
+            <div className="absolute inset-3 rounded-full border border-white/[.07]" />
+            <div className="absolute inset-5 rounded-full border border-cyan-300/20 av-orbit-reverse" />
+            <div className="absolute inset-8 rounded-full bg-amber-300/[.06] blur-xl av-pulse" />
+            <img src={AETHER_LOGO} alt="AetherVault AETH" className="relative z-10 w-[86px] h-[86px] object-contain av-logo-pulse" />
+          </div>
+          <div className="absolute top-[18px] left-1/2 -translate-x-1/2">
+            <div className="flex items-center gap-2 px-5 py-2 rounded-full border backdrop-blur-xl shadow-[0_0_25px_rgba(255,255,255,.06)]" style={{ color: cat.color || "#60a5fa", borderColor: `${cat.color || "#60a5fa"}66`, background: `${cat.color || "#60a5fa"}12` }}>
+              {CatIcon} <span className="text-[10px] font-black tracking-[.25em]">{badgeText}</span>
+            </div>
+          </div>
+          <div className="absolute bottom-[18px] left-[28px]"><div className="text-[7px] tracking-[.32em] text-neutral-600 font-bold">DIGITAL ARTIFACT</div><div className="text-[12px] text-white font-bold mt-1">AETHERVAULT PROOF</div></div>
+          <div className="absolute bottom-[18px] right-[28px] text-right"><div className="text-[7px] tracking-[.32em] text-neutral-600 font-bold">SERIAL</div><div className="text-[11px] text-amber-200 font-mono font-bold mt-1">#{certificateId}</div></div>
+        </div>
+
+        {/* QR + VERIFICATION STRIP */}
+        <div className="absolute left-[58px] right-[58px] bottom-[50px] z-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl border border-emerald-400/20 bg-emerald-400/[.04] flex items-center justify-center"><ShieldCheck className="w-4 h-4 text-emerald-300" /></div>
+            <div><div className="text-[8px] tracking-[.28em] text-neutral-600 font-bold">AUTHENTICITY STATUS</div><div className="text-[10px] text-emerald-300 font-bold tracking-[.12em] mt-1">100% VERIFIABLE ON-CHAIN</div></div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right"><div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">VERIFY CERTIFICATE</div><div className="text-[8px] text-cyan-300 font-mono mt-1">SCAN TO VERIFY</div></div>
+            <div className="w-[66px] h-[66px] rounded-xl bg-white p-1.5 shadow-[0_0_30px_rgba(34,211,238,.12)]"><QRCode value={verifyUrl} size={54} bgColor="#ffffff" fgColor="#050505" level="Q" /></div>
           </div>
         </div>
 
-        {/* BARIS 3: SERIAL, 100% ON-CHAIN, AUTHENTIC, QR CODE */}
-        <div className="flex gap-4 font-mono shrink-0 items-center">
-          <div className="flex-1 bg-gradient-to-r from-[#05030F]/90 to-[#0A0714]/90 border rounded-2xl p-4 flex items-center justify-between shadow-[0_8px_30px_rgba(0,0,0,0.6)] relative overflow-hidden" style={{ borderColor: cat.color ? `${cat.color}60` : '#3b82f660' }}>
-            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ background: `radial-gradient(circle at right, ${cat.color || '#3b82f6'}, transparent 60%)` }} />
-            
-            <div className="relative z-10">
-              <p className="text-[8px] text-neutral-500 uppercase tracking-widest font-bold">Certificate Serial</p>
-              <p className="text-sm sm:text-lg font-bold mt-0.5 font-mono text-white drop-shadow-md">#{proofData?.id || proofData?.tokenId || 'PENDING-MINT'}</p>
-            </div>
-            
-            {/* TULISAN 100% ON-CHAIN DI TENGAH */}
-            <div className="relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-black/50 border border-cyan-500/40 text-cyan-300 text-[10px] font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.25)] backdrop-blur-md">
-              <Shield className="w-4 h-4 text-cyan-400 animate-pulse" /> 100% On-Chain
-            </div>
-
-            {/* AUTHENTIC BADGE */}
-            <div className="relative av-badge-pulse z-10" style={{ color: cat.color || '#3b82f6' }}>
-               <div className="flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 font-bold text-xs tracking-[0.15em] shadow-[0_0_20px_currentColor] backdrop-blur-md" style={{ background: cat.bg || 'rgba(59,130,246,0.15)', borderColor: cat.border || '#3b82f6', color: cat.color || '#60a5fa' }}>
-                 {CatIcon} <span>{cat.badgeLabel || cat.label?.toUpperCase() || 'AUTHENTIC'}</span>
-               </div>
-            </div>
-          </div>
-
-          {/* QR CODE */}
-          <div className="w-[105px] bg-gradient-to-br from-neutral-800 to-black border border-neutral-700 rounded-2xl p-2.5 flex items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.8)] shrink-0">
-            <div className="w-[82px] h-[82px] bg-white p-1.5 rounded-xl shadow-inner flex items-center justify-center">
-              <QRCode value={proofData?.verifyUrl || "https://aethvault.xyz"} size={70} bgColor="#ffffff" fgColor="#0A0714" level="Q" />
-            </div>
-          </div>
+        <div className="absolute bottom-[25px] left-[58px] right-[58px] flex items-center justify-between text-[7px] font-mono tracking-[.22em] text-neutral-600 z-20">
+          <span>VERIFIABLE • IMMUTABLE • FOREVER</span><span className="text-amber-300/70">POWERED BY AETHERVAULT PROTOCOL</span><span>{String(fileHash).slice(0, 22)}...</span>
         </div>
-
+        <div className="absolute top-0 bottom-0 left-0 w-[120px] bg-gradient-to-r from-transparent via-white/[.07] to-transparent skew-x-[-18deg] pointer-events-none av-sweep" />
       </div>
-
-      {/* FOOTER - Rapat ke siku & Animasi aktif */}
-      <div className="relative z-10 pt-3 pb-1 border-t border-cyan-900/40 flex flex-row items-center justify-between px-1.5 shrink-0">
-        <div className="pl-0.5">
-          <p className="text-[8px] uppercase tracking-[0.3em] text-cyan-500/80 font-mono font-bold">Powered By</p>
-          <div className="flex items-center gap-1.5 mt-1">
-            <Hexagon className="w-4 h-4 text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]" />
-            <p className="text-[11px] font-bold text-white font-display tracking-wider drop-shadow-sm">AETHERVAULT PROTOCOL</p>
-          </div>
-        </div>
-
-        <div className="text-center">
-          <div className="relative w-16 h-12 mx-auto mb-1 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border border-amber-500/30 animate-spin" style={{ animationDuration: '6s' }} />
-            <ShieldCheck className="w-7 h-7 text-amber-500 drop-shadow-[0_0_12px_rgba(245,158,11,0.9)] av-float" />
-          </div>
-          <div className="font-signature text-2xl text-amber-200/90 tracking-wider drop-shadow-md" style={{ fontFamily: "'Brush Script MT', cursive" }}>AetherVault</div>
-          <div className="w-28 border-b border-amber-700/50 my-1 mx-auto" />
-          <p className="text-[7px] uppercase tracking-[0.3em] text-neutral-400 font-mono font-bold">Authorized Signature</p>
-        </div>
-
-        <div className="text-right pr-0.5">
-          <p className="text-[8px] uppercase tracking-[0.3em] text-cyan-500/80 font-mono font-bold">Network</p>
-          <div className="flex items-center justify-end gap-1.5 mt-1">
-            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
-            <span className="text-[9px] font-mono text-amber-300 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/40 font-bold shadow-[0_0_10px_rgba(245,158,11,0.2)]">BSC TESTNET</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
+    );
+  }
+);
 CertificateTemplate.displayName = "CertificateTemplate";
 
 // =========================================================
-// MAIN COMPONENT: AETHER PROOF HUB (UTUH LENGKAP)
+// MAIN COMPONENT: AETHER PROOF HUB
 // =========================================================
 export default function AetherProofHub({ handleViewCertificate, setActiveTab, address, TARGET_CHAIN_NAME }) {
   const { t: globalT } = useLanguage();
@@ -198,7 +269,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const certificateRef = useRef(null);
 
   const previewScrollRef = useRef(null);
-  const [previewZoom, setPreviewZoom] = useState(0.8);
+  const [previewZoom, setPreviewZoom] = useState(0.65); // Default zoom diperkecil karena dimensinya sekarang besar (1200px)
   const [isDraggingPreview, setIsDraggingPreview] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
@@ -488,24 +559,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       
-      <style>{`
-        @keyframes av-ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes av-ring-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-        @keyframes av-light-sweep { 0%, 55% { transform: translateX(-140%) skewX(-18deg); opacity: 0; } 65% { opacity: .8; } 82%, 100% { transform: translateX(140%) skewX(-18deg); opacity: 0; } }
-        @keyframes av-logo-pulse { 0%, 100% { filter: drop-shadow(0 0 16px rgba(245,158,11,.45)); transform: scale(1); } 50% { filter: drop-shadow(0 0 28px rgba(245,158,11,.85)); transform: scale(1.025); } }
-        @keyframes av-orbit-dot { from { transform: rotate(0deg) translateX(43px) rotate(0deg); } to { transform: rotate(360deg) translateX(43px) rotate(-360deg); } }
-        @keyframes av-badge-pulse { 0%, 100% { box-shadow: 0 0 12px currentColor, inset 0 1px 0 rgba(255,255,255,.08); } 50% { box-shadow: 0 0 24px currentColor, inset 0 1px 0 rgba(255,255,255,.14); } }
-        @keyframes av-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-        .av-ring-spin { animation: av-ring-spin 12s linear infinite; }
-        .av-ring-reverse { animation: av-ring-reverse 8s linear infinite; }
-        .av-light-sweep { animation: av-light-sweep 4.5s ease-in-out infinite; }
-        .av-logo-pulse { animation: av-logo-pulse 3.8s ease-in-out infinite; }
-        .av-badge-pulse { animation: av-badge-pulse 2.8s ease-in-out infinite; }
-        .av-orbit-dot { animation: av-orbit-dot 6s linear infinite; }
-        .av-float { animation: av-float 3s ease-in-out infinite; }
-        @media (prefers-reduced-motion: reduce) { .av-ring-spin, .av-ring-reverse, .av-light-sweep, .av-logo-pulse, .av-badge-pulse, .av-orbit-dot, .av-float { animation: none !important; } }
-      `}</style>
-
+      {/* TAMPILAN HUB UTAMA */}
       {view === 'hub' && (
         <>
           <div className="bg-gradient-to-br from-[#0B0817] via-[#0d091e] to-[#05030F] border border-cyan-900/40 p-6 sm:p-10 rounded-3xl shadow-[0_0_40px_rgba(6,182,212,0.1)] relative overflow-hidden">
@@ -779,14 +833,14 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
               style={{ minHeight: '680px' }}
             >
               <div 
-                className="mx-auto shadow-[0_0_60px_rgba(0,0,0,0.8)] border border-neutral-800 rounded-2xl shrink-0 transition-transform duration-200"
+                className="mx-auto shadow-[0_0_60px_rgba(0,0,0,0.8)] rounded-[28px] shrink-0 transition-transform duration-200"
                 style={{ 
                   transform: `scale(${previewZoom})`, 
-                  width: '890px', 
-                  height: '660px',
-                  marginBottom: `${(previewZoom > 1 ? (previewZoom - 1) * 660 : 0)}px`,
-                  marginRight: `${(previewZoom > 1 ? (previewZoom - 1) * 890 : 0)}px`,
-                  transformOrigin: 'center'
+                  width: '1200px', 
+                  height: '760px',
+                  marginBottom: `${(previewZoom > 1 ? (previewZoom - 1) * 760 : 0)}px`,
+                  marginRight: `${(previewZoom > 1 ? (previewZoom - 1) * 1200 : 0)}px`,
+                  transformOrigin: 'top center'
                 }}
               >
                 <CertificateTemplate 
@@ -834,8 +888,8 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
           <h3 className="text-2xl sm:text-3xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300 mb-2 text-center tracking-wide">Aether Proof Minted Successfully!</h3>
           <p className="text-neutral-400 text-sm mb-6 font-mono">Your digital asset is now permanently secured on the blockchain.</p>
           
-          <div className="w-full max-w-[950px] overflow-x-auto custom-scrollbar shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl border border-neutral-800 bg-[#030208] p-4 sm:p-8">
-             <div className="mx-auto" style={{ width: '890px' }}>
+          <div className="w-full max-w-[1000px] overflow-x-auto custom-scrollbar shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl border border-neutral-800 bg-[#030208] p-4 sm:p-8">
+             <div className="mx-auto" style={{ width: '1200px' }}>
                <CertificateTemplate 
                   ref={certificateRef}
                   tDash={tDash}
