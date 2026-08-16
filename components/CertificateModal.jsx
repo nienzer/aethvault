@@ -184,8 +184,9 @@ export default function CertificateModal({ selectedCertificate, setSelectedCerti
           </div>
         </div>
         <div className="w-full flex flex-wrap items-center justify-center gap-4 p-5 border-t border-cyan-900/50 bg-black/40">
-          <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 text-xs font-bold transition-all shadow-sm cursor-pointer"><Download className="w-4 h-4" /> Save PDF</button>
-          <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-300 text-xs font-bold transition-all shadow-sm cursor-pointer"><ImageIcon className="w-4 h-4" /> Save PNG</button>
+          <button onClick={() => window.print()} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-bold transition-all cursor-pointer shadow-lg">
+            <Download className="w-4 h-4" /> Cetak / Save ke PDF (HD)
+          </button>
         </div>
       </div>
     </div>
