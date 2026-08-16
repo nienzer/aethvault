@@ -1,525 +1,442 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Award, Globe, Music, Code2, Palette, BookOpen, Camera, Film, Search, ExternalLink, ShieldCheck, Database, Blocks, Users, Copy, Check, Hexagon, Crown, Flame, Sparkles, Gem, Layers, Loader2, ArrowUpRight, Lock, Box, Microscope, HardDrive, Activity, Zap, Building2, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Award, Search, Filter, Eye, Hash, Calendar, Hexagon, ShieldCheck, Loader2, X, Download, Image as ImageIcon, ExternalLink, Globe, Sparkles, Box, Building2, Camera, Code2, Film, Microscope, Music, Palette, Scale, BookOpen, CheckCircle2 } from 'lucide-react';
 import { ethers } from 'ethers';
+import QRCode from 'react-qr-code';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
-// PASTIKAN ALAMAT INI SAMA DENGAN YANG ADA DI page_2.jsx / page.tsx BOS
+const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
 const AETHER_VAULT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265";
-const AETHER_VAULT_ABI = [
-  "function totalProofs() external view returns (uint256)",
-  "function getProofDetails(uint256 _tokenId) external view returns (tuple(string category, bytes32 fileHash, bool isPublic, uint256 timestamp))",
-  "function tokenURI(uint256 tokenId) external view returns (string)",
-  "event ProofMinted(uint256 indexed tokenId, address indexed creator, string category, bool isPublic, bytes32 fileHash, string tokenURI, uint256 blockNumber)"
-];
+const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
-export default function HallOfProof({ handleViewCertificate, setActiveTab }) {
-  const { t: globalT } = useLanguage();
-  const tHop = globalT.hallOfProof || {};
-  const tDash = globalT.dashboard || {};
-  const tStats = globalT.globalStats || {};
+const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Unknown';
 
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [copiedId, setCopiedId] = useState(null);
+// =========================================================
+// SUNTIKAN: PREMIUM WEB3 NFT CERTIFICATE (SAMA PERSIS DGN HUB)
+// =========================================================
+const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHER_LOGO = "/logo.png" }, ref) => {
+  const catKey = (proofData?.category || "Software").toLowerCase().trim();
+  const rawCatObj = categoryConfig ? Object.entries(categoryConfig).find(([key]) => key.toLowerCase() === catKey) : null;
+  
+  const cat = rawCatObj ? rawCatObj[1] : { badge: "Verified Creator", badgeLabel: "AUTHENTIC", label: "AUTHENTIC", icon: <Sparkles className="w-4 h-4" />, color: "#60a5fa" };
+  const CatIcon = cat.icon ? React.cloneElement(cat.icon, { className: "w-4 h-4", style: { color: cat.color } }) : <Sparkles className="w-4 h-4" style={{ color: cat.color }} />;
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null); // ⚡ FIX 7: Error State untuk UI Fallback
-  const [loadingStepText, setLoadingStepText] = useState(tHop.syncing || 'Syncing Registry...');
-  const [publicProofs, setPublicProofs] = useState([]);
-  const [stats, setStats] = useState({ totalProofs: 0, creators: 0, burned: 0, blocks: "0", filesTb: 0 });
-  const [latestBlocks, setLatestBlocks] = useState([]);
+  const title = proofData?.title || "Aether Proof™";
+  const creator = proofData?.creator || "Unknown Creator";
+  const owner = proofData?.wallet ? formatAddressFunc(proofData.wallet) : "0x00...00";
+  const tokenId = proofData?.tokenId || "PENDING";
+  const certificateId = proofData?.id || tokenId;
+  const date = proofData?.date || new Date().toLocaleDateString("en-GB");
+  const network = proofData?.network || "BSC Testnet";
+  const contract = proofData?.contract ? formatAddressFunc(proofData.contract) : "0x00...00";
+  const fileHash = proofData?.fileHash || "Awaiting verification";
+  const verifyUrl = proofData?.verifyUrl || "https://aethvault.xyz";
 
-  // ⚡ FIX 1: Gunakan useRef untuk tHop & tDash agar tidak memicu Infinite Loop
-  const tHopRef = useRef(tHop);
-  const tDashRef = useRef(tDash);
-
-  useEffect(() => {
-    tHopRef.current = tHop;
-    tDashRef.current = tDash;
-  }, [tHop, tDash]);
-
-  const copyToClipboard = (text, id) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  useEffect(() => {
-    if (!isLoading) return;
-    const steps = [
-      tHop.syncing || "Syncing Registry...",
-      tHop.reading || "Reading Binance Smart Chain...",
-      tHop.verifying || "Verifying Hashes...",
-      tHop.loading || "Loading Certificates..."
-    ];
-    let index = 0;
-    const interval = setInterval(() => {
-      index = (index + 1) % steps.length;
-      setLoadingStepText(steps[index]);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isLoading, tHop.syncing, tHop.reading, tHop.verifying, tHop.loading]);
-
-  useEffect(() => {
-    const fetchOnChainData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const provider = new ethers.JsonRpcProvider("https://bsc-testnet-rpc.publicnode.com");
-
-        const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AETHER_VAULT_ABI, provider);
-        
-        const total = await contract.totalProofs();
-        const totalNum = Number(total);
-        const blockNum = await provider.getBlockNumber();
-
-        // ⚡ FIX 2: Limit range mundur 1900 blok agar aman dari penolakan RPC BSC Testnet
-        const DEPLOY_BLOCK = 43345845;
-        const startBlock = Math.max(DEPLOY_BLOCK, blockNum - 1900); 
-        
-        let events = [];
-        try {
-          events = await contract.queryFilter(contract.filters.ProofMinted(), startBlock, "latest");
-        } catch (e) {
-          console.warn("Gagal menarik events, melanjutkan proses...", e);
-        }
-        
-        const ownerMap = {};
-        const blockCounts = {}; 
-        if (events && events.length) {
-          events.forEach(ev => {
-            if (ev.args && ev.args[0] && ev.args[1]) {
-              ownerMap[ev.args[0].toString()] = ev.args[1];
-            }
-            const bNum = ev.blockNumber;
-            if (bNum) blockCounts[bNum] = (blockCounts[bNum] || 0) + 1;
-          });
-        }
-
-        const sortedBlocks = Object.keys(blockCounts).sort((a, b) => b - a).slice(0, 5);
-        const blocksTimeline = sortedBlocks.map(bNumStr => {
-           const bNum = Number(bNumStr);
-           const diffBlocks = blockNum - bNum;
-           const diffMins = Math.max(1, Math.floor((diffBlocks * 3) / 60)); 
-           return {
-             blockNumber: bNum.toLocaleString(),
-             proofsCount: blockCounts[bNumStr],
-             timeAgo: diffBlocks < 20 ? "Just now" : `${diffMins} mins ago`
-           };
-        });
-        setLatestBlocks(blocksTimeline);
-
-        let fetchedProofs = [];
-        let uniqueOwners = new Set();
-        let totalEstimatedCost = 0;
-
-        const limit = Math.min(totalNum, 15);
-        for (let i = totalNum; i > totalNum - limit && i > 0; i--) {
-          try {
-            const details = await contract.getProofDetails(i);
-            const rawCat = details.category || "General";
-            
-            let iconComponent = <Box className="w-8 h-8" />;
-            // ⚡ FIX 5: Tautan Fallback image yang valid
-            let imageBg = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2832&auto=format&fit=crop";
-            let cost = 10;
-
-            if (rawCat === "Music") { iconComponent = <Music className="w-8 h-8 text-purple-400" />; cost = 50; }
-            else if (rawCat === "Software") { iconComponent = <Code2 className="w-8 h-8 text-blue-400" />; cost = 200; }
-            else if (rawCat === "Design") { iconComponent = <Palette className="w-8 h-8 text-fuchsia-400" />; cost = 10; }
-            else if (rawCat === "Writing") { iconComponent = <BookOpen className="w-8 h-8 text-amber-400" />; cost = 10; }
-            else if (rawCat === "Video") { iconComponent = <Film className="w-8 h-8 text-rose-400" />; cost = 50; }
-            else if (rawCat === "Research") { iconComponent = <Microscope className="w-8 h-8 text-emerald-400" />; cost = 200; }
-            else if (rawCat === "Business") { iconComponent = <Building2 className="w-8 h-8 text-yellow-400" />; cost = 500; }
-
-            try {
-              const tokenUri = await contract.tokenURI(i);
-              if (tokenUri && tokenUri.startsWith('data:application/json;base64,')) {
-                const base64Data = tokenUri.split(',')[1];
-                // ⚡ FIX 3: Dekode Unicode/Emoji paling aman pakai TextDecoder murni JS
-                const binaryString = atob(base64Data);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let j = 0; j < binaryString.length; j++) {
-                  bytes[j] = binaryString.charCodeAt(j);
-                }
-                const decodedJson = new TextDecoder().decode(bytes);
-                const metadata = JSON.parse(decodedJson);
-                if (metadata.image) {
-                  imageBg = metadata.image; 
-                }
-              }
-            } catch (uriErr) {
-              console.log(`Menggunakan fallback image untuk Proof #${i}`);
-            }
-
-            totalEstimatedCost += (cost * 0.2); 
-
-            const timestampMs = Number(details.timestamp || Math.floor(Date.now() / 1000)) * 1000;
-            const diffMs = Date.now() - timestampMs;
-            const diffMins = Math.floor(diffMs / (1000 * 60));
-            const diffHours = Math.floor(diffMins / 60);
-            
-            // Menggunakan useRef agar aman dari depedency array
-            const timeAgoStr = diffMins < 1 
-              ? (tDashRef.current.statJustNow || "Just now") 
-              : diffMins < 60 
-                ? `${diffMins} ${(tDashRef.current.statMinsAgo || "mins ago")}` 
-                : diffHours < 24 
-                  ? `${diffHours} ${(tDashRef.current.statHrsAgo || "hours ago")}` 
-                  : `${Math.floor(diffHours / 24)} ${(tHopRef.current.daysAgo || "days ago")}`;
-
-            const ownerAddress = ownerMap[i.toString()] || "0xUnknown";
-            if (ownerAddress !== "0xUnknown") uniqueOwners.add(ownerAddress);
-
-            const badges = ["Verified"];
-            if (i <= 100) badges.push("Genesis");
-            if (i === totalNum) badges.push("Newest");
-            if (cost >= 200) badges.push("Premium");
-
-            fetchedProofs.push({
-              id: i,
-              tokenId: i.toString(),
-              title: `Aether Proof #${i}`,
-              category: rawCat,
-              ownerFull: ownerAddress,
-              owner: ownerAddress !== "0xUnknown" ? `${ownerAddress.substring(0, 6)}...${ownerAddress.substring(ownerAddress.length - 4)}` : "Creator",
-              date: new Date(timestampMs).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-              timeAgo: timeAgoStr,
-              badges: badges,
-              fileHash: details.fileHash || ethers.ZeroHash,
-              resolvedImage: imageBg,
-              icon: iconComponent,
-              isPublic: details.isPublic
-            });
-
-          } catch (err) {
-            console.error(`Gagal memuat token ID ${i}:`, err);
-          }
-        }
-
-        const publicOnly = fetchedProofs.filter(p => p.isPublic !== false);
-        setPublicProofs(publicOnly);
-        setStats({
-          totalProofs: totalNum,
-          creators: uniqueOwners.size > 0 ? uniqueOwners.size : (totalNum > 0 ? 1 : 0),
-          burned: totalEstimatedCost + (totalNum > 15 ? (totalNum * 15) : 0), 
-          blocks: blockNum.toLocaleString(),
-          filesTb: (totalNum * 0.005).toFixed(2) 
-        });
-
-      } catch (err) {
-        console.error("Kesalahan jaringan/kontrak saat menarik data on-chain:", err);
-        setError("Failed to connect to BSC Testnet. Please try again later."); // ⚡ Set error state
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchOnChainData();
-    // ⚡ FIX 1: Array Kosong [] karena kita pakai useRef (tHopRef, tDashRef)
-  }, []);
-
-  // ⚡ FIX 10: Event listener shortcut Search (Cmd+K / Ctrl+K)
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        document.getElementById('search-input')?.focus();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const categories = ['All', 'Music', 'Software', 'Design', 'Writing', 'Video', 'Research', 'Business'];
-
-  const filteredProofs = publicProofs.filter(item => {
-    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || item.ownerFull.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  const featuredProof = publicProofs.length > 0 ? publicProofs[0] : null;
+  const badgeText = cat.badgeLabel || cat.label?.toUpperCase() || cat.badge || "AUTHENTIC";
 
   return (
-    <div className="relative min-h-screen bg-[#030208] text-white font-sans overflow-hidden">
+    <div id="cert-export-node" ref={ref} className="relative mx-auto shrink-0 overflow-hidden w-[1200px] h-[760px] rounded-[28px] border border-amber-300/20 bg-[#020207] text-white font-sans shadow-[0_0_100px_rgba(0,0,0,.95)]">
+      <style>{`
+        @keyframes av-orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes av-orbit-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+        @keyframes av-logo-pulse { 0%,100% { transform: scale(0.97); filter: drop-shadow(0 0 12px rgba(251,191,36,.35)); } 50% { transform: scale(1.035); filter: drop-shadow(0 0 30px rgba(251,191,36,.9)); } }
+        @keyframes av-sweep { 0%,55% { transform: translateX(-150%) skewX(-18deg); opacity:0; } 65% { opacity:.65; } 90%,100% { transform: translateX(260%) skewX(-18deg); opacity:0; } }
+        @keyframes av-pulse { 0%,100% { opacity:.35; transform:scale(.96); } 50% { opacity:.9; transform:scale(1.04); } }
+        .av-orbit { animation: av-orbit 13s linear infinite; }
+        .av-orbit-reverse { animation: av-orbit-reverse 9s linear infinite; }
+        .av-logo-pulse { animation: av-logo-pulse 3.8s ease-in-out infinite; }
+        .av-sweep { animation: av-sweep 5s ease-in-out infinite; }
+        .av-pulse { animation: av-pulse 3.5s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) { .av-orbit,.av-orbit-reverse,.av-logo-pulse,.av-sweep,.av-pulse { animation:none !important; } }
+      `}</style>
+
+      {/* BACKGROUND */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 58% 45%, rgba(124,58,237,.12), transparent 28%), radial-gradient(circle at 90% 80%, rgba(6,182,212,.08), transparent 28%), radial-gradient(circle at 20% 10%, rgba(251,191,36,.07), transparent 24%), linear-gradient(135deg,#020207 0%,#080812 48%,#010105 100%)" }} />
+      <div className="absolute inset-0 opacity-[.08] pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)", backgroundSize: "32px 32px" }} />
+      <div className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-violet-600/10 blur-[130px]" />
+      <div className="absolute -bottom-48 -right-40 w-[560px] h-[560px] rounded-full bg-cyan-500/10 blur-[140px]" />
+      <div className="absolute inset-[14px] rounded-[22px] border border-amber-300/15 pointer-events-none" />
+      <div className="absolute inset-[22px] rounded-[18px] border border-white/[.035] pointer-events-none" />
+      <div className="absolute top-[22px] left-[22px] w-12 h-12 border-t-2 border-l-2 border-amber-300/70 rounded-tl-xl" />
+      <div className="absolute top-[22px] right-[22px] w-12 h-12 border-t-2 border-r-2 border-amber-300/70 rounded-tr-xl" />
+      <div className="absolute bottom-[22px] left-[22px] w-12 h-12 border-b-2 border-l-2 border-amber-300/70 rounded-bl-xl" />
+      <div className="absolute bottom-[22px] right-[22px] w-12 h-12 border-b-2 border-r-2 border-amber-300/70 rounded-br-xl" />
+
+      {/* HEADER */}
+      <div className="absolute top-[48px] left-[58px] right-[58px] flex items-center justify-between z-20">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/[.035] border border-white/[.1] flex items-center justify-center shadow-[inset_0_0_24px_rgba(255,255,255,.03)]"><img src={AETHER_LOGO} alt="AetherVault" className="w-8 h-8 object-contain" /></div>
+          <div><div className="font-black tracking-[.22em] text-[21px]">AETHER<span className="text-amber-300">VAULT</span></div><div className="text-[8px] tracking-[.42em] text-neutral-500 font-mono mt-1">TRUSTLESS • VERIFIED • TIMELESS</div></div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2 rounded-full bg-emerald-500/[.07] border border-emerald-400/30 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(52,211,153,.8)]" /><span className="text-[9px] font-bold tracking-[.18em] text-emerald-300">VERIFIED ON-CHAIN</span></div>
+          <div className="px-4 py-2 rounded-full bg-amber-500/[.06] border border-amber-300/25"><span className="text-[9px] font-bold tracking-[.18em] text-amber-200">{String(network).toUpperCase()}</span></div>
+        </div>
+      </div>
+
+      {/* TITLE */}
+      <div className="absolute top-[132px] left-[58px] z-20">
+        <div className="flex items-center gap-3 mb-3"><span className="w-12 h-px bg-gradient-to-r from-transparent to-amber-300" /><span className="text-[9px] tracking-[.48em] text-cyan-300 uppercase font-mono">Blockchain Verified • NFT Certificate</span></div>
+        <h1 className="text-[34px] font-black tracking-[.16em] text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-white to-cyan-100">CERTIFICATE OF AUTHENTICITY</h1>
+        <p className="text-[11px] text-neutral-500 tracking-[.18em] mt-2">IMMUTABLE DIGITAL PROOF OF OWNERSHIP & AUTHENTICITY</p>
+      </div>
+
+      {/* LEFT DATA PANEL */}
+      <div className="absolute left-[58px] top-[238px] w-[560px] h-[390px] z-20 rounded-[24px] border border-white/[.08] bg-white/[.025] backdrop-blur-xl p-6 shadow-[0_20px_60px_rgba(0,0,0,.35)]">
+        <div className="flex justify-between items-start pb-4 border-b border-white/[.07]">
+          <div className="min-w-0 pr-5"><div className="text-[8px] tracking-[.3em] text-neutral-500 font-bold mb-2">ASSET TITLE</div><div className="text-[18px] font-bold text-white truncate">{title}</div></div>
+          <div className="text-right shrink-0"><div className="text-[8px] tracking-[.3em] text-neutral-500 font-bold mb-2">CERTIFICATE ID</div><div className="px-3 py-1.5 rounded-lg border border-cyan-400/20 bg-cyan-400/[.04] text-cyan-300 text-[11px] font-mono font-bold">#{certificateId}</div></div>
+        </div>
+        <div className="grid grid-cols-2 gap-x-8 gap-y-5 pt-5">
+          <div><div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">CREATOR / USERNAME</div><div className="text-[12px] text-white font-semibold truncate">{creator}</div></div>
+          <div><div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">OWNER WALLET</div><div className="text-[11px] text-neutral-200 font-mono truncate">{owner}</div></div>
+          <div><div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">CATEGORY / BADGE</div><div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border" style={{ color: cat.color || "#60a5fa", borderColor: `${cat.color || "#60a5fa"}55`, background: `${cat.color || "#60a5fa"}10` }}>{CatIcon} <span className="text-[9px] font-black tracking-[.18em]">{badgeText}</span></div></div>
+          <div><div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-1.5">ISSUED</div><div className="text-[11px] text-white font-mono">{date}</div></div>
+        </div>
+        <div className="mt-6 pt-5 border-t border-white/[.07]">
+          <div className="text-[8px] tracking-[.28em] text-neutral-500 font-bold mb-2">DESCRIPTION</div>
+          <div className="text-[10px] leading-relaxed text-neutral-300 line-clamp-2">{proofData?.description || "Authentic digital asset secured and verified permanently on the decentralized network."}</div>
+        </div>
+        <div className="absolute bottom-5 left-6 right-6 flex items-center justify-between">
+          <div><div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">TOKEN ID</div><div className="text-[10px] text-cyan-300 font-mono mt-1">#{tokenId}</div></div>
+          <div><div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">CHAIN ID</div><div className="text-[10px] text-amber-200 font-mono mt-1">97</div></div>
+          <div className="max-w-[210px]"><div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">CONTRACT</div><div className="text-[9px] text-neutral-300 font-mono mt-1 truncate">{contract}</div></div>
+        </div>
+      </div>
+
+      {/* RIGHT NFT ARTIFACT */}
+      <div className="absolute right-[58px] top-[226px] w-[470px] h-[430px] z-20">
+        <div className="absolute inset-0 rounded-[30px] border border-cyan-300/15 bg-black/30 shadow-[0_0_80px_rgba(34,211,238,.08)] overflow-hidden"><div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[.04] via-transparent to-violet-500/[.06]" /><div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" /></div>
+        <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full bg-amber-400/[.07] blur-[55px] av-pulse" />
+        <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[210px] h-[210px] rounded-full bg-violet-500/[.08] blur-[45px]" />
+        <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[290px] h-[290px] rounded-full border border-cyan-300/15 av-orbit"><div className="absolute -top-1 left-1/2 w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_18px_rgba(103,232,249,1)]" /></div>
+        <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[230px] h-[230px] rounded-full border border-amber-300/20 border-dashed av-orbit-reverse"><div className="absolute top-1/2 -right-1 w-2 h-2 rounded-full bg-amber-300 shadow-[0_0_18px_rgba(251,191,36,1)]" /></div>
+        <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2 w-[164px] h-[164px] rounded-full bg-black/80 border border-amber-200/20 flex items-center justify-center shadow-[inset_0_0_45px_rgba(251,191,36,.08),0_0_50px_rgba(251,191,36,.12)]">
+          <div className="absolute inset-3 rounded-full border border-white/[.07]" />
+          <div className="absolute inset-5 rounded-full border border-cyan-300/20 av-orbit-reverse" />
+          <div className="absolute inset-8 rounded-full bg-amber-300/[.06] blur-xl av-pulse" />
+          <img src={AETHER_LOGO} alt="AetherVault AETH" className="relative z-10 w-[86px] h-[86px] object-contain av-logo-pulse" />
+        </div>
+        <div className="absolute top-[18px] left-1/2 -translate-x-1/2"><div className="flex items-center gap-2 px-5 py-2 rounded-full border backdrop-blur-xl shadow-[0_0_25px_rgba(255,255,255,.06)]" style={{ color: cat.color || "#60a5fa", borderColor: `${cat.color || "#60a5fa"}66`, background: `${cat.color || "#60a5fa"}12` }}>{CatIcon} <span className="text-[10px] font-black tracking-[.25em]">{badgeText}</span></div></div>
+        <div className="absolute bottom-[18px] left-[28px]"><div className="text-[7px] tracking-[.32em] text-neutral-600 font-bold">DIGITAL ARTIFACT</div><div className="text-[12px] text-white font-bold mt-1">AETHERVAULT PROOF</div></div>
+        <div className="absolute bottom-[18px] right-[28px] text-right"><div className="text-[7px] tracking-[.32em] text-neutral-600 font-bold">SERIAL</div><div className="text-[11px] text-amber-200 font-mono font-bold mt-1">#{certificateId}</div></div>
+      </div>
+
+      {/* QR + VERIFICATION STRIP */}
+      <div className="absolute left-[58px] right-[58px] bottom-[50px] z-20 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl border border-emerald-400/20 bg-emerald-400/[.04] flex items-center justify-center"><ShieldCheck className="w-4 h-4 text-emerald-300" /></div>
+          <div><div className="text-[8px] tracking-[.28em] text-neutral-600 font-bold">AUTHENTICITY STATUS</div><div className="text-[10px] text-emerald-300 font-bold tracking-[.12em] mt-1">100% VERIFIABLE ON-CHAIN</div></div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-right"><div className="text-[7px] tracking-[.28em] text-neutral-600 font-bold">VERIFY CERTIFICATE</div><div className="text-[8px] text-cyan-300 font-mono mt-1">SCAN TO VERIFY</div></div>
+          <div className="w-[66px] h-[66px] rounded-xl bg-white p-1.5 shadow-[0_0_30px_rgba(34,211,238,.12)]"><QRCode value={verifyUrl} size={54} bgColor="#ffffff" fgColor="#050505" level="Q" /></div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-[25px] left-[58px] right-[58px] flex items-center justify-between text-[7px] font-mono tracking-[.22em] text-neutral-600 z-20">
+        <span>VERIFIABLE • IMMUTABLE • FOREVER</span><span className="text-amber-300/70">POWERED BY AETHERVAULT PROTOCOL</span><span>{String(fileHash).slice(0, 22)}...</span>
+      </div>
+      <div className="absolute top-0 bottom-0 left-0 w-[120px] bg-gradient-to-r from-transparent via-white/[.07] to-transparent skew-x-[-18deg] pointer-events-none av-sweep" />
+    </div>
+  );
+});
+CertificateTemplate.displayName = "CertificateTemplate";
+
+// =========================================================
+// MAIN COMPONENT: HALL OF PROOF (GALERI EKSPLORER GRID)
+// =========================================================
+export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
+  const { t: globalT } = useLanguage();
+  const tHop = globalT.hallOfProof || {};
+
+  const [proofs, setProofs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  
+  // State untuk Popup Modal Sertifikat
+  const [selectedProof, setSelectedProof] = useState(null);
+  const certificateRef = useRef(null);
+
+  const categoryConfig = {
+    "Writing": { badge: "Verified Author", color: '#22d3ee', icon: <BookOpen className="w-5 h-5 text-cyan-400" /> },
+    "Photography": { badge: "Verified Photographer", color: '#f472b6', icon: <Camera className="w-5 h-5 text-pink-400" /> },
+    "Design": { badge: "Verified Creator", color: '#a78bfa', icon: <Palette className="w-5 h-5 text-purple-400" /> },
+    "Music": { badge: "Verified Artist", color: '#fbbf24', icon: <Music className="w-5 h-5 text-amber-400" /> },
+    "Video": { badge: "Verified Filmmaker", color: '#f87171', icon: <Film className="w-5 h-5 text-rose-400" /> },
+    "Software": { badge: "Verified Developer", color: '#4ade80', icon: <Code2 className="w-5 h-5 text-green-400" /> },
+    "Research": { badge: "Verified Researcher", color: '#60a5fa', icon: <Microscope className="w-5 h-5 text-blue-400" /> },
+    "Business": { badge: "Verified Company", color: '#fb923c', icon: <Building2 className="w-5 h-5 text-orange-400" /> },
+    "Legal": { badge: "Verified Entity", color: '#c084fc', icon: <Scale className="w-5 h-5 text-indigo-400" /> },
+    "Other": { badge: "Verified Creator", color: '#94a3b8', icon: <Box className="w-5 h-5 text-neutral-400" /> }
+  };
+
+  const fetchProofs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+      const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, provider);
       
-      {/* Background Orbs */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgc3Ryb2tlPSIjM0IzQjRCIiBzdHJva2Utd2lkdGg9IjAuNSIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTTAgNDBoNDBNNDAgMHY0MCIvPjwvZz48L3N2Zz4=')] opacity-[0.15]"></div>
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px] mix-blend-screen"></div>
-        <div className="absolute top-40 right-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] mix-blend-screen"></div>
-        <div className="absolute bottom-0 left-1/2 w-[800px] h-[400px] bg-amber-500/5 rounded-full blur-[150px] mix-blend-screen"></div>
-      </div>
-
-      <div className="relative z-10 space-y-12 animate-in fade-in duration-500 pb-20">
+      const filter = contract.filters.ProofMinted();
+      const DEPLOY_BLOCK = 43345845; 
+      const currentBlock = await provider.getBlockNumber();
+      const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 4900); // 4900 blok terakhir agar cepat
+      
+      const events = await contract.queryFilter(filter, startBlock, "latest");
+      
+      const parsedProofs = await Promise.all(events.map(async (ev) => {
+        const block = await provider.getBlock(ev.blockNumber);
+        const args = ev.args;
+        const tokenId = args[0].toString();
+        const category = args[2] || "Software";
         
-        {/* Header Title */}
-        <div className="text-center pt-8 pb-4 space-y-3">
-          <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-neutral-900 border border-neutral-700 text-neutral-300 text-[10px] font-mono font-bold uppercase tracking-widest shadow-lg">
-            <Globe className="w-3.5 h-3.5 text-cyan-400" /> {tHop.galleryBadge || 'Immutable On-Chain Gallery'}
+        // Coba ekstrak data dari tokenURI (Base64 JSON)
+        let extractedTitle = `Aether Proof #${tokenId}`;
+        let extractedDesc = "Aether Proof Immutable Certificate. 100% On-Chain Verification.";
+        let extractedCreator = "Unknown Creator";
+
+        try {
+          const tokenUriRaw = args[3];
+          if (tokenUriRaw && tokenUriRaw.startsWith('data:application/json;base64,')) {
+            const base64Payload = tokenUriRaw.split(',')[1];
+            // Decode dengan aman
+            const jsonString = decodeURIComponent(escape(window.atob(base64Payload)));
+            const metadata = JSON.parse(jsonString);
+            if (metadata.name) extractedTitle = metadata.name;
+            if (metadata.description) extractedDesc = metadata.description;
+            if (metadata.attributes) {
+              const creatorAttr = metadata.attributes.find(a => a.trait_type === "Creator");
+              if (creatorAttr) extractedCreator = creatorAttr.value;
+            }
+          }
+        } catch (e) {
+          console.warn("Gagal parse tokenURI untuk token", tokenId);
+        }
+
+        return {
+          id: tokenId,
+          tokenId: tokenId,
+          title: extractedTitle,
+          description: extractedDesc,
+          category: category,
+          creator: extractedCreator,
+          wallet: args[1], // owner asli
+          fileHash: args[4],
+          contract: AETHER_VAULT_ADDRESS,
+          date: new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          network: TARGET_CHAIN_NAME,
+          txHash: ev.transactionHash,
+          verifyUrl: `https://testnet.bscscan.com/tx/${ev.transactionHash}`
+        };
+      }));
+
+      parsedProofs.reverse(); // Terbaru di atas
+      setProofs(parsedProofs);
+    } catch (error) {
+      console.error("Gagal memuat sertifikat on-chain:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [TARGET_CHAIN_NAME]);
+
+  useEffect(() => {
+    fetchProofs();
+  }, [fetchProofs]);
+
+  const filteredProofs = proofs.filter(p => {
+    const matchSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        p.wallet.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        p.fileHash.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    return matchSearch && matchCategory;
+  });
+
+  // FUNGSI DOWNLOAD (Sama dengan Hub)
+  const handleDownloadPNG = async () => {
+    if (!certificateRef.current || !selectedProof) return;
+    try {
+      const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true, backgroundColor: '#020207' });
+      const link = document.createElement('a');
+      link.download = `AETH-PROOF-${selectedProof.tokenId}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) { console.error("Export PNG gagal", err); }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!certificateRef.current || !selectedProof) return;
+    try {
+      const canvas = await html2canvas(certificateRef.current, { scale: 2, useCORS: true, backgroundColor: '#020207' });
+      const pdf = new jsPDF('l', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, pdfHeight, '', 'FAST');
+      pdf.save(`AETH-PROOF-${selectedProof.tokenId}.pdf`);
+    } catch (err) { console.error("Export PDF gagal", err); }
+  };
+
+  return (
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300 pb-10">
+      
+      {/* HEADER & FILTER */}
+      <div className="bg-gradient-to-br from-[#0B0817] via-[#0d091e] to-[#05030F] border border-cyan-900/40 p-6 sm:p-8 rounded-3xl shadow-[0_0_40px_rgba(6,182,212,0.1)] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -mr-10 -mt-10"></div>
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-cyan-300 tracking-tight">Hall of Proof</h2>
+            <p className="text-sm text-cyan-200/60 mt-2 max-w-xl">Eksplorasi galeri sertifikat aset digital yang telah diverifikasi secara permanen di blockchain.</p>
           </div>
-          <h2 className="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-400 font-display tracking-tight drop-shadow-sm">
-            {tHop.title || 'Hall of Proof™'}
-          </h2>
-          <p className="text-sm sm:text-base text-neutral-400 max-w-2xl mx-auto leading-relaxed">
-            {tHop.desc || 'The World\'s Permanent Registry for Verified Intellectual Property. Explore authentic digital assets secured directly on the Binance Smart Chain.'}
-          </p>
-        </div>
-
-        {/* Global Statistics Top Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {[
-            { label: tHop.totalProofs || "Total Proofs", value: stats.totalProofs.toLocaleString(), icon: Database, color: "text-cyan-400" },
-            { label: "Est. Files Protected", value: `${stats.filesTb} TB`, icon: HardDrive, color: "text-blue-400" },
-            { label: tStats.burn || "Est. AETH Burned", value: stats.burned.toLocaleString(), icon: Flame, color: "text-orange-400" },
-            { label: tHop.creators || "Creators", value: stats.creators.toLocaleString(), icon: Users, color: "text-purple-400" },
-            { label: tHop.categories || "Categories", value: 8, icon: Layers, color: "text-pink-400" },
-            { label: tHop.blocks || "Binance Smart Chain Blocks", value: stats.blocks, icon: Blocks, color: "text-green-400" }
-          ].map((stat, idx) => (
-            <div key={idx} className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl hover:border-neutral-600 transition-colors shadow-lg flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <stat.icon className={`w-4 h-4 ${stat.color}`} />
-              </div>
-              <div>
-                <p className="text-xl font-black text-white font-mono tracking-tight">
-                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin text-neutral-500"/> : stat.value}
-                </p>
-                <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold mt-1">{stat.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Main Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* Active Stream Sidebar */}
-          <div className="lg:col-span-3 space-y-8">
-            <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 rounded-3xl p-6 shadow-xl">
-              <h4 className="font-display text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2 mb-6 border-b border-neutral-800 pb-4">
-                <Activity className="w-4 h-4 text-green-400" /> {tHop.activeStream || 'Active Stream'}
-              </h4>
-              <div className="space-y-4">
-                {isLoading ? (
-                   <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 text-neutral-500 animate-spin" /></div>
-                ) : latestBlocks.length === 0 ? (
-                   <div className="text-center text-xs text-neutral-500 font-mono py-4">No recent blocks found</div>
-                ) : latestBlocks.map((block, idx) => (
-                  <div key={idx} className="flex items-start gap-3 relative">
-                    {idx !== latestBlocks.length - 1 && (
-                      <div className="absolute top-6 left-2 w-[1px] h-full bg-neutral-800 -z-10"></div>
-                    )}
-                    <div className="w-4 h-4 rounded-full bg-neutral-900 border-2 border-neutral-700 mt-0.5 shrink-0"></div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono font-bold text-cyan-400">{block.blockNumber}</span>
-                        <span className="text-[9px] text-neutral-500 font-mono">{block.timeAgo}</span>
-                      </div>
-                      <div className="text-[10px] text-neutral-400 bg-neutral-900/50 px-2 py-1 rounded inline-block border border-neutral-800/50">
-                        {block.proofsCount} proofs minted
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-500/60" />
+              <input 
+                type="text" 
+                placeholder="Cari Token ID, Title, Hash..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-black/40 border border-cyan-900/50 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white outline-none focus:border-cyan-500 focus:shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all font-mono placeholder:text-neutral-600"
+              />
             </div>
-          </div>
-
-          <div className="lg:col-span-9 space-y-8">
-
-            {/* Error UI Handling */}
-            {error && !isLoading && (
-              <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl flex items-center gap-3 text-red-400">
-                <AlertTriangle className="w-5 h-5 shrink-0" />
-                <p className="text-sm font-mono">{error}</p>
-              </div>
-            )}
-
-            {/* Featured Proof Section */}
-            {!isLoading && !error && featuredProof && (
-              <div className="bg-[#0A0713]/80 backdrop-blur-xl border border-amber-500/30 rounded-3xl p-1 shadow-[0_0_40px_rgba(245,158,11,0.1)] relative overflow-hidden group">
-                <div className="absolute top-0 right-0 bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-2xl rounded-tr-2xl z-20 flex items-center gap-1.5">
-                  <Crown className="w-3 h-3"/> Featured Proof
-                </div>
-                
-                <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden bg-[#030208]">
-                  <img src={featuredProof.resolvedImage} alt={featuredProof.title} className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700 mix-blend-screen" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0713] via-[#0A0713]/40 to-transparent"></div>
-                  
-                  <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
-                    <div>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {featuredProof.badges.map(b => (
-                          <span key={b} className="text-[9px] font-bold uppercase tracking-widest bg-black/60 backdrop-blur-md border border-white/20 px-2.5 py-1 rounded-full text-white">
-                            {b}
-                          </span>
-                        ))}
-                      </div>
-                      <h3 className="text-2xl sm:text-3xl font-black text-white drop-shadow-md mb-2">{featuredProof.title}</h3>
-                      <div className="flex items-center gap-3 text-xs font-mono text-neutral-300 drop-shadow">
-                        <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-cyan-400"/> {featuredProof.category}</span>
-                        <span>•</span>
-                        <span>{featuredProof.owner}</span>
-                        <span>•</span>
-                        <span>{featuredProof.timeAgo}</span>
-                      </div>
-                    </div>
-                    
-                    <button 
-                      onClick={() => handleViewCertificate(featuredProof.id)}
-                      className="shrink-0 bg-white hover:bg-neutral-200 text-black font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                    >
-                      {tHop.viewCert || 'VIEW CERTIFICATE'} <ArrowUpRight className="w-4 h-4"/>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Filter and Search Bar */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-3 sm:p-4 rounded-2xl shadow-lg relative z-20">
-              <div className="flex flex-wrap gap-1.5 w-full md:w-auto">
-                {categories.map((cat, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-3.5 py-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${selectedCategory === cat ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-inner' : 'bg-transparent text-neutral-400 hover:text-white border border-transparent hover:bg-neutral-800'}`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-              <div className="relative w-full md:w-80">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
-                <input
-                  id="search-input" // ⚡ FIX 10: Shortcut Focus
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={tHop.searchPlaceholder || "Search proofs or owner wallet..."}
-                  className="w-full bg-[#030208] border border-neutral-800 rounded-xl pl-11 pr-12 py-2.5 text-xs text-white outline-none focus:border-cyan-500/50 font-mono transition-colors shadow-inner"
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 bg-neutral-800 border border-neutral-700 text-[9px] font-mono text-neutral-400 rounded">
-                  ⌘K
-                </div>
-              </div>
-            </div>
-
-            {/* Proofs Grid */}
-            {isLoading ? (
-              <div className="py-24 flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="w-12 h-12 text-cyan-500 animate-spin drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
-                <p className="text-xs text-cyan-300 font-mono font-bold tracking-widest uppercase">{loadingStepText}</p>
-              </div>
-            ) : filteredProofs.length === 0 && !error ? (
-              <div className="py-24 px-4 bg-[#0A0713]/50 backdrop-blur-md border border-neutral-800/50 rounded-3xl text-center space-y-5 shadow-2xl max-w-2xl mx-auto mt-8 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-neutral-800/20 via-[#0A0713]/0 to-transparent"></div>
-                <div className="w-20 h-20 bg-gradient-to-b from-neutral-800 to-[#0A0713] border border-neutral-700 rounded-full flex items-center justify-center mx-auto text-neutral-400 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative z-10">
-                  <ShieldCheck className="w-8 h-8 opacity-50" />
-                </div>
-                <div className="relative z-10">
-                  <h3 className="text-2xl font-black text-white font-display mb-2">{tHop.emptyTitle || 'The Registry Awaits'}</h3>
-                  <p className="text-sm text-neutral-400 leading-relaxed max-w-sm mx-auto">
-                    {tHop.emptyDesc || 'No public proofs have been found in this category. Become the first verified creator to permanently register your work.'}
-                  </p>
-                </div>
-                <div className="pt-4 relative z-10">
-                  <button
-                    onClick={() => setActiveTab && setActiveTab('proof')}
-                    className="bg-white hover:bg-neutral-200 text-black font-bold px-8 py-3.5 rounded-xl text-xs shadow-[0_0_30px_rgba(255,255,255,0.15)] cursor-pointer transition-all hover:scale-105"
-                  >
-                    {tHop.mintFirst || 'Mint First Proof'}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProofs.map((proof, idx) => (
-                  <div 
-                    key={proof.id} 
-                    className="bg-[#0A0713]/90 backdrop-blur-md border border-neutral-800 rounded-3xl p-4 transition-all duration-500 shadow-xl group hover:-translate-y-2 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.25)] hover:border-cyan-500/40 flex flex-col animate-in fade-in slide-in-from-bottom-6 zoom-in-95"
-                    style={{ animationDelay: `${idx * 100}ms` }}
-                  >
-                    
-                    {/* Desain Kartu Rapi (Gambar, Badge & Waktu) */}
-                    <div className="relative h-48 w-full rounded-2xl overflow-hidden mb-4 bg-[#030208] border border-neutral-800/80 shadow-inner">
-                      <img src={proof.resolvedImage} alt={proof.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 mix-blend-screen" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0713] via-transparent to-transparent opacity-90"></div>
-                      
-                      {/* Badges Atas */}
-                      <div className="absolute top-2 left-2 flex flex-wrap gap-1.5 pr-10">
-                        {proof.badges.map(b => (
-                          <div key={b} className={`backdrop-blur-md border text-[7px] font-bold px-2 py-0.5 rounded flex items-center gap-1 uppercase tracking-widest shadow-md
-                            ${b === 'Verified' ? 'bg-cyan-950/50 border-cyan-500/30 text-cyan-300' : 
-                              b === 'Genesis' ? 'bg-amber-950/50 border-amber-500/30 text-amber-300' :
-                              b === 'Top Creator' ? 'bg-purple-950/50 border-purple-500/30 text-purple-300' :
-                              b === 'Premium' ? 'bg-rose-950/50 border-rose-500/30 text-rose-300' :
-                              'bg-neutral-900/50 border-neutral-600 text-neutral-300'}`}>
-                            {b === 'Verified' && <Check className="w-2 h-2" />}
-                            {b === 'Genesis' && <Crown className="w-2 h-2" />}
-                            {b === 'Top Creator' && <Gem className="w-2 h-2" />}
-                            {b}
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Ikon Tengah */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-0 transition-opacity duration-500 text-white drop-shadow-2xl">
-                        {proof.icon}
-                      </div>
-
-                      {/* Waktu Bawah */}
-                      <div className="absolute bottom-2 right-2 text-[8px] font-mono text-neutral-400 bg-[#030208]/80 px-2 py-1 rounded backdrop-blur-md border border-neutral-800/80">
-                        {proof.timeAgo}
-                      </div>
-                    </div>
-
-                    {/* Informasi Teks (Proporsional) */}
-                    <div className="flex-1 flex flex-col justify-between space-y-4">
-                      <div>
-                        <h4 className="font-bold text-white text-base group-hover:text-cyan-400 transition-colors line-clamp-1 mb-1" title={proof.title}>
-                          {proof.title}
-                        </h4>
-                        <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest text-neutral-500">
-                          <span className="text-cyan-500 font-bold">{proof.category}</span>
-                          <span>•</span>
-                          <span>BSC Testnet</span>
-                        </div>
-                      </div>
-
-                      <div className="bg-[#030208]/50 border border-neutral-800/50 rounded-xl p-2.5 space-y-1.5 shadow-inner">
-                        <div className="flex justify-between items-center text-[9px] font-mono">
-                          <span className="text-neutral-500">{tHop.creator || 'Creator'}</span>
-                          <span className="text-neutral-300" title={proof.ownerFull}>{proof.owner}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-[9px] font-mono">
-                          <span className="text-neutral-500">{tHop.hash || 'SHA-256'}</span>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-neutral-400">{proof.fileHash.substring(0,6)}...{proof.fileHash.substring(proof.fileHash.length - 4)}</span>
-                            <button onClick={() => copyToClipboard(proof.fileHash, `hash-${proof.id}`)} className="text-neutral-500 hover:text-white transition-colors" title="Copy Hash">
-                              {copiedId === `hash-${proof.id}` ? <Check className="w-2.5 h-2.5 text-green-400" /> : <Copy className="w-2.5 h-2.5" />}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => handleViewCertificate(proof.id)}
-                        className="w-full bg-neutral-900/50 hover:bg-white border border-neutral-800 hover:border-white text-neutral-300 hover:text-black font-bold py-2.5 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 cursor-pointer transition-all group/btn shadow-md"
-                      >
-                        {tHop.viewCert || 'VIEW CERTIFICATE'} <ArrowUpRight className="w-3 h-3 opacity-50 group-hover/btn:opacity-100" />
-                      </button>
-                    </div>
-
-                  </div>
-                ))}
-              </div>
-            )}
+            <select 
+              value={selectedCategory} 
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="bg-black/40 border border-cyan-900/50 rounded-xl py-2.5 px-4 text-sm text-cyan-300 outline-none focus:border-cyan-500 cursor-pointer font-mono font-bold appearance-none"
+            >
+              <option value="All">All Categories</option>
+              {Object.keys(categoryConfig).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </select>
           </div>
         </div>
-
       </div>
+
+      {/* GRID KARTU SERTIFIKAT (JEJEJER) */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-black/20 rounded-3xl border border-dashed border-cyan-900/30">
+          <Loader2 className="w-10 h-10 text-cyan-400 animate-spin mb-4 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
+          <p className="text-sm font-mono text-cyan-500/80 font-bold">Sinkronisasi dengan Ledger Blockchain...</p>
+        </div>
+      ) : filteredProofs.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-black/20 rounded-3xl border border-dashed border-cyan-900/30">
+          <Hexagon className="w-12 h-12 text-neutral-700 mb-4" />
+          <p className="text-sm font-mono text-neutral-500">Tidak ada sertifikat yang ditemukan.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
+          {filteredProofs.map(proof => {
+            const catInfo = categoryConfig[proof.category] || categoryConfig["Other"];
+            return (
+              <div key={proof.id} className="bg-[#05030F] border border-cyan-900/40 rounded-[20px] p-5 hover:border-cyan-500/50 hover:shadow-[0_10px_30px_rgba(6,182,212,0.15)] transition-all duration-300 flex flex-col group relative overflow-hidden hover:-translate-y-1">
+                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-[50px] opacity-20 pointer-events-none transition-all group-hover:opacity-40" style={{ backgroundColor: catInfo.color }}></div>
+                
+                <div className="flex justify-between items-start mb-4 relative z-10">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/50 border border-white/5 backdrop-blur-md">
+                    {React.cloneElement(catInfo.icon, { className: "w-3.5 h-3.5" })}
+                    <span className="text-[10px] font-bold font-mono tracking-widest uppercase" style={{ color: catInfo.color }}>{proof.category}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-green-500/10 border border-green-500/20 text-green-400 text-[9px] font-mono font-bold uppercase tracking-wider">
+                    <CheckCircle2 className="w-3 h-3" /> Valid
+                  </div>
+                </div>
+
+                <div className="mb-5 relative z-10 flex-1">
+                  <h4 className="text-lg font-bold text-white mb-2 line-clamp-1 group-hover:text-cyan-300 transition-colors">{proof.title}</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-neutral-500">Creator</span>
+                      <span className="text-neutral-300 truncate max-w-[120px]">{proof.creator}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-neutral-500">Owner Wallet</span>
+                      <span className="text-cyan-400">{formatAddressFunc(proof.wallet)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-neutral-500">Token ID</span>
+                      <span className="text-amber-300">#{proof.tokenId}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative z-10 pt-4 border-t border-neutral-800 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 font-mono">
+                    <Calendar className="w-3.5 h-3.5" /> {proof.date}
+                  </div>
+                  <button 
+                    onClick={() => setSelectedProof(proof)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-300 text-xs font-bold transition-all shadow-sm cursor-pointer"
+                  >
+                    <Eye className="w-3.5 h-3.5" /> View
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* =========================================================
+          POPUP MODAL (FULL SERTIFIKAT)
+      ========================================================= */}
+      {selectedProof && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative flex flex-col items-center bg-[#05030F] border border-cyan-500/30 rounded-3xl shadow-[0_0_80px_rgba(6,182,212,0.3)] max-w-[95vw] max-h-[95vh] overflow-hidden">
+            
+            {/* Header Modal */}
+            <div className="w-full flex justify-between items-center p-4 border-b border-cyan-900/50 bg-black/40">
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-amber-400" />
+                <h3 className="font-bold text-white font-mono">Certificate <span className="text-cyan-400">#{selectedProof.tokenId}</span></h3>
+              </div>
+              <button 
+                onClick={() => setSelectedProof(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800/50 hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Container Preview Sertifikat dengan Skala Proporsional */}
+            <div className="w-full flex-1 overflow-auto custom-scrollbar p-6 flex justify-center bg-[#020207] shadow-inner">
+              {/* Transform Scale disesuaikan agar fit di layar (0.6 - 0.7 untuk desktop standar) */}
+              <div 
+                className="mx-auto shadow-[0_0_60px_rgba(0,0,0,0.8)] rounded-[28px] shrink-0"
+                style={{ 
+                  transform: `scale(0.7)`, 
+                  width: '1200px', 
+                  height: '760px',
+                  marginBottom: `calc((0.7 - 1) * 760px)`, // Kompensasi ruang kosong akibat scale
+                  marginRight: `calc((0.7 - 1) * 1200px)`,
+                  transformOrigin: 'top center'
+                }}
+              >
+                <CertificateTemplate 
+                  ref={certificateRef}
+                  proofData={selectedProof} 
+                  categoryConfig={categoryConfig}
+                />
+              </div>
+            </div>
+
+            {/* Aksi Bawah Modal */}
+            <div className="w-full flex flex-wrap items-center justify-center gap-4 p-5 border-t border-cyan-900/50 bg-black/40">
+              <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 text-xs font-bold transition-all shadow-sm cursor-pointer">
+                <Download className="w-4 h-4" /> Save PDF
+              </button>
+              <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-300 text-xs font-bold transition-all shadow-sm cursor-pointer">
+                <ImageIcon className="w-4 h-4" /> Save PNG
+              </button>
+              <a href={selectedProof.verifyUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/40 hover:border-purple-400/70 text-purple-300 text-xs font-bold transition-all shadow-sm cursor-pointer no-underline">
+                <ExternalLink className="w-4 h-4" /> View Transaction
+              </a>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
