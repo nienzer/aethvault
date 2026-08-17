@@ -275,15 +275,14 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, provider);
       
       const filter = contract.filters.ProofMinted();
-      const DEPLOY_BLOCK = 43345845; // Blok pas saat kontrak AetherVaultV3 dideploy
+      const DEPLOY_BLOCK = 43345845;
       const currentBlock = await provider.getBlockNumber();
       
-      // LOGIKA CHUNKING: Mengambil semua riwayat tanpa kena limit RPC
+      // LOGIKA AMAN: Hanya ambil 49.000 blok terakhir agar server RPC tidak memblokir koneksi
       let allEvents = [];
-      let fromBlock = DEPLOY_BLOCK;
-      const maxBlockRange = 4900; // Batas aman public RPC BSC
+      let fromBlock = Math.max(DEPLOY_BLOCK, currentBlock - 49000);
+      const maxBlockRange = 4900; 
 
-      // Looping untuk menyisir blok secara bertahap
       while (fromBlock <= currentBlock) {
         let toBlock = fromBlock + maxBlockRange;
         if (toBlock > currentBlock) {
@@ -349,7 +348,6 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
         };
       }));
 
-      // Balik urutan agar yang terbaru muncul di atas
       parsedProofs.reverse();
       setProofs(parsedProofs);
     } catch (error) {

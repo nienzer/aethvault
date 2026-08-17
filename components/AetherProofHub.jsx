@@ -333,10 +333,29 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const filter = contract.filters.ProofMinted();
       const DEPLOY_BLOCK = 43345845; 
       const currentBlock = await provider.getBlockNumber();
-      const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 4900);
-      const events = await contract.queryFilter(filter, startBlock, "latest");
       
-      const parsedProofs = await Promise.all(events.map(async (ev) => {
+      // LOGIKA AMAN: Hanya ambil 49.000 blok terakhir agar server RPC tidak memblokir koneksi
+      let allEvents = [];
+      let fromBlock = Math.max(DEPLOY_BLOCK, currentBlock - 49000);
+      const maxBlockRange = 4900; 
+
+      while (fromBlock <= currentBlock) {
+        let toBlock = fromBlock + maxBlockRange;
+        if (toBlock > currentBlock) {
+          toBlock = currentBlock;
+        }
+        
+        try {
+          const chunkEvents = await contract.queryFilter(filter, fromBlock, toBlock);
+          allEvents = allEvents.concat(chunkEvents);
+        } catch (chunkErr) {
+          console.warn(`Gagal fetch blok ${fromBlock} - ${toBlock}:`, chunkErr);
+        }
+        
+        fromBlock = toBlock + 1;
+      }
+      
+      const parsedProofs = await Promise.all(allEvents.map(async (ev) => {
         const block = await provider.getBlock(ev.blockNumber);
         const args = ev.args;
         return {
@@ -877,27 +896,31 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       )}
 
       {view === 'success' && generatedProof && (
-        <div className="animate-in zoom-in-95 duration-500 flex flex-col items-center pb-10">
+        <div className="animate-in zoom-in-95 duration-500 flex flex-col items-center pb-10 w-full overflow-hidden">
           <div className="w-20 h-20 bg-green-950/40 rounded-full flex items-center justify-center mb-6 border border-green-500/40 shadow-[0_0_40px_rgba(34,197,94,0.3)] backdrop-blur-sm">
             <CheckCircle2 className="w-10 h-10 text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
           </div>
           <h3 className="text-2xl sm:text-3xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300 mb-2 text-center tracking-wide">Aether Proof Minted Successfully!</h3>
           <p className="text-neutral-400 text-sm mb-6 font-mono">Your digital asset is now permanently secured on the blockchain.</p>
           
-          <div className="w-full max-w-[1000px] overflow-x-auto custom-scrollbar shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl border border-neutral-800 bg-[#030208] p-4 sm:p-8">
-             <div className="mx-auto" style={{ width: '1200px' }}>
-               <CertificateTemplate 
-                  ref={certificateRef}
-                  tDash={tDash}
-                  tHop={tHop}
-                  formatAddress={formatAddressFunc}
-                  categoryConfig={categoryConfig}
-                  proofData={generatedProof} 
-               />
-             </div>
+          {/* TAMPILAN SERTIFIKAT FULL SCALING TANPA KOTAK */}
+          <div className="w-full flex justify-center items-center mt-6 pt-6 border-t border-cyan-900/30">
+            {/* Wrapper responsif yang menjaga rasio asli 1200x760 */}
+            <div className="relative w-full max-w-[900px] flex justify-center" style={{ aspectRatio: '1200/760' }}>
+              <div className="absolute top-0" style={{ width: '1200px', height: '760px', transform: 'scale(calc(min(100vw - 40px, 900px) / 1200))', transformOrigin: 'top center' }}>
+                 <CertificateTemplate 
+                    ref={certificateRef}
+                    tDash={tDash}
+                    tHop={tHop}
+                    formatAddress={formatAddressFunc}
+                    categoryConfig={categoryConfig}
+                    proofData={generatedProof} 
+                 />
+              </div>
+            </div>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-5 w-full max-w-3xl">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-5 w-full max-w-3xl px-4">
             <button onClick={handleDownloadPDF} className="bg-black/60 border border-amber-900/50 hover:border-amber-500/50 hover:bg-neutral-900 text-amber-100 font-bold py-4 rounded-2xl text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]">
               <Download className="w-4 h-4 text-amber-500" /> Download PDF
             </button>
