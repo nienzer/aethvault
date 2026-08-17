@@ -1608,7 +1608,7 @@ export default function DashboardPage() {
             <span className="text-[10px] sm:text-xs font-bold text-neutral-600 tracking-widest">AETHERVAULT</span>
           </div>
           <p className="text-[9px] sm:text-[10px] text-neutral-600 font-mono text-center md:text-right">
-            &copy; {new Date().getFullYear()} Nin Studio. All rights reserved. Decentralized Protocol V2.2.
+            &copy; {new Date().getFullYear()} AetherVault. All rights reserved. Decentralized Protocol V2.2.
           </p>
         </div>
       </footer>

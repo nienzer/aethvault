@@ -275,13 +275,32 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, provider);
       
       const filter = contract.filters.ProofMinted();
-      const DEPLOY_BLOCK = 43345845; 
+      const DEPLOY_BLOCK = 43345845; // Blok pas saat kontrak AetherVaultV3 dideploy
       const currentBlock = await provider.getBlockNumber();
-      const startBlock = Math.max(DEPLOY_BLOCK, currentBlock - 4900);
       
-      const events = await contract.queryFilter(filter, startBlock, "latest");
+      // LOGIKA CHUNKING: Mengambil semua riwayat tanpa kena limit RPC
+      let allEvents = [];
+      let fromBlock = DEPLOY_BLOCK;
+      const maxBlockRange = 4900; // Batas aman public RPC BSC
+
+      // Looping untuk menyisir blok secara bertahap
+      while (fromBlock <= currentBlock) {
+        let toBlock = fromBlock + maxBlockRange;
+        if (toBlock > currentBlock) {
+          toBlock = currentBlock;
+        }
+        
+        try {
+          const chunkEvents = await contract.queryFilter(filter, fromBlock, toBlock);
+          allEvents = allEvents.concat(chunkEvents);
+        } catch (chunkErr) {
+          console.warn(`Gagal fetch blok ${fromBlock} - ${toBlock}:`, chunkErr);
+        }
+        
+        fromBlock = toBlock + 1;
+      }
       
-      const parsedProofs = await Promise.all(events.map(async (ev) => {
+      const parsedProofs = await Promise.all(allEvents.map(async (ev) => {
         const block = await provider.getBlock(ev.blockNumber);
         const args = ev.args;
         const tokenId = args[0].toString();
@@ -330,6 +349,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
         };
       }));
 
+      // Balik urutan agar yang terbaru muncul di atas
       parsedProofs.reverse();
       setProofs(parsedProofs);
     } catch (error) {
@@ -475,12 +495,13 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
           })}
         </div>
       )}
-
-      {/* MODAL POPUP */}
+{/* MODAL POPUP - FIXED SCROLLING UI */}
       {selectedProof && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative flex flex-col items-center bg-[#05030F] border border-cyan-500/30 rounded-3xl shadow-2xl max-w-[95vw] max-h-[95vh] overflow-hidden">
-            <div className="w-full flex justify-between items-center p-4 border-b border-cyan-900/50 bg-black/40">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative flex flex-col bg-[#05030F] border border-cyan-500/30 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden">
+            
+            {/* HEADER (Tetap/Fixed di atas) */}
+            <div className="w-full flex justify-between items-center p-4 border-b border-cyan-900/50 bg-black/40 shrink-0">
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-400" />
                 <h3 className="font-bold text-white font-mono">Certificate <span className="text-cyan-400">#{selectedProof.tokenId}</span></h3>
@@ -490,19 +511,29 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
               </button>
             </div>
 
-            <div className="w-full flex-1 overflow-auto custom-scrollbar flex items-center justify-center bg-[#020207] p-4 min-h-[550px]">
-              <div style={{ width: '780px', height: '494px', position: 'relative' }} className="shrink-0">
+            {/* BODY & FOOTER (Sekarang digabung agar bisa di-scroll ke bawah bersama-sama) */}
+            <div className="w-full flex-1 overflow-y-auto custom-scrollbar bg-[#020207] p-4 sm:p-6 flex flex-col items-center">
+              
+              {/* Area Gambar Sertifikat */}
+              <div style={{ width: '780px', height: '494px', position: 'relative' }} className="shrink-0 mb-8">
                 <div className="absolute top-0 left-0" style={{ width: '1200px', height: '760px', transform: 'scale(0.65)', transformOrigin: 'top left' }}>
                   <CertificateTemplate ref={certificateRef} proofData={selectedProof} categoryConfig={categoryConfig} />
                 </div>
               </div>
-            </div>
 
-            {/* TOMBOL AKSI: SAVE PDF, SAVE PNG, DAN VIEW TRANSACTION */}
-            <div className="w-full flex flex-wrap items-center justify-center gap-4 p-5 border-t border-cyan-900/50 bg-black/40">
-              <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 text-xs font-bold transition-all cursor-pointer"><Download className="w-4 h-4" /> Save PDF</button>
-              <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-300 text-xs font-bold transition-all cursor-pointer"><ImageIcon className="w-4 h-4" /> Save PNG</button>
-              <a href={selectedProof.verifyUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/40 hover:border-purple-400/70 text-purple-300 text-xs font-bold transition-all cursor-pointer no-underline"><ExternalLink className="w-4 h-4" /> View Transaction</a>
+              {/* TOMBOL AKSI - Sekarang berada di dalam area scroll! */}
+              <div className="w-full flex flex-wrap items-center justify-center gap-4 pt-6 border-t border-cyan-900/40">
+                <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 hover:bg-amber-500/10 text-amber-300 text-xs font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+                  <Download className="w-4 h-4" /> Save PDF
+                </button>
+                <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 hover:bg-cyan-500/10 text-cyan-300 text-xs font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                  <ImageIcon className="w-4 h-4" /> Save PNG
+                </button>
+                <a href={selectedProof.verifyUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/40 hover:border-purple-400/70 hover:from-purple-600/30 hover:to-blue-600/30 text-purple-300 text-xs font-bold transition-all cursor-pointer no-underline shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+                  <ExternalLink className="w-4 h-4" /> View Transaction
+                </a>
+              </div>
+
             </div>
           </div>
         </div>
