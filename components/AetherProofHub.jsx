@@ -18,212 +18,243 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
 
 // =========================================================
-// ULTRA-PREMIUM GLASSMORPHIC CERTIFICATE TEMPLATE - PROOF
+// RENDER PEMBARUAN: FIXED TINTED GLASSMORPHIC NFT (BAGIAN 1)
 // =========================================================
-const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, AETHER_LOGO = '/logo.png' }, ref) => {
-  const catKey = (proofData?.category || 'Software').toLowerCase().trim();
-  const rawCatObj = categoryConfig ? Object.entries(categoryConfig).find(([key]) => key.toLowerCase() === catKey) : null;
-  const cat = rawCatObj ? rawCatObj[1] : { badge: 'Verified Creator', icon: <Sparkles className="w-4 h-4" />, color: '#00ffcc' };
+const CertificateTemplate = React.forwardRef(({ data, networkName }, ref) => {
+  const certificateId = data?.capsuleId || "PENDING";
+  const owner = formatAddressFunc(data?.owner);
+  const category = data?.tier || "Vault";
+  const isLegacy = data?.isLegacy;
+  const date = data?.creationTimestamp ? new Date(data.creationTimestamp * 1000).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
   
-  const CatIcon = cat.icon ? React.cloneElement(cat.icon, { className: "w-4 h-4 text-[#00ffcc]" }) : <Sparkles className="w-4 h-4 text-[#00ffcc]" />;
-  const catColor = cat.color || "#00ffcc";
+  const title = isLegacy ? "Legacy Vault Capsule" : "Time-Locked Vault Capsule";
+  const description = "Highly secured cryptographic vault encrypted via ECIES and locked on the Binance Smart Chain.";
+  const verifyUrl = `https://bscscan.com{CONTRACT_ADDRESS}`;
+  const fileHash = "Encrypted On-Chain Data";
 
-  const title = proofData?.title || "Aether Proof™";
-  const creator = proofData?.creator || "Unknown Creator";
-  const owner = formatAddressFunc(proofData?.wallet || "0x00...00");
-  const tokenId = proofData?.tokenId || "PENDING";
-  const certificateId = proofData?.id || tokenId;
-  const date = proofData?.date || new Date().toLocaleDateString("en-GB");
-  const network = proofData?.network || "BSC Testnet";
-  const contract = formatAddressFunc(proofData?.contract || AETHER_VAULT_ADDRESS);
-  const fileHash = proofData?.fileHash || "Awaiting verification";
-  const verifyUrl = proofData?.verifyUrl || "https://aethvault.xyz";
+  let catColor = "#00ffcc";
+  let CatIcon = <Shield className="w-4 h-4 text-[#00ffcc]" />;
+  if (category === "VIP") { catColor = "#0066ff"; CatIcon = <Shield className="w-4 h-4 text-[#0066ff]" />; }
+  else if (category === "Eternal") { catColor = "#a855f7"; CatIcon = <Activity className="w-4 h-4 text-purple-400" />; }
+  else if (category === "Legacy") { catColor = "#ec4899"; CatIcon = <KeyRound className="w-4 h-4 text-pink-400" />; }
 
   return (
-    <div id="cert-export-node" ref={ref} className="relative mx-auto shrink-0 overflow-hidden w-[1200px] h-[760px] rounded-[32px] border border-cyan-500/30 bg-[#06070d] text-white font-sans shadow-[0_0_120px_rgba(6,182,212,0.15)]">
+    <div id="cert-export-node" ref={ref} className="relative mx-auto shrink-0 overflow-hidden w-[1200px] h-[760px] rounded-[32px] border border-white/[0.15] bg-[#0c0f1d]/85 backdrop-blur-2xl text-white font-sans shadow-[0_40px_100px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.15)]">
       <style>{`
-        @keyframes av-orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes av-orbit-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-        @keyframes av-logo-pulse { 0%,100% { transform: scale(0.96) rotate(-5deg); filter: drop-shadow(0 0 15px rgba(6,182,212,0.4)); } 50% { transform: scale(1.04) rotate(5deg); filter: drop-shadow(0 0 35px rgba(139,92,246,0.8)); } }
-        @keyframes av-sweep { 0%,55% { transform: translateX(-150%) skewX(-18deg); opacity:0; } 65% { opacity:.45; } 90%,100% { transform: translateX(260%) skewX(-18deg); opacity:0; } }
-        @keyframes av-pulse { 0%,100% { opacity:.25; transform:scale(.95); } 50% { opacity:.7; transform:scale(1.03); } }
-        .av-orbit { animation: av-orbit 16s linear infinite; }
-        .av-orbit-reverse { animation: av-orbit-reverse 11s linear infinite; }
-        .av-logo-pulse { animation: av-logo-pulse 4.5s ease-in-out infinite; }
-        .av-sweep { animation: av-sweep 6s ease-in-out infinite; }
-        .av-pulse { animation: av-pulse 4s ease-in-out infinite; }
+        @keyframes av-orbit-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes av-orbit-fast { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+        @keyframes av-shield-glow { 0%,100% { filter: drop-shadow(0 0 15px rgba(0,255,204,0.3)) drop-shadow(0 0 30px rgba(139,92,246,0.2)); transform: scale(0.97); } 50% { filter: drop-shadow(0 0 35px rgba(0,255,204,0.7)) drop-shadow(0 0 60px rgba(139,92,246,0.5)); transform: scale(1.03); } }
+        @keyframes av-sweep-light { 0%,60% { transform: translateX(-150%) skewX(-20deg); opacity:0; } 70% { opacity:0.5; } 95%,100% { transform: translateX(280%) skewX(-20deg); opacity:0; } }
+        @keyframes av-bg-nebula { 0%,100% { opacity: 0.3; transform: scale(0.95); } 50% { opacity: 0.6; transform: scale(1.05); } }
+        .av-orbit-slow { animation: av-orbit-slow 22s linear infinite; transform-origin: center; }
+        .av-orbit-fast { animation: av-orbit-fast 14s linear infinite; transform-origin: center; }
+        .av-shield-glow { animation: av-shield-glow 4s ease-in-out infinite; transform-origin: center; }
+        .av-sweep-light { animation: av-sweep-light 7s ease-in-out infinite; }
+        .av-bg-nebula { animation: av-bg-nebula 5s ease-in-out infinite; }
       `}</style>
       
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at 75% 40%, rgba(139,92,246,0.15), transparent 35%), radial-gradient(circle at 25% 75%, rgba(6,182,212,0.12), transparent 35%), linear-gradient(145deg, #040508 0%, #0a0d16 50%, #030407 100%)" }} />
-      <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
+      {/* Lapisan pendaran cahaya siber konstan yang ikut terekspor di file PNG */}
+      <div className="absolute inset-0 pointer-events-none opacity-40" style={{ background: "radial-gradient(circle at 85% 45%, rgba(6,182,212,0.2), transparent 45%), radial-gradient(circle at 15% 75%, rgba(139,92,246,0.15), transparent 40%)" }} />
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px)", backgroundSize: "45px 45px" }} />
       
-      <div className="absolute inset-[16px] rounded-[26px] border border-cyan-500/20 pointer-events-none" />
-      <div className="absolute inset-[24px] rounded-[22px] border border-white/[0.02] pointer-events-none" />
+      {/* Bingkai Bias Kaca Internal */}
+      <div className="absolute inset-[12px] rounded-[28px] border border-white/[0.08] pointer-events-none shadow-[inset_0_1px_2px_rgba(255,255,255,0.08)]" />
+      <div className="absolute inset-[20px] rounded-[24px] border border-cyan-500/10 pointer-events-none" />
       
-      <div className="absolute top-[24px] left-[24px] w-14 h-14 border-t-2 border-l-2 border-cyan-400/80 rounded-tl-xl" />
-      <div className="absolute top-[24px] right-[24px] w-14 h-14 border-t-2 border-r-2 border-cyan-400/80 rounded-tr-xl" />
-      <div className="absolute bottom-[24px] left-[24px] w-14 h-14 border-b-2 border-l-2 border-cyan-400/80 rounded-bl-xl" />
-      <div className="absolute bottom-[24px] right-[24px] w-14 h-14 border-b-2 border-r-2 border-cyan-400/80 rounded-br-xl" />
+      {/* Siku Vektor Sudut Penguat Tampilan Gelas */}
+      <div className="absolute top-[20px] left-[20px] w-8 h-8 border-t border-l border-white/20 rounded-tl-lg" />
+      <div className="absolute top-[20px] right-[20px] w-8 h-8 border-t border-r border-white/20 rounded-tr-lg" />
+      <div className="absolute bottom-[20px] left-[20px] w-8 h-8 border-b border-l border-white/20 rounded-bl-lg" />
+      <div className="absolute bottom-[20px] right-[20px] w-8 h-8 border-b border-r border-white/20 rounded-br-lg" />
 
-      {/* HEADER SECTION */}
+      {/* HEADER COMPONENT */}
       <div className="absolute top-[54px] left-[64px] right-[64px] flex items-center justify-between z-20">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-purple-500/10 border border-cyan-400/30 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)]">
-            <img src={AETHER_LOGO} alt="AetherVault" className="w-9 h-9 object-contain" />
+          <div className="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/[0.1] flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.15)]">
+            <img src={AETHER_LOGO} alt="AetherVault" className="w-10 h-10 object-contain opacity-90" />
           </div>
           <div>
-            <div className="font-black tracking-[0.25em] text-[23px] bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">AETHER<span className="text-cyan-400">VAULT</span></div>
-            <div className="text-[8px] tracking-[0.45em] text-cyan-400/60 font-mono mt-1 font-bold">TRUSTLESS • VERIFIED • TIMELESS</div>
+            <div className="font-black tracking-[0.3em] text-[24px] bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">AETHER<span className="text-cyan-400">VAULT</span></div>
+            <div className="text-[9px] tracking-[0.45em] text-white/40 font-mono mt-1 font-bold">TRUSTLESS • VERIFIED • TIMELESS</div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-full bg-cyan-500/[0.05] border border-cyan-400/40 flex items-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_12px_rgba(34,211,238,0.8)]" />
-            <span className="text-[9px] font-black tracking-[0.2em] text-cyan-300">SECURED ON-CHAIN</span>
+          <div className="px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/[0.1] flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(6,182,212,1)]" />
+            <span className="text-[10px] font-black tracking-[0.25em] text-neutral-300">SECURED ON-CHAIN</span>
           </div>
-          <div className="px-4 py-2 rounded-full bg-purple-500/[0.05] border border-purple-400/30">
-            <span className="text-[9px] font-black tracking-[0.2em] text-purple-300">{String(network).toUpperCase()}</span>
+          <div className="px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/[0.1]">
+            <span className="text-[10px] font-black tracking-[0.25em] text-neutral-300">{String(networkName).toUpperCase()}</span>
           </div>
         </div>
       </div>
 
-      {/* TITLE SECTION */}
-      <div className="absolute top-[145px] left-[64px] z-20">
+      {/* HEADER TITLE */}
+      <div className="absolute top-[150px] left-[64px] z-20">
         <div className="flex items-center gap-3 mb-2">
-          <span className="w-14 h-px bg-gradient-to-r from-transparent to-cyan-400" />
-          <span className="text-[9px] tracking-[0.5em] text-purple-400 uppercase font-mono font-bold">Decentralized Vault Registry</span>
+          <span className="w-16 h-px bg-gradient-to-r from-transparent to-white/30" />
+          <span className="text-[10px] tracking-[0.55em] text-white/30 uppercase font-mono font-black">Decentralized Vault Registry</span>
         </div>
-        <h1 className="text-[36px] font-black tracking-[0.18em] text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-purple-200">
+        <h1 className="text-[40px] font-black tracking-[0.15em] text-white">
           CERTIFICATE OF AUTHENTICITY
         </h1>
-        <p className="text-[10px] text-neutral-400 tracking-[0.22em] mt-1 font-mono">AETHER PROF COPYRIGHT REGISTRATION PROTOCOL</p>
+        <p className="text-[10px] text-white/40 tracking-[0.25em] mt-1 font-mono uppercase font-bold">AETHER PROF COPYRIGHT REGISTRATION PROTOCOL</p>
       </div>
 
-      {/* LEFT CONTENT PANEL - GLASSMORPHISM CARD */}
-      <div className="absolute left-[64px] top-[245px] w-[560px] h-[390px] z-20 rounded-[24px] border border-white/[0.06] bg-white/[0.02] backdrop-blur-2xl p-7 shadow-[0_25px_50px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)]">
-        <div className="flex justify-between items-start pb-5 border-b border-white/[0.06]">
-          <div className="min-w-0 pr-5">
-            <div className="text-[8px] tracking-[0.3em] text-neutral-500 font-bold mb-2">ASSET TITLE / TYPE</div>
-            <div className="text-[19px] font-black text-white truncate tracking-wide">{title}</div>
+      {/* BLOK DATA KIRI (DENGAN TINT BACKGROUND LEBIH PEKAT AGAR AMAN SAAT PNG DIBUKA) */}
+      <div className="absolute left-[64px] top-[255px] w-[560px] h-[390px] z-20 rounded-[28px] border border-white/[0.06] bg-[#0c101d]/60 p-8 shadow-[0_30px_60px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.05)]">
+        <div className="flex justify-between items-start pb-6 border-b border-white/[0.08]">
+          <div className="min-w-0 pr-6">
+            <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-2">ASSET TITLE / TYPE</div>
+            <div className="text-[20px] font-black text-white truncate tracking-wide">{title}</div>
           </div>
           <div className="text-right shrink-0">
-            <div className="text-[8px] tracking-[0.3em] text-neutral-500 font-bold mb-2">CERTIFICATE NO.</div>
-            <div className="px-3 py-1.5 rounded-lg border border-cyan-400/30 bg-cyan-400/[0.03] text-cyan-300 text-[11px] font-mono font-black shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-              #{certificateId}
+            <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-2">CERTIFICATE NO.</div>
+            <div className="px-4 py-2 rounded-xl border border-white/15 bg-white/[0.03] text-white text-[12px] font-mono font-black">
+              #0001
             </div>
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-x-8 gap-y-6 pt-6">
-          <div><div className="text-[8px] tracking-[0.3em] text-neutral-500 font-bold mb-1.5">OWNER</div><div className="text-[13px] text-white font-bold truncate tracking-wide">{owner}</div></div>
-          <div><div className="text-[8px] tracking-[0.3em] text-neutral-500 font-bold mb-1.5">CREATOR</div><div className="text-[13px] text-cyan-300 font-bold truncate tracking-wide">{creator}</div></div>
-          <div><div className="text-[8px] tracking-[0.3em] text-neutral-500 font-bold mb-1.5">STATUS</div><div className="text-[11px] text-emerald-400 font-mono font-bold tracking-wider">Authenticated & Verified</div></div>
-          <div><div className="text-[8px] tracking-[0.3em] text-neutral-500 font-bold mb-1.5">DATE</div><div className="text-[11px] text-neutral-200 font-mono font-bold">{date}</div></div>
+        <div className="grid grid-cols-2 gap-x-8 gap-y-7 pt-6">
+          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">OWNER ADDRESS</div><div className="text-[14px] text-white/80 font-mono font-bold truncate tracking-wide">{owner}</div></div>
+          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">LEGAL CREATOR</div><div className="text-[14px] text-white font-bold truncate tracking-wide">Aether Prof</div></div>
+          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">VAULT STATUS</div><div className="text-[12px] text-emerald-400 font-mono font-black tracking-wider flex items-center gap-1.5">● Authenticated & Verified</div></div>
+          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">REGISTRATION DATE</div><div className="text-[12px] text-white/70 font-mono font-bold">{date}</div></div>
         </div>
 
-        <div className="mt-7 pt-5 border-t border-white/[0.06]">
-          <div className="text-[8px] tracking-[0.3em] text-neutral-500 font-bold mb-2">AUTHENTICATION STATEMENT</div>
-          <div className="text-[10px] leading-relaxed text-neutral-400 font-medium">
-            This asset is permanently encrypted via advanced cryptographic primitives and verified on-chain. Ownership records are immutable and timestamped directly on the blockchain.
-          </div>
+        <div className="mt-8 pt-6 border-t border-white/[0.08]">
+          <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-2">CRYPTOGRAPHIC IMMUTABILITY STATEMENT</div>
+          <div className="text-[11px] leading-relaxed text-white/50 font-medium font-sans">This legal artifact asset is permanently secured via end-to-end cryptographic primitives and timestamped on-chain. Molecular ownership records are absolute, immutable, and non-fungible.</div>
         </div>
 
-        <div className="absolute bottom-5 left-7 right-7 flex items-center justify-between">
-          <div><div className="text-[7px] tracking-[0.3em] text-neutral-600 font-bold">TOKEN ID</div><div className="text-[10px] text-purple-400 font-mono font-bold mt-1">#{tokenId}</div></div>
-          <div><div className="text-[7px] tracking-[0.3em] text-neutral-600 font-bold">NETWORK</div><div className="text-[10px] text-cyan-400 font-mono font-bold mt-1">BSC TESTNET</div></div>
-          <div className="max-w-[210px]"><div className="text-[7px] tracking-[0.3em] text-neutral-600 font-bold">CONTRACT</div><div className="text-[9px] text-neutral-400 font-mono mt-1 truncate">{contract}</div></div>
+        <div className="absolute bottom-6 left-8 right-8 flex items-center justify-between">
+          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">TOKEN ID</div><div className="text-[11px] text-white/60 font-mono font-black mt-1">#{certificateId}</div></div>
+          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">NETWORK PROT.</div><div className="text-[11px] text-white/60 font-mono font-black mt-1">BSC TESTNET</div></div>
+          <div className="max-w-[210px]"><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">SMART CONTRACT</div><div className="text-[10px] text-white/50 font-mono mt-1 truncate">{CONTRACT_ADDRESS}</div></div>
         </div>
       </div>
-      
-      {/* RIGHT DISPLAY PANEL - LIQUID CHROME CORE & SHIELD */}
-      <div className="absolute right-[64px] top-[230px] w-[470px] h-[430px] z-20">
-        <div className="absolute inset-0 rounded-[32px] border border-white/[0.05] bg-gradient-to-b from-white/[0.01] to-transparent shadow-[0_30px_60px_rgba(0,0,0,0.4)] overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[0.03] via-transparent to-purple-500/[0.05]" />
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+       {/* PANEL TAMPILAN KANAN (GRAFIS DENGAN BACKGROUND TINT AMAN DOWNLOAD) */}
+      <div className="absolute right-[64px] top-[225px] w-[480px] h-[440px] z-20 flex items-center justify-center">
+        {/* Panel Kaca Hitam Transparan Pembungkus Grafis */}
+        <div className="absolute inset-0 rounded-[36px] border border-white/[0.06] bg-[#0c101d]/50 shadow-[0_30px_60px_rgba(0,0,0,0.3)] overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         </div>
         
-        {/* Efek Pendaran Nebula Di Belakang Perisai */}
-        <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full bg-cyan-500/[0.06] blur-[60px] av-pulse" />
-        <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 w-[240px] h-[240px] rounded-full bg-purple-500/[0.08] blur-[50px]" />
-        
-        {/* Orbit Lingkaran Siber */}
-        <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full border border-cyan-400/20 av-orbit">
-          <div className="absolute -top-1 left-1/2 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_15px_#00ffcc]" />
+        {/* Render Grafis Vektor SVG dengan Kontras Tinggi */}
+        <div className="relative w-[380px] h-[380px] flex items-center justify-center">
+          <svg viewBox="0 0 400 400" className="w-full h-full">
+            <defs>
+              <linearGradient id="av-glass-frost" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0.1" />
+              </linearGradient>
+              <linearGradient id="av-edge-neon" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#00ffcc" stopOpacity="0.6" />
+                <stop offset="50%" stopColor="#a855f7" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#ec4899" stopOpacity="0.6" />
+              </linearGradient>
+              <radialGradient id="av-glass-shadow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+
+            {/* Aura Mesh Belakang (Tetap Menyala di Atas Putih) */}
+            <circle cx="200" cy="200" r="130" fill="url(#av-glass-shadow)" className="av-bg-nebula" />
+
+            {/* Geometris Garis Tipis Putih Transparan */}
+            <g opacity="0.2" stroke="#ffffff" strokeWidth="0.75">
+              <circle cx="200" cy="200" r="145" fill="none" strokeDasharray="3 6" />
+              <line x1="60" y1="200" x2="340" y2="200" />
+              <line x1="200" y1="60" x2="200" y2="340" />
+            </g>
+
+            {/* Orbit Luar (Neon Rainbow) */}
+            <g className="av-orbit-slow">
+              <circle cx="200" cy="200" r="120" fill="none" stroke="url(#av-edge-neon)" strokeWidth="1.5" strokeDasharray="140 50 20 40" />
+              <circle cx="320" cy="200" r="4" fill="#ffffff" filter="drop-shadow(0 0 6px #00ffcc)" />
+            </g>
+
+            {/* Orbit Dalam */}
+            <g className="av-orbit-fast">
+              <circle cx="200" cy="200" r="90" fill="none" stroke="url(#av-glass-frost)" strokeWidth="1.25" strokeDasharray="80 40 40 20" />
+              <circle cx="200" cy="110" r="3.5" fill="#ffffff" opacity="0.8" />
+            </g>
+
+            {/* Core Cincin Tengah Kontras */}
+            <circle cx="200" cy="200" r="65" fill="none" stroke="url(#av-glass-frost)" strokeWidth="1.5" opacity="0.4" />
+            <circle cx="200" cy="200" r="58" fill="#111526" stroke="url(#av-glass-frost)" strokeWidth="1" />
+
+            {/* LOGO PERISAI GLASS SHIELD DENGAN PROTEKSI BAYANGAN */}
+            <g className="av-shield-glow">
+              <path d="M200,155 C214,155 226,149 226,149 C226,176 219,210 200,228 C181,210 174,176 174,149 C174,149 186,155 200,155 Z" fill="url(#av-glass-frost)" stroke="#ffffff" strokeWidth="1.5" opacity="0.85" />
+              <path d="M195,182 C195,177 198,173 203,173 C206,173 208,175 209,177 M205,187 C205,192 201,195 196,195 C193,195 191,193 190,191" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" opacity="0.95" />
+              <circle cx="200" cy="185" r="4.5" fill="none" stroke="#ffffff" strokeWidth="2" opacity="0.95" />
+            </g>
+          </svg>
         </div>
-        <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 w-[240px] h-[240px] rounded-full border border-purple-400/20 border-dashed av-orbit-reverse">
-          <div className="absolute top-1/2 -right-1 w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_15px_#a855f7]" />
-        </div>
         
-        {/* Wadah Perisai Inti */}
-        <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 w-[170px] h-[170px] rounded-full bg-gradient-to-b from-[#11131e] to-[#07080f] border border-cyan-400/30 flex items-center justify-center shadow-[inset_0_0_40px_rgba(6,182,212,0.15),0_0_50px_rgba(0,0,0,0.6)]">
-          <div className="absolute inset-2 rounded-full border border-white/[0.04]" />
-          <div className="absolute inset-4 rounded-full border border-purple-400/20 av-orbit-reverse" />
-          
-          <div className="relative z-10 w-[96px] h-[96px] flex items-center justify-center bg-gradient-to-tr from-cyan-500/10 to-purple-500/10 border border-white/10 rounded-2xl shadow-xl av-logo-pulse">
-            <Shield className="w-16 h-16 text-cyan-300 drop-shadow-[0_0_20px_rgba(6,182,212,0.6)]" strokeWidth={1.5} />
-            <div className="absolute inset-0 flex items-center justify-center opacity-30">
-              <Box className="w-8 h-8 text-purple-300" />
-            </div>
-          </div>
-        </div>
-        
-        {/* Lencana Atas & Bawah Panel Kanan */}
-        <div className="absolute top-[22px] left-1/2 -translate-x-1/2">
-          <div className="flex items-center gap-2 px-5 py-2 rounded-full border backdrop-blur-xl shadow-[0_5px_15px_rgba(0,0,0,0.3)]" style={{ color: catColor, borderColor: `${catColor}44`, background: `linear-gradient(135deg, ${catColor}08, ${catColor}15)` }}>
+        {/* Atribut Teks Informasi */}
+        <div className="absolute top-[24px] left-1/2 -translate-x-1/2">
+          <div className="flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] bg-white/[0.04] text-white/90">
             {CatIcon}<span className="text-[10px] font-black tracking-[0.25em]">AUTHENTICATED</span>
           </div>
         </div>
-        <div className="absolute bottom-[22px] left-[32px]">
-          <div className="text-[7px] tracking-[0.32em] text-neutral-600 font-bold">DIGITAL ARTIFACT</div>
-          <div className="text-[12px] text-white font-black mt-1 tracking-wide">AETHER PROF PROOF</div>
+        <div className="absolute bottom-[24px] left-[32px]">
+          <div className="text-[8px] tracking-[0.35em] text-white/30 font-black">DIGITAL ARTIFACT</div>
+          <div className="text-[13px] text-white/70 font-black mt-1 tracking-wide">AETHER PROF PROOF</div>
         </div>
-        <div className="absolute bottom-[22px] right-[32px] text-right">
-          <div className="text-[7px] tracking-[0.32em] text-neutral-600 font-bold">SERIAL REG.</div>
-          <div className="text-[11px] text-cyan-400 font-mono font-black mt-1">#{certificateId}</div>
+        <div className="absolute bottom-[24px] right-[32px] text-right">
+          <div className="text-[8px] tracking-[0.35em] text-white/30 font-black">SERIAL REG.</div>
+          <div className="text-[12px] text-white/80 font-mono font-black mt-1">#0001</div>
         </div>
       </div>
 
-      {/* FOOTER SECTION */}
+      {/* FOOTER BAR BANNER */}
       <div className="absolute left-[64px] right-[64px] bottom-[55px] z-20 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex gap-2">
-            <div className="w-10 h-10 rounded-xl border border-cyan-400/30 bg-cyan-400/[0.04] flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-              <ShieldCheck className="w-5 h-5 text-cyan-300" />
+            <div className="w-11 h-11 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-white/60" />
             </div>
-            <div className="w-10 h-10 rounded-xl border border-purple-400/30 bg-purple-400/[0.04] flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.1)]">
-              <Sparkles className="w-5 h-5 text-purple-300" />
+            <div className="w-11 h-11 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white/60" />
             </div>
           </div>
           <div>
-            <div className="text-[8px] tracking-[0.28em] text-neutral-500 font-bold">AUTHENTICITY STATUS</div>
-            <div className="text-[11px] text-cyan-300 font-black tracking-[0.1em] mt-1 flex items-center gap-1.5">
-              100% VERIFIABLE ON-CHAIN <span className="px-1.5 py-0.5 rounded text-[8px] bg-emerald-500/10 border border-emerald-400/30 text-emerald-400 font-mono font-bold">BSC VERIFIED</span>
+            <div className="text-[9px] tracking-[0.3em] text-white/30 font-black">AUTOMATED AUTHENTICITY STATUS</div>
+            <div className="text-[12px] text-white/80 font-black tracking-[0.1em] mt-1 flex items-center gap-2">
+              100% VERIFIABLE ON-CHAIN <span className="px-2 py-0.5 rounded text-[9px] bg-white/10 border border-white/20 text-white/70 font-mono font-black">BSC VERIFIED</span>
             </div>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <div className="text-[8px] tracking-[0.28em] text-neutral-500 font-bold">VERIFY METADATA</div>
-            <div className="text-[9px] text-purple-400 font-mono font-bold mt-1">SCAN TO AUDIT CONTRACT</div>
+            <div className="text-[9px] tracking-[0.3em] text-white/30 font-black">DECENTRALIZED AUDIT</div>
+            <div className="text-[10px] text-white/40 font-mono font-black mt-1">SCAN METADATA CONTRACT</div>
           </div>
-          <div className="w-[70px] h-[70px] rounded-xl bg-white p-2 shadow-[0_0_30px_rgba(6,182,212,0.2)] border border-cyan-400/30">
-            <QRCode value={verifyUrl} size={54} bgColor="#ffffff" fgColor="#06070d" level="Q" />
+          <div className="w-[72px] h-[72px] rounded-xl bg-white p-2 shadow-[0_15px_35px_rgba(0,0,0,0.3)] border border-white/10 flex items-center justify-center">
+            <QRCode value={verifyUrl} size={56} bgColor="#ffffff" fgColor="#0c0f1d" level="Q" />
           </div>
         </div>
       </div>
 
-      <div className="absolute bottom-[25px] left-[64px] right-[64px] flex items-center justify-between text-[7px] font-mono tracking-[0.25em] text-neutral-600 z-20">
+      {/* Sub-Footer */}
+      <div className="absolute bottom-[24px] left-[64px] right-[64px] flex items-center justify-between text-[7px] font-mono tracking-[0.3em] text-white/20 z-20">
         <span>VERIFIABLE • IMMUTABLE • SECURED FOREVER</span>
-        <span className="text-cyan-400/50 font-bold">POWERED BY AETHERVAULT PROTOCOL</span>
-        <span>{String(fileHash).slice(0, 28)}...</span>
+        <span className="text-white/30 font-black">POWERED BY AETHERVAULT PROTOCOL</span>
+        <span>{fileHash}</span>
       </div>
       
-      <div className="absolute top-0 bottom-0 left-0 w-[150px] bg-gradient-to-r from-transparent via-cyan-400/[0.05] to-transparent skew-x-[-18deg] pointer-events-none av-sweep" />
+      {/* Light Sweep */}
+      <div className="absolute top-0 bottom-0 left-0 w-[160px] bg-gradient-to-r from-transparent via-white/[0.06] to-transparent skew-x-[-20deg] pointer-events-none av-sweep-light" />
     </div>
   );
 });
 CertificateTemplate.displayName = "CertificateTemplate";
+
 
 // =========================================================
 // MAIN COMPONENT: AETHER PROOF HUB
