@@ -306,3 +306,4 @@ export default function CertificateModal({ selectedCertificate, setSelectedCerti
       </div>
     </div>
   );
+}
