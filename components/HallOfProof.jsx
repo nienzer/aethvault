@@ -15,7 +15,7 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Unknown';
 
 // =========================================================
-// RENDER PEMBARUAN: FIXED TINTED GLASSMORPHIC NFT - PROOF (HALL OF PROOF)
+// RENDER CERTIFICATE TEMPLATE - HALL OF PROOF
 // =========================================================
 const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref) => {
   const catKey = (proofData?.category || "Software").toLowerCase().trim();
@@ -34,6 +34,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
   const contract = proofData?.contract ? formatAddressFunc(proofData.contract) : "0x00...00";
   const fileHash = proofData?.fileHash || "Awaiting verification";
   const verifyUrl = proofData?.verifyUrl || "https://aethvault.xyz";
+  const description = proofData?.description || "This asset is permanently encrypted via advanced cryptographic primitives and verified on-chain. Ownership records are immutable and timestamped directly on the blockchain.";
 
   return (
     <div id="cert-export-node" ref={ref} className="relative mx-auto shrink-0 overflow-hidden w-[1200px] h-[760px] rounded-[32px] border border-white/[0.15] bg-[#0c0f1d]/85 backdrop-blur-2xl text-white font-sans shadow-[0_40px_100px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.15)]">
@@ -94,7 +95,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
         <p className="text-[10px] text-white/40 tracking-[0.25em] mt-1 font-mono uppercase font-bold">AETHER PROF COPYRIGHT REGISTRATION PROTOCOL</p>
       </div>
 
-      {/* LEFT CONTENT PANEL - DENGAN DESKRIPSI DINAMIS */}
+      {/* LEFT CONTENT PANEL */}
       <div className="absolute left-[64px] top-[225px] w-[560px] h-[385px] z-20 rounded-[28px] border border-white/[0.06] bg-[#0c101d]/60 p-6 shadow-[0_30px_60px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.05)]">
         <div className="flex justify-between items-start pb-4 border-b border-white/[0.08]">
           <div className="min-w-0 pr-6">
@@ -119,7 +120,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
         <div className="mt-5 pt-4 border-t border-white/[0.08]">
           <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">ASSET DESCRIPTION</div>
           <div className="text-[10px] leading-relaxed text-white/50 font-medium font-sans line-clamp-3">
-            {proofData?.description || "This asset is permanently encrypted via advanced cryptographic primitives and verified on-chain. Ownership records are immutable and timestamped directly on the blockchain."}
+            {description}
           </div>
         </div>
 
@@ -301,7 +302,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
             if (metadata.description) extractedDesc = metadata.description;
             if (metadata.attributes) {
               const creatorAttr = metadata.attributes.find(a => a.trait_type === "Creator");
-              if (creatorAttr && creatorAttr.value && creatorAttr.value.trim() !== "" && creatorAttr.value !== "Unknown Creator") {
+              if (creatorAttr && creatorAttr.value && creatorAttr.value.trim() !== "") {
                 extractedCreator = creatorAttr.value;
               }
             }
@@ -475,7 +476,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
         </div>
       )}
 
-      {/* MODAL POPUP - LENGKAP DENGAN TOMBOL DOWNLOAD PDF, PNG, DAN VIEW TRANSACTION */}
+      {/* MODAL POPUP */}
       {selectedProof && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
           <div className="relative flex flex-col items-center bg-[#05030F] border border-cyan-500/30 rounded-3xl shadow-2xl max-w-[95vw] max-h-[95vh] overflow-hidden">
@@ -497,7 +498,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
               </div>
             </div>
 
-            {/* TOMBOL AKSI DOWNLOAD & VIEW TRANSACTION YANG LENGKAP */}
+            {/* TOMBOL AKSI: SAVE PDF, SAVE PNG, DAN VIEW TRANSACTION */}
             <div className="w-full flex flex-wrap items-center justify-center gap-4 p-5 border-t border-cyan-900/50 bg-black/40">
               <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 text-xs font-bold transition-all cursor-pointer"><Download className="w-4 h-4" /> Save PDF</button>
               <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-300 text-xs font-bold transition-all cursor-pointer"><ImageIcon className="w-4 h-4" /> Save PNG</button>
