@@ -1,9 +1,8 @@
 "use client";
 import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect } from '@web3modal/ethers/react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Buffer } from 'buffer'; // 🚀 FIX: Import Buffer
+import { Buffer } from 'buffer';
 import { uploadEncryptedFileService } from '@/lib/storageService';
-// ⚡ FIX 9: Unused imports dibersihkan
 import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ethers } from 'ethers';
@@ -17,12 +16,10 @@ import {
   decryptWithPrivateKey,
 } from '@/lib/cryptoUtils';
 
-// 🚀 SDK IRYS TERBARU
 import { WebUploader } from "@irys/web-upload";
 import { WebBNB } from "@irys/web-upload-ethereum";
 import { EthersV6Adapter } from "@irys/web-upload-ethereum-ethers-v6";
 
-// ⭐ IMPORT SEMUA KOMPONEN
 import CertificateModal from '@/components/CertificateModal';
 import StakingPanel from '@/components/StakingPanel';
 import GlobalStats from '@/components/GlobalStats';
@@ -31,17 +28,14 @@ import CreateCapsule from '@/components/CreateCapsule';
 import AetherProofHub from '@/components/AetherProofHub';
 import HallOfProof from '@/components/HallOfProof';
 
-// ⭐ IMPORT ABI
 import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import StakingArtifact from '@/contracts/StakingABI.json';
 import TeamVestingArtifact from '@/contracts/TeamVestingABI.json';
 
-// ⚡ FIX: Ekstrak array ABI dari dalam objek JSON bawaan Hardhat
 const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
 const StakingABI = StakingArtifact.abi || StakingArtifact;
 const TeamVestingABI = TeamVestingArtifact.abi || TeamVestingArtifact;
 
-// ⚡ FIX 5: Buat Mini ABI khusus untuk fungsi Token ERC20 agar tidak error
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function allowance(address,address) view returns (uint256)",
@@ -57,9 +51,8 @@ const getNewIrysUploader = async (walletProvider) => {
   return irysUploader;
 };
 
-// ⭐ ALAMAT KONTRAK
 const AETH_TOKEN_ADDRESS = "0x2121a501Db9bBf122a69b856AEAaB3F908467cED"; 
-const CONTRACT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265"; 
+const CONTRACT_ADDRESS = "0x346cD3B294fE403459cf887677221eC97B3DBBeE"; 
 const STAKING_CONTRACT_ADDRESS = "0xe6FdC38895E2B7D463151423EE86ffcE268f5167"; 
 const VESTING_CONTRACT_ADDRESS = "0x62026F3bAcb3c4C726a2278Df94D2Fd436a8409c";
 
@@ -88,7 +81,6 @@ export default function DashboardPage() {
   const { t: globalT } = useLanguage();
   const t = (globalT && globalT.dashboard) ? globalT.dashboard : {};
 
-  // ⚡ FIX 4: Mencegah re-fetch data on-chain saat ganti bahasa
   const tRef = useRef(t);
   useEffect(() => {
     tRef.current = t;
@@ -157,6 +149,11 @@ export default function DashboardPage() {
   
   const myKeyPairRef = useRef(null);
 
+  // --- STATE KHUSUS VESTING 2-STEP ---
+  const [newBeneficiaryInput, setNewBeneficiaryInput] = useState('');
+  const [vestingPendingDest, setVestingPendingDest] = useState(null);
+  const [vestingUnlockTime, setVestingUnlockTime] = useState(0);
+
   useEffect(() => {
     if (address) {
       myKeyPairRef.current = null;
@@ -165,7 +162,6 @@ export default function DashboardPage() {
 
   const [onChainTierConfig, setOnChainTierConfig] = useState({});
 
-  // ⚡ FIX 1: Hapus deklarasi showToast yang duplikat, gunakan yang useCallback saja
   const showToast = useCallback((msg, type = 'info') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 4500);
@@ -563,10 +559,6 @@ export default function DashboardPage() {
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
   const getMinUnlockDatetimeLocal = () => {
-    // =========================================================
-    // 🚀 MAINNET NOTE: Waktu minimal kalender. 
-    // Sekarang Testnet (5 menit). Nanti ganti pengalinya, misal 1 hari: (24 * 60 * 60 * 1000)
-    // =========================================================
     const d = new Date(Date.now() + 5 * 60 * 1000); 
     const pad = (n) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -602,7 +594,6 @@ export default function DashboardPage() {
   const maxFileSizeMB = tier === 'legacy' ? 10 : 5;
   const MAX_ATTACHMENT_SIZE_BYTES = maxFileSizeMB * 1024 * 1024;
 
-  // 🚀 FIX BUFFER: handleFileSelected
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -626,7 +617,6 @@ export default function DashboardPage() {
       const cipherPayload = JSON.stringify({ name: file.name, type: file.type, data: fileBase64 });
       const encryptedPayload = await encryptForPublicKey(recipientPublicKey, cipherPayload);
       
-      // ✅ FIX BUFFER: Menggunakan Buffer.from() murni
       const encryptedBytes = Buffer.from(encryptedPayload);
       
       const irysUploader = await getNewIrysUploader(walletProvider);
@@ -642,7 +632,6 @@ export default function DashboardPage() {
     }
   };
 
-  // 🚀 FIX BUFFER: handleConfirmArweaveUpload
   const handleConfirmArweaveUpload = async () => {
     if (!stagedUpload) return;
     if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), 'error');
@@ -650,7 +639,6 @@ export default function DashboardPage() {
     setUploadError(''); 
     setIsUploading(true);
     try {
-      // 🚀 Memanggil fungsi service wrapper yang kodenya sudah teruji sukses
       const irysUrl = await uploadEncryptedFileService(walletProvider, stagedUpload.encryptedBytes);
       
       setUploadedCid(irysUrl);
@@ -748,13 +736,7 @@ export default function DashboardPage() {
 
       let tx;
       if (tier === 'legacy') {
-        // =========================================================
-        // 🚀 MAINNET NOTE: Ganti batas waktu Legacy!
-        // MATIKAN kode 180 (Testnet), dan HIDUPKAN kode rumus tahun (Mainnet) di bawahnya:
-        // =========================================================
         const inactivitySeconds = 180; 
-        // const inactivitySeconds = Number(inactivityYears) * 31536000;
-        
         tx = await contract.sealLegacyCapsule(encryptedTitle, encryptedMessage, inactivitySeconds, heirAddress);
       } else {
         if (!unlockDate) throw new Error(t.selectUnlockDateTime || "Pilih waktu buka");
@@ -1091,7 +1073,52 @@ export default function DashboardPage() {
       await tx.wait();
       showToast(t.adminVestingSuccess || "Mantap! Gaji developer berhasil masuk dompet!", "success");
     } catch (err) {
-      showToast((t.adminVestingFail || "Gagal mencairkan vesting: ") + err.message, "error");
+      showToast((t.adminVestingFail || "Gagal mencairkan vesting: ") + extractErrorMessage(err), "error");
+    } finally {
+      setIsAdminLoading(false);
+    }
+  };
+
+  // --- FUNGSI REQUEST GANTI DOMPET (LANGKAH 1) ---
+  const handleAdminRequestVestingChange = async (e) => {
+    e.preventDefault();
+    if (!ethers.isAddress(newBeneficiaryInput)) return showToast("Alamat dompet tidak valid!", "error");
+    try {
+      setIsAdminLoading(true);
+      const signer = await getSigner();
+      const vestingContract = new ethers.Contract(VESTING_CONTRACT_ADDRESS, TeamVestingABI, signer);
+      
+      showToast("Mengajukan pergantian dompet vesting...", "info");
+      const tx = await vestingContract.requestBeneficiaryChange(newBeneficiaryInput);
+      await tx.wait();
+      
+      setVestingPendingDest(newBeneficiaryInput);
+      setVestingUnlockTime(Math.floor(Date.now() / 1000) + (2 * 24 * 60 * 60)); 
+      setNewBeneficiaryInput('');
+      showToast("Pengajuan sukses! Harap tunggu 48 jam sebelum konfirmasi.", "success");
+    } catch (err) {
+      showToast("Gagal mengajukan: " + extractErrorMessage(err), "error");
+    } finally {
+      setIsAdminLoading(false);
+    }
+  };
+
+  // --- FUNGSI KONFIRMASI GANTI DOMPET (LANGKAH 2) ---
+  const handleAdminConfirmVestingChange = async () => {
+    try {
+      setIsAdminLoading(true);
+      const signer = await getSigner();
+      const vestingContract = new ethers.Contract(VESTING_CONTRACT_ADDRESS, TeamVestingABI, signer);
+      
+      showToast("Mengeksekusi pergantian dompet secara permanen...", "info");
+      const tx = await vestingContract.confirmBeneficiaryChange();
+      await tx.wait();
+      
+      setVestingPendingDest(null);
+      setVestingUnlockTime(0);
+      showToast("Dompet penerima Vesting BERHASIL diganti!", "success");
+    } catch (err) {
+      showToast("Konfirmasi ditolak (Mungkin 48 jam belum berlalu): " + extractErrorMessage(err), "error");
     } finally {
       setIsAdminLoading(false);
     }
@@ -1580,9 +1607,13 @@ export default function DashboardPage() {
                         </div>
                       </form>
 
-                      <div className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl space-y-3 mt-4">
-                        <h4 className="text-xs font-bold text-green-400 uppercase font-mono">Brankas Gaji Developer</h4>
-                        <p className="text-[10px] text-neutral-400 font-mono mb-2">Cairkan jatah AETH yang sudah melewati masa vesting.</p>
+                      {/* --- UI VESTING YANG DIPERBARUI --- */}
+                      <div className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl space-y-5 mt-4">
+                        <div>
+                          <h4 className="text-xs font-bold text-green-400 uppercase font-mono">Brankas Gaji Developer (Vesting)</h4>
+                          <p className="text-[10px] text-neutral-400 font-mono mt-1">Cairkan AETH atau ganti alamat dompet penerima (Timelock 48 Jam).</p>
+                        </div>
+                        
                         <button 
                           disabled={isAdminLoading}
                           onClick={handleAdminClaimVesting} 
@@ -1590,6 +1621,46 @@ export default function DashboardPage() {
                         >
                           <Coins className="w-4 h-4" /> Cairkan Gaji (Claim Vesting)
                         </button>
+
+                        {/* BAGIAN 2-STEP PERGANTIAN DOMPET */}
+                        <div className="border-t border-neutral-800 pt-4 space-y-3">
+                          <h4 className="text-[10px] font-bold text-amber-400 uppercase font-mono">Ganti Dompet Penerima Gaji</h4>
+                          
+                          {vestingUnlockTime > 0 ? (
+                            <div className="bg-amber-950/20 border border-amber-500/30 p-4 rounded-xl text-center space-y-3 shadow-inner">
+                              <Clock className="w-6 h-6 text-amber-400 mx-auto animate-pulse" />
+                              <div>
+                                <p className="text-xs font-bold text-amber-300">Menunggu Timelock 48 Jam</p>
+                                <p className="text-[10px] text-neutral-400 mt-1 font-mono">Target Baru: {formatAddress(vestingPendingDest)}</p>
+                              </div>
+                              <button 
+                                disabled={isAdminLoading || Math.floor(Date.now() / 1000) < vestingUnlockTime}
+                                onClick={handleAdminConfirmVestingChange} 
+                                className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-neutral-800 disabled:text-neutral-500 text-white py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-lg"
+                              >
+                                Eksekusi Pergantian Dompet
+                              </button>
+                            </div>
+                          ) : (
+                            <form onSubmit={handleAdminRequestVestingChange} className="flex gap-2">
+                              <input 
+                                type="text" 
+                                placeholder="0x... (Dompet Baru)" 
+                                value={newBeneficiaryInput}
+                                onChange={(e) => setNewBeneficiaryInput(e.target.value)}
+                                className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-amber-500 font-mono"
+                                required
+                              />
+                              <button 
+                                type="submit" 
+                                disabled={isAdminLoading}
+                                className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl text-[10px] font-bold cursor-pointer whitespace-nowrap shadow-lg"
+                              >
+                                Request Pindah
+                              </button>
+                            </form>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}

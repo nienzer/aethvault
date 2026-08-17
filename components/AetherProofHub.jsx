@@ -11,7 +11,7 @@ import { useLanguage } from '@/context/LanguageContext';
 const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
 const AetherVaultABI = AetherVaultArtifact.abi || AetherVaultArtifact;
 
-const AETHER_VAULT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265";
+const AETHER_VAULT_ADDRESS = "0x346cD3B294fE403459cf887677221eC97B3DBBeE";
 const AETH_TOKEN_ADDRESS = "0x2121a501Db9bBf122a69b856AEAaB3F908467cED"; 
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
@@ -490,7 +490,10 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
 
-      const requiredCostWei = ethers.parseUnits(currentConfig.price.toString(), 18);
+      // ⚡ PERBAIKAN 1: Harga dikunci permanen ke 200 AETH
+      const PROOF_PRICE = "200"; 
+      const requiredCostWei = ethers.parseEther(PROOF_PRICE);
+      
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, AetherVaultABI, signer);
 
       setMintingStatusMsg(tHop.checkingAllowance || 'Memeriksa izin akses token $AETH...');
@@ -532,7 +535,9 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const tokenURIParam = `data:application/json;base64,${encodedJSON}`;
 
       setMintingStatusMsg('Harap konfirmasi transaksi pencetakan (Mint) di MetaMask...');
-      const tx = await contract.createProof(Number(tier), category, fileHash, tokenURIParam, true);
+      
+      // ⚡ PERBAIKAN 2: Parameter 'Number(tier)' dihapus dari createProof
+      const tx = await contract.createProof(category, fileHash, tokenURIParam, true);
       
       setMintingStatusMsg('Menunggu validasi blok BSC Testnet...');
       setMintStep(5);

@@ -247,7 +247,10 @@ export default function StakingPanel({
 
                   const targetTier = TIERS[dep.tierId] || TIERS[0];
                   const tierName = targetTier.name;
-                  const displayApy = targetTier.apy;
+                  
+                  // ⚡ FIX: Membaca dep.apy dari kontrak lalu membaginya 100.
+                  // Jika dep.apy bernilai 2000 (BPS), akan tampil di layar sebagai 20 (%)
+                  const displayApy = dep.apy ? (Number(dep.apy) / 100) : targetTier.apy;
 
                   return (
                     // ⚡ FIX: Konversi dep.id ke String agar React tidak warning saat BigInt
