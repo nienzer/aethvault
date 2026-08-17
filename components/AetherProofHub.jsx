@@ -18,7 +18,7 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
 
 // =========================================================
-// RENDER PEMBARUAN: FIXED TINTED GLASSMORPHIC NFT - PROOF
+// RENDER PEMBARUAN: FIXED TINTED GLASSMORPHIC NFT - PROOF (DENGAN DESKRIPSI DINAMIS)
 // =========================================================
 const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref) => {
   const catKey = (proofData?.category || 'Software').toLowerCase().trim();
@@ -99,7 +99,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
         <p className="text-[10px] text-white/40 tracking-[0.25em] mt-1 font-mono uppercase font-bold">AETHER PROF COPYRIGHT REGISTRATION PROTOCOL</p>
       </div>
 
-      {/* LEFT DATA PANEL - POSISI DAN UKURAN DIAMANKAN */}
+      {/* LEFT DATA PANEL - DENGAN DESKRIPSI DINAMIS DARI FORM */}
       <div className="absolute left-[64px] top-[225px] w-[560px] h-[385px] z-20 rounded-[28px] border border-white/[0.06] bg-[#0c101d]/60 p-6 shadow-[0_30px_60px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.05)]">
         <div className="flex justify-between items-start pb-4 border-b border-white/[0.08]">
           <div className="min-w-0 pr-6">
@@ -127,8 +127,15 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
             {proofData?.description || "This legal artifact asset is permanently secured via end-to-end cryptographic primitives and timestamped on-chain. Molecular ownership records are absolute, immutable, and non-fungible."}
           </div>
         </div>
+
+        <div className="absolute bottom-5 left-6 right-6 flex items-center justify-between">
+          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">TOKEN ID</div><div className="text-[10px] text-white/60 font-mono font-black mt-1">#{tokenId}</div></div>
+          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">NETWORK PROT.</div><div className="text-[10px] text-white/60 font-mono font-black mt-1">BSC TESTNET</div></div>
+          <div className="max-w-[210px]"><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">SMART CONTRACT</div><div className="text-[9px] text-white/50 font-mono mt-1 truncate">{contract}</div></div>
+        </div>
+      </div>
       
-      {/* RIGHT DISPLAY PANEL - UKURAN DAN LOGO ASLI DIAMANKAN */}
+      {/* RIGHT DISPLAY PANEL */}
       <div className="absolute right-[64px] top-[225px] w-[460px] h-[385px] z-20 flex items-center justify-center">
         <div className="absolute inset-0 rounded-[28px] border border-white/[0.06] bg-[#0c101d]/60 shadow-[0_30px_60px_rgba(0,0,0,0.3)] overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -227,7 +234,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
         </div>
       </div>
 
-      {/* SUB-FOOTER - UKURAN TEKS DIBESARKAN KE text-[9px] */}
+      {/* SUB-FOOTER */}
       <div className="absolute bottom-[20px] left-[64px] right-[64px] flex items-center justify-between text-[9px] font-mono tracking-[0.3em] text-white/30 z-20">
         <span>VERIFIABLE • IMMUTABLE • SECURED FOREVER</span>
         <span className="text-white/40 font-black">POWERED BY AETHERVAULT PROTOCOL</span>
