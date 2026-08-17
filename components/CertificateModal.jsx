@@ -270,9 +270,11 @@ export default function CertificateModal({ selectedCertificate, setSelectedCerti
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative flex flex-col items-center bg-[#05030F] border border-cyan-500/30 rounded-3xl shadow-[0_0_80px_rgba(6,182,212,0.3)] max-w-[95vw] max-h-[95vh] overflow-hidden">
-        <div className="w-full flex justify-between items-center p-4 border-b border-cyan-900/50 bg-black/40">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative flex flex-col bg-[#05030F] border border-cyan-500/30 rounded-3xl shadow-[0_0_80px_rgba(6,182,212,0.3)] w-full max-w-4xl max-h-[95vh] overflow-hidden">
+        
+        {/* HEADER (Tetap/Fixed di atas) */}
+        <div className="w-full flex justify-between items-center p-4 border-b border-cyan-900/50 bg-black/40 shrink-0">
           <div className="flex items-center gap-2">
             <Award className="w-5 h-5 text-amber-400" />
             <h3 className="font-bold text-white font-mono">Vault Certificate <span className="text-cyan-400">#{selectedCertificate.capsuleId}</span></h3>
@@ -280,19 +282,27 @@ export default function CertificateModal({ selectedCertificate, setSelectedCerti
           <button onClick={() => setSelectedCertificate(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800/50 hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"><X className="w-5 h-5" /></button>
         </div>
         
-        <div className="w-full flex-1 overflow-auto custom-scrollbar flex items-center justify-center bg-[#020207] p-4 min-h-[550px]">
-          <div style={{ width: '780px', height: '494px', position: 'relative' }} className="shrink-0">
+        {/* BODY & FOOTER (Sekarang digabung agar bisa di-scroll ke bawah bersama-sama) */}
+        <div className="w-full flex-1 overflow-y-auto custom-scrollbar bg-[#020207] p-4 sm:p-6 flex flex-col items-center">
+          
+          {/* Area Gambar Sertifikat */}
+          <div style={{ width: '780px', height: '494px', position: 'relative' }} className="shrink-0 mb-8">
             <div className="absolute top-0 left-0" style={{ width: '1200px', height: '760px', transform: 'scale(0.65)', transformOrigin: 'top left' }}>
               <CertificateTemplate ref={certificateRef} data={selectedCertificate} networkName={TARGET_CHAIN_NAME} />
             </div>
           </div>
-        </div>
 
-        <div className="w-full flex flex-wrap items-center justify-center gap-4 p-5 border-t border-cyan-900/50 bg-black/40">
-          <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 text-xs font-bold transition-all shadow-sm cursor-pointer"><Download className="w-4 h-4" /> Save PDF</button>
-          <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-300 text-xs font-bold transition-all shadow-sm cursor-pointer"><ImageIcon className="w-4 h-4" /> Save PNG</button>
+          {/* TOMBOL AKSI - Sekarang berada di dalam area scroll! */}
+          <div className="w-full flex flex-wrap items-center justify-center gap-4 pt-6 border-t border-cyan-900/40">
+            <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 hover:bg-amber-500/10 text-amber-300 text-xs font-bold transition-all shadow-[0_0_15px_rgba(245,158,11,0.1)] cursor-pointer">
+              <Download className="w-4 h-4" /> Save PDF
+            </button>
+            <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 hover:bg-cyan-500/10 text-cyan-300 text-xs font-bold transition-all shadow-[0_0_15px_rgba(6,182,212,0.1)] cursor-pointer">
+              <ImageIcon className="w-4 h-4" /> Save PNG
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
   );
-}

@@ -311,10 +311,24 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
         let extractedCreator = "";
 
         try {
-          const tokenUriRaw = args[3];
-          if (tokenUriRaw && tokenUriRaw.startsWith('data:application/json;base64,')) {
-            const base64Payload = tokenUriRaw.split(',')[1];
-            const jsonString = decodeURIComponent(escape(window.atob(base64Payload)));
+          let tokenUriRaw = args[3];
+          
+          // JURUS PAMUNGKAS: Jika args[3] kosong/terpotong, tembak langsung ke Smart Contract!
+          if (!tokenUriRaw || tokenUriRaw.length < 50) {
+            try { tokenUriRaw = await contract.tokenURI(tokenId); } catch(err) {}
+          }
+
+          if (tokenUriRaw && tokenUriRaw.includes('base64,')) {
+            const base64Payload = tokenUriRaw.split('base64,')[1];
+            let jsonString = "";
+            
+            // Decode Base64 berlapis agar anti-gagal
+            try {
+              jsonString = decodeURIComponent(escape(window.atob(base64Payload)));
+            } catch (e1) {
+              jsonString = window.atob(base64Payload);
+            }
+            
             const metadata = JSON.parse(jsonString);
             if (metadata.name) extractedTitle = metadata.name;
             if (metadata.description) extractedDesc = metadata.description;

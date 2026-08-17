@@ -358,18 +358,65 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const parsedProofs = await Promise.all(allEvents.map(async (ev) => {
         const block = await provider.getBlock(ev.blockNumber);
         const args = ev.args;
+        const tokenId = args[0].toString();
+        const ownerWallet = args[1];
+        const category = args[2] || "Software";
+        
+        let extractedTitle = `Aether Proof #${tokenId}`;
+        let extractedDesc = "Aether Proof Immutable Certificate. 100% On-Chain Verification.";
+        let extractedCreator = "";
+
+        try {
+          let tokenUriRaw = args[3];
+          
+          if (!tokenUriRaw || tokenUriRaw.length < 50) {
+            try { tokenUriRaw = await contract.tokenURI(tokenId); } catch(err) {}
+          }
+
+          if (tokenUriRaw && tokenUriRaw.includes('base64,')) {
+            const base64Payload = tokenUriRaw.split('base64,')[1];
+            let jsonString = "";
+            
+            try {
+              jsonString = decodeURIComponent(escape(window.atob(base64Payload)));
+            } catch (e1) {
+              jsonString = window.atob(base64Payload);
+            }
+            
+            const metadata = JSON.parse(jsonString);
+            if (metadata.name) extractedTitle = metadata.name;
+            if (metadata.description) extractedDesc = metadata.description;
+            if (metadata.attributes) {
+              const creatorAttr = metadata.attributes.find(a => a.trait_type === "Creator");
+              if (creatorAttr && creatorAttr.value && creatorAttr.value.trim() !== "") {
+                extractedCreator = creatorAttr.value;
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("Gagal parse tokenURI untuk token", tokenId);
+        }
+
+        const finalCreator = extractedCreator || formatAddressFunc(ownerWallet);
+
         return {
-          id: args[0].toString(),
-          title: `Aether Proof #${args[0].toString()}`,
-          category: args[2] || "Software",
-          owner: `${args[1].substring(0, 6)}...${args[1].substring(args[1].length - 4)}`,
-          ownerFull: args[1],
+          id: tokenId,
+          tokenId: tokenId,
+          title: extractedTitle,
+          description: extractedDesc,
+          category: category,
+          creator: finalCreator,
+          owner: formatAddressFunc(ownerWallet),
+          ownerFull: ownerWallet,
+          wallet: ownerWallet,
           date: new Date((block?.timestamp || Date.now() / 1000) * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
           network: TARGET_CHAIN_NAME || "BSC Testnet",
           hash: `${args[4].substring(0, 8)}...`,
+          fileHash: args[4],
           fullHash: args[4],
           status: "Verified On-Chain",
-          txHash: ev.transactionHash
+          txHash: ev.transactionHash,
+          verifyUrl: `https://testnet.bscscan.com/tx/${ev.transactionHash}`
         };
       }));
 
