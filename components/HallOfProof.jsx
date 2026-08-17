@@ -9,7 +9,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
 const AETHER_VAULT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265";
-const CONTRACT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265"; // ⚡ VARIABEL INI YANG SEBELUMNYA KURANG
+const CONTRACT_ADDRESS = "0xCda136B176baE8F92d0Dbc7851C0A1E282469265";
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Unknown';
@@ -191,7 +191,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
         </div>
         <div className="absolute bottom-[20px] left-[32px]">
           <div className="text-[8px] tracking-[0.35em] text-white/30 font-black">DIGITAL ARTIFACT</div>
-          <div className="text-[13px] text-white/70 font-black mt-1 tracking-wide">AETHER PROF PROOF</div>
+          <div className="text-[13px] text-white/70 font-black mt-1 tracking-wide">AETHERVAULT PROOF</div>
         </div>
         <div className="absolute bottom-[20px] right-[32px] text-right">
           <div className="text-[8px] tracking-[0.35em] text-white/30 font-black">SERIAL REG.</div>
@@ -475,7 +475,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
         </div>
       )}
 
-      {/* MODAL POPUP */}
+      {/* MODAL POPUP - LENGKAP DENGAN TOMBOL DOWNLOAD PDF, PNG, DAN VIEW TRANSACTION */}
       {selectedProof && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
           <div className="relative flex flex-col items-center bg-[#05030F] border border-cyan-500/30 rounded-3xl shadow-2xl max-w-[95vw] max-h-[95vh] overflow-hidden">
@@ -497,6 +497,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
               </div>
             </div>
 
+            {/* TOMBOL AKSI DOWNLOAD & VIEW TRANSACTION YANG LENGKAP */}
             <div className="w-full flex flex-wrap items-center justify-center gap-4 p-5 border-t border-cyan-900/50 bg-black/40">
               <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 text-xs font-bold transition-all cursor-pointer"><Download className="w-4 h-4" /> Save PDF</button>
               <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-300 text-xs font-bold transition-all cursor-pointer"><ImageIcon className="w-4 h-4" /> Save PNG</button>
