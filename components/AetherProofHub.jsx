@@ -122,16 +122,11 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
         </div>
 
         <div className="mt-5 pt-4 border-t border-white/[0.08]">
-          <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">CRYPTOGRAPHIC IMMUTABILITY STATEMENT</div>
-          <div className="text-[10px] leading-relaxed text-white/50 font-medium font-sans">This legal artifact asset is permanently secured via end-to-end cryptographic primitives and timestamped on-chain. Molecular ownership records are absolute, immutable, and non-fungible.</div>
+          <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">ASSET DESCRIPTION</div>
+          <div className="text-[10px] leading-relaxed text-white/50 font-medium font-sans line-clamp-3">
+            {proofData?.description || "This legal artifact asset is permanently secured via end-to-end cryptographic primitives and timestamped on-chain. Molecular ownership records are absolute, immutable, and non-fungible."}
+          </div>
         </div>
-
-        <div className="absolute bottom-5 left-6 right-6 flex items-center justify-between">
-          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">TOKEN ID</div><div className="text-[10px] text-white/60 font-mono font-black mt-1">#{tokenId}</div></div>
-          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">NETWORK PROT.</div><div className="text-[10px] text-white/60 font-mono font-black mt-1">BSC TESTNET</div></div>
-          <div className="max-w-[210px]"><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">SMART CONTRACT</div><div className="text-[9px] text-white/50 font-mono mt-1 truncate">{contract}</div></div>
-        </div>
-      </div>
       
       {/* RIGHT DISPLAY PANEL - UKURAN DAN LOGO ASLI DIAMANKAN */}
       <div className="absolute right-[64px] top-[225px] w-[460px] h-[385px] z-20 flex items-center justify-center">
