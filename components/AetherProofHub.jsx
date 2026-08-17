@@ -88,15 +88,15 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
       </div>
 
       {/* TITLE SECTION */}
-      <div className="absolute top-[135px] left-[64px] z-20">
+      <div className="absolute top-[125px] left-[64px] z-20">
         <div className="flex items-center gap-3 mb-2">
           <span className="w-16 h-px bg-gradient-to-r from-transparent to-white/30" />
           <span className="text-[10px] tracking-[0.55em] text-white/30 uppercase font-mono font-black">Decentralized Vault Registry</span>
         </div>
-        <h1 className="text-[40px] font-black tracking-[0.15em] text-white">
+        <h1 className="text-[40px] font-black tracking-[0.15em] text-white leading-tight">
           CERTIFICATE OF AUTHENTICITY
         </h1>
-        <p className="text-[10px] text-white/40 tracking-[0.25em] mt-1 font-mono uppercase font-bold">AETHER PROF COPYRIGHT REGISTRATION PROTOCOL</p>
+        <p className="text-[10px] text-white/40 tracking-[0.25em] mt-0.5 font-mono uppercase font-bold">AETHER PROOF COPYRIGHT REGISTRATION PROTOCOL</p>
       </div>
 
       {/* LEFT DATA PANEL - DENGAN DESKRIPSI DINAMIS DARI FORM */}
@@ -367,13 +367,13 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         let extractedCreator = "";
 
         try {
-          let tokenUriRaw = args[3];
-          
-          if (!tokenUriRaw || tokenUriRaw.length < 50) {
-            try { tokenUriRaw = await contract.tokenURI(tokenId); } catch(err) {}
-          }
+          // JURUS MUTLAK: Langsung minta metadata ke Smart Contract
+          let tokenUriRaw = "";
+          try { 
+            tokenUriRaw = await contract.tokenURI(tokenId); 
+          } catch(err) {}
 
-          if (tokenUriRaw && tokenUriRaw.includes('base64,')) {
+          if (tokenUriRaw && typeof tokenUriRaw === 'string' && tokenUriRaw.includes('base64,')) {
             const base64Payload = tokenUriRaw.split('base64,')[1];
             let jsonString = "";
             
