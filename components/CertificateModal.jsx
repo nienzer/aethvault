@@ -152,7 +152,10 @@ export default function CertificateModal({ selectedCertificate, setSelectedCerti
       link.download = `VAULT-CERT-${selectedCertificate.capsuleId}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-    } catch (err) { console.error("Export PNG gagal", err); if (showToast) showToast("Gagal menyimpan PNG", "error"); }
+    } catch (err) { 
+      console.error("Export PNG gagal", err); 
+      alert("Gagal Export: " + err.message + "\n(Jika ini error 'oklab', silakan update html2canvas atau cetak layar manual)");
+    }
   };
 
   const handleDownloadPDF = async () => {
@@ -165,7 +168,10 @@ export default function CertificateModal({ selectedCertificate, setSelectedCerti
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfWidth, pdfHeight, '', 'FAST');
       pdf.save(`VAULT-CERT-${selectedCertificate.capsuleId}.pdf`);
-    } catch (err) { console.error("Export PDF gagal", err); if (showToast) showToast("Gagal menyimpan PDF", "error");}
+    } catch (err) { 
+      console.error("Export PDF gagal", err); 
+      alert("Gagal Export: " + err.message + "\n(Jika ini error 'oklab', silakan update html2canvas atau cetak layar manual)");
+    }
   };
 
   return (
@@ -178,15 +184,19 @@ export default function CertificateModal({ selectedCertificate, setSelectedCerti
           </div>
           <button onClick={() => setSelectedCertificate(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-800/50 hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"><X className="w-5 h-5" /></button>
         </div>
-        <div className="w-full flex-1 overflow-auto custom-scrollbar p-6 flex justify-center bg-[#020207] shadow-inner">
-          <div className="mx-auto shadow-[0_0_60px_rgba(0,0,0,0.8)] rounded-[28px] shrink-0" style={{ transform: `scale(0.65)`, width: '1200px', height: '760px', marginBottom: `calc((0.65 - 1) * 760px)`, marginRight: `calc((0.65 - 1) * 1200px)`, transformOrigin: 'top center' }}>
-            <CertificateTemplate ref={certificateRef} data={selectedCertificate} networkName={TARGET_CHAIN_NAME} />
+        
+        {/* FIX CENTERING: Wrapper khusus agar skala selalu 100% pas di tengah */}
+        <div className="w-full flex-1 overflow-auto custom-scrollbar flex items-center justify-center bg-[#020207] p-4 min-h-[550px]">
+          <div style={{ width: '780px', height: '494px', position: 'relative' }} className="shrink-0">
+            <div className="absolute top-0 left-0" style={{ width: '1200px', height: '760px', transform: 'scale(0.65)', transformOrigin: 'top left' }}>
+              <CertificateTemplate ref={certificateRef} data={selectedCertificate} networkName={TARGET_CHAIN_NAME} />
+            </div>
           </div>
         </div>
+
         <div className="w-full flex flex-wrap items-center justify-center gap-4 p-5 border-t border-cyan-900/50 bg-black/40">
-          <button onClick={() => window.print()} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-bold transition-all cursor-pointer shadow-lg">
-            <Download className="w-4 h-4" /> Cetak / Save ke PDF (HD)
-          </button>
+          <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 text-xs font-bold transition-all shadow-sm cursor-pointer"><Download className="w-4 h-4" /> Save PDF</button>
+          <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 text-cyan-300 text-xs font-bold transition-all shadow-sm cursor-pointer"><ImageIcon className="w-4 h-4" /> Save PNG</button>
         </div>
       </div>
     </div>
