@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import AetherVaultArtifact from '@/contracts/AetherVaultABI.json';
 import { useLanguage } from '@/context/LanguageContext';
+import { generateNFTThumbnail } from './NFTThumbnail';
 
 const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
 const AetherVaultABI = AetherVaultArtifact.abi || AetherVaultArtifact;
@@ -261,7 +262,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
   const certificateRef = useRef(null);
 
   const previewScrollRef = useRef(null);
-  const [previewZoom, setPreviewZoom] = useState(0.5);
+  const [previewZoom, setPreviewZoom] = useState(0.4);
   const [isDraggingPreview, setIsDraggingPreview] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
 
@@ -517,7 +518,8 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         }
       });
 
-      const svgImage = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#0B0817"/><text x="50%" y="50%" font-family="monospace" font-size="24" font-weight="bold" fill="#e4a329" text-anchor="middle" dy=".3em">${safeTitle}</text></svg>`;
+      // Memanggil dari file NFTThumbnail.js yang baru saja Bos buat
+      const svgImage = generateNFTThumbnail(title, category);
       const base64Svg = window.btoa(unescape(encodeURIComponent(svgImage)));
 
       const metadataJSON = {
@@ -895,8 +897,8 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
               onTouchStart={handleTouchStart} 
               onTouchEnd={handleMouseLeaveOrUp}
               onTouchMove={handleTouchMove}
-              className={`w-full flex justify-center overflow-auto py-16 mt-8 custom-scrollbar ${isDraggingPreview ? 'cursor-grabbing' : 'cursor-grab'} rounded-2xl bg-black/40 border border-neutral-900/50 shadow-inner`}
-              style={{ minHeight: '680px' }}
+              className={`w-full flex justify-center overflow-auto py-6 mt-8 custom-scrollbar ${isDraggingPreview ? 'cursor-grabbing' : 'cursor-grab'} rounded-2xl bg-black/40 border border-neutral-900/50 shadow-inner`}
+              style={{ minHeight: '420px' }}
             >
               <div 
                 className="mx-auto shadow-[0_0_60px_rgba(0,0,0,0.8)] rounded-[28px] shrink-0 transition-transform duration-200"
@@ -954,11 +956,10 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
           <h3 className="text-2xl sm:text-3xl font-black font-display text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-cyan-300 mb-2 text-center tracking-wide">Aether Proof Minted Successfully!</h3>
           <p className="text-neutral-400 text-sm mb-6 font-mono">Your digital asset is now permanently secured on the blockchain.</p>
           
-          {/* TAMPILAN SERTIFIKAT FULL SCALING TANPA KOTAK */}
-          <div className="w-full flex justify-center items-center mt-6 pt-6 border-t border-cyan-900/30">
-            {/* Wrapper responsif yang menjaga rasio asli 1200x760 */}
-            <div className="relative w-full max-w-[900px] flex justify-center" style={{ aspectRatio: '1200/760' }}>
-              <div className="absolute top-0" style={{ width: '1200px', height: '760px', transform: 'scale(calc(min(100vw - 40px, 900px) / 1200))', transformOrigin: 'top center' }}>
+          {/* TAMPILAN SERTIFIKAT FULL SCALING YANG DIPERBAIKI */}
+          <div className="w-full flex justify-center items-center mt-4 overflow-hidden">
+            <div className="w-full max-w-[750px] overflow-hidden flex justify-center bg-black/40 border border-neutral-900 rounded-2xl p-4">
+              <div style={{ width: '1200px', height: '760px', transform: 'scale(0.55)', transformOrigin: 'top center', marginBottom: '-340px' }}>
                  <CertificateTemplate 
                     ref={certificateRef}
                     tDash={tDash}

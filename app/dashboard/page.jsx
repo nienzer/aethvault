@@ -1194,7 +1194,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <main className="flex-1 w-full pt-0 pb-12">
+      <main className="flex-1 w-full pt-4 sm:pt-6 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="bg-[#0B0817] border border-neutral-900 p-3 sm:p-4 rounded-2xl sm:rounded-3xl mb-6 lg:mb-8 flex items-center justify-between shadow-xl">
             <div className="flex items-center gap-3">
