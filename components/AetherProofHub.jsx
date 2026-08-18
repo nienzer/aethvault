@@ -11,8 +11,8 @@ import { useLanguage } from '@/context/LanguageContext';
 const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
 const AetherVaultABI = AetherVaultArtifact.abi || AetherVaultArtifact;
 
-const AETHER_VAULT_ADDRESS = "0x346cD3B294fE403459cf887677221eC97B3DBBeE";
-const AETH_TOKEN_ADDRESS = "0x2121a501Db9bBf122a69b856AEAaB3F908467cED"; 
+const AETHER_VAULT_ADDRESS = "0x8C315f5F2364139436fc126cBAe397718bd0f3BE";
+const AETH_TOKEN_ADDRESS = "0x71C387117FA0DaD965B7F587081338395FEA2E4a"; 
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';
@@ -622,7 +622,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
     setDescription('');
     setCreatorName('');
     setCategory('Software');
-    setTier(0);
   };
 
   return (

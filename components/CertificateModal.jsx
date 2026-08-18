@@ -4,7 +4,7 @@ import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
 import QRCode from 'react-qr-code';
 
-const CONTRACT_ADDRESS = "0x346cD3B294fE403459cf887677221eC97B3DBBeE"; 
+const CONTRACT_ADDRESS = "0x8C315f5F2364139436fc126cBAe397718bd0f3BE"; 
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Unknown';
 
 // =========================================================
