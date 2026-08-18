@@ -7,7 +7,6 @@ import jsPDF from 'jspdf';
 import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import AetherVaultArtifact from '@/contracts/AetherVaultABI.json';
 import { useLanguage } from '@/context/LanguageContext';
-import { generateNFTThumbnail } from './NFTThumbnail';
 
 const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
 const AetherVaultABI = AetherVaultArtifact.abi || AetherVaultArtifact;
@@ -518,8 +517,25 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         }
       });
 
-      // Memanggil dari file NFTThumbnail.js yang baru saja Bos buat
-      const svgImage = generateNFTThumbnail(title, category);
+      // Mengambil logo langsung dari file logo.png di folder public Anda
+      const logoUrl = "https://aethvault.xyz/logo.png";
+
+      const svgImage = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#0B0817;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grad)" />
+        <rect x="15" y="15" width="370" height="370" rx="20" fill="none" stroke="#06b6d4" stroke-width="4" />
+        <image href="${logoUrl}" x="140" y="60" width="120" height="120" />
+        <text x="50%" y="230" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">${safeTitle}</text>
+        <text x="50%" y="270" font-family="Arial, sans-serif" font-size="14" fill="#06b6d4" text-anchor="middle" letter-spacing="2px">AETHER PROOF</text>
+        <text x="50%" y="335" font-family="Arial, sans-serif" font-size="12" fill="#888" text-anchor="middle">${category.toUpperCase()}</text>
+      </svg>`;
+
       const base64Svg = window.btoa(unescape(encodeURIComponent(svgImage)));
 
       const metadataJSON = {
