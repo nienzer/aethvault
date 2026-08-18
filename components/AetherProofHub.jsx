@@ -517,9 +517,6 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         }
       });
 
-      // Mengambil logo langsung dari file logo.png di folder public Anda
-      const logoUrl = "https://aethvault.xyz/logo.png";
-
       const svgImage = `
       <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
         <defs>
@@ -530,10 +527,9 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
         </defs>
         <rect width="100%" height="100%" fill="url(#grad)" />
         <rect x="15" y="15" width="370" height="370" rx="20" fill="none" stroke="#06b6d4" stroke-width="4" />
-        <image href="${logoUrl}" x="140" y="60" width="120" height="120" />
-        <text x="50%" y="230" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">${safeTitle}</text>
-        <text x="50%" y="270" font-family="Arial, sans-serif" font-size="14" fill="#06b6d4" text-anchor="middle" letter-spacing="2px">AETHER PROOF</text>
-        <text x="50%" y="335" font-family="Arial, sans-serif" font-size="12" fill="#888" text-anchor="middle">${category.toUpperCase()}</text>
+        <text x="50%" y="190" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">${safeTitle}</text>
+        <text x="50%" y="230" font-family="Arial, sans-serif" font-size="14" fill="#06b6d4" text-anchor="middle" letter-spacing="2px">AETHER PROOF</text>
+        <text x="50%" y="280" font-family="Arial, sans-serif" font-size="12" fill="#888" text-anchor="middle">${category.toUpperCase()}</text>
       </svg>`;
 
       const base64Svg = window.btoa(unescape(encodeURIComponent(svgImage)));
