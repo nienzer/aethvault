@@ -322,7 +322,7 @@ export default function AetherProofHub({ handleViewCertificate, setActiveTab, ad
       const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
       const contract = new ethers.Contract(AETHER_VAULT_ADDRESS, AetherVaultV3ABI, provider);
       const filter = contract.filters.ProofMinted();
-      const DEPLOY_BLOCK = 43345845; 
+      const DEPLOY_BLOCK = 125804762; 
       const currentBlock = await provider.getBlockNumber();
       
       // LOGIKA AMAN: Hanya ambil 49.000 blok terakhir agar server RPC tidak memblokir koneksi
