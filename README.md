@@ -28,7 +28,7 @@ Access the AetherVault dApp here: [https://aethvault.xyz](https://aethvault.xyz)
 ## 🛠️ Official Resources
 | Resource | Description |
 | :--- | :--- |
-| **[Grant Proposal](smart-contracts-with-test-suite/grant-docs/AetherVault_Grant_Proposal_EN.pdf)** | Official PDF proposal for BNB Chain Builder Grant. |
+| **[Grant Proposal](smart-contracts-with-test-suite/grant-docs/AetherVault_Grant_Proposal.pdf)** | Official PDF proposal for BNB Chain Builder Grant. |
 | **[Smart Contract Suite](smart-contracts-with-test-suite/)** | Production-ready, audit-ready contracts & test logs. |
 | **[Video Demo](https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK_HERE)** | Walkthrough of the protocol features & UI. |
 
