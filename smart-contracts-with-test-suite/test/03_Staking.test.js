@@ -75,12 +75,13 @@ describe("AetherVaultStakingSecureV6", function () {
     expect(after).to.be.gt(before);
   });
 
-  it("Tier update: butuh timelock 48 jam", async function () {
+  it("Tier update: butuh timelock 3 menit", async function () {
     await staking.requestTierUpdate(0, 500, 0);
     await expect(staking.executeTierUpdate(0))
       .to.be.revertedWithCustomError(staking, "TimelockNotExpired");
     
-    await ethers.provider.send("evm_increaseTime", [49 * 3600]);
+    // Majukan waktu 4 menit agar aman melewati batas 3 menit
+    await ethers.provider.send("evm_increaseTime", [4 * 60]); 
     await ethers.provider.send("evm_mine");
     
     await staking.executeTierUpdate(0);

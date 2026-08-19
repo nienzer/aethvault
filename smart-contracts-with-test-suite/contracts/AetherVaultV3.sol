@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -8,14 +8,14 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol"; 
 import "@openzeppelin/contracts/utils/Pausable.sol";
 
-contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausable {
+contract AetherVaultV3_Testnet is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausable {
     using SafeERC20 for IERC20;
 
     IERC20 public aethToken;
     address public treasuryAddress;
     address public stakingContractAddress;
     address public constant DEAD = 0x000000000000000000000000000000000000dEaD;
-    
+
     string public privatePlaceholderURI = "ipfs://private-aether-proof-metadata-placeholder";
 
     uint256 public totalCapsules;
@@ -23,7 +23,15 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
     uint256 public burnedAeth;
     uint256 private _tokenIds;
 
-    uint256 public constant MIN_INACTIVITY_LIMIT = 5 * 365 days;
+    // --- TESTNET: Batas ketidakaktifan diubah jadi 5 MENIT ---
+    uint256 public constant MIN_INACTIVITY_LIMIT = 5 minutes;
+    
+    // Batas Maksimal Ciphertext (Sabuk Pengaman)
+    uint256 public constant MAX_CIPHERTEXT_LENGTH = 10000;
+
+    // Harga Paten Aether Proof
+    uint256 public constant PROOF_COST = 200 ether;
+    uint256 public constant PROOF_BURN = 40 ether;
 
     enum Tier { Basic, Premium, Eternal, Legacy }
 
@@ -36,7 +44,7 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
 
     struct Capsule {
         string title;
-        string ciphertext; // ✅ FIX UTAMA: Diubah dari bytes32 menjadi string agar bisa menampung pesan panjang
+        string ciphertext;
         uint256 unlockTimestamp;
         address owner;
         Tier tier;
@@ -47,7 +55,7 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
         bool isClaimedOrRevealed;
         bool contentDeleted;
     }
-    
+
     mapping(uint256 => Capsule) private capsules;
     mapping(address => uint256[]) private userCapsules;
     mapping(address => uint256[]) private heirCapsules;
@@ -70,17 +78,20 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
     event StakingContractSet(address indexed oldAddress, address indexed newAddress);
     event FeesDistributed(uint256 burnAmount, uint256 treasuryAmount, uint256 stakingAmount);
 
-    constructor(address _aethToken, address _treasury) ERC721("Aether Proof", "APROOF") Ownable(msg.sender) {
+    constructor(address _aethToken, address _treasury, address _stakingContract) ERC721("Aether Proof", "APROOF") Ownable(msg.sender) {
         require(_aethToken != address(0), "Invalid token address");
         require(_treasury != address(0), "Invalid treasury address");
+        require(_stakingContract != address(0), "Invalid staking address");
 
         aethToken = IERC20(_aethToken);
         treasuryAddress = _treasury;
+        stakingContractAddress = _stakingContract;
 
-        tierConfigs[Tier.Basic] = TierConfig(10 ether, 2 ether, 365 days);
-        tierConfigs[Tier.Premium] = TierConfig(50 ether, 10 ether, 1825 days);
-        tierConfigs[Tier.Eternal] = TierConfig(200 ether, 40 ether, 36500 days);
-        tierConfigs[Tier.Legacy] = TierConfig(500 ether, 100 ether, 18250 days);
+        // --- TESTNET: maxDuration diubah jadi hitungan MENIT ---
+        tierConfigs[Tier.Basic] = TierConfig(10 ether, 2 ether, 10 minutes);
+        tierConfigs[Tier.Premium] = TierConfig(50 ether, 10 ether, 20 minutes);
+        tierConfigs[Tier.Eternal] = TierConfig(200 ether, 40 ether, 30 minutes);
+        tierConfigs[Tier.Legacy] = TierConfig(500 ether, 100 ether, 40 minutes);
     }
 
     function pause() external onlyOwner { _pause(); }
@@ -127,7 +138,7 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
             treasuryShare = remainingFee - stakingShare;
             aethToken.safeTransferFrom(msg.sender, stakingContractAddress, stakingShare);
         }
-        
+
         if (treasuryShare > 0) {
             aethToken.safeTransferFrom(msg.sender, treasuryAddress, treasuryShare);
         }
@@ -135,18 +146,17 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
         emit FeesDistributed(_burnPart, treasuryShare, stakingShare);
     }
 
-    function createProof(Tier _tier, string memory _category, bytes32 _fileHash, string memory _tokenURI, bool _isPublic) external nonReentrant whenNotPaused {
+    function createProof(string memory _category, bytes32 _fileHash, string memory _tokenURI, bool _isPublic) external nonReentrant whenNotPaused {
         require(bytes(_category).length > 0 && bytes(_category).length <= 50, "Invalid category");
         require(_fileHash != bytes32(0), "Invalid hash");
         require(bytes(_tokenURI).length > 0, "Empty URI");
         require(treasuryAddress != address(0), "Treasury not set");
         require(!usedHashes[_fileHash], "Proof already exists");
 
-        TierConfig memory config = tierConfigs[_tier];
-        require(aethToken.balanceOf(msg.sender) >= config.cost, "Insufficient AETH balance");
-        require(aethToken.allowance(msg.sender, address(this)) >= config.cost, "Approve token first");
+        require(aethToken.balanceOf(msg.sender) >= PROOF_COST, "Insufficient AETH balance");
+        require(aethToken.allowance(msg.sender, address(this)) >= PROOF_COST, "Approve token first");
 
-        _distributeFees(config.cost, config.burnPart);
+        _distributeFees(PROOF_COST, PROOF_BURN);
 
         _tokenIds++;
         uint256 newItemId = _tokenIds;
@@ -164,7 +174,7 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         address owner = ownerOf(tokenId); 
-        
+
         if (!proofRegistry[tokenId].isPublic) {
             if (msg.sender != owner) {
                 return privatePlaceholderURI;
@@ -177,7 +187,7 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
         address tokenOwner = ownerOf(_tokenId);
         require(tokenOwner != address(0), "Proof does not exist");
         ProofMeta memory meta = proofRegistry[_tokenId];
-        
+
         if (!meta.isPublic) {
             require(tokenOwner == msg.sender, "This proof is private and restricted");
         }
@@ -190,7 +200,6 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
         encryptionPublicKeys[msg.sender] = _pubKey;
     }
 
-    // ✅ FIX KEDUA: Parameter penerimaan diganti menjadi string calldata
     function sealTimeLockCapsule(Tier _tier, string calldata _title, string calldata _ciphertext, uint256 _unlockTimestamp) external nonReentrant whenNotPaused {
         require(_unlockTimestamp > block.timestamp, "Unlock time must be in future");
         _sealCapsule(_tier, _title, _ciphertext, _unlockTimestamp, false, address(0), 0);
@@ -198,13 +207,15 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
 
     function sealLegacyCapsule(string calldata _title, string calldata _ciphertext, uint256 _inactivityDuration, address _heirAddress) external nonReentrant whenNotPaused {
         require(_heirAddress != address(0) && _heirAddress != msg.sender, "Invalid heir address");
-        require(_inactivityDuration >= MIN_INACTIVITY_LIMIT, "Durasi minimal 5 tahun!");
+        require(_inactivityDuration >= MIN_INACTIVITY_LIMIT, "Durasi minimal 5 menit!"); // Teks Notifikasi Diubah
         _sealCapsule(Tier.Legacy, _title, _ciphertext, 0, true, _heirAddress, _inactivityDuration);
     }
 
     function _sealCapsule(Tier _tier, string memory _title, string memory _ciphertext, uint256 _unlockTimestamp, bool _isLegacy, address _heirAddress, uint256 _inactivityLimit) internal {
-        TierConfig memory config = tierConfigs[_tier];
+        require(bytes(_ciphertext).length <= MAX_CIPHERTEXT_LENGTH, "Ciphertext exceeds max length");
         
+        TierConfig memory config = tierConfigs[_tier];
+
         if (!_isLegacy) {
             require(_unlockTimestamp <= block.timestamp + config.maxDuration, "Exceeds max duration");
         }
@@ -219,7 +230,7 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
 
         capsules[newCapsuleId] = Capsule({
             title: _title,
-            ciphertext: _ciphertext, // ✅ FIX KETIGA: Menyimpan nilai string ke dalam struct
+            ciphertext: _ciphertext,
             unlockTimestamp: _unlockTimestamp,
             owner: msg.sender,
             tier: _tier,
@@ -246,7 +257,6 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
         emit PingRecorded(_capsuleIndex, msg.sender, block.timestamp);
     }
 
-    // ✅ FIX KEEMPAT: Return type fungsi pembacaan diubah menjadi string
     function revealCapsule(uint256 _capsuleIndex) external nonReentrant returns (string memory) {
         Capsule storage cap = capsules[_capsuleIndex];
         require(cap.owner == msg.sender, "Not owner");
@@ -292,7 +302,7 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
         bool isHeir = (cap.isLegacy && msg.sender == cap.heirAddress);
         require(isOwner || isHeir, "Not authorized");
 
-        cap.ciphertext = ""; // Menghapus isi string
+        cap.ciphertext = "";
         cap.title = "";
         cap.contentDeleted = true;
     }
@@ -319,10 +329,10 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
     function getUserCapsulesPaginated(address _user, uint256 _offset, uint256 _limit) external view returns (uint256[] memory) {
         uint256 total = userCapsules[_user].length;
         if (_offset >= total) return new uint256[](0);
-        
+
         uint256 end = _offset + _limit;
         if (end > total) end = total;
-        
+
         uint256[] memory result = new uint256[](end - _offset);
         for (uint256 i = _offset; i < end; i++) {
             result[i - _offset] = userCapsules[_user][i];
@@ -333,10 +343,10 @@ contract AetherVaultV3 is ERC721URIStorage, ReentrancyGuard, Ownable2Step, Pausa
     function getHeirCapsulesPaginated(address _heir, uint256 _offset, uint256 _limit) external view returns (uint256[] memory) {
         uint256 total = heirCapsules[_heir].length;
         if (_offset >= total) return new uint256[](0);
-        
+
         uint256 end = _offset + _limit;
         if (end > total) end = total;
-        
+
         uint256[] memory result = new uint256[](end - _offset);
         for (uint256 i = _offset; i < end; i++) {
             result[i - _offset] = heirCapsules[_heir][i];

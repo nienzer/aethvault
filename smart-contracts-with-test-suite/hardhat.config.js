@@ -1,6 +1,7 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-verify");
+require("dotenv").config();
 
-/** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
     compilers: [
@@ -13,5 +14,21 @@ module.exports = {
         settings: { optimizer: { enabled: true, runs: 200 } }
       }
     ]
+  },
+  networks: {
+    bsctestnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      accounts: [
+        process.env.PK_DEPLOYER,
+        process.env.PK_TREASURY,
+        process.env.PK_TEAM,
+        process.env.PK_STAKING,
+        process.env.PK_SALE
+      ]
+    }
+  },
+  etherscan: {
+    apiKey: "9FA6YK53J7YAS983IEH9D5EV9Q34UUYFWG"
   }
 };
