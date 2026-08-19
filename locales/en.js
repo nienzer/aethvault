@@ -750,5 +750,27 @@ export const en = {
     statMinsAgo: "mins ago",
     statHrsAgo: "hours ago",
     emergencyWarning: "WARNING! Emergency withdrawing before the lock period expires will FORFEIT all rewards accumulated for this deposit. Do you want to proceed?"
+  },
+  verifyProof: {
+    title: "Digital Forensics",
+    desc: "Extract the digital fingerprint (SHA-256 Hash) from any file. Files are processed offline in your browser.",
+    extracting: "Extracting Hash...",
+    readSuccess: "File Read Successfully!",
+    fingerprintLabel: "Digital Fingerprint (SHA-256 Hash):",
+    copyBtn: "COPY",
+    copyInstruction: "Please copy the Hash above and paste it into the verification field below.",
+    dragDropTitle: "Drag & Drop File Here",
+    dragDropSub: "or click to select a file from your device",
+    validatorTitle: "On-Chain Validator",
+    validatorDesc: "Cross-check the Hash with the AetherVault Smart Contract database.",
+    placeholder: "Paste Hash (0x...) here to check authenticity...",
+    verifyingBtn: "Contacting Blockchain...",
+    verifyBtn: "Verify Hash Now",
+    validTitle: "Hash Verified Authentic!",
+    validDesc: "This digital fingerprint is legally registered within the AetherVault Smart Contract. The file you hold is 100% authentic and has never been modified.",
+    invalidTitle: "Fake / Not Registered!",
+    invalidDesc: "This hash was not found in the Blockchain database. It's likely this file hasn't been registered, or it has been modified/edited from its original version.",
+    invalidFormat: "Invalid Hash format! The hash must start with '0x' and be 66 characters long.",
+    rpcError: "Failed to contact BSC Testnet RPC Node. Please try again later."
   }
 };

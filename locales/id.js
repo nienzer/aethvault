@@ -750,5 +750,27 @@ export const id = {
     statMinsAgo: "menit lalu",
     statHrsAgo: "jam lalu",
     emergencyWarning: "PERINGATAN! Menarik paksa sebelum waktu selesai akan MENGHANGUSKAN semua bunga pada deposit ini. Lanjutkan?"
+  },
+  verifyProof: {
+    title: "Digital Forensics",
+    desc: "Ekstrak sidik jari digital (Hash SHA-256) dari file apa pun. File diproses secara offline di peramban Anda.",
+    extracting: "Mengekstrak Hash...",
+    readSuccess: "Berhasil Membaca File!",
+    fingerprintLabel: "Sidik Jari Digital (SHA-256 Hash):",
+    copyBtn: "SALIN",
+    copyInstruction: "Silakan salin Hash di atas dan tempel pada kolom verifikasi di bawah.",
+    dragDropTitle: "Seret & Lepas File ke Sini",
+    dragDropSub: "atau klik untuk memilih file dari perangkat Anda",
+    validatorTitle: "On-Chain Validator",
+    validatorDesc: "Cocokkan Hash dengan database Smart Contract AetherVault.",
+    placeholder: "Tempel Hash (0x...) di sini untuk cek keaslian...",
+    verifyingBtn: "Menghubungi Blockchain...",
+    verifyBtn: "Verifikasi Hash Sekarang",
+    validTitle: "Hash Terverifikasi Asli!",
+    validDesc: "Sidik jari digital ini terdaftar secara sah di dalam Smart Contract AetherVault. File yang Anda miliki adalah 100% otentik dan belum pernah dimodifikasi.",
+    invalidTitle: "Palsu / Tidak Terdaftar!",
+    invalidDesc: "Hash ini tidak ditemukan di database Blockchain. Kemungkinan file ini belum didaftarkan, atau file tersebut telah mengalami modifikasi/edit dari versi aslinya.",
+    invalidFormat: "Format Hash tidak valid! Hash harus diawali dengan '0x' dan memiliki panjang 66 karakter.",
+    rpcError: "Gagal menghubungi RPC Node BSC Testnet. Silakan coba beberapa saat lagi."
   }
 };
