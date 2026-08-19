@@ -17,7 +17,6 @@ export const en = {
     exploreBtn: "Explore App",
     whitepaperBtn: "Read Whitepaper",
     builtOn: "Secured by",
-    polygon: "BSC Testnet",
     chainlink: "Chainlink"
   },
   landing: {
@@ -98,7 +97,6 @@ export const en = {
     timelineTitle: "Live Registry Timeline Feed",
     activeStream: "Active Stream",
     recentActivity: "RECENT ON-CHAIN ACTIVITY",
-    verifiedPolygon: "Verified on BSC Testnet →",
     onChainVerified: "100% On-Chain Verified",
     liveRecords: "Hall of Proof™ Live Records",
     liveRecordsDesc: "Real-time smart contract state directly queried from BSC Testnet blockchain.",
@@ -798,7 +796,6 @@ export const en = {
     certScan: "Scan to Verify On-Chain",
     certFooter: "This certificate confirms that a digital asset was cryptographically sealed on the blockchain. The certificate does not disclose the content. Content remains encrypted and accessible only by the rightful owner.",
     certCertifiedBy: "Certified On-Chain by AetherVault™",
-    certBadgePolygon: "Verified on BSC Testnet",
     certOfficialCert: "Cryptographic Certificate of Authenticity",
     certImmutableBadge: "IMMUTABLE • ON-CHAIN",
     certSignature: "Digital Signature",

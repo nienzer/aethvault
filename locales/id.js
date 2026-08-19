@@ -17,7 +17,6 @@ export const id = {
     exploreBtn: "Eksplor Aplikasi",
     whitepaperBtn: "Baca Whitepaper",
     builtOn: "Didukung oleh",
-    polygon: "BSC Testnet",
     chainlink: "Chainlink"
   },
   landing: {
@@ -98,7 +97,6 @@ export const id = {
     timelineTitle: "Umpan Linimasa Registri Langsung",
     activeStream: "Aliran Aktif",
     recentActivity: "AKTIVITAS ON-CHAIN TERBARU",
-    verifiedPolygon: "Terverifikasi di BSC Testnet →",
     onChainVerified: "100% Terverifikasi On-Chain",
     liveRecords: "Rekam Jejak Langsung Hall of Proof™",
     liveRecordsDesc: "Status smart contract real-time yang ditarik langsung dari blockchain BSC Testnet.",
@@ -798,7 +796,6 @@ export const id = {
     certScan: "Pindai untuk Verifikasi On-Chain",
     certFooter: "Sertifikat ini mengonfirmasi bahwa aset digital telah disegel secara kriptografi di blockchain. Sertifikat ini tidak mengungkapkan isi pesan. Konten tetap terenkripsi dan hanya dapat diakses oleh pemilik yang sah.",
     certCertifiedBy: "Disertifikasi On-Chain oleh AetherVault™",
-    certBadgePolygon: "Terverifikasi di BSC Testnet",
     certOfficialCert: "Sertifikat Keaslian Kriptografi",
     certImmutableBadge: "ABADI • ON-CHAIN",
     certSignature: "Tanda Tangan Digital",
