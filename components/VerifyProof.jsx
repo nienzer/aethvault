@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UploadCloud, Fingerprint, CheckCircle, Copy, Loader2, Search, ShieldCheck, ShieldAlert, Database, AlertOctagon } from 'lucide-react';
 import { ethers } from 'ethers';
-import { useLanguage } from '@/context/LanguageContext'; // Import context bahasa Bos
+import { useLanguage } from '@/context/LanguageContext'; 
 
 export default function VerifyProof() {
   // Panggil sistem terjemahan
@@ -28,6 +28,7 @@ export default function VerifyProof() {
     }
   };
 
+  // ⚡ FIX: Mengganti SHA-256 menjadi Keccak256 (Standar Ethereum/BSC)
   const calculateFileHash = async (fileToHash) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -35,9 +36,9 @@ export default function VerifyProof() {
       reader.onload = async (e) => {
         try {
           const buffer = e.target.result;
-          const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          const hashHex = "0x" + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+          const uint8Array = new Uint8Array(buffer);
+          // Menggunakan ethers.keccak256 agar sama persis dengan form Minting
+          const hashHex = ethers.keccak256(uint8Array); 
           resolve(hashHex);
         } catch (error) {
           reject(error);
@@ -97,6 +98,8 @@ export default function VerifyProof() {
     try {
       const provider = new ethers.JsonRpcProvider("https://bsc-testnet-rpc.publicnode.com");
       const CONTRACT_ADDRESS = "0x8C315f5F2364139436fc126cBAe397718bd0f3BE";
+      
+      // Mengacu pada mapping yang ada di Smart Contract
       const minimalABI = ["function usedHashes(bytes32) view returns (bool)"];
       const contract = new ethers.Contract(CONTRACT_ADDRESS, minimalABI, provider);
 
@@ -125,7 +128,8 @@ export default function VerifyProof() {
             <Fingerprint className="w-6 h-6 text-cyan-400" /> {t.title || "Digital Forensics"}
           </h3>
           <p className="text-xs sm:text-sm text-neutral-400 mt-2">
-            {t.desc || "Ekstrak sidik jari digital (Hash SHA-256) dari file apa pun. File diproses secara offline di peramban Anda."}
+            {/* Teks diubah jadi Keccak256 */}
+            {t.desc?.replace('SHA-256', 'Keccak256') || "Ekstrak sidik jari digital (Hash Keccak256) dari file apa pun. File diproses secara offline di peramban Anda."}
           </p>
         </div>
 
@@ -157,7 +161,8 @@ export default function VerifyProof() {
                 <p className="text-xs text-green-500/70 font-mono mt-1">{file?.name} ({(file?.size / (1024 * 1024)).toFixed(2)} MB)</p>
                 
                 <div className="mt-4 p-4 bg-[#0B0817] border border-green-500/30 rounded-xl max-w-full overflow-hidden shadow-inner">
-                  <p className="text-[10px] text-neutral-400 uppercase tracking-wider mb-2 font-bold">{t.fingerprintLabel || "Sidik Jari Digital (SHA-256 Hash):"}</p>
+                  {/* Teks diubah jadi Keccak256 */}
+                  <p className="text-[10px] text-neutral-400 uppercase tracking-wider mb-2 font-bold">{t.fingerprintLabel?.replace('SHA-256', 'Keccak256') || "Sidik Jari Digital (Keccak256 Hash):"}</p>
                   <div className="flex items-center justify-between bg-[#05030F] border border-neutral-800 p-2 sm:p-3 rounded-lg gap-2">
                     <p className="text-xs sm:text-sm text-cyan-300 font-mono truncate selection:bg-cyan-900 w-full text-left">
                       {fileHash}
