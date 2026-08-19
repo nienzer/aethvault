@@ -27,6 +27,7 @@ import VaultsList from '@/components/VaultsList';
 import CreateCapsule from '@/components/CreateCapsule';
 import AetherProofHub from '@/components/AetherProofHub';
 import HallOfProof from '@/components/HallOfProof';
+import VerifyProof from '@/components/VerifyProof';
 
 import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import StakingArtifact from '@/contracts/StakingABI.json';
@@ -1130,6 +1131,7 @@ export default function DashboardPage() {
         { id: 'create', icon: Lock, label: t.menuCreate || 'Create' },
         { id: 'proof', icon: Award, label: t.menuProof || 'Aether Proof' },
         { id: 'hall', icon: Globe, label: t.menuHall || 'Hall of Proof' },
+        { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
         { id: 'vaults', icon: Layers, label: t.menuVaults || 'My Vaults', count: myCapsules.length > 0 ? myCapsules.length : undefined },
         { id: 'history', icon: History, label: t.menuHistory || 'History' },
         { id: 'stats', icon: Flame, label: t.menuStats || 'Global Stats' },
@@ -1349,6 +1351,10 @@ export default function DashboardPage() {
                   handleViewCertificate={handleViewCertificate} 
                   setActiveTab={setActiveTab}
                 />
+              )}
+ 
+              {activeTab === 'verify' && (
+                <VerifyProof />
               )}
 
               {activeTab === 'vaults' && (
