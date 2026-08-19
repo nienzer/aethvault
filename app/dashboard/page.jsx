@@ -472,7 +472,8 @@ export default function DashboardPage() {
           id: `${kind}-${e.transactionHash}`,
           date: date,
           type: kind,
-          detail: kind.includes('STAKED') || kind === 'WITHDRAWN' ? `Staking Action: ${kind}` : `Kapsul ID: ${e.args[0] || 'N/A'}`,
+          // ⚡ FIX: Translasi Status & Label Kapsul di Riwayat
+          detail: kind.includes('STAKED') || kind === 'WITHDRAWN' ? `${tRef.current.stakingAction || "Staking Action:"} ${kind}` : `${tRef.current.capsuleIdLabel || "Capsule ID:"} ${e.args[0] || 'N/A'}`,
           amount: amount.toFixed(2),
           direction: (kind === 'STAKED' || kind === 'SEALED') ? 'out' : 'in'
         };
@@ -1061,7 +1062,7 @@ export default function DashboardPage() {
   };
   
   const handleAdminClaimVesting = async () => {
-    const confirmed = window.confirm("Yakin ingin mencairkan token Vesting developer sekarang?");
+    const confirmed = window.confirm(t.adminConfirmVestingClaim || "Yakin ingin mencairkan token Vesting developer sekarang?");
     if (!confirmed) return;
     
     try {
@@ -1080,7 +1081,6 @@ export default function DashboardPage() {
     }
   };
 
-  // --- FUNGSI REQUEST GANTI DOMPET (LANGKAH 1) ---
   const handleAdminRequestVestingChange = async (e) => {
     e.preventDefault();
     if (!ethers.isAddress(newBeneficiaryInput)) return showToast("Alamat dompet tidak valid!", "error");
@@ -1104,7 +1104,6 @@ export default function DashboardPage() {
     }
   };
 
-  // --- FUNGSI KONFIRMASI GANTI DOMPET (LANGKAH 2) ---
   const handleAdminConfirmVestingChange = async () => {
     try {
       setIsAdminLoading(true);
@@ -1308,7 +1307,6 @@ export default function DashboardPage() {
             <div className="lg:col-span-3 space-y-6">
               {activeTab === 'create' && (
                 <CreateCapsule
-                  t={t}
                   title={title} setTitle={setTitle}
                   message={message} setMessage={setMessage}
                   unlockDate={unlockDate} setUnlockDate={setUnlockDate}
@@ -1335,21 +1333,16 @@ export default function DashboardPage() {
 
               {activeTab === 'proof' && (
                 <AetherProofHub
-                  t={t}
                   address={address}
                   TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
-                  myCapsules={myCapsules}
                   handleViewCertificate={handleViewCertificate}
                   setActiveTab={setActiveTab}
-                  platformStats={platformStats}
-                  isFetchingGlobalStats={isFetchingGlobalStats}
                 />
               )}
 
               {activeTab === 'hall' && (
                 <HallOfProof 
-                  handleViewCertificate={handleViewCertificate} 
-                  setActiveTab={setActiveTab}
+                  TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
                 />
               )}
  
@@ -1410,6 +1403,7 @@ export default function DashboardPage() {
                   isFetchingGlobalStats={isFetchingGlobalStats}
                   platformStats={platformStats}
                   stakingGlobalStats={stakingGlobalStats}
+                  t={t}
                 />
               )}
 
@@ -1450,7 +1444,7 @@ export default function DashboardPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="bg-[#0B0817] border border-fuchsia-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden sm:col-span-2">
-                      <div className="absolute top-0 right-0 bg-fuchsia-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Military Grade</div>
+                      <div className="absolute top-0 right-0 bg-fuchsia-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">{t.militaryGrade || "Military Grade"}</div>
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-4 flex items-center gap-2">
                         <KeyRound className="w-4 h-4 sm:w-5 sm:h-5 text-fuchsia-400"/> {t.secHowProtected || 'ECIES secp256k1 Encryption'}
                       </h5>
@@ -1463,7 +1457,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="bg-[#0B0817] border border-cyan-500/30 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-lg relative overflow-hidden">
-                      <div className="absolute top-0 right-0 bg-cyan-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">Active</div>
+                      <div className="absolute top-0 right-0 bg-cyan-600 text-[8px] sm:text-[10px] font-bold px-2.5 sm:px-3 py-1 rounded-bl-xl uppercase tracking-widest text-white">{t.activeStatus || "Active"}</div>
                       <h5 className="text-sm sm:text-lg font-bold text-white mb-1.5 sm:mb-2 flex items-center gap-2">
                         <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400"/> ReentrancyGuard
                       </h5>
@@ -1537,67 +1531,67 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3 border-b border-neutral-900 pb-4">
                     <ShieldAlert className="w-8 h-8 text-red-400 shrink-0" />
                     <div>
-                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">Restricted Admin Control</h3>
-                      <p className="text-xs text-red-400 font-mono">Panel manajemen khusus Owner (Diakses via URL /admin).</p>
+                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">{t.adminTitle || "Restricted Admin Control"}</h3>
+                      <p className="text-xs text-red-400 font-mono">{t.adminSubtitle || "Panel manajemen khusus Owner."}</p>
                     </div>
                   </div>
 
                   {!isOwner ? (
                     <div className="bg-red-950/20 border border-red-500/30 p-6 rounded-2xl text-center space-y-2">
                       <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
-                      <h4 className="text-sm font-bold text-red-300">Akses Ditolak!</h4>
-                      <p className="text-xs text-neutral-400">Dompet yang terhubung saat ini bukan pemilik sah (Owner) dari Smart Contract AetherVault.</p>
+                      <h4 className="text-sm font-bold text-red-300">{t.adminAccessDenied || "Akses Ditolak!"}</h4>
+                      <p className="text-xs text-neutral-400">{t.adminNotOwner || "Dompet yang terhubung bukan pemilik sah."}</p>
                     </div>
                   ) : (
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-3">
-                          <h4 className="text-xs font-bold text-neutral-300 uppercase font-mono">Darurat Kontrak Utama</h4>
+                          <h4 className="text-xs font-bold text-neutral-300 uppercase font-mono">{t.adminMainEmergency || "Darurat Kontrak Utama"}</h4>
                           <div className="flex gap-2">
                             <button 
                               disabled={isAdminLoading}
                               onClick={() => handleAdminTogglePause(true, false)} 
                               className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
                             >
-                              <Lock className="w-3.5 h-3.5" /> Pause Main
+                              <Lock className="w-3.5 h-3.5" /> {t.adminPauseMain || "Pause Main"}
                             </button>
                             <button 
                               disabled={isAdminLoading}
                               onClick={() => handleAdminTogglePause(false, false)} 
                               className="flex-1 bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
                             >
-                              <Unlock className="w-3.5 h-3.5" /> Unpause Main
+                              <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseMain || "Unpause Main"}
                             </button>
                           </div>
                         </div>
 
                         <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-3">
-                          <h4 className="text-xs font-bold text-neutral-300 uppercase font-mono">Darurat Kontrak Staking</h4>
+                          <h4 className="text-xs font-bold text-neutral-300 uppercase font-mono">{t.adminStakeEmergency || "Darurat Kontrak Staking"}</h4>
                           <div className="flex gap-2">
                             <button 
                               disabled={isAdminLoading}
                               onClick={() => handleAdminTogglePause(true, true)} 
                               className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
                             >
-                              <Lock className="w-3.5 h-3.5" /> Pause Stake
+                              <Lock className="w-3.5 h-3.5" /> {t.adminPauseStake || "Pause Stake"}
                             </button>
                             <button 
                               disabled={isAdminLoading}
                               onClick={() => handleAdminTogglePause(false, true)} 
                               className="flex-1 bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 cursor-pointer"
                             >
-                              <Unlock className="w-3.5 h-3.5" /> Unpause Stake
+                              <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseStake || "Unpause Stake"}
                             </button>
                           </div>
                         </div>
                       </div>
 
                       <form onSubmit={handleAdminUpdateTreasury} className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl space-y-3">
-                        <h4 className="text-xs font-bold text-cyan-400 uppercase font-mono">Ganti Alamat Treasury</h4>
+                        <h4 className="text-xs font-bold text-cyan-400 uppercase font-mono">{t.adminChangeTreasury || "Ganti Alamat Treasury"}</h4>
                         <div className="flex gap-3">
                           <input 
                             type="text" 
-                            placeholder="0x... (Alamat Wallet Treasury Baru)" 
+                            placeholder={t.adminTreasuryPlaceholder || "0x... (Alamat Wallet Treasury Baru)"} 
                             value={newTreasuryInput}
                             onChange={(e) => setNewTreasuryInput(e.target.value)}
                             className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-500 font-mono"
@@ -1608,50 +1602,51 @@ export default function DashboardPage() {
                             disabled={isAdminLoading}
                             className="bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer whitespace-nowrap shadow-lg"
                           >
-                            Update Treasury
+                            {t.adminUpdateTreasuryBtn || "Update Treasury"}
                           </button>
                         </div>
                       </form>
 
-                      {/* --- UI VESTING YANG DIPERBARUI --- */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl space-y-5 mt-4">
                         <div>
-                          <h4 className="text-xs font-bold text-green-400 uppercase font-mono">Brankas Gaji Developer (Vesting)</h4>
-                          <p className="text-[10px] text-neutral-400 font-mono mt-1">Cairkan AETH atau ganti alamat dompet penerima (Timelock 48 Jam).</p>
+                          <h4 className="text-xs font-bold text-green-400 uppercase font-mono">{t.adminVestingTitle || "Brankas Gaji Developer"}</h4>
+                          <p className="text-[10px] text-neutral-400 font-mono mt-1">{t.adminVestingDesc || "Cairkan AETH atau ganti alamat."}</p>
                         </div>
                         
                         <button 
                           disabled={isAdminLoading}
-                          onClick={handleAdminClaimVesting} 
+                          onClick={() => {
+                            const confirmed = window.confirm(t.adminConfirmVestingClaim || "Yakin ingin mencairkan token Vesting developer sekarang?");
+                            if (confirmed) handleAdminClaimVesting();
+                          }} 
                           className="w-full bg-green-500/20 hover:bg-green-500/30 border border-green-500/40 text-green-300 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shadow-lg"
                         >
-                          <Coins className="w-4 h-4" /> Cairkan Gaji (Claim Vesting)
+                          <Coins className="w-4 h-4" /> {t.adminClaimSalaryBtn || "Cairkan Gaji (Claim Vesting)"}
                         </button>
 
-                        {/* BAGIAN 2-STEP PERGANTIAN DOMPET */}
                         <div className="border-t border-neutral-800 pt-4 space-y-3">
-                          <h4 className="text-[10px] font-bold text-amber-400 uppercase font-mono">Ganti Dompet Penerima Gaji</h4>
+                          <h4 className="text-[10px] font-bold text-amber-400 uppercase font-mono">{t.adminChangeBeneficiary || "Ganti Dompet Penerima Gaji"}</h4>
                           
                           {vestingUnlockTime > 0 ? (
                             <div className="bg-amber-950/20 border border-amber-500/30 p-4 rounded-xl text-center space-y-3 shadow-inner">
                               <Clock className="w-6 h-6 text-amber-400 mx-auto animate-pulse" />
                               <div>
-                                <p className="text-xs font-bold text-amber-300">Menunggu Timelock 48 Jam</p>
-                                <p className="text-[10px] text-neutral-400 mt-1 font-mono">Target Baru: {formatAddress(vestingPendingDest)}</p>
+                                <p className="text-xs font-bold text-amber-300">{t.adminWaitingTimelock || "Menunggu Timelock 48 Jam"}</p>
+                                <p className="text-[10px] text-neutral-400 mt-1 font-mono">{t.adminNewTarget || "Target Baru: "} {formatAddress(vestingPendingDest)}</p>
                               </div>
                               <button 
                                 disabled={isAdminLoading || Math.floor(Date.now() / 1000) < vestingUnlockTime}
                                 onClick={handleAdminConfirmVestingChange} 
                                 className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-neutral-800 disabled:text-neutral-500 text-white py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-lg"
                               >
-                                Eksekusi Pergantian Dompet
+                                {t.adminExecuteChange || "Eksekusi Pergantian Dompet"}
                               </button>
                             </div>
                           ) : (
                             <form onSubmit={handleAdminRequestVestingChange} className="flex gap-2">
                               <input 
                                 type="text" 
-                                placeholder="0x... (Dompet Baru)" 
+                                placeholder={t.adminNewWalletPlaceholder || "0x... (Dompet Baru)"} 
                                 value={newBeneficiaryInput}
                                 onChange={(e) => setNewBeneficiaryInput(e.target.value)}
                                 className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-amber-500 font-mono"
@@ -1662,7 +1657,7 @@ export default function DashboardPage() {
                                 disabled={isAdminLoading}
                                 className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-xl text-[10px] font-bold cursor-pointer whitespace-nowrap shadow-lg"
                               >
-                                Request Pindah
+                                {t.adminRequestChangeBtn || "Request Pindah"}
                               </button>
                             </form>
                           )}
@@ -1685,7 +1680,7 @@ export default function DashboardPage() {
             <span className="text-[10px] sm:text-xs font-bold text-neutral-600 tracking-widest">AETHERVAULT</span>
           </div>
           <p className="text-[9px] sm:text-[10px] text-neutral-600 font-mono text-center md:text-right">
-            &copy; {new Date().getFullYear()} AetherVault. All rights reserved. Decentralized Protocol V2.2.
+            &copy; {new Date().getFullYear()} Nienzer. {t.footerRights || "All rights reserved. Decentralized Protocol V2.2."}
           </p>
         </div>
       </footer>
@@ -1716,7 +1711,7 @@ export default function DashboardPage() {
               <>
                 <div className="w-full bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-[11px] sm:text-sm text-cyan-300 font-mono break-words leading-relaxed max-h-[50vh] sm:max-h-60 overflow-y-auto whitespace-pre-wrap shadow-inner">
                   {selectedVault.decryptedMessage 
-                    ? selectedVault.decryptedMessage.replace(/\[(Attachment|Lampiran|Attachment Tag)?:?\s*https:\/\/(arweave\.net|devnet\.irys\.xyz|gateway\.irys\.xyz)\/[a-zA-Z0-9_-]+\]/gi, '').trim() || "< Tidak ada pesan teks, hanya gambar >" 
+                    ? selectedVault.decryptedMessage.replace(/\[(Attachment|Lampiran|Attachment Tag)?:?\s*https:\/\/(arweave\.net|devnet\.irys\.xyz|gateway\.irys\.xyz)\/[a-zA-Z0-9_-]+\]/gi, '').trim() || (t.noTextOnlyImage || "< Tidak ada pesan teks, hanya gambar >")
                     : ""}
                 </div>
 
@@ -1724,7 +1719,7 @@ export default function DashboardPage() {
                   <div className="mt-4 p-4 border border-cyan-500/30 bg-cyan-500/10 rounded-xl space-y-3 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                     <div className="flex items-center gap-2 text-cyan-300 text-[11px] sm:text-xs font-bold font-mono">
                       <FileImage className="w-4 h-4" />
-                      <span>Lampiran Terenkripsi Terdeteksi!</span>
+                      <span>{t.encryptedAttachmentDetected || "Lampiran Terenkripsi Terdeteksi!"}</span>
                     </div>
                     <button
                       onClick={handleDownloadAttachment}
@@ -1734,12 +1729,12 @@ export default function DashboardPage() {
                       {isDownloadingAttachment === selectedVault.id ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Memproses Dekripsi File...
+                          {t.processingDecryption || "Memproses Dekripsi File..."}
                         </>
                       ) : (
                         <>
                           <Download className="w-4 h-4" />
-                          Unduh & Buka File Asli
+                          {t.downloadOriginal || "Unduh & Buka File Asli"}
                         </>
                       )}
                     </button>

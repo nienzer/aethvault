@@ -17,7 +17,7 @@ const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.sub
 // =========================================================
 // RENDER CERTIFICATE TEMPLATE - HALL OF PROOF
 // =========================================================
-const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref) => {
+const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, tHop }, ref) => {
   const catKey = (proofData?.category || "Software").toLowerCase().trim();
   const rawCatObj = categoryConfig ? Object.entries(categoryConfig).find(([key]) => key.toLowerCase() === catKey) : null;
   
@@ -32,9 +32,9 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
   const date = proofData?.date || new Date().toLocaleDateString("en-GB");
   const network = proofData?.network || "BSC Testnet";
   const contract = proofData?.contract ? formatAddressFunc(proofData.contract) : "0x00...00";
-  const fileHash = proofData?.fileHash || "Awaiting verification";
+  const fileHash = proofData?.fileHash || tHop.awaitingVerification || "Awaiting verification";
   const verifyUrl = proofData?.verifyUrl || "https://aethvault.xyz";
-  const description = proofData?.description || "This asset is permanently encrypted via advanced cryptographic primitives and verified on-chain. Ownership records are immutable and timestamped directly on the blockchain.";
+  const description = proofData?.description || tHop.defaultAssetDesc || "This asset is permanently encrypted via advanced cryptographic primitives and verified on-chain. Ownership records are immutable and timestamped directly on the blockchain.";
 
   return (
     <div id="cert-export-node" ref={ref} className="relative mx-auto shrink-0 overflow-hidden w-[1200px] h-[760px] rounded-[32px] border border-white/[0.15] bg-[#0c0f1d]/85 backdrop-blur-2xl text-white font-sans shadow-[0_40px_100px_rgba(0,0,0,0.7),inset_0_1px_2px_rgba(255,255,255,0.15)]">
@@ -69,13 +69,13 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
           </div>
           <div>
             <div className="font-black tracking-[0.3em] text-[24px] bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">AETHER<span className="text-cyan-400">VAULT</span></div>
-            <div className="text-[9px] tracking-[0.45em] text-white/40 font-mono mt-1 font-bold">TRUSTLESS • VERIFIED • TIMELESS</div>
+            <div className="text-[9px] tracking-[0.45em] text-white/40 font-mono mt-1 font-bold">{tHop.trustless || "TRUSTLESS • VERIFIED • TIMELESS"}</div>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/[0.1] flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(6,182,212,1)]" />
-            <span className="text-[10px] font-black tracking-[0.25em] text-neutral-300">SECURED ON-CHAIN</span>
+            <span className="text-[10px] font-black tracking-[0.25em] text-neutral-300">{tHop.securedOnChain || "SECURED ON-CHAIN"}</span>
           </div>
           <div className="px-5 py-2.5 rounded-full bg-white/[0.04] border border-white/[0.1]">
             <span className="text-[10px] font-black tracking-[0.25em] text-neutral-300">{String(network).toUpperCase()}</span>
@@ -87,23 +87,23 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
       <div className="absolute top-[125px] left-[64px] z-20">
         <div className="flex items-center gap-3 mb-2">
           <span className="w-16 h-px bg-gradient-to-r from-transparent to-white/30" />
-          <span className="text-[10px] tracking-[0.55em] text-white/30 uppercase font-mono font-black">Decentralized Vault Registry</span>
+          <span className="text-[10px] tracking-[0.55em] text-white/30 uppercase font-mono font-black">{tHop.decentralizedRegistry || "Decentralized Vault Registry"}</span>
         </div>
         <h1 className="text-[40px] font-black tracking-[0.15em] text-white leading-tight">
-          CERTIFICATE OF AUTHENTICITY
+          {tHop.certAuthenticity || "CERTIFICATE OF AUTHENTICITY"}
         </h1>
-        <p className="text-[10px] text-white/40 tracking-[0.25em] mt-0.5 font-mono uppercase font-bold">AETHER PROOF COPYRIGHT REGISTRATION PROTOCOL</p>
+        <p className="text-[10px] text-white/40 tracking-[0.25em] mt-0.5 font-mono uppercase font-bold">{tHop.certProtocol || "AETHER PROOF COPYRIGHT REGISTRATION PROTOCOL"}</p>
       </div>
 
       {/* LEFT CONTENT PANEL */}
       <div className="absolute left-[64px] top-[225px] w-[560px] h-[385px] z-20 rounded-[28px] border border-white/[0.06] bg-[#0c101d]/60 p-6 shadow-[0_30px_60px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.05)]">
         <div className="flex justify-between items-start pb-4 border-b border-white/[0.08]">
           <div className="min-w-0 pr-6">
-            <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-2">ASSET TITLE / TYPE</div>
+            <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-2">{tHop.assetTitle || "ASSET TITLE / TYPE"}</div>
             <div className="text-[18px] font-black text-white truncate tracking-wide">{title}</div>
           </div>
           <div className="text-right shrink-0">
-            <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-2">CERTIFICATE NO.</div>
+            <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-2">{tHop.certNo || "CERTIFICATE NO."}</div>
             <div className="px-3 py-1.5 rounded-xl border border-white/15 bg-white/[0.03] text-white text-[11px] font-mono font-black">
               #{certificateId}
             </div>
@@ -111,23 +111,23 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
         </div>
         
         <div className="grid grid-cols-2 gap-x-8 gap-y-4 pt-5">
-          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">OWNER</div><div className="text-[12px] text-white font-bold truncate tracking-wide">{owner}</div></div>
-          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">CREATOR</div><div className="text-[12px] text-white/80 font-mono font-bold truncate tracking-wide">{creator}</div></div>
-          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">STATUS</div><div className="text-[11px] text-emerald-400 font-mono font-black tracking-wider">Authenticated & Verified</div></div>
-          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">DATE</div><div className="text-[11px] text-white/70 font-mono font-bold">{date}</div></div>
+          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">{tHop.ownerLabel || "OWNER"}</div><div className="text-[12px] text-white font-bold truncate tracking-wide">{owner}</div></div>
+          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">{tHop.creatorLabel || "CREATOR"}</div><div className="text-[12px] text-white/80 font-mono font-bold truncate tracking-wide">{creator}</div></div>
+          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">{tHop.statusLabel || "STATUS"}</div><div className="text-[11px] text-emerald-400 font-mono font-black tracking-wider">{tHop.authenticated || "Authenticated & Verified"}</div></div>
+          <div><div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">{tHop.dateLabel || "DATE"}</div><div className="text-[11px] text-white/70 font-mono font-bold">{date}</div></div>
         </div>
 
         <div className="mt-5 pt-4 border-t border-white/[0.08]">
-          <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">ASSET DESCRIPTION</div>
+          <div className="text-[9px] tracking-[0.35em] text-white/40 font-black mb-1.5">{tHop.assetDesc || "ASSET DESCRIPTION"}</div>
           <div className="text-[10px] leading-relaxed text-white/50 font-medium font-sans line-clamp-3">
             {description}
           </div>
         </div>
 
         <div className="absolute bottom-5 left-6 right-6 flex items-center justify-between">
-          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">TOKEN ID</div><div className="text-[10px] text-white/60 font-mono font-black mt-1">#{tokenId}</div></div>
-          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">NETWORK</div><div className="text-[10px] text-white/60 font-mono font-black mt-1">BSC TESTNET</div></div>
-          <div className="max-w-[210px]"><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">CONTRACT</div><div className="text-[9px] text-white/50 font-mono mt-1 truncate">{CONTRACT_ADDRESS}</div></div>
+          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">{tHop.tokenIdLabel || "TOKEN ID"}</div><div className="text-[10px] text-white/60 font-mono font-black mt-1">#{tokenId}</div></div>
+          <div><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">{tHop.networkOnlyLabel || "NETWORK"}</div><div className="text-[10px] text-white/60 font-mono font-black mt-1">{String(network).toUpperCase()}</div></div>
+          <div className="max-w-[210px]"><div className="text-[8px] tracking-[0.35em] text-white/30 font-black">{tHop.contractOnlyLabel || "CONTRACT"}</div><div className="text-[9px] text-white/50 font-mono mt-1 truncate">{contract}</div></div>
         </div>
       </div>
       
@@ -187,20 +187,20 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
         
         <div className="absolute top-[20px] left-1/2 -translate-x-1/2">
           <div className="flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 backdrop-blur-xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] bg-white/[0.04] text-white/90">
-            {CatIcon}<span className="text-[10px] font-black tracking-[0.25em]">AUTHENTICATED</span>
+            {CatIcon}<span className="text-[10px] font-black tracking-[0.25em]">{tHop.authenticatedBadge || "AUTHENTICATED"}</span>
           </div>
         </div>
         <div className="absolute bottom-[20px] left-[32px]">
-          <div className="text-[8px] tracking-[0.35em] text-white/30 font-black">DIGITAL ARTIFACT</div>
-          <div className="text-[13px] text-white/70 font-black mt-1 tracking-wide">AETHERVAULT PROOF</div>
+          <div className="text-[8px] tracking-[0.35em] text-white/30 font-black">{tHop.digitalArtifact || "DIGITAL ARTIFACT"}</div>
+          <div className="text-[13px] text-white/70 font-black mt-1 tracking-wide">{tHop.aetherProofProof || "AETHER PROOF"}</div>
         </div>
         <div className="absolute bottom-[20px] right-[32px] text-right">
-          <div className="text-[8px] tracking-[0.35em] text-white/30 font-black">SERIAL REG.</div>
+          <div className="text-[8px] tracking-[0.35em] text-white/30 font-black">{tHop.serialReg || "SERIAL REG."}</div>
           <div className="text-[12px] text-white/80 font-mono font-black mt-1">#{certificateId}</div>
         </div>
       </div>
 
-      {/* FOOTER SECTION */}
+      {/* FOOTER BAR BANNER */}
       <div className="absolute left-[64px] right-[64px] bottom-[60px] z-20 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex gap-2">
@@ -212,17 +212,17 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
             </div>
           </div>
           <div>
-            <div className="text-[9px] tracking-[0.3em] text-white/30 font-black">AUTOMATED AUTHENTICITY STATUS</div>
+            <div className="text-[9px] tracking-[0.3em] text-white/30 font-black">{tHop.autoAuthStatus || "AUTOMATED AUTHENTICITY STATUS"}</div>
             <div className="text-[12px] text-white/80 font-black tracking-[0.1em] mt-1 flex items-center gap-2">
-              100% VERIFIABLE ON-CHAIN <span className="px-2 py-0.5 rounded text-[9px] bg-white/10 border border-white/20 text-white/70 font-mono font-black">BSC VERIFIED</span>
+              {tHop.verifiableOnChain || "100% VERIFIABLE ON-CHAIN"} <span className="px-2 py-0.5 rounded text-[9px] bg-white/10 border border-white/20 text-white/70 font-mono font-black">{tHop.bscVerified || "BSC VERIFIED"}</span>
             </div>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <div className="text-[9px] tracking-[0.3em] text-white/30 font-black">DECENTRALIZED AUDIT</div>
-            <div className="text-[10px] text-white/40 font-mono font-black mt-1">SCAN METADATA CONTRACT</div>
+            <div className="text-[9px] tracking-[0.3em] text-white/30 font-black">{tHop.decentralizedAudit || "DECENTRALIZED AUDIT"}</div>
+            <div className="text-[10px] text-white/40 font-mono font-black mt-1">{tHop.scanMetadata || "SCAN METADATA CONTRACT"}</div>
           </div>
           <div className="w-[72px] h-[72px] rounded-xl bg-white p-2 shadow-[0_15px_35px_rgba(0,0,0,0.3)] border border-white/10 flex items-center justify-center">
             <QRCode value={verifyUrl} size={56} bgColor="#ffffff" fgColor="#0c0f1d" level="Q" />
@@ -231,8 +231,8 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig }, ref
       </div>
 
       <div className="absolute bottom-[20px] left-[64px] right-[64px] flex items-center justify-between text-[9px] font-mono tracking-[0.3em] text-white/30 z-20">
-        <span>VERIFIABLE • IMMUTABLE • SECURED FOREVER</span>
-        <span className="text-white/40 font-black">POWERED BY AETHERVAULT PROTOCOL</span>
+        <span>{tHop.footerMotto1 || "VERIFIABLE • IMMUTABLE • SECURED FOREVER"}</span>
+        <span className="text-white/40 font-black">{tHop.footerMotto2 || "POWERED BY AETHERVAULT PROTOCOL"}</span>
         <span>{String(fileHash).slice(0, 30)}...</span>
       </div>
       
@@ -311,7 +311,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
         let extractedCreator = "";
 
         try {
-          // JURUS MUTLAK: Langsung minta metadata ke Smart Contract, jangan pakai args[3]
+          // JURUS MUTLAK: Langsung minta metadata ke Smart Contract
           let tokenUriRaw = "";
           try { 
             tokenUriRaw = await contract.tokenURI(tokenId); 
@@ -393,7 +393,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
       link.click();
     } catch (err) { 
       console.error("Export PNG gagal", err); 
-      alert("Gagal Export PNG: " + err.message);
+      alert((tHop.downloadPngFail || "Gagal Export PNG: ") + err.message);
     }
   };
 
@@ -408,7 +408,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
       pdf.save(`AETH-PROOF-${selectedProof.tokenId}.pdf`);
     } catch (err) { 
       console.error("Export PDF gagal", err); 
-      alert("Gagal Export PDF: " + err.message);
+      alert((tHop.downloadPdfFail || "Gagal Export PDF: ") + err.message);
     }
   };
 
@@ -418,8 +418,8 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
         <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -mr-10 -mt-10"></div>
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-cyan-300 tracking-tight">Hall of Proof</h2>
-            <p className="text-sm text-cyan-200/60 mt-2 max-w-xl">Eksplorasi galeri sertifikat aset digital yang telah diverifikasi secara permanen di blockchain.</p>
+            <h2 className="text-2xl sm:text-3xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-cyan-300 tracking-tight">{tHop.title || "Hall of Proof"}</h2>
+            <p className="text-sm text-cyan-200/60 mt-2 max-w-xl">{tHop.desc || "Eksplorasi galeri sertifikat aset digital yang telah diverifikasi secara permanen di blockchain."}</p>
           </div>
           
           <div className="w-full md:w-auto flex flex-col sm:flex-row gap-3">
@@ -427,7 +427,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-500/60" />
               <input 
                 type="text" 
-                placeholder="Cari Token ID, Title, Hash..." 
+                placeholder={tHop.searchPlaceholder || "Cari Token ID, Title, Hash..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-black/40 border border-cyan-900/50 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white outline-none focus:border-cyan-500 font-mono placeholder:text-neutral-600"
@@ -438,7 +438,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="bg-black/40 border border-cyan-900/50 rounded-xl py-2.5 px-4 text-sm text-cyan-300 outline-none focus:border-cyan-500 cursor-pointer font-mono font-bold appearance-none"
             >
-              <option value="All">All Categories</option>
+              <option value="All">{tHop.allCategories || "All Categories"}</option>
               {Object.keys(categoryConfig).map(cat => <option key={cat} value={cat}>{cat}</option>)}
             </select>
           </div>
@@ -448,12 +448,12 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 bg-black/20 rounded-3xl border border-dashed border-cyan-900/30">
           <Loader2 className="w-10 h-10 text-cyan-400 animate-spin mb-4" />
-          <p className="text-sm font-mono text-cyan-500/80 font-bold">Sinkronisasi dengan Ledger Blockchain...</p>
+          <p className="text-sm font-mono text-cyan-500/80 font-bold">{tHop.syncing || "Sinkronisasi dengan Ledger Blockchain..."}</p>
         </div>
       ) : filteredProofs.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 bg-black/20 rounded-3xl border border-dashed border-cyan-900/30">
           <Hexagon className="w-12 h-12 text-neutral-700 mb-4" />
-          <p className="text-sm font-mono text-neutral-500">Tidak ada sertifikat yang ditemukan.</p>
+          <p className="text-sm font-mono text-neutral-500">{tHop.emptyDesc || "Tidak ada sertifikat yang ditemukan."}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
@@ -469,7 +469,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
                     <span className="text-[10px] font-bold font-mono tracking-widest uppercase" style={{ color: catInfo.color }}>{proof.category}</span>
                   </div>
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-green-500/10 border border-green-500/20 text-green-400 text-[9px] font-mono font-bold uppercase tracking-wider">
-                    <CheckCircle2 className="w-3 h-3" /> Valid
+                    <CheckCircle2 className="w-3 h-3" /> {tHop.valid || "Valid"}
                   </div>
                 </div>
 
@@ -477,15 +477,15 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
                   <h4 className="text-lg font-bold text-white mb-2 line-clamp-1 group-hover:text-cyan-300 transition-colors">{proof.title}</h4>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-neutral-500">Creator</span>
+                      <span className="text-neutral-500">{tHop.creator || "Creator"}</span>
                       <span className="text-neutral-300 truncate max-w-[140px] font-bold">{proof.creator}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-neutral-500">Owner Wallet</span>
+                      <span className="text-neutral-500">{tHop.ownerWallet || "Owner Wallet"}</span>
                       <span className="text-cyan-400">{formatAddressFunc(proof.wallet)}</span>
                     </div>
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-neutral-500">Token ID</span>
+                      <span className="text-neutral-500">{tHop.tokenIdLabel || "Token ID"}</span>
                       <span className="text-amber-300">#{proof.tokenId}</span>
                     </div>
                   </div>
@@ -499,7 +499,7 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
                     onClick={() => setSelectedProof(proof)}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all cursor-pointer"
                   >
-                    <Eye className="w-3.5 h-3.5" /> View
+                    <Eye className="w-3.5 h-3.5" /> {tHop.viewBtn || "View"}
                   </button>
                 </div>
               </div>
@@ -507,12 +507,12 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
           })}
         </div>
       )}
-{/* MODAL POPUP - FIXED SCROLLING UI */}
+
+      {/* MODAL POPUP */}
       {selectedProof && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
           <div className="relative flex flex-col bg-[#05030F] border border-cyan-500/30 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden">
             
-            {/* HEADER (Tetap/Fixed di atas) */}
             <div className="w-full flex justify-between items-center p-4 border-b border-cyan-900/50 bg-black/40 shrink-0">
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-400" />
@@ -523,26 +523,23 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
               </button>
             </div>
 
-            {/* BODY & FOOTER (Sekarang digabung agar bisa di-scroll ke bawah bersama-sama) */}
             <div className="w-full flex-1 overflow-y-auto custom-scrollbar bg-[#020207] p-4 sm:p-6 flex flex-col items-center">
               
-              {/* Area Gambar Sertifikat */}
               <div style={{ width: '780px', height: '494px', position: 'relative' }} className="shrink-0 mb-8">
                 <div className="absolute top-0 left-0" style={{ width: '1200px', height: '760px', transform: 'scale(0.65)', transformOrigin: 'top left' }}>
-                  <CertificateTemplate ref={certificateRef} proofData={selectedProof} categoryConfig={categoryConfig} />
+                  <CertificateTemplate ref={certificateRef} proofData={selectedProof} categoryConfig={categoryConfig} tHop={tHop} />
                 </div>
               </div>
 
-              {/* TOMBOL AKSI - Sekarang berada di dalam area scroll! */}
               <div className="w-full flex flex-wrap items-center justify-center gap-4 pt-6 border-t border-cyan-900/40">
                 <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 border border-amber-500/30 hover:border-amber-400/60 hover:bg-amber-500/10 text-amber-300 text-xs font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.1)]">
-                  <Download className="w-4 h-4" /> Save PDF
+                  <Download className="w-4 h-4" /> {tHop.savePdf || "Save PDF"}
                 </button>
                 <button onClick={handleDownloadPNG} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 border border-cyan-500/30 hover:border-cyan-400/60 hover:bg-cyan-500/10 text-cyan-300 text-xs font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                  <ImageIcon className="w-4 h-4" /> Save PNG
+                  <ImageIcon className="w-4 h-4" /> {tHop.savePng || "Save PNG"}
                 </button>
                 <a href={selectedProof.verifyUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/40 hover:border-purple-400/70 hover:from-purple-600/30 hover:to-blue-600/30 text-purple-300 text-xs font-bold transition-all cursor-pointer no-underline shadow-[0_0_15px_rgba(168,85,247,0.15)]">
-                  <ExternalLink className="w-4 h-4" /> View Transaction
+                  <ExternalLink className="w-4 h-4" /> {tHop.viewTransaction || "View Transaction"}
                 </a>
               </div>
 

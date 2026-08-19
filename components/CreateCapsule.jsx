@@ -29,14 +29,14 @@ export default function CreateCapsule({
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
       
-      {/* 4-STEP PROGRESS BAR */}
+      {/* 4-STEP PROGRESS BAR - SEKARANG OTOMATIS BILINGUAL */}
       <div className="bg-[#0B0817] border border-neutral-900 p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative">
          {[
-            { step: 1, label: "WALLET", desc: "Connect your wallet", active: isConnected },
-            { step: 2, label: "TIER", desc: "Choose security tier", active: isConnected && tier !== '' },
-            { step: 3, label: "ENCRYPT", desc: "Add your content", active: isConnected && tier !== '' && (title.trim().length > 0 || message.trim().length > 0) },
-            { step: 4, label: "SEAL", desc: "Confirm & seal", active: isConnected && tier !== '' && title.trim().length > 0 && message.trim().length > 0 && (tier === 'legacy' ? heirAddress.length > 0 : unlockDate !== '') }
+            { step: 1, label: tDash.step1Label || "WALLET", desc: tDash.step1Desc || "Connect your wallet", active: isConnected },
+            { step: 2, label: tDash.step2Label || "TIER", desc: tDash.step2Desc || "Choose security tier", active: isConnected && tier !== '' },
+            { step: 3, label: tDash.step3Label || "ENCRYPT", desc: tDash.step3Desc || "Add your content", active: isConnected && tier !== '' && (title.trim().length > 0 || message.trim().length > 0) },
+            { step: 4, label: tDash.step4Label || "SEAL", desc: tDash.step4Desc || "Confirm & seal", active: isConnected && tier !== '' && title.trim().length > 0 && message.trim().length > 0 && (tier === 'legacy' ? heirAddress.length > 0 : unlockDate !== '') }
           ].map((item, idx) => (
             <div key={idx} className="flex items-center gap-3 bg-[#05030F] p-3 rounded-2xl border border-neutral-800/80">
               <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-mono font-bold text-xs shrink-0 ${item.active ? 'bg-gradient-to-br from-cyan-500 to-violet-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]' : 'bg-neutral-900 text-neutral-500 border border-neutral-800'}`}>
@@ -328,8 +328,8 @@ export default function CreateCapsule({
             <span className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20 uppercase tracking-widest">Your $AETH Balance</span>
             <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-white font-mono">
-  {Number(aethBalance || 0).toLocaleString()}
-</span>
+                {Number(aethBalance || 0).toLocaleString()}
+              </span>
               <span className="text-lg font-bold text-cyan-400 font-mono">AETH</span>
             </div>
             <p className="text-[10px] text-neutral-500 font-mono">Secured by Binance</p>

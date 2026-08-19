@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-// ⚡ FIX 1: Import dibersihkan, hanya menyisakan yang dipakai
 import { Shield, Lock, Clock, ArrowRight, Server, Cpu, Globe, CheckCircle2, Send, Layers, FileText, Users, Mail, Award, ShieldCheck, Fingerprint, Box, Hexagon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from '@/context/LanguageContext';
@@ -13,14 +12,13 @@ const STAKING_CONTRACT_ADDRESS = "0x2B5556e9d885aAAB4C2AFA0870D35Eb539d8a257";
 const VAULT_ABI = ["function totalCapsules() view returns (uint256)", "function totalProofs() view returns (uint256)"];
 const STAKING_ABI = ["function totalStaked() view returns (uint256)", "function totalStakers() view returns (uint256)"];
 
-// ⚡ FIX 2: Provider dan Contract dibuat di LUAR komponen agar tidak membebani memori / garbage collection
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 const vaultContract = new ethers.Contract(AETHER_VAULT_ADDRESS, VAULT_ABI, provider);
 const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, STAKING_ABI, provider);
 
 export default function LandingPage() {
   const router = useRouter();
-  const { t: globalT, lang, changeLanguage } = useLanguage();
+  const { t: globalT } = useLanguage();
   
   const heroT = globalT?.hero || {};
   const infraT = globalT?.infrastructure || {};
@@ -30,10 +28,13 @@ export default function LandingPage() {
   const commT = globalT?.communityPage || {};
   const footerT = globalT?.footer || {};
   const landT = globalT?.landing || {};
+  const hopT = globalT?.hallOfProof || {};
+  const stakeT = globalT?.stakingUi || {};
 
   const [toast, setToast] = useState(null);
   const [liveStats, setLiveStats] = useState({ block: 0, proofs: 0, tvl: 0, stakers: 0 });
-  const [onChainStatus, setOnChainStatus] = useState("Connecting to BSC Testnet...");
+  
+  const [onChainStatus, setOnChainStatus] = useState("connecting");
 
   const showToast = (msg, type = 'info') => {
     setToast({ msg, type });
@@ -45,7 +46,6 @@ export default function LandingPage() {
 
     const fetchLiveBlockchainData = async () => {
       try {
-        // Pemanggilan data langsung menggunakan instance global yang sudah dibuat
         const [currentBlock, totalProofs, rawTotalStaked, rawStakers] = await Promise.all([
           provider.getBlockNumber(),
           vaultContract.totalProofs().catch(() => 0),
@@ -62,10 +62,10 @@ export default function LandingPage() {
           stakers: Number(rawStakers || 0n)
         });
         
-        setOnChainStatus("Verified On-Chain & Synced");
+        setOnChainStatus("synced");
       } catch (e) {
         console.error("Gagal menarik data on-chain:", e);
-        if (isMounted) setOnChainStatus("RPC Connection Error");
+        if (isMounted) setOnChainStatus("error");
       }
     };
 
@@ -81,15 +81,12 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#030208] text-gray-200 font-sans selection:bg-cyan-500 overflow-x-hidden relative pt-24 sm:pt-28 lg:pt-32">
       
-      {/* Background Orbs Global */}
       <div className="fixed top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-cyan-600/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
 
-      {/* Toast Notification */}
       {toast && (
         <div className="fixed top-20 right-4 z-[100] animate-in fade-in slide-in-from-right-8 duration-300">
           <div className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border ${toast.type === 'success' ? 'bg-green-900/80 border-green-500/40 text-green-300' : 'bg-[#0B0817] border-cyan-500/30 text-cyan-400'} backdrop-blur-xl max-w-[90vw]`}>
-            {/* ⚡ FIX 3: Warna Icon Toast menyesuaikan tipe sukses/info */}
             <CheckCircle2 className={`w-4 h-4 shrink-0 ${toast.type === 'success' ? 'text-green-400' : 'text-cyan-400'}`} />
             <p className="text-xs font-medium">{toast.msg}</p>
           </div>
@@ -134,7 +131,7 @@ export default function LandingPage() {
               {heroT.exploreBtn || "Enter App"} <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
             <button onClick={() => router.push('/whitepaper')} className="w-full sm:w-auto flex items-center justify-center gap-1.5 sm:gap-2 bg-[#0B0817]/80 hover:bg-[#05030F] backdrop-blur-md text-white px-4 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-bold text-[10px] sm:text-sm border border-neutral-800 hover:border-cyan-500/50 transition-all cursor-pointer outline-none shadow-lg">
-              Whitepaper <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+              {footerT.navWhitepaper || "Whitepaper"} <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
             </button>
           </div>
         </div>
@@ -142,30 +139,30 @@ export default function LandingPage() {
         <div className="lg:col-span-6 relative z-10 hidden lg:flex flex-col items-center justify-center h-[500px] lg:-ml-10 lg:-mt-12">
            <div className="w-full max-w-sm space-y-3 relative">
               <div className="absolute -left-12 top-1/2 -translate-y-1/2 -rotate-90 text-[8px] font-mono text-neutral-500 tracking-[0.3em] uppercase opacity-70">
-                Architecture Diagram
+                {landT.animation?.archDiagram || "Architecture Diagram"}
               </div>
 
               <div className="bg-[#0B0817]/90 backdrop-blur-xl border border-neutral-800 p-3.5 rounded-2xl flex items-center gap-3 shadow-[0_8px_30px_rgb(0,0,0,0.4)] transform translate-x-4 animate-float">
                  <div className="w-10 h-10 bg-[#05030F] border border-neutral-800 rounded-xl flex items-center justify-center"><Lock className="w-5 h-5 text-neutral-300"/></div>
-                 <div><p className="text-white font-bold text-xs">Encrypted Capsule</p><p className="text-[9px] text-neutral-400 font-mono">ECIES-secp256k1</p></div>
+                 <div><p className="text-white font-bold text-xs">{landT.animation?.encCapsule || "Encrypted Capsule"}</p><p className="text-[9px] text-neutral-400 font-mono">ECIES-secp256k1</p></div>
               </div>
               <div className="w-0.5 h-5 bg-gradient-to-b from-neutral-800 to-purple-500/50 mx-auto"></div>
               
               <div className="bg-[#0B0817]/90 backdrop-blur-xl border border-purple-500/30 p-3.5 rounded-2xl flex items-center gap-3 shadow-[0_8px_30px_rgb(168,85,247,0.15)] transform -translate-x-4 animate-float" style={{ animationDelay: '1s' }}>
                  <div className="w-10 h-10 bg-purple-500/10 border border-purple-500/20 rounded-xl flex items-center justify-center"><Layers className="w-5 h-5 text-purple-400"/></div>
-                 <div><p className="text-white font-bold text-xs">Binance Smart Chain</p><p className="text-[9px] text-purple-400 font-mono">L2 Immutable Storage</p></div>
+                 <div><p className="text-white font-bold text-xs">{landT.animation?.polyNetwork || "Binance Smart Chain"}</p><p className="text-[9px] text-purple-400 font-mono">L2 Immutable Storage</p></div>
               </div>
               <div className="w-0.5 h-5 bg-gradient-to-b from-purple-500/50 to-cyan-500/50 mx-auto"></div>
 
               <div className="bg-[#0B0817]/90 backdrop-blur-xl border border-cyan-500/30 p-3.5 rounded-2xl flex items-center gap-3 shadow-[0_8px_30px_rgb(6,182,212,0.15)] transform translate-x-6 animate-float animate-glow" style={{ animationDelay: '2s' }}>
                  <div className="w-10 h-10 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex items-center justify-center"><Clock className="w-5 h-5 text-cyan-400"/></div>
-                 <div><p className="text-white font-bold text-xs">Time-Lock Target</p><p className="text-[9px] text-cyan-400 font-mono">Smart Contract Enforced</p></div>
+                 <div><p className="text-white font-bold text-xs">{landT.animation?.timeLock || "Time-Lock Target"}</p><p className="text-[9px] text-cyan-400 font-mono">Smart Contract Enforced</p></div>
               </div>
               <div className="w-0.5 h-5 bg-gradient-to-b from-cyan-500/50 to-green-500/50 mx-auto"></div>
 
               <div className="bg-green-500/10 backdrop-blur-xl border border-green-500/30 p-3.5 rounded-2xl flex items-center justify-center gap-2 shadow-[0_8px_30px_rgb(34,197,94,0.15)] transform mx-auto w-fit animate-float" style={{ animationDelay: '3s' }}>
                  <CheckCircle2 className="w-4 h-4 text-green-400"/>
-                 <p className="text-green-400 font-bold text-[10px] uppercase tracking-widest">Verified On-Chain</p>
+                 <p className="text-green-400 font-bold text-[10px] uppercase tracking-widest">{landT.animation?.verified || "Verified On-Chain"}</p>
               </div>
            </div>
         </div>
@@ -175,16 +172,16 @@ export default function LandingPage() {
       <div className="border-y border-neutral-800/80 bg-[#0B0817]/60 backdrop-blur-xl py-3 relative z-20 shadow-[0_4px_30px_rgba(0,0,0,0.3)] mt-4 lg:mt-0">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center gap-3 sm:gap-12 text-[9px] sm:text-xs font-mono">
           <div className="flex items-center gap-1.5 text-neutral-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Network: <span className="text-white font-bold">BSC Testnet</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> {landT.liveData?.networkLabel || "Network:"} <span className="text-white font-bold">BSC Testnet</span>
           </div>
           <div className="flex items-center gap-1.5 text-neutral-400">
-             Block: <span className="text-cyan-400 font-bold">{liveStats.block > 0 ? liveStats.block.toLocaleString() : "Syncing..."}</span>
+             {landT.liveData?.blockLabel || "Block:"} <span className="text-cyan-400 font-bold">{liveStats.block > 0 ? liveStats.block.toLocaleString() : (landT.liveData?.syncing || "Syncing...")}</span>
           </div>
           <div className="flex items-center gap-1.5 text-neutral-400">
-             Proofs: <span className="text-purple-400 font-bold">{liveStats.proofs.toLocaleString()}</span>
+             {landT.liveData?.proofsLabel || "Proofs:"} <span className="text-purple-400 font-bold">{liveStats.proofs.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-1.5 text-neutral-400">
-             Stakers: <span className="text-amber-400 font-bold">{liveStats.stakers.toLocaleString()}</span>
+             {landT.liveData?.stakersLabel || "Stakers:"} <span className="text-amber-400 font-bold">{liveStats.stakers.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-1.5 text-neutral-400">
              TVL: <span className="text-blue-400 font-bold">{liveStats.tvl.toLocaleString()} AETH</span>
@@ -226,36 +223,42 @@ export default function LandingPage() {
            {/* KIRI: HALL OF PROOF */}
            <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
              <div className="w-fit px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 backdrop-blur-md text-cyan-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono shadow-[0_0_15px_rgba(6,182,212,0.15)]">
-               100% On-Chain Verified
+               {hopT.onChainVerified || "100% On-Chain Verified"}
              </div>
              <div>
-               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">Hall of Proof™ Live Records</h2>
-               <p className="text-neutral-400 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">Real-time smart contract state directly queried from BSC Testnet blockchain.</p>
+               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">{hopT.liveRecords || "Hall of Proof™ Live Records"}</h2>
+               <p className="text-neutral-400 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">{hopT.liveRecordsDesc || "Real-time smart contract state directly queried from BSC Testnet blockchain."}</p>
              </div>
 
              <div className="w-full bg-[#0B0817] border border-neutral-800 rounded-3xl p-4 sm:p-6 text-left shadow-2xl">
                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 mb-4 border-b border-neutral-800 gap-3">
                  <div className="flex items-center gap-2.5">
                    <span className="w-2 h-2 rounded-full bg-green-400 animate-ping shadow-[0_0_10px_rgba(74,222,128,0.8)]"></span>
-                   <span className="text-[10px] sm:text-xs font-mono text-white font-bold tracking-wider drop-shadow-md">CONTRACT: 0x318E...71FD</span>
+                   <span className="text-[10px] sm:text-xs font-mono text-white font-bold tracking-wider drop-shadow-md">{hopT.contractLabel || "CONTRACT:"} 0x8C31...f3BE</span>
                  </div>
-                 <span className="text-[9px] sm:text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded-md border border-cyan-500/20">
-                   {onChainStatus}
+                 <span className={`text-[9px] sm:text-[10px] font-mono px-2 py-1 rounded-md border ${
+                   onChainStatus === 'synced' ? 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' :
+                   onChainStatus === 'error' ? 'text-red-400 bg-red-500/10 border-red-500/20' :
+                   'text-amber-400 bg-amber-500/10 border-amber-500/20'
+                 }`}>
+                   {onChainStatus === 'connecting' ? (landT.connecting || "Connecting to BSC Testnet...") :
+                    onChainStatus === 'synced' ? (landT.synced || "Verified On-Chain & Synced") :
+                    (landT.rpcError || "RPC Connection Error")}
                  </span>
                </div>
 
                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono text-xs">
                  <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-1.5 shadow-inner">
-                   <p className="text-neutral-500 uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Total Proofs</p>
+                   <p className="text-neutral-500 uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">{hopT.totalProofs || "Total Proofs"}</p>
                    <p className="text-cyan-400 text-sm sm:text-base font-black">{liveStats.proofs.toLocaleString()} Rec</p>
                  </div>
                  <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-1.5 shadow-inner">
-                   <p className="text-neutral-500 uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">Staking Pool TVL</p>
+                   <p className="text-neutral-500 uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">{stakeT.tvl || "Staking Pool TVL"}</p>
                    <p className="text-purple-400 text-sm sm:text-base font-black">{liveStats.tvl.toLocaleString()} AETH</p>
                  </div>
                  <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-1.5 col-span-2 sm:col-span-1 shadow-inner">
-                   <p className="text-neutral-500 uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">BSC Block</p>
-                   <p className="text-green-400 text-sm sm:text-base font-black">#{liveStats.block > 0 ? liveStats.block.toLocaleString() : "Syncing"}</p>
+                   <p className="text-neutral-500 uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">{landT.metrics?.blocks || "BSC Block"}</p>
+                   <p className="text-green-400 text-sm sm:text-base font-black">#{liveStats.block > 0 ? liveStats.block.toLocaleString() : (landT.liveData?.syncing || "Syncing")}</p>
                  </div>
                </div>
 
@@ -264,7 +267,7 @@ export default function LandingPage() {
                    onClick={() => router.push('/dashboard')}
                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#05030F] hover:bg-neutral-900 text-white px-5 py-3 rounded-xl font-bold text-[10px] sm:text-xs border border-neutral-800 hover:border-cyan-500/40 transition-all cursor-pointer shadow-lg"
                  >
-                   Open dApp Terminal <ArrowRight className="w-3.5 h-3.5" />
+                   {hopT.openTerminal || "Open dApp Terminal"} <ArrowRight className="w-3.5 h-3.5" />
                  </button>
                </div>
              </div>
@@ -342,7 +345,9 @@ export default function LandingPage() {
                 </div>
                 <div className="bg-gradient-to-br from-[#0B0817] to-cyan-950/20 border border-cyan-500/30 p-4 sm:p-5 rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.1)] hover:border-cyan-400 transition-all flex flex-col justify-between relative">
                   <div>
-                    <span className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[6px] sm:text-[7px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded font-mono uppercase font-bold border border-cyan-500/30">Ultimate</span>
+                    <span className="absolute top-2 right-2 sm:top-3 sm:right-3 text-[6px] sm:text-[7px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded font-mono uppercase font-bold border border-cyan-500/30">
+                      {tiersT.ultimate || "Ultimate"}
+                    </span>
                     <h4 className="text-sm font-bold text-white mb-1 mt-2 sm:mt-0">{tiersT.tier4Title || "Tier 4"}</h4>
                     <p className="text-[9px] sm:text-[10px] text-neutral-300 leading-relaxed">{tiersT.tier4Desc || "Eternal storage."}</p>
                   </div>
@@ -352,9 +357,9 @@ export default function LandingPage() {
                 <div className="bg-[#0B0817] border border-neutral-800 p-4 sm:p-5 rounded-2xl shadow-xl col-span-2 flex items-start gap-3 mt-1 border-l-4 border-l-green-500">
                   <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 shrink-0 mt-0.5" />
                   <div className="text-left">
-                    <h4 className="text-xs sm:text-sm font-bold text-white mb-1">{lang === 'en' ? 'Military-Grade Security' : 'Keamanan Tingkat Militer'}</h4>
+                    <h4 className="text-xs sm:text-sm font-bold text-white mb-1">{tiersT.militaryTitle || "Military-Grade Security"}</h4>
                     <p className="text-[9px] sm:text-[10px] text-neutral-400 leading-relaxed">
-                      {lang === 'en' ? 'All capsules are cryptographically secured using ECIES-secp256k1 on-chain. Zero-knowledge architecture ensures absolute privacy.' : 'Semua kapsul diamankan secara mutlak menggunakan kriptografi ECIES-secp256k1. Arsitektur zero-knowledge memastikan privasi data terjamin.'}
+                      {tiersT.militaryDesc || "All capsules are cryptographically secured using ECIES-secp256k1 on-chain. Zero-knowledge architecture ensures absolute privacy."}
                     </p>
                   </div>
                 </div>
@@ -367,8 +372,8 @@ export default function LandingPage() {
                {tokenT.tag || "TOKENOMICS"}
              </div>
              <div>
-               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">Designed for Scarcity</h2>
-               <p className="text-neutral-400 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">100,000,000 total fixed supply with robust utility and automated deflationary burn mechanisms.</p>
+               <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-3">{tokenT.scarcityTitle || "Designed for Scarcity"}</h2>
+               <p className="text-neutral-400 text-xs sm:text-sm drop-shadow-md max-w-md mx-auto lg:mx-0">{tokenT.scarcityDesc || "100,000,000 total fixed supply with robust utility and automated deflationary burn mechanisms."}</p>
              </div>
 
              <div className="w-full flex flex-col items-center justify-center gap-6 mt-2">
@@ -414,10 +419,12 @@ export default function LandingPage() {
                     </div>
                     <div className="text-sm sm:text-lg font-black text-white font-mono">10%</div>
                   </div>
+                  
+                  {/* ⚡ PERBAIKAN: Fungsi Bahasa di TEAM & DEV yang sempat tertinggal */}
                   <div className="bg-[#0B0817] border border-neutral-800 p-4 rounded-xl shadow-xl text-left col-span-2 sm:col-span-1">
                     <div className="flex items-center gap-2 mb-1.5">
                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_6px_#22c55e]"></div>
-                       <span className="text-[7px] sm:text-[8px] font-mono text-green-400 font-bold uppercase">TEAM & DEV</span>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-green-400 font-bold uppercase">{tokenT.teamDev || "TEAM & DEV"}</span>
                     </div>
                     <div className="text-sm sm:text-lg font-black text-white font-mono">15%</div>
                   </div>
@@ -446,7 +453,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <div className="absolute -bottom-2 -right-2 bg-green-500 text-black text-[6px] sm:text-[8px] font-mono font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-widest border-2 border-[#0B0817] shadow-md">
-                Core Dev
+                {teamT.coreDev || "Core Dev"}
               </div>
             </div>
 
@@ -514,7 +521,7 @@ export default function LandingPage() {
                 <Mail className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
               </div>
               <div className="text-left">
-                <h3 className="text-white font-bold text-sm">{lang === 'en' ? 'Official Email Support' : 'Dukungan Email Resmi'}</h3>
+                <h3 className="text-white font-bold text-sm">{commT.emailSupport || "Official Email Support"}</h3>
                 <p className="text-[10px] sm:text-xs text-cyan-400 mt-0.5 font-mono tracking-wide">admin@aethvault.xyz</p>
               </div>
             </a>
@@ -526,7 +533,9 @@ export default function LandingPage() {
       {/* ⭐ ECOSYSTEM & PARTNERS LOGO BAR */}
       <section className="py-12 sm:py-16 border-y border-neutral-900 bg-[#0B0817]/30 relative z-10">
         <div className="max-w-7xl mx-auto px-4 text-center space-y-5 sm:space-y-8">
-           <p className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] sm:tracking-[0.3em] text-neutral-500 font-bold drop-shadow-md">Secured, Audited & Powered By</p>
+           <p className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] sm:tracking-[0.3em] text-neutral-500 font-bold drop-shadow-md">
+             {footerT.securedBy || "Secured, Audited & Powered By"}
+           </p>
            <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-6">
               
               <div className="flex items-center gap-2.5 bg-[#05030F] border border-neutral-800 px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl shadow-lg hover:border-neutral-600 hover:scale-105 transition-all">
@@ -586,7 +595,7 @@ export default function LandingPage() {
             <div className="flex flex-col space-y-3">
               <h4 className="text-white font-bold text-xs uppercase tracking-widest font-mono mb-1">{footerT.community || "Community"}</h4>
               <button onClick={() => router.push('/community')} className="text-xs text-cyan-500 hover:text-cyan-400 font-bold transition-colors text-left bg-transparent border-none p-0 cursor-pointer flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5" /> Community Hub
+                <Users className="w-3.5 h-3.5" /> {commT.forumTitle || "Community Hub"}
               </button>
               <button onClick={() => router.push('/terms')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{footerT.terms || "Terms of Service"}</button>
               <button onClick={() => router.push('/privacy')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{footerT.privacy || "Privacy Policy"}</button>
@@ -595,10 +604,11 @@ export default function LandingPage() {
 
         </div>
         
+        {/* ⚡ PERBAIKAN: Hak Cipta Dilindungi yang sempat tertinggal kini resmi lenyap & otomatis! */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 border-t border-neutral-900 pt-6 flex flex-col sm:flex-row items-center justify-between text-[10px] sm:text-xs text-neutral-600 font-mono gap-3">
-          <p>© {new Date().getFullYear()} Nienzer. Hak Cipta Dilindungi. Email: admin@aethvault.xyz</p>
+          <p>{footerT.copyright ? footerT.copyright.replace('{year}', new Date().getFullYear().toString()) : `© ${new Date().getFullYear()} Nienzer. All rights reserved. Email: admin@aethvault.xyz.`}</p>
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span> BSC Testnet Operational
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span> {footerT.mainnetOp || "BSC Testnet Operational"}
           </div>
         </div>
       </footer>

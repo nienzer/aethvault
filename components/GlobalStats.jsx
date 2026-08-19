@@ -1,5 +1,4 @@
 import React from 'react';
-// ⚡ FIX: Icon Award ditambahkan, UserCheck dihapus (karena Active Wallets diganti)
 import { Flame, Users, Loader2, Database, ShieldCheck, Award, Blocks, Activity } from 'lucide-react';
 
 export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformStats, stakingGlobalStats }) {
@@ -77,7 +76,7 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
           </div>
         </div>
 
-        {/* 🚀 FIX: Active Wallets diubah menjadi Total Proofs */}
+        {/* Total Proofs */}
         <div className="bg-[#0A0713]/80 backdrop-blur-md border border-neutral-800 p-5 rounded-2xl flex flex-col justify-between shadow-lg group hover:border-fuchsia-500/50 hover:shadow-[0_10px_20px_-10px_rgba(217,70,239,0.3)] hover:-translate-y-1 transition-all">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] uppercase text-neutral-500 font-bold font-mono tracking-widest">{t.totalProofs || "Total Proofs"}</span>
@@ -85,13 +84,12 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
           </div>
           <div className="flex items-end justify-between">
             <span className="text-2xl font-black font-mono text-white">
-              {/* Membaca nilai totalProofs dari platformStats (sesuai fungsi getPlatformStats di smart contract) */}
               {isFetchingGlobalStats ? <Loader2 className="w-4 h-4 animate-spin" /> : platformStats?.proofs?.toLocaleString() || "0"}
             </span>
           </div>
           <div className="mt-3 flex items-center gap-1.5">
              <div className="w-1.5 h-1.5 bg-fuchsia-400 rounded-full animate-pulse"></div>
-             <span className="text-[9px] font-mono text-neutral-500 uppercase">{t.minted || "Minted On-Chain"}</span>
+             <span className="text-[9px] font-mono text-neutral-500 uppercase">{t.mintedOnChain || "Minted On-Chain"}</span>
           </div>
         </div>
 
@@ -149,17 +147,17 @@ export default function GlobalStats({ t = {}, isFetchingGlobalStats, platformSta
                 <Activity className="w-4 h-4 text-cyan-400" />
               </div>
               <div className="flex flex-col text-left">
-                <span className="text-[8px] sm:text-[9px] text-neutral-500 font-mono uppercase tracking-widest font-bold">Network Status</span>
+                <span className="text-[8px] sm:text-[9px] text-neutral-500 font-mono uppercase tracking-widest font-bold">{t.networkStatus || "Network Status"}</span>
                 <span className="text-[10px] sm:text-xs font-bold text-cyan-300 font-mono flex items-center gap-1.5 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-                  Optimal & Secured
+                  {t.optimalSecured || "Optimal & Secured"}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-neutral-800/50 pt-2 sm:pt-0">
                <div className="flex flex-col text-left sm:text-right">
-                 <span className="text-[8px] text-neutral-500 font-mono uppercase tracking-widest font-bold">RPC Latency</span>
+                 <span className="text-[8px] text-neutral-500 font-mono uppercase tracking-widest font-bold">{t.rpcLatency || "RPC Latency"}</span>
                  <span className="text-[10px] font-mono text-green-400 mt-0.5">~45ms</span>
                </div>
                

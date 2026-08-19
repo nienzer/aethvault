@@ -51,7 +51,7 @@ export default function VaultsList({
       {isWrongNetwork && (
         <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex items-center gap-3 text-amber-400 shadow-lg mb-4">
           <AlertTriangle className="w-5 h-5 shrink-0" />
-          <p className="text-xs sm:text-sm font-mono">⚠️ Please switch to BSC Testnet to interact with your vaults.</p>
+          <p className="text-xs sm:text-sm font-mono">{vaultT.wrongNetworkWarning || "⚠️ Please switch to BSC Testnet to interact with your vaults."}</p>
         </div>
       )}
 
@@ -70,17 +70,19 @@ export default function VaultsList({
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {myCapsules.map((capsule) => {
-          const isSecretCapsule = ['Basic', 'VIP', 'Eternal'].includes(capsule.tierLabel);
-          const isOpened = capsule.status === "OPENED";
-          const isReady = capsule.status === "READY";
-          const isDeleted = capsule.status === "DELETED";
+          // ⚡ FIX: Deteksi tier menggunakan tierIndex agar tidak error saat bahasa diganti
+          // 0 = Basic, 1 = VIP, 2 = Eternal, 3 = Legacy
+          const isSecretCapsule = [0, 1, 2].includes(capsule.tierIndex);
+          const isOpened = capsule.status === "OPENED" || capsule.status === "Terbuka";
+          const isReady = capsule.status === "READY" || capsule.status === "Siap";
+          const isDeleted = capsule.status === "DELETED" || capsule.status === "Dihapus";
           const canPing = capsule.isLegacy && !capsule.asHeir && !capsule.isClaimedOrRevealed && !capsule.contentDeleted && !capsule.isReady;
 
           const limitInSeconds = Number(capsule.inactivityLimit || 0);
 
           // 🚀 CATATAN UNTUK NANTI SAAT MAINNET:
-          // Ganti angka 60 jadi 31536000, dan kata "Minutes" jadi "Years"
-          const limitDisplay = `${Math.floor(limitInSeconds / 60)} Minutes`;
+          // Ganti angka 60 jadi 31536000, dan kata vaultT.minutes jadi vaultT.years
+          const limitDisplay = `${Math.floor(limitInSeconds / 60)} ${vaultT.minutes || "Minutes"}`;
 
           return (
             <div key={capsule.id} className="bg-[#0B0817] border border-neutral-800 rounded-3xl p-5 hover:border-cyan-500/40 transition-all duration-300 shadow-lg group hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(6,182,212,0.2)] flex flex-col">
@@ -108,7 +110,7 @@ export default function VaultsList({
                       {isOpened ? (dashT.statusOpened || "OPENED") : 
                        isReady ? (dashT.statusReady || "READY") : 
                        isDeleted ? (dashT.statusDeleted || "DELETED") : 
-                       (capsule.status || 'UNKNOWN')}
+                       (dashT.statusLocked || 'LOCKED')}
                     </span>
                   </div>
                 </div>
@@ -200,7 +202,7 @@ export default function VaultsList({
                       onClick={() => handleViewCertificate(capsule.id)}
                       className="w-full py-2.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-neutral-800 hover:border-neutral-600 font-bold rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
-                      <Award className="w-3 h-3" /> {vaultT.certBtn || "Cert"}
+                      <Award className="w-3 h-3" /> {vaultT.certBtn || "Certificate"}
                     </button>
                   )}
                 </div>

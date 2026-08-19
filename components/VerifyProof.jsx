@@ -163,11 +163,13 @@ export default function VerifyProof() {
                       {fileHash}
                     </p>
                     <button 
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         navigator.clipboard.writeText(fileHash);
                         setManualHash(fileHash);
                       }}
-                      className="p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-md text-neutral-300 hover:text-cyan-400 transition-colors cursor-pointer shrink-0 flex items-center gap-1.5"
+                      className="relative z-20 p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 rounded-md text-neutral-300 hover:text-cyan-400 transition-colors cursor-pointer shrink-0 flex items-center gap-1.5"
                       title={t.copyBtn || "COPY"}
                     >
                       <Copy className="w-4 h-4" /> <span className="text-[10px] hidden sm:block font-bold">{t.copyBtn || "COPY"}</span>

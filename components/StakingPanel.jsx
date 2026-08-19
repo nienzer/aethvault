@@ -7,23 +7,23 @@ export default function StakingPanel({
   stakingGlobalStats,
   isFetchingGlobalStats,
   aethBalance,
-  isConnected, // ⚡ FIX: Tambah prop agar bisa guard tombol stake
+  isConnected,
 
   // Props untuk Stake Baru
   stakeInput,
   setStakeInput,
-  handleStake, // Sekarang harus menerima (tierId, amount)
+  handleStake, 
   isStaking,
   isWrongNetwork,
 
   // Props Data User (BERUBAH UNTUK V6)
-  totalUserStaked, // Total gabungan semua deposit
-  pendingReward,   // Total bunga yang siap diklaim (userRewardDebt)
-  userDeposits,    // Array dari struct Deposit: [{ id, tierId, amount, unlockTime, apy }, ...]
+  totalUserStaked, 
+  pendingReward,   
+  userDeposits,    
 
   // Props Aksi Withdraw & Claim
-  handleWithdrawStake,       // Harus menerima (depositId)
-  handleEmergencyWithdraw,   // Harus menerima (depositId)
+  handleWithdrawStake,       
+  handleEmergencyWithdraw,   
   isWithdrawingStake,
   handleClaimReward
 }) {
@@ -82,7 +82,7 @@ export default function StakingPanel({
               <span className="text-[9px] sm:text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.maxApy || "MAX APY"}</span>
               <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
                 <span className="text-xl sm:text-2xl font-black text-white font-mono">20%</span>
-                <span className="text-[8px] sm:text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded border border-green-500/20">Tier Gold</span>
+                <span className="text-[8px] sm:text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded border border-green-500/20">{tStake.tierGold || "Tier Gold"}</span>
               </div>
             </div>
 
@@ -116,7 +116,7 @@ export default function StakingPanel({
                 >
                   <span className={`text-xs font-black uppercase tracking-wider ${selectedTier === tier.id ? tier.color : 'text-neutral-400'}`}>{tier.name}</span>
                   <span className="text-lg font-bold text-white mt-1">{tier.apy}%</span>
-                  <span className="text-[9px] text-neutral-500 mt-1 uppercase tracking-widest">{tier.lockDays === 0 ? "No Lock" : `${tier.lockDays} Days`}</span>
+                  <span className="text-[9px] text-neutral-500 mt-1 uppercase tracking-widest">{tier.lockDays === 0 ? (tStake.noLock || "No Lock") : `${tier.lockDays} ${tStake.days || "Days"}`}</span>
                 </div>
               ))}
             </div>
@@ -145,7 +145,7 @@ export default function StakingPanel({
               {/* ESTIMASI HADIAH DINAMIS */}
               <div className="bg-gradient-to-r from-[#05030F] to-violet-950/10 border border-violet-500/20 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center gap-2 text-[10px] font-bold text-violet-400 uppercase tracking-widest mb-1">
-                  <Sparkles className="w-3 h-3" /> {tStake.estRewards || `ESTIMATED REWARDS (${activeApy}% APY)`}
+                  <Sparkles className="w-3 h-3" /> {tStake.estRewards || `ESTIMATED REWARDS`} ({activeApy}% APY)
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div>
@@ -225,7 +225,7 @@ export default function StakingPanel({
                 className={`w-full py-3 rounded-xl font-bold text-xs shadow-lg cursor-pointer flex items-center justify-center gap-2 transition-all ${pendingReward > 0 ? 'bg-green-500 hover:bg-green-400 text-black shadow-[0_0_15px_rgba(34,197,94,0.4)] hover:scale-[1.02]' : 'bg-neutral-900 text-neutral-500 border border-neutral-800 cursor-not-allowed'}`}
               >
                 <Coins className="w-4 h-4" /> 
-                {pendingReward > 0 ? `Claim ${pendingReward.toFixed(4)} AETH` : (tStake.noRewards || "No Rewards")}
+                {pendingReward > 0 ? `${tStake.claimPrefix || "Claim"} ${pendingReward.toFixed(4)} AETH` : (tStake.noRewards || "No Rewards")}
               </button>
 
               <div className="border-t border-neutral-800 my-2"></div>
@@ -235,11 +235,9 @@ export default function StakingPanel({
 
               <div className="flex-1 overflow-y-auto max-h-[300px] space-y-3 pr-1 custom-scrollbar">
                 {userDeposits?.map((dep, index) => {
-                  // Memastikan konversi BigInt aman dari error overflow
                   const unlockTimestamp = dep.unlockTime !== undefined ? Number(dep.unlockTime.toString()) : 0;
                   const isLocked = currentTime < unlockTimestamp;
 
-                  // FIX DESIMAL & APY V6: Deteksi otomatis tipe data agar tidak terjadi pembagian ganda 1e18
                   const rawAmount = parseFloat(dep.amount || 0);
                   const formattedAmount = rawAmount > 1000000000 
                     ? (rawAmount / 1e18).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })
@@ -248,12 +246,9 @@ export default function StakingPanel({
                   const targetTier = TIERS[dep.tierId] || TIERS[0];
                   const tierName = targetTier.name;
                   
-                  // ⚡ FIX: Membaca dep.apy dari kontrak lalu membaginya 100.
-                  // Jika dep.apy bernilai 2000 (BPS), akan tampil di layar sebagai 20 (%)
                   const displayApy = dep.apy ? (Number(dep.apy) / 100) : targetTier.apy;
 
                   return (
-                    // ⚡ FIX: Konversi dep.id ke String agar React tidak warning saat BigInt
                     <div key={dep.id !== undefined ? String(dep.id) : index} className="bg-[#05030F] border border-neutral-800 rounded-xl p-3 flex flex-col gap-2 animate-in fade-in duration-200">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
@@ -263,18 +258,17 @@ export default function StakingPanel({
                         <span className="text-xs font-black text-white font-mono">{formattedAmount} AETH</span>
                       </div>
 
-
                       <div className="flex justify-between items-end mt-2">
                         <div className="flex items-center gap-1.5 text-[9px] text-neutral-400">
                           {isLocked ? (
                             <>
                               <Lock className="w-3 h-3 text-amber-500" />
-                              <span>Locked</span>
+                              <span>{tStake.lockedStatus || "Locked"}</span>
                             </>
                           ) : (
                             <>
                               <Unlock className="w-3 h-3 text-green-400" />
-                              <span className="text-green-400">Unlocked</span>
+                              <span className="text-green-400">{tStake.unlockedStatus || "Unlocked"}</span>
                             </>
                           )}
                         </div>
@@ -285,9 +279,9 @@ export default function StakingPanel({
                             onClick={() => handleEmergencyWithdraw(dep.id)}
                             disabled={isWithdrawingStake}
                             className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-colors flex items-center gap-1 cursor-pointer"
-                            title="Tarik Paksa: Bunga Hangus!"
+                            title={tStake.emergencyTooltip || "Force Withdraw: Forfeit Rewards!"}
                           >
-                            <AlertTriangle className="w-3 h-3" /> Emergency
+                            <AlertTriangle className="w-3 h-3" /> {tStake.emergencyBtn || "Emergency"}
                           </button>
                         ) : (
                           <button 
@@ -295,7 +289,7 @@ export default function StakingPanel({
                             disabled={isWithdrawingStake}
                             className="px-4 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-colors cursor-pointer"
                           >
-                            Withdraw
+                            {tStake.withdraw || "Withdraw"}
                           </button>
                         )}
                       </div>
