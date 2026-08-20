@@ -6,8 +6,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
 
 const RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
-const AETHER_VAULT_ADDRESS = "0x8C315f5F2364139436fc126cBAe397718bd0f3BE";
-const STAKING_CONTRACT_ADDRESS = "0x2B5556e9d885aAAB4C2AFA0870D35Eb539d8a257";
+const AETHER_VAULT_ADDRESS = "0xA82c2D415629912bF7837f0d1bba354bC6Ae118f";
+const STAKING_CONTRACT_ADDRESS = "0xD0CB22dDDE27526b81a454Bbe261FC9063D1A2DE";
 
 const VAULT_ABI = ["function totalCapsules() view returns (uint256)", "function totalProofs() view returns (uint256)"];
 const STAKING_ABI = ["function totalStaked() view returns (uint256)", "function totalStakers() view returns (uint256)"];
@@ -507,13 +507,13 @@ export default function LandingPage() {
                 </div>
               </a>
               
-              <a href="/community" className="bg-[#05030F] border border-neutral-800 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group">
-                <Globe className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
-                <div className="text-center">
-                  <h3 className="text-white font-bold text-xs sm:text-sm">{commT.forumTitle || "Web3 Forum"}</h3>
-                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">{(commT.forumDesc || "DAO Voting & Proposals").replace('(Coming Soon)', '').trim()}</p>
-                </div>
-              </a>
+              <a href="https://snapshot.org/#/aethvault.xyz" target="_blank" rel="noreferrer" className="bg-[#05030F] border border-cyan-500/20 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group">
+             <Hexagon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <div className="text-center">
+            <h3 className="text-white font-bold text-xs sm:text-sm">DAO Governance</h3>
+           <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">Snapshot Voting</p>
+            </div>
+            </a>
             </div>
 
             <a href="mailto:admin@aethvault.xyz" className="bg-[#0B0817] border border-cyan-500/20 hover:border-cyan-400/50 p-4 sm:p-5 rounded-2xl flex flex-row items-center justify-center gap-4 transition-all group shadow-xl w-full">

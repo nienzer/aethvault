@@ -97,7 +97,7 @@ export default function VerifyProof() {
 
     try {
       const provider = new ethers.JsonRpcProvider("https://bsc-testnet-rpc.publicnode.com");
-      const CONTRACT_ADDRESS = "0x8C315f5F2364139436fc126cBAe397718bd0f3BE";
+      const CONTRACT_ADDRESS = "0xA82c2D415629912bF7837f0d1bba354bC6Ae118f";
       
       // Mengacu pada mapping yang ada di Smart Contract
       const minimalABI = ["function usedHashes(bytes32) view returns (bool)"];

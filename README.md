@@ -46,3 +46,24 @@ Access the AetherVault dApp here: [https://aethvault.xyz](https://aethvault.xyz)
 This project is built for the BNB Chain ecosystem. For inquiries or collaborations, contact the AetherVault development team via the official website.
 
 *Secured, Verified, and On-Chain.*
+
+---
+
+## 🧪 Accelerated Testing Parameters Disclosure
+To facilitate rapid and efficient auditing/testing on the BNB Chain Testnet, several time-dependent smart contract parameters have been configured to **accelerated durations**. These are intended solely for testing purposes and will be updated to their production-grade counterparts before Mainnet deployment.
+
+The following components utilize these accelerated test settings:
+
+1.  **Aether Capsule & Legacy Vault (Dead-man's Switch):** 
+    *   *Production Intent:* Multi-year/Multi-month inactivity triggers.
+    *   *Testnet Config:* Accelerated to minute-based triggers for verification of state changes.
+
+2.  **AetherVaultStaking (Timelock Governance):**
+    *   *Production Intent:* 48-hour delay for parameter updates.
+    *   *Testnet Config:* Reduced duration to allow immediate verification of governance flow.
+
+3.  **TeamVesting (Cliff & Linear Release):**
+    *   *Production Intent:* 6-month cliff and 24-month linear vesting.
+    *   *Testnet Config:* Scaled down to allow full verification of the vesting lifecycle within a single testing session.
+
+*All time-lock variables are hard-coded in the source contracts as modular constants, allowing for seamless transition to production parameters without requiring logic re-writes.*

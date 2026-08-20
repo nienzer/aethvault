@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { Shield, CheckCircle2, AlertTriangle, Loader2, Award, Database, Clock, Key, Globe, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
-const CONTRACT_ADDRESS = "0x71C387117FA0DaD965B7F587081338395FEA2E4a";
+const CONTRACT_ADDRESS = "0x83107fb136CF264971c512EC452Fa50058A43b53";
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const TARGET_CHAIN_NAME = "BSC Testnet Testnet";
 

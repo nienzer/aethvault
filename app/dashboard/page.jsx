@@ -3,7 +3,7 @@ import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Buffer } from 'buffer';
 import { uploadEncryptedFileService } from '@/lib/storageService';
-import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock } from 'lucide-react';
+import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock, Scale } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
@@ -28,6 +28,7 @@ import CreateCapsule from '@/components/CreateCapsule';
 import AetherProofHub from '@/components/AetherProofHub';
 import HallOfProof from '@/components/HallOfProof';
 import VerifyProof from '@/components/VerifyProof';
+import GovernancePanel from '@/components/GovernancePanel';
 
 import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import StakingArtifact from '@/contracts/StakingABI.json';
@@ -43,6 +44,20 @@ const ERC20_ABI = [
   "function approve(address,uint256) returns (bool)"
 ];
 
+// --- ABI & KONSTANTA DAO BARU ---
+const VE_AETH_ABI = [
+  "function balanceOf(address) view returns (uint256)",
+  "function getVotes(address) view returns (uint256)",
+  "function deposit(uint256 amount) external",
+  "function withdraw(uint256 amount) external"
+];
+
+const GOVERNOR_ABI = [
+  "function propose(address[] targets, uint256[] values, bytes[] calldata, string description) public returns (uint256)",
+  "function castVote(uint256 proposalId, uint8 support) public returns (uint256)",
+  "function proposalThreshold() view returns (uint256)"
+];
+
 const getNewIrysUploader = async (walletProvider) => {
   const provider = new ethers.BrowserProvider(walletProvider);
   const irysUploader = await WebUploader(WebBNB)
@@ -52,10 +67,14 @@ const getNewIrysUploader = async (walletProvider) => {
   return irysUploader;
 };
 
-const AETH_TOKEN_ADDRESS = "0x71C387117FA0DaD965B7F587081338395FEA2E4a"; 
-const CONTRACT_ADDRESS = "0x8C315f5F2364139436fc126cBAe397718bd0f3BE"; 
-const STAKING_CONTRACT_ADDRESS = "0x2B5556e9d885aAAB4C2AFA0870D35Eb539d8a257"; 
-const VESTING_CONTRACT_ADDRESS = "0xbaa33196cDADC93be1f48B356325eFEa8860387E";
+const AETH_TOKEN_ADDRESS = "0x83107fb136CF264971c512EC452Fa50058A43b53";[cite: 3]
+const CONTRACT_ADDRESS = "0xA82c2D415629912bF7837f0d1bba354bC6Ae118f";[cite: 3]
+const STAKING_CONTRACT_ADDRESS = "0xD0CB22dDDE27526b81a454Bbe261FC9063D1A2DE";[cite: 3]
+const VESTING_CONTRACT_ADDRESS = "0xFa8a5E7375AfAa1426CC338EafF790563BedE568";[cite: 3]
+
+// Alamat Kontrak DAO Baru di Testnet
+const VE_AETH_ADDRESS = "0x6ED2C286d465cCbAFA33f74F2BF39Edc4408DB2D";[cite: 3]
+const GOVERNOR_ADDRESS = "0x770996f99C8f760efd1835f62460A44Bd5314804";[cite: 3]
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED = CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -99,6 +118,18 @@ export default function DashboardPage() {
   const [aethBalance, setAethBalance] = useState(0);
   const [activeTab, setActiveTab] = useState('create');
   const [isOwner, setIsOwner] = useState(false);
+
+  // --- STATE KHUSUS GOVERNANCE / DAO ---
+  const [veAethBalance, setVeAethBalance] = useState(0);
+  const [votingPower, setVotingPower] = useState(0);
+  const [veAethInput, setVeAethInput] = useState('');
+  const [isVeAethLoading, setIsVeAethLoading] = useState(false);
+  
+  const [proposalTarget, setProposalTarget] = useState('');
+  const [proposalDescription, setProposalDescription] = useState('');
+  const [isProposing, setIsProposing] = useState(false);
+  const [proposalIdInput, setProposalIdInput] = useState('');
+  const [isVoting, setIsVoting] = useState(false);
 
   useEffect(() => {
     if (pathname && pathname.includes('/admin')) {
@@ -150,7 +181,6 @@ export default function DashboardPage() {
   
   const myKeyPairRef = useRef(null);
 
-  // --- STATE KHUSUS VESTING 2-STEP ---
   const [newBeneficiaryInput, setNewBeneficiaryInput] = useState('');
   const [vestingPendingDest, setVestingPendingDest] = useState(null);
   const [vestingUnlockTime, setVestingUnlockTime] = useState(0);
@@ -472,7 +502,6 @@ export default function DashboardPage() {
           id: `${kind}-${e.transactionHash}`,
           date: date,
           type: kind,
-          // ⚡ FIX: Translasi Status & Label Kapsul di Riwayat
           detail: kind.includes('STAKED') || kind === 'WITHDRAWN' ? `${tRef.current.stakingAction || "Staking Action:"} ${kind}` : `${tRef.current.capsuleIdLabel || "Capsule ID:"} ${e.args[0] || 'N/A'}`,
           amount: amount.toFixed(2),
           direction: (kind === 'STAKED' || kind === 'SEALED') ? 'out' : 'in'
@@ -498,6 +527,13 @@ export default function DashboardPage() {
           const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, ERC20_ABI, provider);
           const rawAethBalance = await tokenContract.balanceOf(address);
           setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
+
+          // --- FETCH veAETH & VOTING POWER ---
+          const veAethContract = new ethers.Contract(VE_AETH_ADDRESS, VE_AETH_ABI, provider);
+          const rawVeBalance = await veAethContract.balanceOf(address);
+          const rawVotes = await veAethContract.getVotes(address);
+          setVeAethBalance(parseFloat(ethers.formatUnits(rawVeBalance, 18)));
+          setVotingPower(parseFloat(ethers.formatUnits(rawVotes, 18)));
 
           const mainContract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, provider);
           const registeredKey = await mainContract.encryptionPublicKeys(address);
@@ -549,6 +585,7 @@ export default function DashboardPage() {
     } else {
       setNativeBalance('0.0000'); setAethBalance(0); setTotalUserStaked(0); setPendingReward(0); setUserDeposits([]);
       setMyCapsules([]); setTransactions([]); setMyPublicKeyRegistered(false); setIsOwner(false);
+      setVeAethBalance(0); setVotingPower(0);
       myKeyPairRef.current = null;
     }
   }, [isConnected, walletProvider, address, fetchCapsulesFromChain, fetchOnChainHistory, isWrongNetwork, getOrDeriveKeyPair]);
@@ -589,6 +626,122 @@ export default function DashboardPage() {
       showToast((t.keyRegisterFailPrefix || "Gagal: ") + extractErrorMessage(err), 'error');
     } finally {
       setIsRegisteringKey(false);
+    }
+  };
+
+  // --- HANDLER VE-AETH (DAO DEPOSIT & WITHDRAW) ---
+  const handleVeAethDeposit = async () => {
+    if (!veAethInput || parseFloat(veAethInput) <= 0) return showToast("Masukkan nominal AETH yang valid", "error");
+    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+
+    setIsVeAethLoading(true);
+    try {
+      const signer = await getSigner();
+      await ensureCorrectNetwork(signer);
+      const amountWei = ethers.parseUnits(veAethInput, 18);
+
+      const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, ERC20_ABI, signer);
+      const allowance = await tokenContract.allowance(address, VE_AETH_ADDRESS);
+      if (allowance < amountWei) {
+        showToast("Meminta persetujuan token (Approve)...", "info");
+        const approveTx = await tokenContract.approve(VE_AETH_ADDRESS, amountWei);
+        await approveTx.wait();
+      }
+
+      const veContract = new ethers.Contract(VE_AETH_ADDRESS, VE_AETH_ABI, signer);
+      showToast("Mengunci AETH ke Brankas veAETH...", "info");
+      const tx = await veContract.deposit(amountWei);
+      await tx.wait();
+
+      showToast("Berhasil mencetak veAETH & Hak Suara!", "success");
+      setVeAethInput('');
+      await fetchWalletData();
+    } catch (err) {
+      showToast("Gagal deposit veAETH: " + extractErrorMessage(err), "error");
+    } finally {
+      setIsVeAethLoading(false);
+    }
+  };
+
+  const handleVeAethWithdraw = async () => {
+    if (!veAethInput || parseFloat(veAethInput) <= 0) return showToast("Masukkan nominal veAETH yang valid", "error");
+    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+
+    setIsVeAethLoading(true);
+    try {
+      const signer = await getSigner();
+      await ensureCorrectNetwork(signer);
+      const amountWei = ethers.parseUnits(veAethInput, 18);
+
+      const veContract = new ethers.Contract(VE_AETH_ADDRESS, VE_AETH_ABI, signer);
+      showToast("Menarik kembali AETH dari Brankas...", "info");
+      const tx = await veContract.withdraw(amountWei);
+      await tx.wait();
+
+      showToast("Withdraw AETH Berhasil!", "success");
+      setVeAethInput('');
+      await fetchWalletData();
+    } catch (err) {
+      showToast("Gagal withdraw veAETH: " + extractErrorMessage(err), "error");
+    } finally {
+      setIsVeAethLoading(false);
+    }
+  };
+
+  // --- HANDLER GOVERNOR (PROPOSAL & VOTING) ---
+  const handleCreateProposal = async (e) => {
+    e.preventDefault();
+    if (!proposalTarget || !proposalDescription) return showToast("Lengkapi form proposal", "error");
+    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+
+    setIsProposing(true);
+    try {
+      const signer = await getSigner();
+      await ensureCorrectNetwork(signer);
+      const governorContract = new ethers.Contract(GOVERNOR_ADDRESS, GOVERNOR_ABI, signer);
+
+      const targets = [proposalTarget];
+      const values = [0];
+      const calldatas = ["0x"]; 
+
+      showToast("Mengirim proposal ke Parlemen DAO...", "info");
+      const tx = await governorContract.propose(targets, values, calldatas, proposalDescription);
+      await tx.wait();
+
+      showToast("Proposal Berhasil Dikirim ke Parlemen!", "success");
+      setProposalTarget('');
+      setProposalDescription('');
+    } catch (err) {
+      showToast("Gagal membuat proposal: " + extractErrorMessage(err), "error");
+    } finally {
+      setIsProposing(false);
+    }
+  };
+
+  const handleCastVote = async (supportValue) => {
+    if (!proposalIdInput) return showToast("Masukkan ID Proposal yang valid", "error");
+    if (!isConnected) return showToast("Hubungkan dompet", "error");
+    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+
+    setIsVoting(true);
+    try {
+      const signer = await getSigner();
+      await ensureCorrectNetwork(signer);
+      const governorContract = new ethers.Contract(GOVERNOR_ADDRESS, GOVERNOR_ABI, signer);
+
+      showToast(`Memberikan suara (${supportValue === 1 ? 'FOR' : supportValue === 0 ? 'AGAINST' : 'ABSTAIN'})...`, "info");
+      const tx = await governorContract.castVote(proposalIdInput, supportValue);
+      await tx.wait();
+
+      showToast("Suara Voting Berhasil Dicatat!", "success");
+      setProposalIdInput('');
+    } catch (err) {
+      showToast("Gagal Voting: " + extractErrorMessage(err), "error");
+    } finally {
+      setIsVoting(false);
     }
   };
 
@@ -1132,6 +1285,7 @@ export default function DashboardPage() {
         { id: 'hall', icon: Globe, label: t.menuHall || 'Hall of Proof' },
         { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
         { id: 'vaults', icon: Layers, label: t.menuVaults || 'My Vaults', count: myCapsules.length > 0 ? myCapsules.length : undefined },
+        { id: 'governance', icon: Scale, label: 'DAO / Governance' },
         { id: 'history', icon: History, label: t.menuHistory || 'History' },
         { id: 'stats', icon: Flame, label: t.menuStats || 'Global Stats' },
         { id: 'staking', icon: Coins, label: t.menuStaking || 'Staking V6' },
@@ -1363,6 +1517,29 @@ export default function DashboardPage() {
                   handleOpenVault={handleOpenVault}
                   handleViewCertificate={handleViewCertificate}
                   formatUnlockDateTime={formatUnlockDateTime}
+                />
+              )}
+
+              {/* --- PANEL TAB GOVERNANCE / DAO (MENGGUNAKAN KOMPONEN TERPISAH) --- */}
+              {activeTab === 'governance' && (
+                <GovernancePanel
+                  veAethBalance={veAethBalance}
+                  votingPower={votingPower}
+                  veAethInput={veAethInput}
+                  setVeAethInput={setVeAethInput}
+                  isVeAethLoading={isVeAethLoading}
+                  handleVeAethDeposit={handleVeAethDeposit}
+                  handleVeAethWithdraw={handleVeAethWithdraw}
+                  proposalTarget={proposalTarget}
+                  setProposalTarget={setProposalTarget}
+                  proposalDescription={proposalDescription}
+                  setProposalDescription={setProposalDescription}
+                  isProposing={isProposing}
+                  handleCreateProposal={handleCreateProposal}
+                  proposalIdInput={proposalIdInput}
+                  setProposalIdInput={setProposalIdInput}
+                  isVoting={isVoting}
+                  handleCastVote={handleCastVote}
                 />
               )}
 
