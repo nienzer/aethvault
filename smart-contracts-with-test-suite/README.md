@@ -45,6 +45,13 @@ Linear vesting script ensuring team loyalty and preventing malicious liquidity r
 - `✓` Cliff Period: Absolute lock for the first 6 months (0 tokens claimable)[cite: 4].
 - `✓` Linear Release: Programmatic unlocking structure (25% at month 6, 100% at month 24)[cite: 4].
 
+### 5. veAETH & AetherGovernor (DAO Governance)
+On-chain governance framework enabling decentralized voting power and transparent protocol parameter adjustments[cite: 3].
+- **Test File:** `05_Governance.test.js`
+- `✓` Tokenized Voting Power: Escrowing AETH to mint soulbound `veAETH` for voting rights[cite: 3].
+- `✓` Delegation Mechanism: Automated self-delegation logic ensuring accurate weight distribution (`getVotes()`).
+- `✓` Proposal Lifecycle: On-chain proposal creation, threshold enforcement, and multi-state voting (`For`, `Against`, `Abstain`)[cite: 3].
+
 ---
 
 ## 📂 Evidence of Verification

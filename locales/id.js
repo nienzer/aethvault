@@ -387,12 +387,11 @@ export const id = {
     sec9Text: "Token $AETH adalah penggerak seluruh ekosistem. Utilitasnya mencakup:\n• Mencetak (Mint) Kapsul\n• Mencetak Bukti (Aether Proof)\n• Pembayaran Penyimpanan Premium\n• Legacy Vault (Dead-man's switch)\n• Tata Kelola Protokol (DAO)\n• Liquid Staking\n• Subsidi Gas\n• Hadiah Protokol",
     sec10Title: "10. Mekanisme Deflasi",
     sec10Text: "Setiap interaksi protokol secara permanen menghancurkan sebagian dari pasokan. Hal ini menciptakan kelangkaan jangka panjang.\n\nTier | Biaya | Dibakar\nBasic | 10 AETH | 2 AETH\nVIP | 50 AETH | 10 AETH\nEternal | 200 AETH | 40 AETH\nLegacy | 500 AETH | 100 AETH",
-    sec11Title: "11. Staking",
-    sec11Text: "AetherVault menyediakan staking dengan imbal hasil nyata (real-yield). Hadiah tidak dihasilkan dari inflasi token tanpa akhir, melainkan dipertahankan oleh pendapatan platform aktual yang berasal dari:\n• Biaya Protokol\n• Biaya Pencetakan (Minting)\n• Biaya Sertifikasi Bukti\n• Biaya Marketplace (Integrasi masa depan)",
+    sec11Title: "11. Staking & Tata Kelola DAO",
+    sec11Text: "AetherVault mengadopsi model ekonomi partisipatif yang sepenuhnya on-chain:\n\n**Real-Yield Staking**\nPengguna dapat mengunci AETH untuk mengamankan protokol dan menerima bagi hasil yang didanai dari pendapatan platform aktual (seperti biaya pencetakan Kapsul & Sertifikasi Bukti).\n\n**Tata Kelola On-Chain (DAO)**\nDengan mengunci AETH ke dalam brankas tata kelola, pengguna mencetak tiket suara (veAETH). Tiket ini memberikan kekuatan suara mutlak di dalam Parlemen AetherGovernor untuk menentukan parameter sistem, alokasi treasury, dan arah pembaruan protokol di masa depan tanpa campur tangan terpusat.",
     sec12Title: "12. Roadmap",
     sec12Text: "• Fase 1: Protokol Inti, Integrasi Dompet Web3, Kapsul Waktu, Enkripsi ECIES.\n• Fase 2: Implementasi Aether Proof™, Pembuatan Sertifikat, Hall of Proof, Blockchain Explorer.\n• Fase 3: Transisi DAO, API Publik, SDK Pengembang, Portal Pengembang.\n• Fase 4: Aplikasi Seluler, Integrasi Lintas-Rantai, Solusi Perusahaan, Kemitraan Institusional.",
     sec13Title: "13. Ekosistem Masa Depan",
-    sec13Text: "Protokol AetherVault akan berekspansi untuk mendukung serangkaian layanan terdesentralisasi:\n• Aether Mail\n• Aether Identity\n• Aether DNS\n• Aether Archive\n• Aether AI Memory\n• Brankas Perusahaan (Enterprise Vaults)\n• Arsip Pemerintah\n• Sertifikat Universitas\n• Rekam Medis",
     sec14Title: "14. Kesimpulan",
     sec14Text: "AetherVault sedang membangun lapisan memori permanen dari internet terdesentralisasi. Dengan menggabungkan keamanan kriptografi tingkat militer, penyimpanan terdesentralisasi, dan model ekonomi deflasi yang sehat, AetherVault menetapkan standar baru tentang bagaimana umat manusia membuktikan kepemilikan dan mewariskan rahasia kepada generasi mendatang.",
     disclaimerTitle: "Penafian & Lisensi Hukum",
@@ -548,7 +547,9 @@ export const id = {
     tokenLabel: "Kontrak Token ($AETH)",
     stakingLabel: "Kontrak Staking",
     abiTitle: "Konfigurasi ABI",
-    abiDesc: "Pengembang dapat menggunakan ABI publik untuk membangun antarmuka pihak ketiga."
+    abiDesc: "Pengembang dapat menggunakan ABI publik untuk membangun antarmuka pihak ketiga.",
+    githubSectionDesc: "Semua kode sumber kontrak cerdas dan antarmuka dApp bersifat terbuka dan dapat diaudit secara mandiri di repositori resmi kami.",
+    visitGithubBtn: "Kunjungi GitHub Repository"
   },
   communityPage: {
     badge: "Ekosistem Visi",

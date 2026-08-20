@@ -224,21 +224,28 @@ export default function WhitepaperPage() {
               </section>
 
               {/* 12. Roadmap (VISUAL TIMELINE) */}
+              {/* 12. Roadmap (VISUAL TIMELINE DINAMIS) */}
               <section id="roadmap" className="scroll-mt-32">
                 <h2 className="text-2xl sm:text-3xl font-black text-white mb-8 font-display border-l-4 border-pink-500 pl-4">{t.sec12Title}</h2>
                 <div className="space-y-6 pl-2 sm:pl-4 border-l-2 border-neutral-800 ml-4">
-                  {[
-                    { phase: "Phase 1: Genesis", desc: "Core Protocol, Web3 Wallet Integration, Time Capsule, ECIES Encryption", color: "bg-cyan-500" },
-                    { phase: "Phase 2: Expansion", desc: "Aether Proof™ Implementation, Certificate Generation, Hall of Proof, Blockchain Explorer", color: "bg-blue-500" },
-                    { phase: "Phase 3: Decentralization", desc: "DAO Transition, Public API, Developer SDK, Developer Portal", color: "bg-purple-500" },
-                    { phase: "Phase 4: Global Adoption", desc: "Mobile App, Cross-chain Integration, Enterprise Solutions, Institutional Partnerships", color: "bg-indigo-500" }
-                  ].map((p, idx) => (
-                    <div key={idx} className="relative pl-6 sm:pl-8">
-                       <div className={`absolute -left-[1.3rem] top-1.5 w-4 h-4 rounded-full ${p.color} border-4 border-[#0B0817] shadow-lg`}></div>
-                       <h4 className="text-lg font-bold text-white mb-1">{p.phase}</h4>
-                       <p className="text-neutral-400 text-sm">{p.desc}</p>
-                    </div>
-                  ))}
+                  {t.sec12Text.split('\n').filter(line => line.trim() !== '').map((line, idx) => {
+                    const colors = ["bg-cyan-500", "bg-blue-500", "bg-purple-500", "bg-indigo-500"];
+                    const color = colors[idx % colors.length];
+                    // Bersihkan bullet point
+                    const cleanLine = line.replace(/^[•*-]\s*/, '');
+                    // Pisahkan judul (Fase X) dan deskripsinya
+                    const parts = cleanLine.split(':');
+                    const title = parts[0];
+                    const desc = parts.length > 1 ? parts.slice(1).join(':').trim() : '';
+
+                    return (
+                      <div key={idx} className="relative pl-6 sm:pl-8">
+                         <div className={`absolute -left-[1.3rem] top-1.5 w-4 h-4 rounded-full ${color} border-4 border-[#0B0817] shadow-lg`}></div>
+                         <h4 className="text-lg font-bold text-white mb-1">{title}</h4>
+                         {desc && <p className="text-neutral-400 text-sm">{desc}</p>}
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
 

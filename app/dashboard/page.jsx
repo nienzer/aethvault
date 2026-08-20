@@ -34,10 +34,20 @@ import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import StakingArtifact from '@/contracts/StakingABI.json';
 import TeamVestingArtifact from '@/contracts/TeamVestingABI.json';
 
-const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
-const StakingABI = StakingArtifact.abi || StakingArtifact;
-const TeamVestingABI = TeamVestingArtifact.abi || TeamVestingArtifact;
+const resolveAbi = (artifact) => {
+  if (!artifact) return [];
+  if (Array.isArray(artifact)) return artifact;
+  if (artifact.abi && Array.isArray(artifact.abi)) return artifact.abi;
+  if (artifact.default) {
+    if (Array.isArray(artifact.default)) return artifact.default;
+    if (artifact.default.abi && Array.isArray(artifact.default.abi)) return artifact.default.abi;
+  }
+  return [];
+};
 
+const AetherVaultV3ABI = resolveAbi(AetherVaultV3Artifact);
+const StakingABI = resolveAbi(StakingArtifact);
+const TeamVestingABI = resolveAbi(TeamVestingArtifact);
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function allowance(address,address) view returns (uint256)",
@@ -1206,7 +1216,7 @@ export default function DashboardPage() {
       await tx.wait();
       showToast(isPause ? (t.adminPauseSuccess || "Berhasil di-PAUSE!") : (t.adminUnpauseSuccess || "Berhasil di-UNPAUSE!"), "success");
     } catch (err) {
-      showToast((t.adminPauseFail || "Gagal ubah status pause: ") + err.message, "error");
+      showToast((t.adminPauseFail || "Gagal ubah status pause: ") + extractErrorMessage(err), "error");
     } finally {
       setIsAdminLoading(false);
     }
@@ -1225,7 +1235,7 @@ export default function DashboardPage() {
       showToast(t.adminTreasurySuccess || "Treasury sukses diperbarui!", "success");
       setNewTreasuryInput('');
     } catch (err) {
-      showToast((t.adminTreasuryFail || "Gagal update treasury: ") + err.message, "error");
+      showToast((t.adminTreasuryFail || "Gagal update treasury: ") + extractErrorMessage(err), "error");
     } finally {
       setIsAdminLoading(false);
     }

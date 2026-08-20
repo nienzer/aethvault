@@ -593,6 +593,7 @@ export default function LandingPage() {
               <a href="#infrastructure" className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors">{footerT.navInfrastructure || "Infrastructure"}</a>
               <button onClick={() => router.push('/dashboard')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{footerT.navLaunchApp || "Launch App"}</button>
               <button onClick={() => router.push('/whitepaper')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{footerT.navWhitepaper || "Whitepaper"}</button>
+              <button onClick={() => router.push('/roadmap')} className="text-xs text-neutral-500 hover:text-cyan-400 transition-colors text-left bg-transparent border-none p-0 cursor-pointer">{footerT.navRoadmap || "Roadmap"}</button>
             </div>
             
             <div className="flex flex-col space-y-3">

@@ -387,12 +387,11 @@ export const en = {
     sec9Text: "The $AETH token powers the entire ecosystem. Its utilities include:\n• Mint Capsule\n• Mint Proof\n• Premium Storage\n• Legacy Vault (Dead-man's switch)\n• Protocol Governance\n• Liquid Staking\n• Gas Subsidy\n• Protocol Rewards",
     sec10Title: "10. Deflationary Mechanism",
     sec10Text: "Every protocol interaction permanently destroys part of the supply. This creates long-term scarcity.\n\nTier | Cost | Burn\nBasic | 10 AETH | 2 AETH\nVIP | 50 AETH | 10 AETH\nEternal | 200 AETH | 40 AETH\nLegacy | 500 AETH | 100 AETH",
-    sec11Title: "11. Staking",
-    sec11Text: "AetherVault provides real-yield staking. Rewards are not generated from endless token inflation, but are sustained by actual platform revenue originating from:\n• Protocol Fees\n• Mint Fees\n• Proof Certification Fees\n• Marketplace Fees (Future integration)",
+    sec11Title: "11. Staking & DAO Governance",
+    sec11Text: "AetherVault adopts a fully on-chain participatory economic model:\n\n**Real-Yield Staking**\nUsers can lock AETH to secure the protocol and receive real-yield rewards funded by actual platform revenue (such as Capsule sealing & Proof Certification fees).\n\n**On-Chain Governance (DAO)**\nBy locking AETH into the governance vault, users mint soulbound voting tickets (veAETH). These tickets grant absolute voting power within the AetherGovernor Parliament to decide on system parameters, treasury allocation, and future protocol upgrades without centralized interference.",
     sec12Title: "12. Roadmap",
     sec12Text: "• Phase 1: Core Protocol, Web3 Wallet Integration, Time Capsule, ECIES Encryption.\n• Phase 2: Aether Proof™ Implementation, Certificate Generation, Hall of Proof, Blockchain Explorer.\n• Phase 3: DAO Transition, Public API, Developer SDK, Developer Portal.\n• Phase 4: Mobile App, Cross-chain Integration, Enterprise Solutions, Institutional Partnerships.",
     sec13Title: "13. Future Ecosystem",
-    sec13Text: "The AetherVault protocol will expand to support a suite of decentralized services:\n• Aether Mail\n• Aether Identity\n• Aether DNS\n• Aether Archive\n• Aether AI Memory\n• Enterprise Vaults\n• Government Archives\n• University Certificates\n• Medical Records",
     sec14Title: "14. Conclusion",
     sec14Text: "AetherVault is building the permanent memory layer of the decentralized internet. By combining military-grade cryptographic security, decentralized storage, and a sound deflationary economic model, AetherVault sets a new standard for how humanity proves ownership and passes down secrets to future generations.",
     disclaimerTitle: "Disclaimer & Legal License",
@@ -548,7 +547,9 @@ export const en = {
     tokenLabel: "Token Contract ($AETH)",
     stakingLabel: "Staking Contract",
     abiTitle: "ABI Configuration",
-    abiDesc: "Developers can use public ABIs to build third-party interfaces."
+    abiDesc: "Developers can use public ABIs to build third-party interfaces.",
+    githubSectionDesc: "All smart contract source codes and dApp interfaces are open-source and independently auditable in our official repository.",
+    visitGithubBtn: "Visit GitHub Repository"
   },
   communityPage: {
     badge: "Vision Ecosystem",
