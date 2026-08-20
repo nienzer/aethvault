@@ -507,13 +507,16 @@ export default function LandingPage() {
                 </div>
               </a>
               
-              <a href="https://snapshot.org/#/aethvault.xyz" target="_blank" rel="noreferrer" className="bg-[#05030F] border border-cyan-500/20 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group">
-             <Hexagon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
-            <div className="text-center">
-            <h3 className="text-white font-bold text-xs sm:text-sm">DAO Governance</h3>
-           <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">Snapshot Voting</p>
-            </div>
-            </a>
+              <button 
+  onClick={() => router.push('/dashboard')}
+  className="bg-[#05030F] border border-cyan-500/20 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group w-full cursor-pointer"
+>
+  <Hexagon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+  <div className="text-center">
+    <h3 className="text-white font-bold text-xs sm:text-sm">On-Chain DAO</h3>
+    <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">veAETH & Governor</p>
+  </div>
+</button>
             </div>
 
             <a href="mailto:admin@aethvault.xyz" className="bg-[#0B0817] border border-cyan-500/20 hover:border-cyan-400/50 p-4 sm:p-5 rounded-2xl flex flex-row items-center justify-center gap-4 transition-all group shadow-xl w-full">

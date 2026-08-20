@@ -44,12 +44,12 @@ const ERC20_ABI = [
   "function approve(address,uint256) returns (bool)"
 ];
 
-// --- ABI & KONSTANTA DAO BARU ---
 const VE_AETH_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function getVotes(address) view returns (uint256)",
   "function deposit(uint256 amount) external",
-  "function withdraw(uint256 amount) external"
+  "function withdraw(uint256 amount) external",
+  "function delegate(address delegatee) external"
 ];
 
 const GOVERNOR_ABI = [
@@ -67,10 +67,11 @@ const getNewIrysUploader = async (walletProvider) => {
   return irysUploader;
 };
 
-const AETH_TOKEN_ADDRESS = "0x83107fb136CF264971c512EC452Fa50058A43b53"; 
-const CONTRACT_ADDRESS = "0xA82c2D415629912bF7837f0d1bba354bC6Ae118f"; 
-const STAKING_CONTRACT_ADDRESS = "0xD0CB22dDDE27526b81a454Bbe261FC9063D1A2DE"; 
+const AETH_TOKEN_ADDRESS = "0x83107fb136CF264971c512EC452Fa50058A43b53";
+const CONTRACT_ADDRESS = "0xA82c2D415629912bF7837f0d1bba354bC6Ae118f";
+const STAKING_CONTRACT_ADDRESS = "0xD0CB22dDDE27526b81a454Bbe261FC9063D1A2DE";
 const VESTING_CONTRACT_ADDRESS = "0xFa8a5E7375AfAa1426CC338EafF790563BedE568";
+
 const VE_AETH_ADDRESS = "0x6ED2C286d465cCbAFA33f74F2BF39Edc4408DB2D";
 const GOVERNOR_ADDRESS = "0x770996f99C8f760efd1835f62460A44Bd5314804";
 
@@ -117,7 +118,6 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('create');
   const [isOwner, setIsOwner] = useState(false);
 
-  // --- STATE KHUSUS GOVERNANCE / DAO ---
   const [veAethBalance, setVeAethBalance] = useState(0);
   const [votingPower, setVotingPower] = useState(0);
   const [veAethInput, setVeAethInput] = useState('');
@@ -526,7 +526,6 @@ export default function DashboardPage() {
           const rawAethBalance = await tokenContract.balanceOf(address);
           setAethBalance(parseFloat(ethers.formatUnits(rawAethBalance, 18)));
 
-          // --- FETCH veAETH & VOTING POWER ---
           const veAethContract = new ethers.Contract(VE_AETH_ADDRESS, VE_AETH_ABI, provider);
           const rawVeBalance = await veAethContract.balanceOf(address);
           const rawVotes = await veAethContract.getVotes(address);
@@ -627,7 +626,6 @@ export default function DashboardPage() {
     }
   };
 
-  // --- HANDLER VE-AETH (DAO DEPOSIT & WITHDRAW) ---
   const handleVeAethDeposit = async () => {
     if (!veAethInput || parseFloat(veAethInput) <= 0) return showToast("Masukkan nominal AETH yang valid", "error");
     if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
@@ -688,7 +686,29 @@ export default function DashboardPage() {
     }
   };
 
-  // --- HANDLER GOVERNOR (PROPOSAL & VOTING) ---
+  const handleDelegate = async () => {
+    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+
+    setIsVeAethLoading(true);
+    try {
+      const signer = await getSigner();
+      await ensureCorrectNetwork(signer);
+      const veContract = new ethers.Contract(VE_AETH_ADDRESS, VE_AETH_ABI, signer);
+      
+      showToast("Mengaktifkan hak suara (Delegating)...", "info");
+      const tx = await veContract.delegate(address);
+      await tx.wait();
+
+      showToast("Hak Suara Berhasil Diaktifkan!", "success");
+      await fetchWalletData();
+    } catch (err) {
+      showToast("Gagal delegasi: " + extractErrorMessage(err), "error");
+    } finally {
+      setIsVeAethLoading(false);
+    }
+  };
+
   const handleCreateProposal = async (e) => {
     e.preventDefault();
     if (!proposalTarget || !proposalDescription) return showToast("Lengkapi form proposal", "error");
@@ -703,7 +723,7 @@ export default function DashboardPage() {
 
       const targets = [proposalTarget];
       const values = [0];
-      const calldatas = ["0x"]; 
+      const calldatas = ["0x"];
 
       showToast("Mengirim proposal ke Parlemen DAO...", "info");
       const tx = await governorContract.propose(targets, values, calldatas, proposalDescription);
@@ -799,7 +819,6 @@ export default function DashboardPage() {
       showToast(t.fileUploadedSuccess || "Upload berhasil!", "success");
       setStagedUpload(null);
     } catch (error) {
-      console.error("DETAIL ERROR IRYS:", error);
       showToast((t.fileUploadFailPrefix || "Gagal upload: ") + extractErrorMessage(error), "error");
       setUploadError(error.message || extractErrorMessage(error)); 
     } finally {
@@ -1518,7 +1537,6 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* --- PANEL TAB GOVERNANCE / DAO (MENGGUNAKAN KOMPONEN TERPISAH) --- */}
               {activeTab === 'governance' && (
                 <GovernancePanel
                   veAethBalance={veAethBalance}
@@ -1528,6 +1546,7 @@ export default function DashboardPage() {
                   isVeAethLoading={isVeAethLoading}
                   handleVeAethDeposit={handleVeAethDeposit}
                   handleVeAethWithdraw={handleVeAethWithdraw}
+                  handleDelegate={handleDelegate}
                   proposalTarget={proposalTarget}
                   setProposalTarget={setProposalTarget}
                   proposalDescription={proposalDescription}

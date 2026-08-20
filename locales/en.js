@@ -947,5 +947,27 @@ export const en = {
     vaultCertTitle: "Vault Certificate",
     savePdf: "Save PDF",
     savePng: "Save PNG"
-  }
+  },
+    dao: {
+  title: "AetherVault DAO Governance",
+  subtitle: "Manage veAETH voting tickets and shape the protocol's future.",
+  vaultLabel: "Your veAETH Vault",
+  votingPowerLabel: "Voting Power",
+  loketTitle: "1. Voting Ticket Window (Mint / Burn veAETH)",
+  placeholderAmount: "AETH amount...",
+  depositBtn: "Deposit & Lock AETH",
+  withdrawBtn: "Withdraw AETH",
+  delegateBtn: "⚡ Activate Voting Power (Delegate to Self)",
+  proposeTitle: "Create Parliament Proposal",
+  targetLabel: "Target Contract (Address)",
+  descLabel: "Proposal Description",
+  descPlaceholder: "E.g., Proposal to update system parameters...",
+  proposeBtn: "Submit New Proposal",
+  votingPanelTitle: "Voting Panel",
+  proposalIdLabel: "Proposal ID",
+  proposalIdPlaceholder: "Enter Proposal ID...",
+  againstBtn: "Against",
+  forBtn: "For",
+  abstainBtn: "Abstain"
+}
 };

@@ -947,5 +947,27 @@ export const id = {
     vaultCertTitle: "Sertifikat Brankas",
     savePdf: "Simpan PDF",
     savePng: "Simpan PNG"
-  }
+  },
+    dao: {
+  title: "Tata Kelola DAO AetherVault",
+  subtitle: "Kelola tiket suara veAETH dan tentukan masa depan protokol.",
+  vaultLabel: "Brankas veAETH Anda",
+  votingPowerLabel: "Kekuatan Suara (Voting Power)",
+  loketTitle: "1. Loket Tiket Suara (Mint / Burn veAETH)",
+  placeholderAmount: "Nominal AETH...",
+  depositBtn: "Deposit & Lock AETH",
+  withdrawBtn: "Withdraw AETH",
+  delegateBtn: "⚡ Aktifkan Hak Suara (Delegate to Self)",
+  proposeTitle: "Buat Proposal Parlemen",
+  targetLabel: "Target Kontrak (Address)",
+  descLabel: "Deskripsi Proposal",
+  descPlaceholder: "Contoh: Proposal pembaruan parameter sistem...",
+  proposeBtn: "Kirim Proposal Baru",
+  votingPanelTitle: "Panel Voting",
+  proposalIdLabel: "ID Proposal",
+  proposalIdPlaceholder: "Masukkan Proposal ID...",
+  againstBtn: "Against",
+  forBtn: "For",
+  abstainBtn: "Abstain"
+}
 };
