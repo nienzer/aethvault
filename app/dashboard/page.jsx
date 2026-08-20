@@ -1735,16 +1735,16 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3 border-b border-neutral-900 pb-4 mb-6">
                     <ShieldAlert className="w-8 h-8 text-red-400 shrink-0" />
                     <div>
-                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">{t.adminTitle || "MASTER ADMIN CONTROL PANEL"}</h3>
-                      <p className="text-xs text-neutral-400 font-mono">{t.adminSubtitle || "Manajemen Penuh Seluruh Smart Contract AetherVault Ecosystem"}</p>
+                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">{t.adminTitle}</h3>
+                      <p className="text-xs text-neutral-400 font-mono">{t.adminSubtitle}</p>
                     </div>
                   </div>
 
                   {!isOwner ? (
                     <div className="bg-red-950/20 border border-red-500/30 p-6 rounded-2xl text-center space-y-2">
                       <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
-                      <h4 className="text-sm font-bold text-red-300">{t.adminAccessDenied || "Akses Ditolak!"}</h4>
-                      <p className="text-xs text-neutral-400">{t.adminNotOwner || "Dompet yang terhubung bukan pemilik sah."}</p>
+                      <h4 className="text-sm font-bold text-red-300">{t.adminAccessDenied}</h4>
+                      <p className="text-xs text-neutral-400">{t.adminNotOwner}</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1752,13 +1752,13 @@ export default function DashboardPage() {
                       {/* CARD 1: TOKEN INDUK */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-amber-400 uppercase font-mono mb-4">{t.adminMainEmergency || "1. TOKEN INDUK (AETHERVAULT)"}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-amber-400 uppercase font-mono mb-4">{t.adminMainEmergency}</h4>
                           <form onSubmit={handleAdminUpdateTreasury} className="space-y-2">
-                            <label className="text-[10px] text-neutral-500">{t.adminChangeTreasury || "Ganti Alamat Treasury"}</label>
+                            <label className="text-[10px] text-neutral-500">{t.adminChangeTreasury}</label>
                             <div className="flex gap-2">
                               <input 
                                 type="text" 
-                                placeholder={t.adminTreasuryPlaceholder || "0x..."} 
+                                placeholder={t.adminTreasuryPlaceholder} 
                                 value={newTreasuryInput}
                                 onChange={(e) => setNewTreasuryInput(e.target.value)}
                                 className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-500 font-mono"
@@ -1780,14 +1780,14 @@ export default function DashboardPage() {
                             onClick={() => handleAdminTogglePause(true, false)} 
                             className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseMain || "Pause Token"}
+                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseMain}
                           </button>
                           <button 
                             disabled={isAdminLoading}
                             onClick={() => handleAdminTogglePause(false, false)} 
                             className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseMain || "Unpause Token"}
+                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseMain}
                           </button>
                         </div>
                       </div>
@@ -1795,18 +1795,18 @@ export default function DashboardPage() {
                       {/* CARD 2: STAKING PROTOCOL */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-indigo-400 uppercase font-mono mb-4">{t.adminStakeEmergency || "2. STAKING PROTOCOL V6"}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-indigo-400 uppercase font-mono mb-4">{t.adminStakeEmergency}</h4>
                           <div className="space-y-2">
                             <label className="text-[10px] text-neutral-500">Fund Reward Pool (AETH)</label>
                             <div className="flex gap-2">
                               <input 
                                 type="text" 
-                                placeholder="Jumlah AETH" 
+                                placeholder="AETH Amount" 
                                 className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-mono"
                               />
                               <button 
                                 disabled={isAdminLoading}
-                                onClick={() => showToast("Fitur Fund Pool segera hadir!", "info")}
+                                onClick={() => showToast("Fund Pool feature coming soon!", "info")}
                                 className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors whitespace-nowrap shadow-md"
                               >
                                 Fund Pool
@@ -1820,14 +1820,14 @@ export default function DashboardPage() {
                             onClick={() => handleAdminTogglePause(true, true)} 
                             className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseStake || "Pause Staking"}
+                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseStake}
                           </button>
                           <button 
                             disabled={isAdminLoading}
                             onClick={() => handleAdminTogglePause(false, true)} 
                             className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseStake || "Unpause Staking"}
+                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseStake}
                           </button>
                         </div>
                       </div>
@@ -1835,9 +1835,9 @@ export default function DashboardPage() {
                       {/* CARD 3: VAULT V3 & PROOF REGISTRY */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-cyan-400 uppercase font-mono mb-3">3. VAULT V3 & PROOF REGISTRY</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-cyan-400 uppercase font-mono mb-3">{t.adminVaultEmergency}</h4>
                           <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
-                            Pengaturan tier, placeholder URI, dan pemulihan token aman tersedia langsung di kontrak utama.
+                            {t.adminVaultDesc}
                           </p>
                         </div>
                         <div className="flex gap-3 pt-2">
@@ -1861,21 +1861,21 @@ export default function DashboardPage() {
                       {/* CARD 4: TEAM VESTING */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-green-400 uppercase font-mono mb-3">{t.adminVestingTitle || "4. TEAM VESTING (GAJI DEVELOPER)"}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-green-400 uppercase font-mono mb-3">{t.adminVestingTitle}</h4>
                           <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
-                            {t.adminVestingDesc || "Pencairan jatah token dev berdasarkan jadwal linier dengan cliff 6 bulan."}
+                            {t.adminVestingDesc}
                           </p>
                         </div>
                         <div className="pt-2">
                           <button 
                             disabled={isAdminLoading}
                             onClick={() => {
-                              const confirmed = window.confirm(t.adminConfirmVestingClaim || "Yakin ingin mencairkan token Vesting developer sekarang?");
+                              const confirmed = window.confirm(t.adminConfirmVestingClaim);
                               if (confirmed) handleAdminClaimVesting();
                             }} 
                             className="w-full bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md"
                           >
-                            <Coins className="w-4 h-4" /> {t.adminClaimSalaryBtn || "Cairkan Gaji (Claim Vesting)"}
+                            <Coins className="w-4 h-4" /> {t.adminClaimSalaryBtn}
                           </button>
                         </div>
                       </div>
