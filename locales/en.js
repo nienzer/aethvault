@@ -521,7 +521,7 @@ export const en = {
     phase1Time: "Q3 2026 - Completed",
     phase1Title: "Phase 1: Genesis & Architecture",
     phase1Item1: "Time-Lock Smart Contract design and architecture.",
-    phase1Item2: "IPFS (Pinata) storage integration.",
+    phase1Item2: "IPFS (Irys-Arweave) storage integration.",
     phase1Item3: "DApp Dashboard launch on the BSC Testnet.",
     phase1Item4: "Liquid Staking Protocol implementation.",
     phase2Time: "Q4 2026 - In Progress",

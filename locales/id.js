@@ -521,7 +521,7 @@ export const id = {
     phase1Time: "Q3 2026 - Tuntas",
     phase1Title: "Fase 1: Genesis & Architecture",
     phase1Item1: "Desain dan arsitektur Time-Lock Smart Contract.",
-    phase1Item2: "Integrasi penyimpanan IPFS (Pinata).",
+    phase1Item2: "Integrasi penyimpanan IPFS (Irys-Arweve).",
     phase1Item3: "Peluncuran DApp Dashboard di jaringan BSC Testnet.",
     phase1Item4: "Implementasi Liquid Staking Protocol.",
     phase2Time: "Q4 2026 - Sedang Berjalan",
