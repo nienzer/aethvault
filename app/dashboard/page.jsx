@@ -1735,8 +1735,8 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3 border-b border-neutral-900 pb-4 mb-6">
                     <ShieldAlert className="w-8 h-8 text-red-400 shrink-0" />
                     <div>
-                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">{t.adminMasterTitle || "MASTER ADMIN CONTROL PANEL"}</h3>
-                      <p className="text-xs text-neutral-400 font-mono">{t.adminMasterDesc || "Manajemen Penuh Seluruh Smart Contract AetherVault Ecosystem"}</p>
+                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">{t.adminTitle || "MASTER ADMIN CONTROL PANEL"}</h3>
+                      <p className="text-xs text-neutral-400 font-mono">{t.adminSubtitle || "Manajemen Penuh Seluruh Smart Contract AetherVault Ecosystem"}</p>
                     </div>
                   </div>
 
@@ -1752,9 +1752,9 @@ export default function DashboardPage() {
                       {/* CARD 1: TOKEN INDUK */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-amber-400 uppercase font-mono mb-4">{t.adminCard1Title || "1. TOKEN INDUK (AETHERVAULT)"}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-amber-400 uppercase font-mono mb-4">{t.adminMainEmergency || "1. TOKEN INDUK (AETHERVAULT)"}</h4>
                           <form onSubmit={handleAdminUpdateTreasury} className="space-y-2">
-                            <label className="text-[10px] text-neutral-500">{t.adminCard1Desc || "Ganti Alamat Treasury"}</label>
+                            <label className="text-[10px] text-neutral-500">{t.adminChangeTreasury || "Ganti Alamat Treasury"}</label>
                             <div className="flex gap-2">
                               <input 
                                 type="text" 
@@ -1795,13 +1795,13 @@ export default function DashboardPage() {
                       {/* CARD 2: STAKING PROTOCOL */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-indigo-400 uppercase font-mono mb-4">{t.adminCard2Title || "2. STAKING PROTOCOL V6"}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-indigo-400 uppercase font-mono mb-4">{t.adminStakeEmergency || "2. STAKING PROTOCOL V6"}</h4>
                           <div className="space-y-2">
-                            <label className="text-[10px] text-neutral-500">{t.adminCard2Desc || "Fund Reward Pool (AETH)"}</label>
+                            <label className="text-[10px] text-neutral-500">Fund Reward Pool (AETH)</label>
                             <div className="flex gap-2">
                               <input 
                                 type="text" 
-                                placeholder={t.adminAmountLabel || "Jumlah AETH"} 
+                                placeholder="Jumlah AETH" 
                                 className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-mono"
                               />
                               <button 
@@ -1835,9 +1835,9 @@ export default function DashboardPage() {
                       {/* CARD 3: VAULT V3 & PROOF REGISTRY */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-cyan-400 uppercase font-mono mb-3">{t.adminCard3Title || "3. VAULT V3 & PROOF REGISTRY"}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-cyan-400 uppercase font-mono mb-3">3. VAULT V3 & PROOF REGISTRY</h4>
                           <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
-                            {t.adminCard3Desc || "Pengaturan tier, placeholder URI, dan pemulihan token aman tersedia langsung di kontrak utama."}
+                            Pengaturan tier, placeholder URI, dan pemulihan token aman tersedia langsung di kontrak utama.
                           </p>
                         </div>
                         <div className="flex gap-3 pt-2">
@@ -1846,14 +1846,14 @@ export default function DashboardPage() {
                             onClick={() => handleAdminTogglePause(true, false)} 
                             className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseVault || "Pause Vault"}
+                            <Lock className="w-3.5 h-3.5" /> Pause Vault
                           </button>
                           <button 
                             disabled={isAdminLoading}
                             onClick={() => handleAdminTogglePause(false, false)} 
                             className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseVault || "Unpause Vault"}
+                            <Unlock className="w-3.5 h-3.5" /> Unpause Vault
                           </button>
                         </div>
                       </div>
@@ -1861,9 +1861,9 @@ export default function DashboardPage() {
                       {/* CARD 4: TEAM VESTING */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-green-400 uppercase font-mono mb-3">{t.adminCard4Title || "4. TEAM VESTING (GAJI DEVELOPER)"}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-green-400 uppercase font-mono mb-3">{t.adminVestingTitle || "4. TEAM VESTING (GAJI DEVELOPER)"}</h4>
                           <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
-                            {t.adminCard4Desc || "Pencairan jatah token dev berdasarkan jadwal linier dengan cliff 6 bulan."}
+                            {t.adminVestingDesc || "Pencairan jatah token dev berdasarkan jadwal linier dengan cliff 6 bulan."}
                           </p>
                         </div>
                         <div className="pt-2">

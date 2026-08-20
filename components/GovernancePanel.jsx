@@ -1,7 +1,25 @@
 "use client";
-import React from 'react';
-import { Scale, Sparkles, Activity, Loader2 } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ethers } from 'ethers';
+import { Scale, Vote, PlusCircle, CheckCircle2, XCircle, Clock, AlertCircle, Loader2, Send } from 'lucide-react';
+
+const GOVERNOR_FULL_ABI = [
+  "event ProposalCreated(uint256 proposalId, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 voteStart, uint256 voteEnd, string description)",
+  "function propose(address[] targets, uint256[] values, bytes[] calldata, string description) public returns (uint256)",
+  "function castVote(uint256 proposalId, uint8 support) public returns (uint256)",
+  "function proposalThreshold() view returns (uint256)",
+  "function state(uint256 proposalId) view returns (uint8)",
+  "function proposalVotes(uint256 proposalId) view returns (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes)"
+];
+
+const PROPOSAL_STATES = ['Pending', 'Active', 'Canceled', 'Defeated', 'Succeeded', 'Queued', 'Expired', 'Executed'];
+const STATE_COLORS = {
+  Active: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+  Succeeded: 'bg-green-500/10 text-green-400 border-green-500/30',
+  Defeated: 'bg-red-500/10 text-red-400 border-red-500/30',
+  Executed: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+  Pending: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
+};
 
 export default function GovernancePanel({
   veAethBalance,
@@ -18,156 +36,317 @@ export default function GovernancePanel({
   setProposalDescription,
   isProposing,
   handleCreateProposal,
-  proposalIdInput,
-  setProposalIdInput,
-  isVoting,
-  handleCastVote
+  walletProvider,
+  address,
+  isWrongNetwork,
+  TARGET_CHAIN_NAME,
+  showToast,
+  extractErrorMessage,
+  ensureCorrectNetwork,
+  GOVERNOR_ADDRESS,
+  READ_ONLY_RPC_URL
 }) {
-  const { t: globalT } = useLanguage();
-  const t = (globalT && globalT.dao) ? globalT.dao : {};
+  const [proposals, setProposals] = useState([]);
+  const [isLoadingProposals, setIsLoadingProposals] = useState(false);
+  const [votingProposalId, setVotingProposalId] = useState(null);
+
+  // Fungsi untuk menarik daftar proposal dari blockchain secara otomatis
+  const fetchProposals = useCallback(async () => {
+    if (!GOVERNOR_ADDRESS || GOVERNOR_ADDRESS.startsWith("0x000")) return;
+    setIsLoadingProposals(true);
+    try {
+      const provider = new ethers.JsonRpcProvider(READ_ONLY_RPC_URL);
+      const governorContract = new ethers.Contract(GOVERNOR_ADDRESS, GOVERNOR_FULL_ABI, provider);
+
+      const currentBlock = await provider.getBlockNumber();
+      const DEPLOY_BLOCK = Math.max(0, currentBlock - 20000); // Ambil dari 20k blok ke belakang
+
+      const filter = governorContract.filters.ProposalCreated();
+      const logs = await governorContract.queryFilter(filter, DEPLOY_BLOCK, "latest");
+
+      const parsedProposals = await Promise.all(logs.map(async (log) => {
+        try {
+          const parsedLog = governorContract.interface.parseLog({
+            topics: log.topics,
+            data: log.data
+          });
+          const proposalId = parsedLog.args.proposalId.toString();
+          const description = parsedLog.args.description;
+          const proposer = parsedLog.args.proposer;
+
+          // Ambil status on-chain
+          const stateCode = await governorContract.state(proposalId);
+          const stateName = PROPOSAL_STATES[Number(stateCode)] || 'Unknown';
+
+          // Ambil perolehan suara (Votes)
+          const votes = await governorContract.proposalVotes(proposalId);
+          const against = parseFloat(ethers.formatUnits(votes.againstVotes, 18));
+          const forVotes = parseFloat(ethers.formatUnits(votes.forVotes, 18));
+          const abstain = parseFloat(ethers.formatUnits(votes.abstainVotes, 18));
+
+          return {
+            id: proposalId,
+            description,
+            proposer,
+            state: stateName,
+            against,
+            forVotes,
+            abstain,
+            blockNumber: log.blockNumber
+          };
+        } catch (err) {
+          return null;
+        }
+      }));
+
+      const validProposals = parsedProposals.filter(Boolean);
+      validProposals.sort((a, b) => Number(b.id) - Number(a.id)); // Urutkan dari ID terbaru
+      setProposals(validProposals);
+    } catch (err) {
+      console.error("Gagal memuat proposal:", err);
+    } finally {
+      setIsLoadingProposals(false);
+    }
+  }, [GOVERNOR_ADDRESS, READ_ONLY_RPC_URL]);
+
+  useEffect(() => {
+    fetchProposals();
+  }, [fetchProposals]);
+
+  // Fungsi Voting Langsung 1-Click dari List
+  const handleDirectVote = async (proposalId, supportValue) => {
+    if (!walletProvider) return showToast("Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+
+    setVotingProposalId(proposalId);
+    try {
+      const provider = new ethers.BrowserProvider(walletProvider);
+      const signer = await provider.getSigner();
+      await ensureCorrectNetwork(signer);
+
+      const governorContract = new ethers.Contract(GOVERNOR_ADDRESS, GOVERNOR_FULL_ABI, signer);
+      const voteTypeStr = supportValue === 1 ? 'FOR' : supportValue === 0 ? 'AGAINST' : 'ABSTAIN';
+      
+      showToast(`Memberikan suara (${voteTypeStr}) untuk Proposal #${proposalId}...`, "info");
+      const tx = await governorContract.castVote(proposalId, supportValue);
+      await tx.wait();
+
+      showToast(`Suara ${voteTypeStr} Berhasil Dicatat On-Chain!`, "success");
+      await fetchProposals(); // Refresh data suara
+    } catch (err) {
+      showToast("Gagal Voting: " + extractErrorMessage(err), "error");
+    } finally {
+      setVotingProposalId(null);
+    }
+  };
+
+  const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
 
   return (
-    <div className="space-y-6">
-      {/* Header & Brankas veAETH */}
-      <div className="bg-[#0B0817] border border-cyan-500/30 p-6 sm:p-8 rounded-3xl shadow-xl">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-2xl">
-            <Scale className="w-6 h-6 text-cyan-400" />
-          </div>
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
+      
+      {/* HEADER INFO */}
+      <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h3 className="font-display text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+            <Scale className="text-cyan-400 w-5 h-5" /> AetherVault DAO Governance
+          </h3>
+          <p className="text-xs sm:text-sm text-neutral-400 mt-1">
+            Kelola tiket suara veAETH dan tentukan arah masa depan protokol secara on-chain.
+          </p>
+        </div>
+        <div className="bg-[#05030F] border border-neutral-800 px-4 py-3 rounded-2xl flex items-center gap-4">
           <div>
-            <h3 className="font-display text-xl font-bold text-white">{t.title || "AetherVault DAO Governance"}</h3>
-            <p className="text-xs text-neutral-400 mt-0.5">{t.subtitle || "Kelola tiket suara veAETH dan tentukan masa depan protokol."}</p>
+            <p className="text-[9px] text-neutral-500 uppercase tracking-wider">Brankas veAETH Anda</p>
+            <p className="text-xs sm:text-sm font-mono font-bold text-cyan-300">{veAethBalance.toLocaleString()} veAETH</p>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl">
-            <p className="text-[10px] font-mono text-neutral-400 uppercase">{t.vaultLabel || "Brankas veAETH Anda"}</p>
-            <p className="text-2xl font-bold font-mono text-cyan-300 mt-1">{veAethBalance.toLocaleString()} <span className="text-xs font-normal text-neutral-500">veAETH</span></p>
+          <div className="border-l border-neutral-800 pl-4">
+            <p className="text-[9px] text-neutral-500 uppercase tracking-wider">Kekuatan Suara</p>
+            <p className="text-xs sm:text-sm font-mono font-bold text-fuchsia-400">{votingPower.toLocaleString()} Votes</p>
           </div>
-          <div className="bg-[#05030F] border border-neutral-800 p-5 rounded-2xl">
-            <p className="text-[10px] font-mono text-neutral-400 uppercase">{t.votingPowerLabel || "Kekuatan Suara (Voting Power)"}</p>
-            <p className="text-2xl font-bold font-mono text-fuchsia-300 mt-1">{votingPower.toLocaleString()} <span className="text-xs font-normal text-neutral-500">Votes</span></p>
-          </div>
-        </div>
-
-        {/* Loket Deposit & Withdraw veAETH */}
-        <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl space-y-4">
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">{t.loketTitle || "1. Loket Tiket Suara (Mint / Burn veAETH)"}</h4>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              placeholder={t.placeholderAmount || "Nominal AETH..."}
-              value={veAethInput}
-              onChange={(e) => setVeAethInput(e.target.value)}
-              className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-cyan-500 font-mono"
-            />
-            <button
-              disabled={isVeAethLoading}
-              onClick={handleVeAethDeposit}
-              className="bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-3 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-lg whitespace-nowrap"
-            >
-              {isVeAethLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (t.depositBtn || "Deposit & Lock AETH")}
-            </button>
-            <button
-              disabled={isVeAethLoading}
-              onClick={handleVeAethWithdraw}
-              className="bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-5 py-3 rounded-xl text-xs font-bold cursor-pointer transition-all whitespace-nowrap border border-neutral-700"
-            >
-              {t.withdrawBtn || "Withdraw AETH"}
-            </button>
-          </div>
-
-          {/* Tombol Aktivasi Hak Suara */}
-          <button
-            disabled={isVeAethLoading}
-            onClick={handleDelegate}
-            className="w-full mt-2 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/40 text-violet-300 py-3 rounded-xl text-xs font-bold cursor-pointer transition-all flex items-center justify-center gap-2"
-          >
-            {isVeAethLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (t.delegateBtn || "⚡ Aktifkan Hak Suara (Delegate to Self)")}
-          </button>
         </div>
       </div>
 
-      {/* Parlemen DAO: Create Proposal & Voting Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <form onSubmit={handleCreateProposal} className="bg-[#0B0817] border border-neutral-900 p-6 rounded-3xl space-y-4 shadow-xl">
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-cyan-400" /> {t.proposeTitle || "Buat Proposal Parlemen"}
+      {/* LOKET VE-AETH (STAKING TATA KELOLA) */}
+      <div className="bg-[#0B0817] border border-neutral-900 p-5 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl space-y-5">
+        <h4 className="text-xs sm:text-sm font-bold text-cyan-400 uppercase font-mono flex items-center gap-2">
+          <Vote className="w-4 h-4" /> 1. Loket Tiket Suara (Mint / Burn veAETH)
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input 
+            type="text" 
+            placeholder="Nominal AETH..." 
+            value={veAethInput}
+            onChange={(e) => setVeAethInput(e.target.value)}
+            className="bg-[#05030F] border border-neutral-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-cyan-500 font-mono"
+          />
+          <button
+            disabled={isVeAethLoading}
+            onClick={handleVeAethDeposit}
+            className="bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-3 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {isVeAethLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            Deposit & Lock AETH
+          </button>
+          <button
+            disabled={isVeAethLoading}
+            onClick={handleVeAethWithdraw}
+            className="bg-neutral-800 hover:bg-neutral-700 text-white px-5 py-3 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {isVeAethLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            Withdraw AETH
+          </button>
+        </div>
+        <button
+          disabled={isVeAethLoading}
+          onClick={handleDelegate}
+          className="w-full bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 hover:from-violet-600/30 hover:to-fuchsia-600/30 border border-violet-500/40 text-violet-300 py-3 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-inner flex items-center justify-center gap-2"
+        >
+          ⚡ Aktifkan Hak Suara (Delegate to Self)
+        </button>
+      </div>
+
+      {/* GRID: BUAT PROPOSAL & DAFTAR PROPOSAL AKTIF */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        
+        {/* KOLOM KIRI: FORM BUAT PROPOSAL */}
+        <div className="lg:col-span-1 bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl h-fit space-y-4">
+          <h4 className="text-xs sm:text-sm font-bold text-white uppercase font-mono flex items-center gap-2">
+            <PlusCircle className="w-4 h-4 text-fuchsia-400" /> Buat Proposal Parlemen
           </h4>
-          <div className="space-y-3">
+          <form onSubmit={handleCreateProposal} className="space-y-4">
             <div>
-              <label className="text-[10px] text-neutral-400 font-mono">{t.targetLabel || "Target Kontrak (Address)"}</label>
-              <input
-                type="text"
-                placeholder="0x..."
+              <label className="text-[10px] text-neutral-400 block mb-1 font-mono uppercase">Target Kontrak (Address)</label>
+              <input 
+                type="text" 
+                placeholder="0x..." 
                 value={proposalTarget}
                 onChange={(e) => setProposalTarget(e.target.value)}
-                className="w-full bg-[#05030F] border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-cyan-500 font-mono mt-1"
+                className="w-full bg-[#05030F] border border-neutral-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-fuchsia-500 font-mono"
                 required
               />
             </div>
             <div>
-              <label className="text-[10px] text-neutral-400 font-mono">{t.descLabel || "Deskripsi Proposal"}</label>
-              <textarea
-                rows={3}
-                placeholder={t.descPlaceholder || "Contoh: Proposal pembaruan parameter sistem..."}
+              <label className="text-[10px] text-neutral-400 block mb-1 font-mono uppercase">Deskripsi Proposal</label>
+              <textarea 
+                rows={4}
+                placeholder="Misal: Proposal untuk memperbarui parameter sistem..." 
                 value={proposalDescription}
                 onChange={(e) => setProposalDescription(e.target.value)}
-                className="w-full bg-[#05030F] border border-neutral-800 rounded-xl p-3 text-xs text-white outline-none focus:border-cyan-500 font-mono mt-1 resize-none"
+                className="w-full bg-[#05030F] border border-neutral-800 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-fuchsia-500 font-mono resize-none"
                 required
               />
             </div>
             <button
               type="submit"
               disabled={isProposing}
-              className="w-full bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 text-white font-bold py-3 rounded-xl text-xs cursor-pointer shadow-lg transition-all"
+              className="w-full bg-gradient-to-r from-cyan-500 via-violet-500 to-fuchsia-500 hover:opacity-90 text-white py-3.5 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {isProposing ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (t.proposeBtn || "Kirim Proposal Baru")}
+              {isProposing && <Loader2 className="w-4 h-4 animate-spin" />}
+              <Send className="w-3.5 h-3.5" /> Kirim Proposal Baru
             </button>
-          </div>
-        </form>
-
-        <div className="bg-[#0B0817] border border-neutral-900 p-6 rounded-3xl space-y-4 shadow-xl flex flex-col justify-between">
-          <div className="space-y-4">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
-              <Activity className="w-4 h-4 text-fuchsia-400" /> {t.votingPanelTitle || "Voting Panel"}
-            </h4>
-            <div>
-              <label className="text-[10px] text-neutral-400 font-mono">{t.proposalIdLabel || "ID Proposal"}</label>
-              <input
-                type="number"
-                placeholder={t.proposalIdPlaceholder || "Masukkan Proposal ID..."}
-                value={proposalIdInput}
-                onChange={(e) => setProposalIdInput(e.target.value)}
-                className="w-full bg-[#05030F] border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-fuchsia-500 font-mono mt-1"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-2 pt-4">
-            <button
-              disabled={isVoting}
-              onClick={() => handleCastVote(0)}
-              className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 py-3 rounded-xl text-xs font-bold cursor-pointer transition-all"
-            >
-              {t.againstBtn || "Against"}
-            </button>
-            <button
-              disabled={isVoting}
-              onClick={() => handleCastVote(1)}
-              className="bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-green-300 py-3 rounded-xl text-xs font-bold cursor-pointer transition-all"
-            >
-              {t.forBtn || "For"}
-            </button>
-            <button
-              disabled={isVoting}
-              onClick={() => handleCastVote(2)}
-              className="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 py-3 rounded-xl text-xs font-bold cursor-pointer transition-all"
-            >
-              {t.abstainBtn || "Abstain"}
-            </button>
-          </div>
+          </form>
         </div>
+
+        {/* KOLOM KANAN: DAFTAR PROPOSAL PARLEMEN (FEED OTOMATIS) */}
+        <div className="lg:col-span-2 bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl space-y-4">
+          <div className="flex items-center justify-between border-b border-neutral-900 pb-3">
+            <h4 className="text-xs sm:text-sm font-bold text-white uppercase font-mono flex items-center gap-2">
+              <Scale className="w-4 h-4 text-cyan-400" /> Daftar Proposal Parlemen DAO
+            </h4>
+            <button 
+              onClick={fetchProposals}
+              disabled={isLoadingProposals}
+              className="text-[10px] text-cyan-400 hover:text-cyan-300 font-mono bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-lg cursor-pointer"
+            >
+              {isLoadingProposals ? 'Memuat...' : '↻ Segarkan'}
+            </button>
+          </div>
+
+          {isLoadingProposals ? (
+            <div className="text-center py-16 text-neutral-500 text-xs font-mono">
+              <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-2 animate-spin" />
+              Memindai riwayat proposal dari blockchain...
+            </div>
+          ) : proposals.length === 0 ? (
+            <div className="text-center py-16 text-neutral-500 text-xs font-mono space-y-2">
+              <AlertCircle className="w-8 h-8 text-neutral-700 mx-auto" />
+              <p>Belum ada proposal yang dikirimkan ke parlemen.</p>
+            </div>
+          ) : (
+            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
+              {proposals.map((prop) => (
+                <div key={prop.id} className="bg-[#05030F] border border-neutral-800 hover:border-neutral-700 p-4 sm:p-5 rounded-2xl space-y-3 transition-all">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-neutral-900 text-cyan-300 font-mono text-[10px] px-2.5 py-1 rounded-lg border border-neutral-800">
+                        ID #{prop.id}
+                      </span>
+                      <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-lg border ${STATE_COLORS[prop.state] || 'bg-neutral-800 text-neutral-300 border-neutral-700'}`}>
+                        {prop.state}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-neutral-500 font-mono">
+                      Oleh: {formatAddress(prop.proposer)}
+                    </span>
+                  </div>
+
+                  {/* DESKRIPSI PROPOSAL (TERBUKA JELAS) */}
+                  <p className="text-xs sm:text-sm text-white font-medium bg-[#0B0817] p-3 rounded-xl border border-neutral-900 leading-relaxed whitespace-pre-wrap">
+                    {prop.description}
+                  </p>
+
+                  {/* STATISTIK SUARA */}
+                  <div className="grid grid-cols-3 gap-2 pt-1 text-center font-mono text-[10px]">
+                    <div className="bg-green-950/20 border border-green-500/20 rounded-xl p-2">
+                      <p className="text-neutral-500 uppercase">For (Setuju)</p>
+                      <p className="text-green-400 font-bold text-xs">{prop.forVotes.toLocaleString()}</p>
+                    </div>
+                    <div className="bg-red-950/20 border border-red-500/20 rounded-xl p-2">
+                      <p className="text-neutral-500 uppercase">Against (Tolak)</p>
+                      <p className="text-red-400 font-bold text-xs">{prop.against.toLocaleString()}</p>
+                    </div>
+                    <div className="bg-yellow-950/20 border border-yellow-500/20 rounded-xl p-2">
+                      <p className="text-neutral-500 uppercase">Abstain (Absen)</p>
+                      <p className="text-yellow-400 font-bold text-xs">{prop.abstain.toLocaleString()}</p>
+                    </div>
+                  </div>
+
+                  {/* TOMBOL VOTING LANGSUNG */}
+                  {prop.state === 'Active' && (
+                    <div className="flex gap-2 pt-2 border-t border-neutral-900">
+                      <button
+                        disabled={votingProposalId === prop.id}
+                        onClick={() => handleDirectVote(prop.id, 1)}
+                        className="flex-1 bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
+                      >
+                        {votingProposalId === prop.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                        Vote For
+                      </button>
+                      <button
+                        disabled={votingProposalId === prop.id}
+                        onClick={() => handleDirectVote(prop.id, 0)}
+                        className="flex-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
+                      >
+                        {votingProposalId === prop.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                        Vote Against
+                      </button>
+                      <button
+                        disabled={votingProposalId === prop.id}
+                        onClick={() => handleDirectVote(prop.id, 2)}
+                        className="flex-1 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
+                      >
+                        {votingProposalId === prop.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
+                        Abstain
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
       </div>
     </div>
   );
