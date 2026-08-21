@@ -15,7 +15,7 @@ const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Unknown';
 
 // =========================================================
-// RENDER CERTIFICATE TEMPLATE - HALL OF PROOF.
+// RENDER CERTIFICATE TEMPLATE - HALL OF PROOF....
 // =========================================================
 const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, tHop }, ref) => {
   const catKey = (proofData?.category || "Software").toLowerCase().trim();
