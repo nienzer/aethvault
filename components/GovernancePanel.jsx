@@ -144,6 +144,9 @@ export default function GovernancePanel({
   };
 
   const formatAddress = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : '';
+  
+  // ⚡ PERBAIKAN: Fungsi pemotong string khusus untuk Proposal ID yang sangat panjang
+  const formatId = (idStr) => idStr && idStr.length > 12 ? `${idStr.substring(0, 8)}...${idStr.substring(idStr.length - 6)}` : idStr;
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300">
@@ -282,14 +285,18 @@ export default function GovernancePanel({
                 <div key={prop.id} className="bg-[#05030F] border border-neutral-800 hover:border-neutral-700 p-4 sm:p-5 rounded-2xl space-y-3 transition-all">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="bg-neutral-900 text-cyan-300 font-mono text-[10px] px-2.5 py-1 rounded-lg border border-neutral-800">
-                        ID #{prop.id}
+                      {/* ⚡ PERBAIKAN: Menggunakan formatId dan menambahkan atribut title */}
+                      <span 
+                        title={`ID Lengkap: ${prop.id}`} 
+                        className="bg-neutral-900 text-cyan-300 font-mono text-[10px] px-2.5 py-1 rounded-lg border border-neutral-800 cursor-help"
+                      >
+                        ID #{formatId(prop.id)}
                       </span>
                       <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-lg border ${STATE_COLORS[prop.state] || 'bg-neutral-800 text-neutral-300 border-neutral-700'}`}>
                         {prop.state}
                       </span>
                     </div>
-                    <span className="text-[10px] text-neutral-500 font-mono">
+                    <span className="text-[10px] text-neutral-500 font-mono whitespace-nowrap">
                       {t.byLabel || "Oleh:"} {formatAddress(prop.proposer)}
                     </span>
                   </div>
@@ -331,7 +338,6 @@ export default function GovernancePanel({
                         {votingProposalId === prop.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
                         {t.againstBtn || "Against"}
                       </button>
-                      {/* TYPO "handleDirectVolt" SUDAH DIPERBAIKI DI SINI */}
                       <button
                         disabled={votingProposalId === prop.id}
                         onClick={() => handleDirectVote(prop.id, 2)}

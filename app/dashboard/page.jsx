@@ -29,6 +29,7 @@ import AetherProofHub from '@/components/AetherProofHub';
 import HallOfProof from '@/components/HallOfProof';
 import VerifyProof from '@/components/VerifyProof';
 import GovernancePanel from '@/components/GovernancePanel';
+import AdminPanel from '@/components/AdminPanel';
 
 import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import StakingArtifact from '@/contracts/StakingABI.json';
@@ -188,10 +189,6 @@ export default function DashboardPage() {
   const [isDownloadingAttachment, setIsDownloadingAttachment] = useState(null);
   
   const myKeyPairRef = useRef(null);
-
-  const [newBeneficiaryInput, setNewBeneficiaryInput] = useState('');
-  const [vestingPendingDest, setVestingPendingDest] = useState(null);
-  const [vestingUnlockTime, setVestingUnlockTime] = useState(0);
 
   useEffect(() => {
     if (address) {
@@ -725,17 +722,13 @@ export default function DashboardPage() {
     if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet terlebih dahulu", "error");
     if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), "error");
 
-    // ==========================================
-    // 🛡️ CEGATAN AMBANG BATAS (THRESHOLD)
-    // ==========================================
-    const MIN_THRESHOLD = 1000; // Sesuaikan dengan settingan contract Bos
+    const MIN_THRESHOLD = 1000; 
     if (votingPower < MIN_THRESHOLD) {
       return showToast(
         (t.daoErrThreshold || "Voting Power kurang! Minimal {threshold} Votes.").replace('{threshold}', MIN_THRESHOLD), 
         "error"
       );
     }
-    // ==========================================
 
     setIsProposing(true);
     try {
@@ -1213,110 +1206,6 @@ export default function DashboardPage() {
     }
   };
 
-  const [isAdminLoading, setIsAdminLoading] = useState(false);
-  const [newTreasuryInput, setNewTreasuryInput] = useState('');
-
-  const handleAdminTogglePause = async (isPause, isStakingTarget = false) => {
-    try {
-      setIsAdminLoading(true);
-      const signer = await getSigner();
-      const targetAddress = isStakingTarget ? STAKING_CONTRACT_ADDRESS : CONTRACT_ADDRESS;
-      const abi = isStakingTarget ? StakingABI : AetherVaultV3ABI;
-      const contract = new ethers.Contract(targetAddress, abi, signer);
-
-      const tx = isPause ? await contract.pause() : await contract.unpause();
-      showToast(t.adminTxSending || "Mengirim transaksi darurat...", "info");
-      await tx.wait();
-      showToast(isPause ? (t.adminPauseSuccess || "Berhasil di-PAUSE!") : (t.adminUnpauseSuccess || "Berhasil di-UNPAUSE!"), "success");
-    } catch (err) {
-      showToast((t.adminPauseFail || "Gagal ubah status pause: ") + extractErrorMessage(err), "error");
-    } finally {
-      setIsAdminLoading(false);
-    }
-  };
-
-  const handleAdminUpdateTreasury = async (e) => {
-    e.preventDefault();
-    if (!ethers.isAddress(newTreasuryInput)) return showToast(t.invalidTreasuryAddress || "Alamat treasury tidak valid!", "error");
-    try {
-      setIsAdminLoading(true);
-      const signer = await getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
-      const tx = await contract.setTreasuryAddress(newTreasuryInput);
-      showToast(t.adminTreasuryUpdating || "Memperbarui treasury...", "info");
-      await tx.wait();
-      showToast(t.adminTreasurySuccess || "Treasury sukses diperbarui!", "success");
-      setNewTreasuryInput('');
-    } catch (err) {
-      showToast((t.adminTreasuryFail || "Gagal update treasury: ") + extractErrorMessage(err), "error");
-    } finally {
-      setIsAdminLoading(false);
-    }
-  };
-  
-  const handleAdminClaimVesting = async () => {
-    const confirmed = window.confirm(t.adminConfirmVestingClaim || "Yakin ingin mencairkan token Vesting developer sekarang?");
-    if (!confirmed) return;
-    
-    try {
-      setIsAdminLoading(true);
-      const signer = await getSigner();
-      const vestingContract = new ethers.Contract(VESTING_CONTRACT_ADDRESS, TeamVestingABI, signer);
-      
-      showToast(t.adminVestingClaiming || "Memproses pencairan token developer...", "info");
-      const tx = await vestingContract.claim(); 
-      await tx.wait();
-      showToast(t.adminVestingSuccess || "Mantap! Gaji developer berhasil masuk dompet!", "success");
-    } catch (err) {
-      showToast((t.adminVestingFail || "Gagal mencairkan vesting: ") + extractErrorMessage(err), "error");
-    } finally {
-      setIsAdminLoading(false);
-    }
-  };
-
-  const handleAdminRequestVestingChange = async (e) => {
-    e.preventDefault();
-    if (!ethers.isAddress(newBeneficiaryInput)) return showToast("Alamat dompet tidak valid!", "error");
-    try {
-      setIsAdminLoading(true);
-      const signer = await getSigner();
-      const vestingContract = new ethers.Contract(VESTING_CONTRACT_ADDRESS, TeamVestingABI, signer);
-      
-      showToast("Mengajukan pergantian dompet vesting...", "info");
-      const tx = await vestingContract.requestBeneficiaryChange(newBeneficiaryInput);
-      await tx.wait();
-      
-      setVestingPendingDest(newBeneficiaryInput);
-      setVestingUnlockTime(Math.floor(Date.now() / 1000) + (2 * 24 * 60 * 60)); 
-      setNewBeneficiaryInput('');
-      showToast("Pengajuan sukses! Harap tunggu 48 jam sebelum konfirmasi.", "success");
-    } catch (err) {
-      showToast("Gagal mengajukan: " + extractErrorMessage(err), "error");
-    } finally {
-      setIsAdminLoading(false);
-    }
-  };
-
-  const handleAdminConfirmVestingChange = async () => {
-    try {
-      setIsAdminLoading(true);
-      const signer = await getSigner();
-      const vestingContract = new ethers.Contract(VESTING_CONTRACT_ADDRESS, TeamVestingABI, signer);
-      
-      showToast("Mengeksekusi pergantian dompet secara permanen...", "info");
-      const tx = await vestingContract.confirmBeneficiaryChange();
-      await tx.wait();
-      
-      setVestingPendingDest(null);
-      setVestingUnlockTime(0);
-      showToast("Dompet penerima Vesting BERHASIL diganti!", "success");
-    } catch (err) {
-      showToast("Konfirmasi ditolak (Mungkin 48 jam belum berlalu): " + extractErrorMessage(err), "error");
-    } finally {
-      setIsAdminLoading(false);
-    }
-  };
-
   const renderNavMenu = (isMobile = false) => (
     <nav className="space-y-1.5">
       {[
@@ -1749,159 +1638,21 @@ export default function DashboardPage() {
               )}
 
               {activeTab === 'admin' && (
-                <div className="bg-[#0B0817] border border-neutral-900 rounded-2xl sm:rounded-3xl p-5 sm:p-8 space-y-6 shadow-2xl animate-in fade-in duration-300">
-                  <div className="flex items-center gap-3 border-b border-neutral-900 pb-4 mb-6">
-                    <ShieldAlert className="w-8 h-8 text-red-400 shrink-0" />
-                    <div>
-                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">{t.adminTitle}</h3>
-                      <p className="text-xs text-neutral-400 font-mono">{t.adminSubtitle}</p>
-                    </div>
-                  </div>
-
-                  {!isOwner ? (
-                    <div className="bg-red-950/20 border border-red-500/30 p-6 rounded-2xl text-center space-y-2">
-                      <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
-                      <h4 className="text-sm font-bold text-red-300">{t.adminAccessDenied}</h4>
-                      <p className="text-xs text-neutral-400">{t.adminNotOwner}</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      
-                      {/* CARD 1: TOKEN INDUK */}
-                      <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-amber-400 uppercase font-mono mb-4">{t.adminMainEmergency}</h4>
-                          <form onSubmit={handleAdminUpdateTreasury} className="space-y-2">
-                            <label className="text-[10px] text-neutral-500">{t.adminChangeTreasury}</label>
-                            <div className="flex gap-2">
-                              <input 
-                                type="text" 
-                                placeholder={t.adminTreasuryPlaceholder} 
-                                value={newTreasuryInput}
-                                onChange={(e) => setNewTreasuryInput(e.target.value)}
-                                className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-500 font-mono"
-                                required
-                              />
-                              <button 
-                                type="submit" 
-                                disabled={isAdminLoading}
-                                className="bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-md"
-                              >
-                                {t.adminUpdateTreasuryBtn}
-                              </button>
-                            </div>
-                          </form>
-                        </div>
-                        <div className="flex gap-3 pt-2">
-                          <button 
-                            disabled={isAdminLoading}
-                            onClick={() => handleAdminTogglePause(true, false)} 
-                            className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                          >
-                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseMain}
-                          </button>
-                          <button 
-                            disabled={isAdminLoading}
-                            onClick={() => handleAdminTogglePause(false, false)} 
-                            className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                          >
-                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseMain}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* CARD 2: STAKING PROTOCOL */}
-                      <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-indigo-400 uppercase font-mono mb-4">{t.adminStakeEmergency}</h4>
-                          <div className="space-y-2">
-                            <label className="text-[10px] text-neutral-500">{t.adminFundLabel}</label>
-                            <div className="flex gap-2">
-                              <input 
-                                type="text" 
-                                placeholder={t.adminAmountPlaceholder} 
-                                className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-mono"
-                              />
-                              <button 
-                                disabled={isAdminLoading}
-                                onClick={() => showToast("Fund Pool feature coming soon!", "info")}
-                                className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors whitespace-nowrap shadow-md"
-                              >
-                                {t.adminFundBtn}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-3 pt-2">
-                          <button 
-                            disabled={isAdminLoading}
-                            onClick={() => handleAdminTogglePause(true, true)} 
-                            className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                          >
-                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseStake}
-                          </button>
-                          <button 
-                            disabled={isAdminLoading}
-                            onClick={() => handleAdminTogglePause(false, true)} 
-                            className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                          >
-                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseStake}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* CARD 3: VAULT V3 & PROOF REGISTRY */}
-                      <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-cyan-400 uppercase font-mono mb-3">{t.adminVaultEmergency}</h4>
-                          <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
-                            {t.adminVaultDesc}
-                          </p>
-                        </div>
-                        <div className="flex gap-3 pt-2">
-                          <button 
-                            disabled={isAdminLoading}
-                            onClick={() => handleAdminTogglePause(true, false)} 
-                            className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                          >
-                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseVault}
-                          </button>
-                          <button 
-                            disabled={isAdminLoading}
-                            onClick={() => handleAdminTogglePause(false, false)} 
-                            className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-                          >
-                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseVault}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* CARD 4: TEAM VESTING */}
-                      <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-green-400 uppercase font-mono mb-3">{t.adminVestingTitle}</h4>
-                          <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
-                            {t.adminVestingDesc}
-                          </p>
-                        </div>
-                        <div className="pt-2">
-                          <button 
-                            disabled={isAdminLoading}
-                            onClick={() => {
-                              const confirmed = window.confirm(t.adminConfirmVestingClaim);
-                              if (confirmed) handleAdminClaimVesting();
-                            }} 
-                            className="w-full bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md"
-                          >
-                            <Coins className="w-4 h-4" /> {t.adminClaimSalaryBtn}
-                          </button>
-                        </div>
-                      </div>
-
-                    </div>
-                  )}
-                </div>
+                <AdminPanel
+                  isOwner={isOwner}
+                  walletProvider={walletProvider}
+                  showToast={showToast}
+                  extractErrorMessage={extractErrorMessage}
+                  CONTRACT_ADDRESS={CONTRACT_ADDRESS}
+                  STAKING_CONTRACT_ADDRESS={STAKING_CONTRACT_ADDRESS}
+                  VESTING_CONTRACT_ADDRESS={VESTING_CONTRACT_ADDRESS}
+                  AetherVaultV3ABI={AetherVaultV3ABI}
+                  StakingABI={StakingABI}
+                  TeamVestingABI={TeamVestingABI}
+                  t={t} 
+                />
               )}
+
              </div>
           </div>
         </div>
