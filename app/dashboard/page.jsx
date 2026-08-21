@@ -1795,21 +1795,24 @@ export default function DashboardPage() {
                       {/* CARD 2: STAKING PROTOCOL */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-indigo-400 uppercase font-mono mb-4">{t.dashboard?.adminStakeEmergency}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-indigo-400 uppercase font-mono mb-4">{tAdmin.adminStakeEmergency}</h4>
                           <div className="space-y-2">
-                            <label className="text-[10px] text-neutral-500">Fund Reward Pool (AETH)</label>
+                            {/* Memanggil adminFundLabel */}
+                            <label className="text-[10px] text-neutral-500">{tAdmin.adminFundLabel}</label>
                             <div className="flex gap-2">
+                              {/* Memanggil adminAmountPlaceholder */}
                               <input 
                                 type="text" 
-                                placeholder={t.dashboard?.adminAmountLabel || "AETH Amount"} 
+                                placeholder={tAdmin.adminAmountPlaceholder} 
                                 className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-mono"
                               />
+                              {/* Memanggil adminFundBtn */}
                               <button 
                                 disabled={isAdminLoading}
                                 onClick={() => showToast("Fund Pool feature coming soon!", "info")}
                                 className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors whitespace-nowrap shadow-md"
                               >
-                                Fund Pool
+                                {tAdmin.adminFundBtn}
                               </button>
                             </div>
                           </div>
@@ -1820,14 +1823,14 @@ export default function DashboardPage() {
                             onClick={() => handleAdminTogglePause(true, true)} 
                             className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Lock className="w-3.5 h-3.5" /> {t.dashboard?.adminPauseStake}
+                            <Lock className="w-3.5 h-3.5" /> {tAdmin.adminPauseStake}
                           </button>
                           <button 
                             disabled={isAdminLoading}
                             onClick={() => handleAdminTogglePause(false, true)} 
                             className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Unlock className="w-3.5 h-3.5" /> {t.dashboard?.adminUnpauseStake}
+                            <Unlock className="w-3.5 h-3.5" /> {tAdmin.adminUnpauseStake}
                           </button>
                         </div>
                       </div>
