@@ -12,25 +12,37 @@ AetherVault is an end-to-end encrypted protocol suite built on the BNB Chain, of
 
 ---
 
-## 2. Technical Infrastructure & Tech Stack
-Our robust architecture leverages an industry-leading stack to ensure both security and scalability:
-
-*   **BNB Chain:** Serves as the core logic layer, handling smart contract execution, ownership verification, and high-frequency state management.
-*   **Irys / Arweave:** Provides perpetual, decentralized storage to ensure encrypted file payloads and asset metadata survive forever, independent of central servers.
-*   **ECIES / Secp256k1:** Delivers client-side, zero-knowledge encryption, ensuring that no plaintext data ever leaves the user's browser.
+## 2. Governance & DAO (New Section)
+AetherVault is designed to be a community-owned protocol. We implement a robust DAO framework to ensure long-term sustainability:
+*   **veAETH Voting:** Users escrow `$AETH` tokens to receive `veAETH`, granting governance rights based on stake duration.
+*   **AetherGovernor:** A transparent, on-chain proposal and execution framework where the community votes on protocol updates, treasury allocations, and parameter adjustments.
 
 ---
 
-## 3. Tokenomics, Real-Yield Staking & Trustless Burn
-AetherVault operates on a deflationary circular economy powered by the `$AETH` token:
-
-*   **Trustless On-Chain Burn:** Protocol interaction fees (minting, certification, storage access) trigger automated, immutable token burns directly via smart contracts, ensuring absolute transparency with zero central manipulation.
-*   **Real-Yield Staking:** Staking rewards are derived from protocol revenue (Real Yield). Rewards are non-inflationary, funded entirely by actual platform usage, which protects the token ecosystem from inflationary collapse and ensures long-term sustainability.
+## 3. Security & Verification (New Section)
+Security is our foundation. AetherVault is built with a "Security-First" approach:
+*   **Rigorous Testing:** 30+ automated test scenarios verified via Hardhat (100% success rate).
+*   **Audit-Ready:** Architecture optimized for professional third-party audits with comprehensive static analysis coverage.
+*   **Modular Design:** Clean separation of concerns ensures that governance, storage, and logic layers operate independently and securely.
 
 ---
 
-## 4. Strategic Alignment with BNB Chain
-By building natively on the BNB Chain, AetherVault benefits from superior transaction speeds and industry-leading low gas costs. This allows our protocol to offer high-frequency, complex interactions—such as automated "Proof of Life" pings and time-locked vault management—at scale. We are committed to bringing high-utility, IP-focused dApp innovation to the BNB Chain user base.
+## 4. Technical Infrastructure
+Our robust architecture leverages an industry-leading stack:
+*   **BNB Chain:** Core logic layer for smart contracts and governance.
+*   **Irys / Arweave:** Perpetual, decentralized storage for encrypted payloads.
+*   **ECIES / Secp256k1:** Client-side zero-knowledge encryption for privacy.
+
+---
+
+## 5. Tokenomics & Circular Economy
+*   **Trustless Burn:** Automated, immutable token burns triggered by protocol revenue.
+*   **Real-Yield Staking:** Rewards derived from actual platform usage (fees), ensuring sustainable tokenomics without inflationary pressure.
+
+---
+
+## 6. Strategic Alignment with BNB Chain
+AetherVault brings high-utility, IP-focused innovation to BNB Chain. By utilizing BNB Chain's low-gas and high-speed environment, we enable complex operations—like "Proof of Life" pings and time-locked vaults—at scale for a global user base.
 
 ---
 *AetherVault Protocol © 2026 | Secured, Verified, On-Chain*

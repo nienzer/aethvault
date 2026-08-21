@@ -8,8 +8,8 @@ import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import { useLanguage } from '@/context/LanguageContext';
 
 const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
-const AETHER_VAULT_ADDRESS = "0xA82c2D415629912bF7837f0d1bba354bC6Ae118f";
-const CONTRACT_ADDRESS = "0xA82c2D415629912bF7837f0d1bba354bC6Ae118f";
+const AETHER_VAULT_ADDRESS = "0x4D9Ed118fbCc24dB118fD5B33609a51F50C4B135";
+const CONTRACT_ADDRESS = "0x4D9Ed118fbCc24dB118fD5B33609a51F50C4B135";
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Unknown';

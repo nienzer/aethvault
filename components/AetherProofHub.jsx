@@ -11,8 +11,8 @@ import { useLanguage } from '@/context/LanguageContext';
 const AetherVaultV3ABI = AetherVaultV3Artifact.abi || AetherVaultV3Artifact;
 const AetherVaultABI = AetherVaultArtifact.abi || AetherVaultArtifact;
 
-const AETHER_VAULT_ADDRESS = "0xA82c2D415629912bF7837f0d1bba354bC6Ae118f";
-const AETH_TOKEN_ADDRESS = "0x83107fb136CF264971c512EC452Fa50058A43b53"; 
+const AETHER_VAULT_ADDRESS = "0x4D9Ed118fbCc24dB118fD5B33609a51F50C4B135";
+const AETH_TOKEN_ADDRESS = "0xac884F2670cF85dCAF34e750e52B846D8DE3Cf55"; 
 const READ_ONLY_RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
 
 const formatAddressFunc = (addr) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : 'Not Connected';

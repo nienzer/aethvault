@@ -5,7 +5,7 @@ import jsPDF from 'jspdf';
 import QRCode from 'react-qr-code';
 import { useLanguage } from '@/context/LanguageContext';
 
-const CONTRACT_ADDRESS = "0xA82c2D415629912bF7837f0d1bba354bC6Ae118f"; 
+const CONTRACT_ADDRESS = "0x4D9Ed118fbCc24dB118fD5B33609a51F50C4B135"; 
 const formatAddressFunc = (addr, fallback) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : fallback;
 
 // =========================================================

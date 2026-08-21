@@ -22,10 +22,9 @@ describe("AetherVaultStakingSecureV6", function () {
     await staking.fundRewardPool(ethers.parseEther("50000"));
   });
 
-  it("Stake: tier 0 tanpa lock", async function () {
+  it("Stake: Tier 0 without lock", async function () {
     const amount = ethers.parseEther("1000");
     await staking.connect(user).stake(0, amount);
-    
     const deposits = await staking.getUserDeposits(user.address);
     expect(deposits.length).to.equal(1);
     expect(deposits[0].amount).to.equal(amount);
@@ -39,57 +38,47 @@ describe("AetherVaultStakingSecureV6", function () {
       .to.be.revertedWithCustomError(staking, "ExceedsMaxDeposits");
   });
 
-  it("Withdraw: tidak bisa sebelum unlock", async function () {
+  it("Withdraw: Cannot withdraw before unlock", async function () {
     await staking.connect(user).stake(1, ethers.parseEther("1000"));
     const dep = await staking.getUserDeposits(user.address);
-    
     await expect(staking.connect(user).withdraw(dep[0].id, ethers.parseEther("100")))
       .to.be.revertedWithCustomError(staking, "TokenStillLocked");
   });
 
-  it("Emergency withdraw: cair meski paused", async function () {
+  it("Emergency withdraw: Can withdraw even if paused", async function () {
     await staking.connect(user).stake(0, ethers.parseEther("1000"));
     await staking.pause();
-    
     const dep = await staking.getUserDeposits(user.address);
     const before = await token.balanceOf(user.address);
-    
     await staking.connect(user).emergencyWithdraw(dep[0].id);
-    
     const after = await token.balanceOf(user.address);
     expect(after).to.be.gt(before);
   });
 
-  it("Claim reward: reward bertambah seiring waktu", async function () {
+  it("Claim reward: Reward increases over time", async function () {
     await staking.connect(user).stake(0, ethers.parseEther("10000"));
-    
     await ethers.provider.send("evm_increaseTime", [86400]);
     await ethers.provider.send("evm_mine");
-    
     const reward = await staking.calculateReward(user.address);
     expect(reward).to.be.gt(0);
-    
     const before = await token.balanceOf(user.address);
     await staking.connect(user).claimReward();
     const after = await token.balanceOf(user.address);
     expect(after).to.be.gt(before);
   });
 
-  it("Tier update: butuh timelock 3 menit", async function () {
+  it("Tier update: Requires 3-minute timelock", async function () {
     await staking.requestTierUpdate(0, 500, 0);
     await expect(staking.executeTierUpdate(0))
       .to.be.revertedWithCustomError(staking, "TimelockNotExpired");
-    
-    // Majukan waktu 4 menit agar aman melewati batas 3 menit
     await ethers.provider.send("evm_increaseTime", [4 * 60]); 
     await ethers.provider.send("evm_mine");
-    
     await staking.executeTierUpdate(0);
     const tier = await staking.tiers(0);
     expect(tier.apy).to.equal(500);
   });
 
-  it("Rescue: tidak bisa rescue AETH", async function () {
+  it("Rescue: Cannot rescue AETH", async function () {
     await expect(staking.rescueForeignERC20(await token.getAddress(), owner.address, 100))
       .to.be.revertedWithCustomError(staking, "CannotRescueStakedToken");
   });
