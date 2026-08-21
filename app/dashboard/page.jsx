@@ -1576,10 +1576,15 @@ export default function DashboardPage() {
                   setProposalDescription={setProposalDescription}
                   isProposing={isProposing}
                   handleCreateProposal={handleCreateProposal}
-                  proposalIdInput={proposalIdInput}
-                  setProposalIdInput={setProposalIdInput}
-                  isVoting={isVoting}
-                  handleCastVote={handleCastVote}
+                  walletProvider={walletProvider}
+                  address={address}
+                  isWrongNetwork={isWrongNetwork}
+                  TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
+                  showToast={showToast}
+                  extractErrorMessage={extractErrorMessage}
+                  ensureCorrectNetwork={ensureCorrectNetwork}
+                  GOVERNOR_ADDRESS={GOVERNOR_ADDRESS}
+                  READ_ONLY_RPC_URL={READ_ONLY_RPC_URL}
                 />
               )}
 
