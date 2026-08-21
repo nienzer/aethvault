@@ -48,7 +48,10 @@ export default function GovernancePanel({
   READ_ONLY_RPC_URL
 }) {
   const { t: globalT } = useLanguage();
+  // Kamus utama untuk UI di tab DAO
   const t = (globalT && globalT.dao) ? globalT.dao : {};
+  // Kamus dashboard untuk notifikasi/Toast (karena kuncinya ditaruh di sana)
+  const tDash = (globalT && globalT.dashboard) ? globalT.dashboard : {};
 
   const [proposals, setProposals] = useState([]);
   const [isLoadingProposals, setIsLoadingProposals] = useState(false);
@@ -115,8 +118,8 @@ export default function GovernancePanel({
   }, [fetchProposals]);
 
   const handleDirectVote = async (proposalId, supportValue) => {
-    if (!walletProvider) return showToast("Connect wallet first", "error");
-    if (isWrongNetwork) return showToast(`Switch network to ${TARGET_CHAIN_NAME}`, "error");
+    if (!walletProvider) return showToast(tDash.connectWalletFirst || "Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(tDash.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME) || `Pindah ke jaringan ${TARGET_CHAIN_NAME}`, "error");
 
     setVotingProposalId(proposalId);
     try {
@@ -127,14 +130,14 @@ export default function GovernancePanel({
       const governorContract = new ethers.Contract(GOVERNOR_ADDRESS, GOVERNOR_FULL_ABI, signer);
       const voteTypeStr = supportValue === 1 ? 'FOR' : supportValue === 0 ? 'AGAINST' : 'ABSTAIN';
       
-      showToast(`Casting vote (${voteTypeStr}) for Proposal #${proposalId}...`, "info");
+      showToast(`${tDash.daoTxVoting || "Memberikan suara"} (${voteTypeStr})...`, "info");
       const tx = await governorContract.castVote(proposalId, supportValue);
       await tx.wait();
 
-      showToast(`Vote (${voteTypeStr}) recorded successfully!`, "success");
+      showToast(tDash.daoTxVoteSuccess || "Suara Voting Berhasil Dicatat!", "success");
       await fetchProposals();
     } catch (err) {
-      showToast("Voting failed: " + extractErrorMessage(err), "error");
+      showToast((tDash.daoTxVoteFail || "Gagal Voting: ") + extractErrorMessage(err), "error");
     } finally {
       setVotingProposalId(null);
     }
@@ -257,21 +260,21 @@ export default function GovernancePanel({
             <button 
               onClick={fetchProposals}
               disabled={isLoadingProposals}
-              className="text-[10px] text-cyan-400 hover:text-cyan-300 font-mono bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-lg cursor-pointer"
+              className="text-[10px] text-cyan-400 hover:text-cyan-300 font-mono bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-lg cursor-pointer flex items-center gap-1"
             >
-              {isLoadingProposals ? 'Loading...' : '↻ Refresh'}
+              {isLoadingProposals ? (tDash.processingBtn || 'Memproses...') : '↻ Refresh'}
             </button>
           </div>
 
           {isLoadingProposals ? (
             <div className="text-center py-16 text-neutral-500 text-xs font-mono">
               <Loader2 className="w-8 h-8 text-cyan-500 mx-auto mb-2 animate-spin" />
-              Scanning proposals from blockchain...
+              {tDash.fetchingRegistry || "Memindai proposal dari blockchain..."}
             </div>
           ) : proposals.length === 0 ? (
             <div className="text-center py-16 text-neutral-500 text-xs font-mono space-y-2">
               <AlertCircle className="w-8 h-8 text-neutral-700 mx-auto" />
-              <p>No proposals found on the parliament yet.</p>
+              <p>{t.emptyProposals || "Belum ada proposal di parlemen saat ini."}</p>
             </div>
           ) : (
             <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
@@ -287,7 +290,7 @@ export default function GovernancePanel({
                       </span>
                     </div>
                     <span className="text-[10px] text-neutral-500 font-mono">
-                      By: {formatAddress(prop.proposer)}
+                      {t.byLabel || "Oleh:"} {formatAddress(prop.proposer)}
                     </span>
                   </div>
 
@@ -297,15 +300,15 @@ export default function GovernancePanel({
 
                   <div className="grid grid-cols-3 gap-2 pt-1 text-center font-mono text-[10px]">
                     <div className="bg-green-950/20 border border-green-500/20 rounded-xl p-2">
-                      <p className="text-neutral-500 uppercase">For</p>
+                      <p className="text-neutral-500 uppercase">{t.forBtn || "For"}</p>
                       <p className="text-green-400 font-bold text-xs">{prop.forVotes.toLocaleString()}</p>
                     </div>
                     <div className="bg-red-950/20 border border-red-500/20 rounded-xl p-2">
-                      <p className="text-neutral-500 uppercase">Against</p>
+                      <p className="text-neutral-500 uppercase">{t.againstBtn || "Against"}</p>
                       <p className="text-red-400 font-bold text-xs">{prop.against.toLocaleString()}</p>
                     </div>
                     <div className="bg-yellow-950/20 border border-yellow-500/20 rounded-xl p-2">
-                      <p className="text-neutral-500 uppercase">Abstain</p>
+                      <p className="text-neutral-500 uppercase">{t.abstainBtn || "Abstain"}</p>
                       <p className="text-yellow-400 font-bold text-xs">{prop.abstain.toLocaleString()}</p>
                     </div>
                   </div>
@@ -328,9 +331,10 @@ export default function GovernancePanel({
                         {votingProposalId === prop.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
                         {t.againstBtn || "Against"}
                       </button>
+                      {/* TYPO "handleDirectVolt" SUDAH DIPERBAIKI DI SINI */}
                       <button
                         disabled={votingProposalId === prop.id}
-                        onClick={() => handleDirectVolt(prop.id, 2)}
+                        onClick={() => handleDirectVote(prop.id, 2)}
                         className="flex-1 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
                       >
                         {votingProposalId === prop.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}

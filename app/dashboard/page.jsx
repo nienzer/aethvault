@@ -637,9 +637,9 @@ export default function DashboardPage() {
   };
 
   const handleVeAethDeposit = async () => {
-    if (!veAethInput || parseFloat(veAethInput) <= 0) return showToast("Masukkan nominal AETH yang valid", "error");
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+    if (!veAethInput || parseFloat(veAethInput) <= 0) return showToast(t.daoErrAeth || "Masukkan nominal AETH yang valid", "error");
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), "error");
 
     setIsVeAethLoading(true);
     try {
@@ -650,30 +650,30 @@ export default function DashboardPage() {
       const tokenContract = new ethers.Contract(AETH_TOKEN_ADDRESS, ERC20_ABI, signer);
       const allowance = await tokenContract.allowance(address, VE_AETH_ADDRESS);
       if (allowance < amountWei) {
-        showToast("Meminta persetujuan token (Approve)...", "info");
+        showToast(t.daoTxApproving || "Meminta persetujuan token (Approve)...", "info");
         const approveTx = await tokenContract.approve(VE_AETH_ADDRESS, amountWei);
         await approveTx.wait();
       }
 
       const veContract = new ethers.Contract(VE_AETH_ADDRESS, VE_AETH_ABI, signer);
-      showToast("Mengunci AETH ke Brankas veAETH...", "info");
+      showToast(t.daoTxDepositing || "Mengunci AETH ke Brankas veAETH...", "info");
       const tx = await veContract.deposit(amountWei);
       await tx.wait();
 
-      showToast("Berhasil mencetak veAETH & Hak Suara!", "success");
+      showToast(t.daoTxDepositSuccess || "Berhasil mencetak veAETH & Hak Suara!", "success");
       setVeAethInput('');
       await fetchWalletData();
     } catch (err) {
-      showToast("Gagal deposit veAETH: " + extractErrorMessage(err), "error");
+      showToast((t.daoTxDepositFail || "Gagal deposit veAETH: ") + extractErrorMessage(err), "error");
     } finally {
       setIsVeAethLoading(false);
     }
   };
 
   const handleVeAethWithdraw = async () => {
-    if (!veAethInput || parseFloat(veAethInput) <= 0) return showToast("Masukkan nominal veAETH yang valid", "error");
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+    if (!veAethInput || parseFloat(veAethInput) <= 0) return showToast(t.daoErrVeAeth || "Masukkan nominal veAETH yang valid", "error");
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), "error");
 
     setIsVeAethLoading(true);
     try {
@@ -682,23 +682,23 @@ export default function DashboardPage() {
       const amountWei = ethers.parseUnits(veAethInput, 18);
 
       const veContract = new ethers.Contract(VE_AETH_ADDRESS, VE_AETH_ABI, signer);
-      showToast("Menarik kembali AETH dari Brankas...", "info");
+      showToast(t.daoTxWithdrawing || "Menarik kembali AETH dari Brankas...", "info");
       const tx = await veContract.withdraw(amountWei);
       await tx.wait();
 
-      showToast("Withdraw AETH Berhasil!", "success");
+      showToast(t.daoTxWithdrawSuccess || "Withdraw AETH Berhasil!", "success");
       setVeAethInput('');
       await fetchWalletData();
     } catch (err) {
-      showToast("Gagal withdraw veAETH: " + extractErrorMessage(err), "error");
+      showToast((t.daoTxWithdrawFail || "Gagal withdraw veAETH: ") + extractErrorMessage(err), "error");
     } finally {
       setIsVeAethLoading(false);
     }
   };
 
   const handleDelegate = async () => {
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), "error");
 
     setIsVeAethLoading(true);
     try {
@@ -706,14 +706,14 @@ export default function DashboardPage() {
       await ensureCorrectNetwork(signer);
       const veContract = new ethers.Contract(VE_AETH_ADDRESS, VE_AETH_ABI, signer);
       
-      showToast("Mengaktifkan hak suara (Delegating)...", "info");
+      showToast(t.daoTxDelegating || "Mengaktifkan hak suara (Delegating)...", "info");
       const tx = await veContract.delegate(address);
       await tx.wait();
 
-      showToast("Hak Suara Berhasil Diaktifkan!", "success");
+      showToast(t.daoTxDelegateSuccess || "Hak Suara Berhasil Diaktifkan!", "success");
       await fetchWalletData();
     } catch (err) {
-      showToast("Gagal delegasi: " + extractErrorMessage(err), "error");
+      showToast((t.daoTxDelegateFail || "Gagal delegasi: ") + extractErrorMessage(err), "error");
     } finally {
       setIsVeAethLoading(false);
     }
@@ -721,9 +721,21 @@ export default function DashboardPage() {
 
   const handleCreateProposal = async (e) => {
     e.preventDefault();
-    if (!proposalTarget || !proposalDescription) return showToast("Lengkapi form proposal", "error");
-    if (!isConnected) return showToast("Hubungkan dompet terlebih dahulu", "error");
-    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+    if (!proposalTarget || !proposalDescription) return showToast(t.daoErrForm || "Lengkapi form proposal", "error");
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet terlebih dahulu", "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), "error");
+
+    // ==========================================
+    // 🛡️ CEGATAN AMBANG BATAS (THRESHOLD)
+    // ==========================================
+    const MIN_THRESHOLD = 1000; // Sesuaikan dengan settingan contract Bos
+    if (votingPower < MIN_THRESHOLD) {
+      return showToast(
+        (t.daoErrThreshold || "Voting Power kurang! Minimal {threshold} Votes.").replace('{threshold}', MIN_THRESHOLD), 
+        "error"
+      );
+    }
+    // ==========================================
 
     setIsProposing(true);
     try {
@@ -735,24 +747,24 @@ export default function DashboardPage() {
       const values = [0];
       const calldatas = ["0x"];
 
-      showToast("Mengirim proposal ke Parlemen DAO...", "info");
+      showToast(t.daoTxProposing || "Mengirim proposal ke Parlemen DAO...", "info");
       const tx = await governorContract.propose(targets, values, calldatas, proposalDescription);
       await tx.wait();
 
-      showToast("Proposal Berhasil Dikirim ke Parlemen!", "success");
+      showToast(t.daoTxProposeSuccess || "Proposal Berhasil Dikirim ke Parlemen!", "success");
       setProposalTarget('');
       setProposalDescription('');
     } catch (err) {
-      showToast("Gagal membuat proposal: " + extractErrorMessage(err), "error");
+      showToast((t.daoTxProposeFail || "Gagal membuat proposal: ") + extractErrorMessage(err), "error");
     } finally {
       setIsProposing(false);
     }
   };
 
   const handleCastVote = async (supportValue) => {
-    if (!proposalIdInput) return showToast("Masukkan ID Proposal yang valid", "error");
-    if (!isConnected) return showToast("Hubungkan dompet", "error");
-    if (isWrongNetwork) return showToast(`Pindahkan jaringan ke ${TARGET_CHAIN_NAME}`, "error");
+    if (!proposalIdInput) return showToast(t.daoErrPropId || "Masukkan ID Proposal yang valid", "error");
+    if (!isConnected) return showToast(t.connectWalletFirst || "Hubungkan dompet", "error");
+    if (isWrongNetwork) return showToast(t.switchNetworkFirst?.replace('{chain}', TARGET_CHAIN_NAME), "error");
 
     setIsVoting(true);
     try {
@@ -760,14 +772,15 @@ export default function DashboardPage() {
       await ensureCorrectNetwork(signer);
       const governorContract = new ethers.Contract(GOVERNOR_ADDRESS, GOVERNOR_ABI, signer);
 
-      showToast(`Memberikan suara (${supportValue === 1 ? 'FOR' : supportValue === 0 ? 'AGAINST' : 'ABSTAIN'})...`, "info");
+      const voteType = supportValue === 1 ? 'FOR' : supportValue === 0 ? 'AGAINST' : 'ABSTAIN';
+      showToast(`${t.daoTxVoting || "Memberikan suara"} (${voteType})...`, "info");
       const tx = await governorContract.castVote(proposalIdInput, supportValue);
       await tx.wait();
 
-      showToast("Suara Voting Berhasil Dicatat!", "success");
+      showToast(t.daoTxVoteSuccess || "Suara Voting Berhasil Dicatat!", "success");
       setProposalIdInput('');
     } catch (err) {
-      showToast("Gagal Voting: " + extractErrorMessage(err), "error");
+      showToast((t.daoTxVoteFail || "Gagal Voting: ") + extractErrorMessage(err), "error");
     } finally {
       setIsVoting(false);
     }
@@ -1735,16 +1748,16 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3 border-b border-neutral-900 pb-4 mb-6">
                     <ShieldAlert className="w-8 h-8 text-red-400 shrink-0" />
                     <div>
-                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">{t.dashboard?.adminTitle}</h3>
-                      <p className="text-xs text-neutral-400 font-mono">{t.dashboard?.adminSubtitle}</p>
+                      <h3 className="font-display text-lg sm:text-xl font-bold text-white uppercase tracking-wider">{t.adminTitle}</h3>
+                      <p className="text-xs text-neutral-400 font-mono">{t.adminSubtitle}</p>
                     </div>
                   </div>
 
                   {!isOwner ? (
                     <div className="bg-red-950/20 border border-red-500/30 p-6 rounded-2xl text-center space-y-2">
                       <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
-                      <h4 className="text-sm font-bold text-red-300">{t.dashboard?.adminAccessDenied}</h4>
-                      <p className="text-xs text-neutral-400">{t.dashboard?.adminNotOwner}</p>
+                      <h4 className="text-sm font-bold text-red-300">{t.adminAccessDenied}</h4>
+                      <p className="text-xs text-neutral-400">{t.adminNotOwner}</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1752,13 +1765,13 @@ export default function DashboardPage() {
                       {/* CARD 1: TOKEN INDUK */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-amber-400 uppercase font-mono mb-4">{t.dashboard?.adminMainEmergency}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-amber-400 uppercase font-mono mb-4">{t.adminMainEmergency}</h4>
                           <form onSubmit={handleAdminUpdateTreasury} className="space-y-2">
-                            <label className="text-[10px] text-neutral-500">{t.dashboard?.adminChangeTreasury}</label>
+                            <label className="text-[10px] text-neutral-500">{t.adminChangeTreasury}</label>
                             <div className="flex gap-2">
                               <input 
                                 type="text" 
-                                placeholder={t.dashboard?.adminTreasuryPlaceholder} 
+                                placeholder={t.adminTreasuryPlaceholder} 
                                 value={newTreasuryInput}
                                 onChange={(e) => setNewTreasuryInput(e.target.value)}
                                 className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-500 font-mono"
@@ -1769,7 +1782,7 @@ export default function DashboardPage() {
                                 disabled={isAdminLoading}
                                 className="bg-amber-500 hover:bg-amber-400 text-black px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-md"
                               >
-                                {t.dashboard?.adminUpdateTreasuryBtn || "Update"}
+                                {t.adminUpdateTreasuryBtn}
                               </button>
                             </div>
                           </form>
@@ -1780,14 +1793,14 @@ export default function DashboardPage() {
                             onClick={() => handleAdminTogglePause(true, false)} 
                             className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Lock className="w-3.5 h-3.5" /> {t.dashboard?.adminPauseMain}
+                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseMain}
                           </button>
                           <button 
                             disabled={isAdminLoading}
                             onClick={() => handleAdminTogglePause(false, false)} 
                             className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Unlock className="w-3.5 h-3.5" /> {t.dashboard?.adminUnpauseMain}
+                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseMain}
                           </button>
                         </div>
                       </div>
@@ -1795,24 +1808,21 @@ export default function DashboardPage() {
                       {/* CARD 2: STAKING PROTOCOL */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-indigo-400 uppercase font-mono mb-4">{tAdmin.adminStakeEmergency}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-indigo-400 uppercase font-mono mb-4">{t.adminStakeEmergency}</h4>
                           <div className="space-y-2">
-                            {/* Memanggil adminFundLabel */}
-                            <label className="text-[10px] text-neutral-500">{tAdmin.adminFundLabel}</label>
+                            <label className="text-[10px] text-neutral-500">{t.adminFundLabel}</label>
                             <div className="flex gap-2">
-                              {/* Memanggil adminAmountPlaceholder */}
                               <input 
                                 type="text" 
-                                placeholder={tAdmin.adminAmountPlaceholder} 
+                                placeholder={t.adminAmountPlaceholder} 
                                 className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 font-mono"
                               />
-                              {/* Memanggil adminFundBtn */}
                               <button 
                                 disabled={isAdminLoading}
                                 onClick={() => showToast("Fund Pool feature coming soon!", "info")}
                                 className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors whitespace-nowrap shadow-md"
                               >
-                                {tAdmin.adminFundBtn}
+                                {t.adminFundBtn}
                               </button>
                             </div>
                           </div>
@@ -1823,14 +1833,14 @@ export default function DashboardPage() {
                             onClick={() => handleAdminTogglePause(true, true)} 
                             className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Lock className="w-3.5 h-3.5" /> {tAdmin.adminPauseStake}
+                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseStake}
                           </button>
                           <button 
                             disabled={isAdminLoading}
                             onClick={() => handleAdminTogglePause(false, true)} 
                             className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Unlock className="w-3.5 h-3.5" /> {tAdmin.adminUnpauseStake}
+                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseStake}
                           </button>
                         </div>
                       </div>
@@ -1838,9 +1848,9 @@ export default function DashboardPage() {
                       {/* CARD 3: VAULT V3 & PROOF REGISTRY */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-cyan-400 uppercase font-mono mb-3">{t.dashboard?.adminVaultEmergency}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-cyan-400 uppercase font-mono mb-3">{t.adminVaultEmergency}</h4>
                           <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
-                            {t.dashboard?.adminVaultDesc}
+                            {t.adminVaultDesc}
                           </p>
                         </div>
                         <div className="flex gap-3 pt-2">
@@ -1849,14 +1859,14 @@ export default function DashboardPage() {
                             onClick={() => handleAdminTogglePause(true, false)} 
                             className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Lock className="w-3.5 h-3.5" /> {t.dashboard?.adminPauseVault}
+                            <Lock className="w-3.5 h-3.5" /> {t.adminPauseVault}
                           </button>
                           <button 
                             disabled={isAdminLoading}
                             onClick={() => handleAdminTogglePause(false, false)} 
                             className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                           >
-                            <Unlock className="w-3.5 h-3.5" /> {t.dashboard?.adminUnpauseVault}
+                            <Unlock className="w-3.5 h-3.5" /> {t.adminUnpauseVault}
                           </button>
                         </div>
                       </div>
@@ -1864,21 +1874,21 @@ export default function DashboardPage() {
                       {/* CARD 4: TEAM VESTING */}
                       <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
                         <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-green-400 uppercase font-mono mb-3">{t.dashboard?.adminVestingTitle}</h4>
+                          <h4 className="text-xs sm:text-sm font-bold text-green-400 uppercase font-mono mb-3">{t.adminVestingTitle}</h4>
                           <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
-                            {t.dashboard?.adminVestingDesc}
+                            {t.adminVestingDesc}
                           </p>
                         </div>
                         <div className="pt-2">
                           <button 
                             disabled={isAdminLoading}
                             onClick={() => {
-                              const confirmed = window.confirm(t.dashboard?.adminConfirmVestingClaim);
+                              const confirmed = window.confirm(t.adminConfirmVestingClaim);
                               if (confirmed) handleAdminClaimVesting();
                             }} 
                             className="w-full bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md"
                           >
-                            <Coins className="w-4 h-4" /> {t.dashboard?.adminClaimSalaryBtn}
+                            <Coins className="w-4 h-4" /> {t.adminClaimSalaryBtn}
                           </button>
                         </div>
                       </div>
