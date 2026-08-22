@@ -256,25 +256,6 @@ export default function AdminPanel({
             </div>
           </div>
 
-          {/* CARD 4: TEAM VESTING */}
-          <div className="bg-[#05030F] border border-neutral-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-lg">
-            <div>
-              <h4 className="text-xs sm:text-sm font-bold text-green-400 uppercase font-mono mb-3">{t?.adminVestingTitle || "4. TEAM VESTING (DEVELOPER FUNDS)"}</h4>
-              <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
-                {t?.adminVestingDesc || "Developer token release based on a linear schedule with a 6-month cliff."}
-              </p>
-            </div>
-            <div className="pt-2">
-              <button 
-                disabled={isAdminLoading}
-                onClick={handleAdminClaimVesting} 
-                className="w-full bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md disabled:opacity-50"
-              >
-                <Coins className="w-4 h-4" /> {t?.adminClaimSalaryBtn || "Claim Salary (Vesting)"}
-              </button>
-            </div>
-          </div>
-
         </div>
       )}
     </div>
