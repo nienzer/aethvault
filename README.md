@@ -22,7 +22,7 @@ Access the AetherVault dApp here: [https://aethvault.xyz](https://aethvault.xyz)
 ## 📊 Tokenomics & Security
 *   **Deflationary Model:** Automated on-chain burning mechanism powered by protocol revenue.
 *   **Real-Yield Staking:** Rewards derived from actual platform usage (minting & certification fees).
-*   **Audit-Ready:** Rigorous security standards with 100% test coverage and static analysis.
+*   **Audit-Ready & Stress-Tested:** Rigorous security standards featuring 100% test coverage, Slither static analysis, and 128,000+ Fuzz/Invariant test runs.
 
 ---
 
@@ -30,14 +30,16 @@ Access the AetherVault dApp here: [https://aethvault.xyz](https://aethvault.xyz)
 | Resource | Description |
 | :--- | :--- |
 | **[Grant Proposal](smart-contracts-with-test-suite/grant-docs/GRANT_PROPOSAL.md)** | Official project proposal for BNB Chain Builder Grant. |
-| **[Technical Audit Suite](smart-contracts-with-test-suite/)** | Production-ready contracts, test logs, and security audit. |
+| **[Gas Report Log](smart-contracts-with-test-suite/grant-docs/GAS_REPORT.txt)** | Complete Foundry gas profiling and execution metrics. |
+| **[Fuzz & Invariant Audit Log](smart-contracts-with-test-suite/grant-docs/AUDIT_REPORT.txt)** | Advanced security stress-test report (128,000+ runs). |
+| **[Technical Suite](smart-contracts-with-test-suite/)** | Production-ready contracts, test logs, and security audit. |
 | **[Video Demo](https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK_HERE)** | Walkthrough of the protocol features & UI. |
 
 ---
 
 ## 🏗️ Development Roadmap & Testnet Status
 
-AetherVault is currently in its **Testnet Deployment Phase** on the BNB Chain. Our smart contracts are built with a modular architecture, allowing us to seamlessly switch between "Accelerated Test Settings" (used for rapid validation) and "Mainnet Production Parameters."
+AetherVault is currently in its **Testnet Deployment Phase** on the BNB Chain. Our smart contracts are built with a modular architecture, allowing us to seamlessly switch between "Accelerated Test Settings" (used for rapid validation) and "Mainnet Production Parameters".
 
 ### **Ready for Production:**
 All time-lock variables, vesting schedules, and governance thresholds are hard-coded as **modular constants**. This ensures that the transition from Testnet to Mainnet requires only a configuration update, with no changes needed to the underlying secure logic.

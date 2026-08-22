@@ -29,6 +29,7 @@ module.exports = {
     }
   },
   etherscan: {
-    apiKey: "9FA6YK53J7YAS983IEH9D5EV9Q34UUYFWG"
+    // 🛡️ AMAN: Menggunakan process.env agar tidak terekspos di GitHub
+    apiKey: process.env.BSCSCAN_API_KEY
   }
 };

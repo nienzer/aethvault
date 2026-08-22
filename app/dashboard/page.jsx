@@ -831,7 +831,13 @@ export default function DashboardPage() {
       const irysUrl = await uploadEncryptedFileService(walletProvider, stagedUpload.encryptedBytes);
       
       setUploadedCid(irysUrl);
-      setMessage(prev => prev + (prev ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`);
+      
+      // Membersihkan URL lampiran lama sebelum memasukkan URL yang baru
+      setMessage(prev => {
+        const cleanedMessage = prev.replace(/\[(Attachment|Lampiran|Attachment Tag)?:?\s*https:\/\/(arweave\.net|devnet\.irys\.xyz|gateway\.irys\.xyz)\/[a-zA-Z0-9_-]+\]/gi, '').trim();
+        return cleanedMessage + (cleanedMessage ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`;
+      });
+      
       showToast(t.fileUploadedSuccess || "Upload berhasil!", "success");
       setStagedUpload(null);
     } catch (error) {
@@ -869,7 +875,9 @@ export default function DashboardPage() {
       if (!ethers.isAddress(heirAddress)) throw new Error(t.enterValidHeirAddress || "Alamat pewaris tidak valid");
       const heirKey = await contract.encryptionPublicKeys(heirAddress);
       if (!heirKey || heirKey === '0x') throw new Error(t.heirKeyNotRegistered || "Pewaris belum mendaftarkan public key");
-      return { publicKey: heirKey, privateKey: null };
+      
+      // PERBAIKAN: Konversi Hex String dari on-chain menjadi tipe Bytes (Uint8Array)
+      return { publicKey: ethers.getBytes(heirKey), privateKey: null };
     }
     const kp = await getOrDeriveKeyPair();
     return { publicKey: publicKeyToBytes(kp.publicKey), privateKey: kp.privateKey };
@@ -1646,9 +1654,6 @@ export default function DashboardPage() {
                   CONTRACT_ADDRESS={CONTRACT_ADDRESS}
                   STAKING_CONTRACT_ADDRESS={STAKING_CONTRACT_ADDRESS}
                   VESTING_CONTRACT_ADDRESS={VESTING_CONTRACT_ADDRESS}
-                  AetherVaultV3ABI={AetherVaultV3ABI}
-                  StakingABI={StakingABI}
-                  TeamVestingABI={TeamVestingABI}
                   t={t} 
                 />
               )}
