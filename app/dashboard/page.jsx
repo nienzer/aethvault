@@ -1651,6 +1651,7 @@ export default function DashboardPage() {
                   walletProvider={walletProvider}
                   showToast={showToast}
                   extractErrorMessage={extractErrorMessage}
+                  AETH_TOKEN_ADDRESS={AETH_TOKEN_ADDRESS}
                   CONTRACT_ADDRESS={CONTRACT_ADDRESS}
                   STAKING_CONTRACT_ADDRESS={STAKING_CONTRACT_ADDRESS}
                   VESTING_CONTRACT_ADDRESS={VESTING_CONTRACT_ADDRESS}

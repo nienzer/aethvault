@@ -27,25 +27,47 @@ export default function AdminPanel({
   walletProvider,
   showToast,
   extractErrorMessage,
+  AETH_TOKEN_ADDRESS, // 🔥 PROPS BARU DARI DASHBOARD
   CONTRACT_ADDRESS,
   STAKING_CONTRACT_ADDRESS,
   VESTING_CONTRACT_ADDRESS,
-  t // Kamus terjemahan
+  t 
 }) {
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [newTreasuryInput, setNewTreasuryInput] = useState('');
+
+  // 🔥 Minimal ABI untuk berinteraksi dengan Core Token
+  const CoreTokenABI = [
+    "function pause() external",
+    "function unpause() external",
+    "function setTreasuryAddress(address _treasury) external"
+  ];
 
   const getSigner = async () => {
     const provider = new ethers.BrowserProvider(walletProvider);
     return provider.getSigner();
   };
 
-  const handleAdminTogglePause = async (isPause, isStakingTarget = false) => {
+  // 🔥 Logika pemisah kabel (Token vs Staking vs Vault)
+  const handleAdminTogglePause = async (isPause, targetType) => {
     try {
       setIsAdminLoading(true);
       const signer = await getSigner();
-      const targetAddress = isStakingTarget ? STAKING_CONTRACT_ADDRESS : CONTRACT_ADDRESS;
-      const abi = isStakingTarget ? StakingABI : AetherVaultV3ABI;
+      
+      let targetAddress;
+      let abi;
+
+      if (targetType === 'staking') {
+        targetAddress = STAKING_CONTRACT_ADDRESS;
+        abi = StakingABI;
+      } else if (targetType === 'token') {
+        targetAddress = AETH_TOKEN_ADDRESS;
+        abi = CoreTokenABI;
+      } else {
+        targetAddress = CONTRACT_ADDRESS;
+        abi = AetherVaultV3ABI;
+      }
+
       const contract = new ethers.Contract(targetAddress, abi, signer);
 
       const tx = isPause ? await contract.pause() : await contract.unpause();
@@ -59,13 +81,14 @@ export default function AdminPanel({
     }
   };
 
+  // 🔥 Ganti target treasury ke Token Utama, bukan Vault
   const handleAdminUpdateTreasury = async (e) => {
     e.preventDefault();
     if (!ethers.isAddress(newTreasuryInput)) return showToast(t?.invalidTreasuryAddress || "Invalid treasury address!", "error");
     try {
       setIsAdminLoading(true);
       const signer = await getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, AetherVaultV3ABI, signer);
+      const contract = new ethers.Contract(AETH_TOKEN_ADDRESS, CoreTokenABI, signer);
       const tx = await contract.setTreasuryAddress(newTreasuryInput);
       showToast(t?.adminTreasuryUpdating || "Updating treasury...", "info");
       await tx.wait();
@@ -152,14 +175,14 @@ export default function AdminPanel({
             <div className="flex gap-3 pt-2">
               <button 
                 disabled={isAdminLoading}
-                onClick={() => handleAdminTogglePause(true, false)} 
+                onClick={() => handleAdminTogglePause(true, 'token')} 
                 className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
               >
                 <Lock className="w-3.5 h-3.5" /> {t?.adminPauseMain || "Pause Token"}
               </button>
               <button 
                 disabled={isAdminLoading}
-                onClick={() => handleAdminTogglePause(false, false)} 
+                onClick={() => handleAdminTogglePause(false, 'token')} 
                 className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
               >
                 <Unlock className="w-3.5 h-3.5" /> {t?.adminUnpauseMain || "Unpause Token"}
@@ -192,14 +215,14 @@ export default function AdminPanel({
             <div className="flex gap-3 pt-2">
               <button 
                 disabled={isAdminLoading}
-                onClick={() => handleAdminTogglePause(true, true)} 
+                onClick={() => handleAdminTogglePause(true, 'staking')} 
                 className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
               >
                 <Lock className="w-3.5 h-3.5" /> {t?.adminPauseStake || "Pause Staking"}
               </button>
               <button 
                 disabled={isAdminLoading}
-                onClick={() => handleAdminTogglePause(false, true)} 
+                onClick={() => handleAdminTogglePause(false, 'staking')} 
                 className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
               >
                 <Unlock className="w-3.5 h-3.5" /> {t?.adminUnpauseStake || "Unpause Staking"}
@@ -218,14 +241,14 @@ export default function AdminPanel({
             <div className="flex gap-3 pt-2">
               <button 
                 disabled={isAdminLoading}
-                onClick={() => handleAdminTogglePause(true, false)} 
+                onClick={() => handleAdminTogglePause(true, 'vault')} 
                 className="flex-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/30 text-red-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
               >
                 <Lock className="w-3.5 h-3.5" /> {t?.adminPauseVault || "Pause Vault"}
               </button>
               <button 
                 disabled={isAdminLoading}
-                onClick={() => handleAdminTogglePause(false, false)} 
+                onClick={() => handleAdminTogglePause(false, 'vault')} 
                 className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-300 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
               >
                 <Unlock className="w-3.5 h-3.5" /> {t?.adminUnpauseVault || "Unpause Vault"}
