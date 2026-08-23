@@ -10,6 +10,15 @@ Access the AetherVault dApp here: [https://aethvault.xyz](https://aethvault.xyz)
 
 ---
 
+## 🧪 Special VIP Access for Judges & Reviewers
+We have prepared a dedicated zero-friction faucet so you can test the AetherVault dApp immediately without needing external testnet tokens:
+1. Visit our reviewer portal: [https://aethvault.xyz/jury](https://aethvault.xyz/jury)
+2. Connect your MetaMask wallet (BNB Smart Chain Testnet).
+3. Click **Mint 1,000 AETH**.
+4. You are now fully funded and ready to test all smart contract features on our platform!
+
+---
+
 ## 💎 Core Pillars
 *   **Aether Capsule:** Military-grade ECIES-encrypted time-capsule storage.
 *   **Legacy Vault:** Autonomous "Dead-man's Switch" for secure digital inheritance.

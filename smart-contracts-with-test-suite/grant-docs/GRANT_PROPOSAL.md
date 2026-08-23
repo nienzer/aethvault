@@ -61,4 +61,9 @@ AetherVault is natively optimized to thrive within the BNB Chain Ecosystem, heav
 *   **Value Accrual and Ecosystem DAU Injection:** By merging decentralized staking with active vault locking mechanisms, AetherVault functions as a powerful liquidity-retention engine. The high interaction frequency of our users directly injects persistent, incremental Daily Active Users (DAU) and sustained Gas Fees into the network, perfectly qualifying the dApp for subsequent BNB Chain Gas Grants and Incentive Accelerators.
 
 ---
+
+## 7. Dedicated Testing Infrastructure for Judges
+To ensure a seamless evaluation process, AetherVault provides a dedicated VIP Testnet Faucet exclusively for hackathon judges and reviewers. Reviewers can instantly mint AETH test tokens without the hassle of bridging assets or paying external gas fees, streamlining the entire testing experience and showcasing our commitment to superior Web3 user experience (UX).
+
+---
 *AetherVault Protocol © 2026 | Secured, Verified, On-Chain*
