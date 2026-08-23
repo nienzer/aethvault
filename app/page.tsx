@@ -220,7 +220,7 @@ export default function LandingPage() {
       <section id="infrastructure" className="py-12 sm:py-20 border-y border-neutral-900 relative overflow-hidden z-10 bg-[#05030F]/40 backdrop-blur-3xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start relative z-10">
            
-           {/* KIRI: HALL OF PROOF */}
+           {/* KIRI:- HALL OF PROOF */}
            <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
              <div className="w-fit px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 backdrop-blur-md text-cyan-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono shadow-[0_0_15px_rgba(6,182,212,0.15)]">
                {hopT.onChainVerified || "100% On-Chain Verified"}
