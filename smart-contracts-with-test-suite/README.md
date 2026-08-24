@@ -18,7 +18,7 @@ We have prepared a dedicated zero-friction faucet so you can test the AetherVaul
 ---
 
 ## 🚀 Performance Metrics
-*   **Total Test Cases:** 30 Scenarios + 128,000+ Invariant Runs
+*   **Total Test Cases:** Hardhat (39 Scenarios) | Foundry (37 Scenarios + 128,000+ Invariant Runs)
 *   **Passed:** 100% Success Rate
 *   **Frameworks:** Hardhat (Mocha & Chai) & Foundry (Forge)
 *   **Solidity Version:** 0.8.20 & 0.8.24
@@ -34,6 +34,8 @@ We have prepared a dedicated zero-friction faucet so you can test the AetherVaul
 | **Staking V6** | Tiered Yield & Anti-Whale Logic | 7 | ✅ |
 | **Team Vesting** | Linear Release & Cliff Security | 7 | ✅ |
 | **DAO Governance** | veAETH Voting & Proposal Lifecycle | 5 | ✅ |
+| **AetherForge Factory** | Custom Token Creation & Fee Logic | 5 | ✅ |
+| **Security Audit Suite**| Fuzzing & Invariant Validations | 2 | ✅ |
 
 ---
 
@@ -48,16 +50,16 @@ Our initial architecture and deployment scripts were constructed using Hardhat, 
 *   **Dependency Audit:** Warnings found in `node_modules` belong to OpenZeppelin's standard audited libraries.
 
 ### 2. Foundry (High-Performance Compilation & Gas Profiling)
-For the Mainnet-ready compilation and advanced gas optimization, the core pipeline utilizes **Foundry** (`forge build` and `forge test`). We have successfully executed a 30-test suite with complete gas profiling to ensure maximum cost-efficiency on the BNB Chain.
+For the Mainnet-ready compilation and advanced gas optimization, the core pipeline utilizes **Foundry** (`forge build` and `forge test`). We have successfully executed a 37-test suite with complete gas profiling to ensure maximum cost-efficiency on the BNB Chain.
 
-👉 **[View the Complete Foundry Gas Report here](./grant-docs/GAS_REPORT.txt)**
+👉 **[View the Complete Foundry Gas Report here](./grant-docs/GAS_REPORT.md)**
 
 ### 3. Advanced Audit-Ready Testing (Fuzzing & Invariants)
 To guarantee the highest degree of protocol safety, we extended our Foundry test suite beyond standard stateless testing. We have integrated advanced testing methodologies targeting our core ecosystem:
 *   **Fuzz Testing:** Using property-based testing to spam critical functions across the AetherVault Token, Soulbound veAETH, and Team Vesting contracts with thousands of randomized inputs, ensuring no hidden overflows or logic bypasses exist.
 *   **Invariant Testing:** Hardcoding absolute mathematical truths (e.g., *the Staking contract's token balance must strictly be greater than or equal to the `totalStaked` across all users at any given state*) to prove the system's solvency against 128,000+ random transaction sequences targeting our Staking V6 and Vault V3 contracts.
 
-👉 **[View the Complete Fuzz & Invariant Audit Report here](./grant-docs/AUDIT_REPORT.txt)**
+👉 **[View the Complete Fuzz & Invariant Audit Report here](./grant-docs/AUDIT_REPORT.md)**
 
 > **⚠️ Developer Note: Regarding Foundry Linter Warnings**
 > During the compilation process, the Foundry linter may display several cosmetic warnings (e.g., `custom-errors`, `mixed-case-variable`, `block-timestamp`). Please note that these stylistic choices were made intentionally for this Mainnet-ready MVP:
@@ -70,8 +72,8 @@ To guarantee the highest degree of protocol safety, we extended our Foundry test
 
 ## 📂 Evidence of Verification
 We are committed to full transparency regarding our development process:
-*   **Foundry Execution & Gas Log:** [GAS_REPORT.txt](./grant-docs/GAS_REPORT.txt)
-*   **Foundry Fuzz & Invariant Audit Log:** [AUDIT_REPORT.txt](./grant-docs/AUDIT_REPORT.txt)
+*   **Foundry Execution & Gas Log:** [GAS_REPORT.md](./grant-docs/GAS_REPORT.md)
+*   **Foundry Fuzz & Invariant Audit Log:** [AUDIT_REPORT.md](./grant-docs/AUDIT_REPORT.md)
 *   **Test Execution Logs:** [See Automated Test Results](./screenshots/)
 *   **BSCScan Verified:** [View Mainnet Contracts](./bscscan/)
 

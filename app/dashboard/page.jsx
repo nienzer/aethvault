@@ -3,7 +3,7 @@ import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Buffer } from 'buffer';
 import { uploadEncryptedFileService } from '@/lib/storageService';
-import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock, Scale } from 'lucide-react';
+import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock, Scale, Zap } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
@@ -30,6 +30,7 @@ import HallOfProof from '@/components/HallOfProof';
 import VerifyProof from '@/components/VerifyProof';
 import GovernancePanel from '@/components/GovernancePanel';
 import AdminPanel from '@/components/AdminPanel';
+import AetherForgeComponent from '@/components/AetherForgeComponent'; // 🌟 IMPOR KOMPONEN FORGE BARU
 
 import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import StakingArtifact from '@/contracts/StakingABI.json';
@@ -85,6 +86,7 @@ const VESTING_CONTRACT_ADDRESS = "0x129FB084868DabACbdecd2712fB00D6C948a11F6";
 
 const VE_AETH_ADDRESS = "0x8FE8F5b272F661A65d1882036e2099dB890f5DC6";
 const GOVERNOR_ADDRESS = "0x49fa997B6933E7112933e951E71e4936B5CE5eDA";
+const FORGE_FACTORY_ADDRESS = "0x14Bd94ee3bB59eA8FedB8c60F38F3EaE5943a38D";
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED = CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -832,7 +834,6 @@ export default function DashboardPage() {
       
       setUploadedCid(irysUrl);
       
-      // Membersihkan URL lampiran lama sebelum memasukkan URL yang baru
       setMessage(prev => {
         const cleanedMessage = prev.replace(/\[(Attachment|Lampiran|Attachment Tag)?:?\s*https:\/\/(arweave\.net|devnet\.irys\.xyz|gateway\.irys\.xyz)\/[a-zA-Z0-9_-]+\]/gi, '').trim();
         return cleanedMessage + (cleanedMessage ? '\n\n' : '') + `[${t.attachmentTag || 'Attachment'}: ${irysUrl}]`;
@@ -875,8 +876,6 @@ export default function DashboardPage() {
       if (!ethers.isAddress(heirAddress)) throw new Error(t.enterValidHeirAddress || "Alamat pewaris tidak valid");
       const heirKey = await contract.encryptionPublicKeys(heirAddress);
       if (!heirKey || heirKey === '0x') throw new Error(t.heirKeyNotRegistered || "Pewaris belum mendaftarkan public key");
-      
-      // PERBAIKAN: Konversi Hex String dari on-chain menjadi tipe Bytes (Uint8Array)
       return { publicKey: ethers.getBytes(heirKey), privateKey: null };
     }
     const kp = await getOrDeriveKeyPair();
@@ -1218,6 +1217,7 @@ export default function DashboardPage() {
     <nav className="space-y-1.5">
       {[
         { id: 'create', icon: Lock, label: t.menuCreate || 'Create' },
+        { id: 'forge', icon: Zap, label: 'AetherForge (Token Creator)' }, // 🌟 MENU BARU UNTUK FORGE
         { id: 'proof', icon: Award, label: t.menuProof || 'Aether Proof' },
         { id: 'hall', icon: Globe, label: t.menuHall || 'Hall of Proof' },
         { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
@@ -1419,6 +1419,16 @@ export default function DashboardPage() {
                   getMinUnlockDatetimeLocal={getMinUnlockDatetimeLocal}
                   aethBalance={aethBalance}
                   uploadError={uploadError} 
+                />
+              )}
+
+              {/* 🌟 RENDER KOMPONEN AETHERFORGE KETIKA MENU FORGE DIPILIH */}
+              {activeTab === 'forge' && (
+                <AetherForgeComponent 
+                  account={address} 
+                  forgeFactoryAddress={FORGE_FACTORY_ADDRESS}
+                  aethTokenAddress={AETH_TOKEN_ADDRESS}
+                  showToast={showToast}
                 />
               )}
 

@@ -5,12 +5,13 @@
 ---
 
 ## 1. Executive Summary
-AetherVault is an end-to-end cryptographic infrastructure built on the BNB Chain, offering a comprehensive ecosystem for securing digital assets and intellectual property. Our solution solves the crisis of digital ownership and data permanence through a fully trustless, zero-knowledge decentralized protocol.
+AetherVault is an end-to-end cryptographic infrastructure built on the BNB Chain, offering a comprehensive ecosystem for securing digital assets, intellectual property, and frictionless token generation. Our solution solves the crisis of digital ownership and data permanence through a fully trustless, zero-knowledge decentralized protocol.
 
-We integrate three core products into one seamless ecosystem:
+We integrate four core products into one seamless ecosystem:
 *   **Aether Capsule:** Time-locked, 100% client-side ECIES-encrypted digital storage.
 *   **Legacy Vault:** Automated smart contract-driven "Dead-Man’s Switch" for secure digital inheritance.
 *   **Aether Proof™:** On-chain intellectual property registry and mathematical ownership verification.
+*   **AetherForge:** A decentralized, anti-spam custom token factory with automated fee routing to the DAO treasury.
 
 ---
 
@@ -43,13 +44,13 @@ AetherVault is designed to be a community-owned protocol:
 The AetherVault ecosystem has been built with a "Security-First" paradigm, ensuring that zero human logic errors can jeopardize user capital or systemic solvency. Rather than relying solely on traditional static analysis, the protocol has undergone rigorous dynamic execution profiling using Foundry’s Advanced Handler-Based Invariant Test Suites.
 
 *   **Advanced Invariant & Fuzz Infrastructure:** The core tokenomics—specifically the deflationary fee distribution logic (2% transaction fee with a strict 50:50 automated split between the Staking reward pool and the Treasury wallet)—have been stress-tested against 128,000+ randomized state-transition fuzz calls.
-*   **State-Transition Integrity:** Through automated time-warp simulations (`vm.warp`) extending up to 730 days into the future, the fuzzer failed to break the absolute protocol solvency equation. All accounting invariants—including the strict mathematical alignment between actual contract token deltas and independent ghost-ledger tracking—consistently returned a 100% SUCCESS / PASSED rating.
+*   **State-Transition Integrity:** Through automated time-warp simulations (`vm.warp`) utilizing controlled state jumps up to 30 days per cycle, the fuzzer failed to break the absolute protocol solvency equation. All accounting invariants—including the strict mathematical alignment between actual contract token deltas and independent ghost-ledger tracking—consistently returned a 100% SUCCESS / PASSED rating.
 *   **Soulbound Enforcements:** Edge-case attacks attempting to bypass the non-transferable nature of the governance steering token (`veAETH`) were systematically rejected by the EVM under high-density fuzzing conditions, validating its strict Soulbound properties.
 *   **Automated Static Analysis (Slither):** Meticulous static scanning via the Slither analyzer was performed during early compilation phases. High-level security alarms flagged during the automated scan have been thoroughly verified by our engineering team as architectural false-positives. These are native design constraints required for delta-balance tracking and have been formally acknowledged, mitigated, and documented within the source repository via explicit inline suppression tags.
 
 Our complete verification reports can be inspected directly in the repository:
-👉 **[View the Full Foundry Gas Profiling Report](./GAS_REPORT.txt)**  
-👉 **[View the Advanced Fuzz & Invariant Audit Report](./AUDIT_REPORT.txt)**
+👉 **[View the Full Foundry Gas Profiling Report](./GAS_REPORT.md)**  
+👉 **[View the Advanced Fuzz & Invariant Audit Report](./AUDIT_REPORT.md)**
 
 ---
 

@@ -1,35 +1,64 @@
-Ran 30 tests for test/AetherVault.t.sol:AetherVaultEcosystemTest
+No files changed, compilation skipped
+
+Ran 35 tests for test/AetherVault.t.sol:AetherVaultEcosystemTest
 [PASS] test_DAO_NameCheck() (gas: 12558)
 [PASS] test_DAO_ProposalThresholdCheck() (gas: 7748)
 [PASS] test_DAO_QuorumRequirement() (gas: 303)
-[PASS] test_DAO_VotingDelayConfig() (gas: 7753)
+[PASS] test_DAO_VotingDelayConfig() (gas: 7731)
 [PASS] test_DAO_VotingPeriodConfig() (gas: 7656)
-[PASS] test_DeploymentEcosystemFull() (gas: 45950)
-[PASS] test_RevertWhen_Staking_InvalidTier() (gas: 39648)
-[PASS] test_RevertWhen_Staking_StakeZeroAmount() (gas: 39588)
-[PASS] test_RevertWhen_Token_UnauthorizedPause() (gas: 34241)
-[PASS] test_RevertWhen_Vesting_ClaimBeforeCliff() (gas: 41506)
+[PASS] test_DeploymentEcosystemFull() (gas: 53626)
+[PASS] test_Forge_AdminUpdateFeeAndRecipient() (gas: 89069)
+[PASS] test_Forge_CreateTokenSuccess() (gas: 740417)
+[PASS] test_Forge_InitialConfig() (gas: 17411)
+[PASS] test_RevertWhen_Forge_CreateTokenWithInvalidParams() (gas: 117006)
+[PASS] test_RevertWhen_Forge_CreateTokenWithoutApprove() (gas: 47469)
+[PASS] test_RevertWhen_Staking_InvalidTier() (gas: 39582)
+[PASS] test_RevertWhen_Staking_StakeZeroAmount() (gas: 39610)
+[PASS] test_RevertWhen_Token_UnauthorizedPause() (gas: 34176)
+[PASS] test_RevertWhen_Vesting_ClaimBeforeCliff() (gas: 41528)
 [PASS] test_RevertWhen_Vesting_ClaimByNonBeneficiary() (gas: 39188)
-[PASS] test_RevertWhen_veAETH_DepositZero() (gas: 37227)
+[PASS] test_RevertWhen_veAETH_DepositZero() (gas: 37294)
 [PASS] test_RevertWhen_veAETH_TransferIsSoulbound() (gas: 239679)
-[PASS] test_RevertWhen_veAETH_WithdrawWithoutBalance() (gas: 39884)
-[PASS] test_Staking_MaxStakePerWallet() (gas: 5547)
-[PASS] test_Staking_Tier0_Config() (gas: 9987)
+[PASS] test_RevertWhen_veAETH_WithdrawWithoutBalance() (gas: 39906)
+[PASS] test_Staking_MaxStakePerWallet() (gas: 5569)
+[PASS] test_Staking_Tier0_Config() (gas: 10009)
 [PASS] test_Staking_Tier1_Config() (gas: 9961)
-[PASS] test_Token_InitialSupplyAllocation() (gas: 7682)
+[PASS] test_Token_InitialSupplyAllocation() (gas: 7704)
 [PASS] test_Token_PauseUnpause() (gas: 78270)
 [PASS] test_Token_TreasuryAddressCheck() (gas: 9943)
-[PASS] test_Token_VersionCheck() (gas: 9895)
+[PASS] test_Token_VersionCheck() (gas: 9917)
 [PASS] test_UserDeposit_veAETH() (gas: 213894)
 [PASS] test_UserStake_V6() (gas: 356577)
-[PASS] test_Vault_SealCapsule() (gas: 387291)
-[PASS] test_Vesting_BeneficiaryAddress() (gas: 9830)
-[PASS] test_Vesting_CliffCheck() (gas: 7780)
-[PASS] test_Vesting_Duration() (gas: 5470)
+[PASS] test_Vault_SealCapsule() (gas: 387313)
+[PASS] test_Vesting_BeneficiaryAddress() (gas: 9897)
+[PASS] test_Vesting_CliffCheck() (gas: 7758)
+[PASS] test_Vesting_Duration() (gas: 5492)
 [PASS] test_Vesting_TotalAllocated() (gas: 5556)
-[PASS] test_veAETH_NameAndSymbol() (gas: 24848)
-[PASS] test_veAETH_UnderlyingToken() (gas: 7829)
-Suite result: ok. 30 passed; 0 failed; 0 skipped; finished in 12.09ms (8.54ms CPU time)
+[PASS] test_veAETH_NameAndSymbol() (gas: 24870)
+[PASS] test_veAETH_UnderlyingToken() (gas: 7851)
+Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 22.87ms (13.91ms CPU time)
+
+Ran 2 tests for test/AetherVaultAudit.t.sol:AetherVaultAuditTest
+[PASS]
+AetherVaultAuditTest invariants:
+[PASS] invariant_StakingContractMustAlwaysHoldEnoughTokens
+[PASS] invariant_StakingMathIsPerfect
+[PASS] invariant_VaultCapsuleCountIsAccurate
+[PASS] invariant_VaultFeeDistributionIsFair
+ AetherVaultAuditTest invariants (runs: 256, calls: 128000, reverts: 78211)
+
+╭--------------------+-------------------------------+-------+---------+----------╮
+| Contract           | Selector                      | Calls | Reverts | Discards |
++=================================================================================+
+| AetherVaultHandler | advanceTimeAndTryClaimVesting | 42290 | 25875   | 0        |
+|--------------------+-------------------------------+-------+---------+----------|
+| AetherVaultHandler | sealCapsuleRandomTime         | 43011 | 42104   | 0        |
+|--------------------+-------------------------------+-------+---------+----------|
+| AetherVaultHandler | stakeRandom                   | 42699 | 10232   | 0        |
+╰--------------------+-------------------------------+-------+---------+----------╯
+
+[PASS] testFuzz_veAETH_IsSoulboundAndCannotBeTransferred(uint256,address) (runs: 256, μ: 457234, ~: 457079)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 204.26s (205.22s CPU time)
 
 ╭------------------------------------------------+-----------------+------+--------+------+---------╮
 | src/AetherGovernor.sol:AetherGovernor Contract |                 |      |        |      |         |
@@ -64,11 +93,11 @@ Suite result: ok. 30 passed; 0 failed; 0 skipped; finished in 12.09ms (8.54ms CP
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | VERSION                                  |             606 |   606 |    606 |   606 |       1 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| allowance                                |            2760 |  2760 |   2760 |  2760 |       1 |
+| allowance                                |            2760 |  2760 |   2760 |  2760 |     912 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| approve                                  |           46384 | 46393 |  46396 | 46396 |       4 |
+| approve                                  |           46324 | 46427 |  46432 | 46432 |   33774 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| balanceOf                                |             642 |  2628 |   2642 |  2642 |     153 |
+| balanceOf                                |             642 |  2436 |   2642 |  2642 |  317206 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | pause                                    |           23543 | 35222 |  35222 | 46901 |       2 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
@@ -94,9 +123,11 @@ Suite result: ok. 30 passed; 0 failed; 0 skipped; finished in 12.09ms (8.54ms CP
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
 | aethToken                                                              |             325 |    325 |    325 |    325 |       1 |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
-| stake                                                                  |           28957 | 119975 |  29007 | 301962 |       3 |
+| stake                                                                  |           28957 | 261490 | 268610 | 317110 |   32603 |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
 | tiers                                                                  |            4610 |   4610 |   4610 |   4610 |       2 |
+|------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
+| totalStaked                                                            |            2361 |   2361 |   2361 |   2361 |       1 |
 ╰------------------------------------------------------------------------+-----------------+--------+--------+--------+---------╯
 
 ╭------------------------------------------+-----------------+-------+--------+-------+---------╮
@@ -112,7 +143,7 @@ Suite result: ok. 30 passed; 0 failed; 0 skipped; finished in 12.09ms (8.54ms CP
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | beneficiary                              |            2359 |  2359 |   2359 |  2359 |       1 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| claim                                    |           28574 | 29727 |  29727 | 30880 |       2 |
+| claim                                    |           28574 | 36487 |  36490 | 36725 |   16472 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | claimableAmount                          |            2508 |  2508 |   2508 |  2508 |       1 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
@@ -121,4 +152,4 @@ Suite result: ok. 30 passed; 0 failed; 0 skipped; finished in 12.09ms (8.54ms CP
 | totalAllocated                           |             250 |   250 |    250 |   250 |       2 |
 ╰------------------------------------------+-----------------+-------+--------+-------+---------╯
 
-Ran 1 test suite in 121.59ms (12.09ms CPU time): 30 tests passed, 0 failed, 0 skipped (30 total tests)
+Ran 2 test suites in 209.57s (204.28s CPU time): 37 tests passed, 0 failed, 0 skipped (37 total tests)
