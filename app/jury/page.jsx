@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useWeb3Modal, useWeb3ModalAccount } from '@web3modal/ethers/react';
 import { Droplet, Wallet, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
-// 🔥 PASTI KAN MENGISI ALAMAT TOKEN AETH BOS DI SINI
+// ENSURE AETH TOKEN ADDRESS IS SET HERE
 const AETH_TOKEN_ADDRESS = "0xac884F2670cF85dCAF34e750e52B846D8DE3Cf55"; 
 
 export default function JuryFaucetPage() {
@@ -15,7 +15,7 @@ export default function JuryFaucetPage() {
   const handleClaimFaucet = async () => {
     if (!isConnected) return;
     setIsLoading(true);
-    setMessage({ text: "Memproses pengiriman 1,000 AETH...", type: "info" });
+    setMessage({ text: "Processing 1,000 AETH transfer...", type: "info" });
 
     try {
       const response = await fetch('/api/faucet', {
@@ -27,12 +27,12 @@ export default function JuryFaucetPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage({ text: `Sukses! 1,000 AETH telah dikirim. (Tx: ${data.txHash.slice(0, 8)}...)`, type: "success" });
+        setMessage({ text: `Success! 1,000 AETH has been sent. (Tx: ${data.txHash.slice(0, 8)}...)`, type: "success" });
       } else {
-        setMessage({ text: data.error || "Gagal mengambil faucet.", type: "error" });
+        setMessage({ text: data.error || "Failed to claim faucet.", type: "error" });
       }
     } catch (err) {
-      setMessage({ text: "Terjadi kesalahan jaringan.", type: "error" });
+      setMessage({ text: "Network error occurred.", type: "error" });
     } finally {
       setIsLoading(false);
     }
