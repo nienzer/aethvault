@@ -49,8 +49,7 @@ The AetherVault ecosystem has been built with a "Security-First" paradigm, ensur
 *   **Automated Static Analysis (Slither):** Meticulous static scanning via the Slither analyzer was performed during early compilation phases. High-level security alarms flagged during the automated scan have been thoroughly verified by our engineering team as architectural false-positives. These are native design constraints required for delta-balance tracking and have been formally acknowledged, mitigated, and documented within the source repository via explicit inline suppression tags.
 
 Our complete verification reports can be inspected directly in the repository:
-👉 **[View the Full Foundry Gas Profiling Report](./GAS_REPORT.md)**  
-👉 **[View the Advanced Fuzz & Invariant Audit Report](./AUDIT_REPORT.md)**
+👉 **[View the Complete Foundry Gas & Audit Report](./GAS&AUDIT_REPORT.md)**
 
 ---
 

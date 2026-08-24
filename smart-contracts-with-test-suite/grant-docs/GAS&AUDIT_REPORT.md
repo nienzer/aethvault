@@ -1,42 +1,42 @@
 No files changed, compilation skipped
 
 Ran 35 tests for test/AetherVault.t.sol:AetherVaultEcosystemTest
-[PASS] test_DAO_NameCheck() (gas: 12558)
-[PASS] test_DAO_ProposalThresholdCheck() (gas: 7748)
-[PASS] test_DAO_QuorumRequirement() (gas: 303)
-[PASS] test_DAO_VotingDelayConfig() (gas: 7731)
-[PASS] test_DAO_VotingPeriodConfig() (gas: 7656)
-[PASS] test_DeploymentEcosystemFull() (gas: 53626)
-[PASS] test_Forge_AdminUpdateFeeAndRecipient() (gas: 89069)
-[PASS] test_Forge_CreateTokenSuccess() (gas: 740417)
-[PASS] test_Forge_InitialConfig() (gas: 17411)
-[PASS] test_RevertWhen_Forge_CreateTokenWithInvalidParams() (gas: 117006)
-[PASS] test_RevertWhen_Forge_CreateTokenWithoutApprove() (gas: 47469)
-[PASS] test_RevertWhen_Staking_InvalidTier() (gas: 39582)
-[PASS] test_RevertWhen_Staking_StakeZeroAmount() (gas: 39610)
-[PASS] test_RevertWhen_Token_UnauthorizedPause() (gas: 34176)
-[PASS] test_RevertWhen_Vesting_ClaimBeforeCliff() (gas: 41528)
-[PASS] test_RevertWhen_Vesting_ClaimByNonBeneficiary() (gas: 39188)
-[PASS] test_RevertWhen_veAETH_DepositZero() (gas: 37294)
-[PASS] test_RevertWhen_veAETH_TransferIsSoulbound() (gas: 239679)
-[PASS] test_RevertWhen_veAETH_WithdrawWithoutBalance() (gas: 39906)
-[PASS] test_Staking_MaxStakePerWallet() (gas: 5569)
-[PASS] test_Staking_Tier0_Config() (gas: 10009)
-[PASS] test_Staking_Tier1_Config() (gas: 9961)
-[PASS] test_Token_InitialSupplyAllocation() (gas: 7704)
-[PASS] test_Token_PauseUnpause() (gas: 78270)
-[PASS] test_Token_TreasuryAddressCheck() (gas: 9943)
-[PASS] test_Token_VersionCheck() (gas: 9917)
-[PASS] test_UserDeposit_veAETH() (gas: 213894)
-[PASS] test_UserStake_V6() (gas: 356577)
-[PASS] test_Vault_SealCapsule() (gas: 387313)
-[PASS] test_Vesting_BeneficiaryAddress() (gas: 9897)
-[PASS] test_Vesting_CliffCheck() (gas: 7758)
-[PASS] test_Vesting_Duration() (gas: 5492)
-[PASS] test_Vesting_TotalAllocated() (gas: 5556)
-[PASS] test_veAETH_NameAndSymbol() (gas: 24870)
-[PASS] test_veAETH_UnderlyingToken() (gas: 7851)
-Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 22.87ms (13.91ms CPU time)
+[PASS] test_Forge_AdminUpdateFeeAndRecipients() (gas: 93686)
+[PASS] test_Forge_CreateTokenSuccess() (gas: 826522)
+[PASS] test_Forge_InitialConfig() (gas: 26932)
+[PASS] test_Governor_TokenBindingIsCorrect() (gas: 7837)
+[PASS] test_Governor_VotingDelayIsCorrect() (gas: 7797)
+[PASS] test_RevertWhen_Forge_CreateTokenWithInvalidParams() (gas: 89014)
+[PASS] test_RevertWhen_Forge_CreateTokenWithoutApprove() (gas: 46002)
+[PASS] test_RevertWhen_Staking_WithoutApproval() (gas: 283350)
+[PASS] test_RevertWhen_Staking_ZeroAmount() (gas: 91505)
+[PASS] test_RevertWhen_Token_TransferExceedsBalance() (gas: 39607)
+[PASS] test_RevertWhen_Vault_SealInThePast() (gas: 93725)
+[PASS] test_RevertWhen_Vault_SealWithoutApproval() (gas: 59330)
+[PASS] test_RevertWhen_Vesting_ClaimBeforeCliff() (gas: 41529)
+[PASS] test_RevertWhen_Vesting_NotBeneficiary() (gas: 39232)
+[PASS] test_RevertWhen_veAETH_TransferSoulbound() (gas: 240118)
+[PASS] test_Staking_BindToAethToken() (gas: 7851)
+[PASS] test_Staking_ContractHoldsTokens() (gas: 359814)
+[PASS] test_Staking_StakeMultipleUsers() (gas: 655792)
+[PASS] test_Staking_StakeTierZero() (gas: 356588)
+[PASS] test_Staking_TotalStakedUpdatesCorrectly() (gas: 359481)
+[PASS] test_Token_ApproveAndTransferFrom() (gas: 98701)
+[PASS] test_Token_BalancesDistributedCorrectly() (gas: 19947)
+[PASS] test_Token_InitialSupplyIsCorrect() (gas: 7812)
+[PASS] test_Token_StandardTransfer() (gas: 55395)
+[PASS] test_Vault_BindToAethToken() (gas: 9882)
+[PASS] test_Vault_SealCapsuleBasic() (gas: 386967)
+[PASS] test_Vault_SealCapsuleMultipleUsers() (gas: 693773)
+[PASS] test_Vault_StakingTreasuryAddressBinding() (gas: 9938)
+[PASS] test_Vesting_BeneficiaryIsTeam() (gas: 9895)
+[PASS] test_Vesting_CliffCheckIsZeroInitially() (gas: 7791)
+[PASS] test_Vesting_ContractHoldsAllocation() (gas: 10112)
+[PASS] test_Vesting_TimeAdvanceIncrementsClaimable() (gas: 11384)
+[PASS] test_Vesting_TotalAllocatedIsFixed() (gas: 5535)
+[PASS] test_veAETH_BindToAethToken() (gas: 7871)
+[PASS] test_veAETH_DepositAndMintSoulbound() (gas: 219680)
+Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 27.03ms (15.90ms CPU time)
 
 Ran 2 tests for test/AetherVaultAudit.t.sol:AetherVaultAuditTest
 [PASS]
@@ -45,20 +45,22 @@ AetherVaultAuditTest invariants:
 [PASS] invariant_StakingMathIsPerfect
 [PASS] invariant_VaultCapsuleCountIsAccurate
 [PASS] invariant_VaultFeeDistributionIsFair
- AetherVaultAuditTest invariants (runs: 256, calls: 128000, reverts: 78211)
+ AetherVaultAuditTest invariants (runs: 256, calls: 128000, reverts: 0)
 
 ╭--------------------+-------------------------------+-------+---------+----------╮
 | Contract           | Selector                      | Calls | Reverts | Discards |
 +=================================================================================+
-| AetherVaultHandler | advanceTimeAndTryClaimVesting | 42290 | 25875   | 0        |
+| AetherVaultHandler | advanceTimeAndTryClaimVesting | 31955 | 0       | 0        |
 |--------------------+-------------------------------+-------+---------+----------|
-| AetherVaultHandler | sealCapsuleRandomTime         | 43011 | 42104   | 0        |
+| AetherVaultHandler | forgeTokenRandom              | 32217 | 0       | 0        |
 |--------------------+-------------------------------+-------+---------+----------|
-| AetherVaultHandler | stakeRandom                   | 42699 | 10232   | 0        |
+| AetherVaultHandler | sealCapsuleRandomTime         | 31910 | 0       | 0        |
+|--------------------+-------------------------------+-------+---------+----------|
+| AetherVaultHandler | stakeRandom                   | 31918 | 0       | 0        |
 ╰--------------------+-------------------------------+-------+---------+----------╯
 
-[PASS] testFuzz_veAETH_IsSoulboundAndCannotBeTransferred(uint256,address) (runs: 256, μ: 457234, ~: 457079)
-Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 204.26s (205.22s CPU time)
+[PASS] testFuzz_veAETH_IsSoulboundAndCannotBeTransferred(uint256,address) (runs: 256, μ: 457275, ~: 457623)
+Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 249.38s (249.91s CPU time)
 
 ╭------------------------------------------------+-----------------+------+--------+------+---------╮
 | src/AetherGovernor.sol:AetherGovernor Contract |                 |      |        |      |         |
@@ -71,13 +73,9 @@ Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 204.26s (205.22s CP
 |------------------------------------------------+-----------------+------+--------+------+---------|
 | Function Name                                  | Min             | Avg  | Median | Max  | # Calls |
 |------------------------------------------------+-----------------+------+--------+------+---------|
-| name                                           |            3347 | 3347 |   3347 | 3347 |       1 |
+| token                                          |             366 |  366 |    366 |  366 |       1 |
 |------------------------------------------------+-----------------+------+--------+------+---------|
-| proposalThreshold                              |            2483 | 2483 |   2483 | 2483 |       1 |
-|------------------------------------------------+-----------------+------+--------+------+---------|
-| votingDelay                                    |            2490 | 2490 |   2490 | 2490 |       2 |
-|------------------------------------------------+-----------------+------+--------+------+---------|
-| votingPeriod                                   |            2372 | 2372 |   2372 | 2372 |       1 |
+| votingDelay                                    |            2490 | 2490 |   2490 | 2490 |       1 |
 ╰------------------------------------------------+-----------------+------+--------+------+---------╯
 
 ╭------------------------------------------+-----------------+-------+--------+-------+---------╮
@@ -91,21 +89,19 @@ Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 204.26s (205.22s CP
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | Function Name                            | Min             | Avg   | Median | Max   | # Calls |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| VERSION                                  |             606 |   606 |    606 |   606 |       1 |
+| allowance                                |            2760 |  2760 |   2760 |  2760 |       4 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| allowance                                |            2760 |  2760 |   2760 |  2760 |     912 |
+| approve                                  |           26484 | 43716 |  46396 | 46432 |   83798 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| approve                                  |           46324 | 46427 |  46432 | 46432 |   33774 |
+| balanceOf                                |             642 |  2557 |   2642 |  2642 |  566656 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| balanceOf                                |             642 |  2436 |   2642 |  2642 |  317206 |
+| totalBurnedAeth                          |            2406 |  2406 |   2406 |  2406 |       2 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| pause                                    |           23543 | 35222 |  35222 | 46901 |       2 |
+| totalSupply                              |            2370 |  2370 |   2370 |  2370 |       1 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| totalSupply                              |            2370 |  2370 |   2370 |  2370 |       2 |
+| transfer                                 |           26747 | 48191 |  49129 | 49129 |      37 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| treasuryWallet                           |            2403 |  2403 |   2403 |  2403 |       1 |
-|------------------------------------------+-----------------+-------+--------+-------+---------|
-| unpause                                  |           24929 | 24929 |  24929 | 24929 |       1 |
+| transferFrom                             |           38122 | 38122 |  38122 | 38122 |       1 |
 ╰------------------------------------------+-----------------+-------+--------+-------+---------╯
 
 ╭------------------------------------------------------------------------+-----------------+--------+--------+--------+---------╮
@@ -119,15 +115,11 @@ Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 204.26s (205.22s CP
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
 | Function Name                                                          | Min             | Avg    | Median | Max    | # Calls |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
-| MAX_STAKE_PER_WALLET                                                   |             261 |    261 |    261 |    261 |       1 |
-|------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
 | aethToken                                                              |             325 |    325 |    325 |    325 |       1 |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
-| stake                                                                  |           28957 | 261490 | 268610 | 317110 |   32603 |
+| stake                                                                  |           28957 | 230887 | 268598 | 317110 |   27750 |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
-| tiers                                                                  |            4610 |   4610 |   4610 |   4610 |       2 |
-|------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
-| totalStaked                                                            |            2361 |   2361 |   2361 |   2361 |       1 |
+| totalStaked                                                            |            2361 |   2361 |   2361 |   2361 |       3 |
 ╰------------------------------------------------------------------------+-----------------+--------+--------+--------+---------╯
 
 ╭------------------------------------------+-----------------+-------+--------+-------+---------╮
@@ -143,13 +135,12 @@ Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 204.26s (205.22s CP
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | beneficiary                              |            2359 |  2359 |   2359 |  2359 |       1 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| claim                                    |           28574 | 36487 |  36490 | 36725 |   16472 |
+| claim                                    |           28574 | 36489 |  36490 | 36725 |   32093 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| claimableAmount                          |            2508 |  2508 |   2508 |  2508 |       1 |
+| claimableAmount                          |            2508 |  2556 |   2556 |  2604 |       2 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| duration                                 |             207 |   207 |    207 |   207 |       1 |
-|------------------------------------------+-----------------+-------+--------+-------+---------|
-| totalAllocated                           |             250 |   250 |    250 |   250 |       2 |
+| totalAllocated                           |             250 |   250 |    250 |   250 |       1 |
 ╰------------------------------------------+-----------------+-------+--------+-------+---------╯
 
-Ran 2 test suites in 209.57s (204.28s CPU time): 37 tests passed, 0 failed, 0 skipped (37 total tests)
+
+Ran 2 test suites in 258.59s (249.40s CPU time): 37 tests passed, 0 failed, 0 skipped (37 total tests)

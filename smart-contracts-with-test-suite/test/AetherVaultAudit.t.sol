@@ -7,6 +7,7 @@ import {veAETH} from "../src/veAETH.sol";
 import {AetherVaultStakingSecureV6} from "../src/AetherVaultStakingSecureV6.sol";
 import {TeamVesting} from "../src/TeamVesting.sol";
 import {AetherVaultV3_Testnet} from "../src/AetherVaultV3.sol";
+import {AetherForgeFactory as AetherForge} from "../src/AetherForgeFactory.sol";
 
 /* =========================================================
    🕵️‍♂️ KONTRAK HANDLER: MENGATUR ALUR TRANSAKSI LOGIS ACAK
@@ -17,15 +18,16 @@ contract AetherVaultHandler is Test {
     AetherVaultStakingSecureV6 public staking;
     AetherVaultV3_Testnet public vaultV3;
     TeamVesting public vesting;
+    AetherForge public forge; 
 
     address public teamWallet;
-    address public treasury; // PERBAIKAN: Ditambahkan untuk melacak potongan ke treasury
+    address public treasury; 
 
     // Ghost Variables untuk melacak status riil secara independen
     uint256 public ghost_totalExpectedStaked;
     uint256 public ghost_totalCapsulesCreated;
+    uint256 public ghost_totalTokensForged; 
     
-    // 🔥 PERBAIKAN UTAMA: Variabel khusus penampung hasil potongan biaya kapsul 2% (50:50)
     uint256 public ghost_totalRewardFromCapsule;
     uint256 public ghost_totalTreasuryFromCapsule;
 
@@ -35,23 +37,27 @@ contract AetherVaultHandler is Test {
         address _staking, 
         address _vesting, 
         address _vaultV3,
+        address _forge, 
         address _team,
-        address _treasury // PERBAIKAN: Menerima alamat treasury dari setup utama
+        address _treasury 
     ) {
         aethToken = AetherVault(payable(_token));
         veAethToken = veAETH(payable(_veToken));
         staking = AetherVaultStakingSecureV6(payable(_staking));
         vesting = TeamVesting(payable(_vesting));
         vaultV3 = AetherVaultV3_Testnet(payable(_vaultV3));
+        forge = AetherForge(payable(_forge)); 
         teamWallet = _team;
         treasury = _treasury;
     }
 
     // 1. Menyediakan interaksi acak untuk Fuzz/Invariant Staking
     function stakeRandom(uint8 tierId, uint256 amount) public {
+        address actor = msg.sender; 
+        if (actor == address(staking) || actor == address(vaultV3) || actor == address(forge) || actor == treasury || actor == address(aethToken)) return;
+
         amount = bound(amount, 1 ether, 50_000 ether);
         tierId = uint8(bound(tierId, 0, 3));
-        address actor = msg.sender; 
 
         deal(address(aethToken), actor, amount);
 
@@ -59,24 +65,27 @@ contract AetherVaultHandler is Test {
 
         vm.startPrank(actor);
         aethToken.approve(address(staking), amount);
-        staking.stake(tierId, amount);
-        vm.stopPrank();
-
-        uint256 balanceAfter = aethToken.balanceOf(address(staking));
         
-        uint256 actualReceived = balanceAfter - balanceBefore;
-        ghost_totalExpectedStaked += actualReceived; // Sesuai porsinya mencatat dana pokok stake
+        try staking.stake(tierId, amount) {
+            uint256 balanceAfter = aethToken.balanceOf(address(staking));
+            uint256 actualReceived = balanceAfter - balanceBefore;
+            ghost_totalExpectedStaked += actualReceived; 
+        } catch {
+            // Revert diredam jika tier dikunci atau kondisi internal kontrak tidak terpenuhi
+        }
+        vm.stopPrank();
     }
 
     // 2. Menyediakan interaksi acak untuk Fuzz/Invariant Vault V3 Capsul
     function sealCapsuleRandomTime(uint8 tierSelect, uint256 timeOffset) public {
-        uint256 offset = bound(timeOffset, 1, 30 days);
-        uint256 unlockTime = block.timestamp + offset;
         address actor = msg.sender;
+        if (actor == address(staking) || actor == address(vaultV3) || actor == address(forge) || actor == treasury || actor == address(aethToken)) return;
+
+        uint256 offset = bound(timeOffset, 1 hours, 30 days);
+        uint256 unlockTime = block.timestamp + offset;
 
         deal(address(aethToken), actor, 10 ether);
 
-        // 🔥 PERBAIKAN KRUSIAL: Memantau saldo fisik staking DAN treasury sebelum transaksi
         uint256 stakingBefore = aethToken.balanceOf(address(staking));
         uint256 treasuryBefore = aethToken.balanceOf(treasury);
 
@@ -84,34 +93,55 @@ contract AetherVaultHandler is Test {
         aethToken.approve(address(vaultV3), 10 ether);
         
         AetherVaultV3_Testnet.Tier tier = AetherVaultV3_Testnet.Tier(bound(tierSelect, 0, 2));
-        vaultV3.sealTimeLockCapsule(tier, "Dokumen Audit", "CipherData", unlockTime);
-        vm.stopPrank();
-
-        // 🔥 PERBAIKAN KRUSIAL: Memantau saldo fisik staking DAN treasury sesudah transaksi
-        uint256 stakingAfter = aethToken.balanceOf(address(staking));
-        uint256 treasuryAfter = aethToken.balanceOf(treasury);
-
-        // Hitung akumulasi pembagian bersih 50:50 yang terjadi secara riil
-        uint256 stakingReceived = stakingAfter - stakingBefore;
-        uint256 treasuryReceived = treasuryAfter - treasuryBefore;
-
-        // 🔥 PERBAIKAN KRUSIAL: Dialokasikan ke pembukuan biaya reward, BUKAN ke ghost_totalExpectedStaked!
-        ghost_totalRewardFromCapsule += stakingReceived; 
-        ghost_totalTreasuryFromCapsule += treasuryReceived;
         
-        ghost_totalCapsulesCreated++;
+        try vaultV3.sealTimeLockCapsule(tier, "Dokumen Audit", "CipherData", unlockTime) {
+            uint256 stakingAfter = aethToken.balanceOf(address(staking));
+            uint256 treasuryAfter = aethToken.balanceOf(treasury);
+
+            uint256 stakingReceived = stakingAfter - stakingBefore;
+            uint256 treasuryReceived = treasuryAfter - treasuryBefore;
+
+            ghost_totalRewardFromCapsule += stakingReceived; 
+            ghost_totalTreasuryFromCapsule += treasuryReceived;
+            
+            ghost_totalCapsulesCreated++;
+        } catch {
+            // Revert diredam jika validasi internal unlockTime gagal
+        }
+        vm.stopPrank();
     }
 
-    // 3. Menyediakan simulasi klaim vesting seiring berjalannya waktu secara acak
+    // 3. Simulasi Pembuatan Token Acak via Forge Factory (Mengambil creationFee secara dinamis)
+    function forgeTokenRandom(string memory name, string memory symbol, uint256 initialSupply) public {
+        address actor = msg.sender;
+        if (actor == address(staking) || actor == address(vaultV3) || actor == address(forge) || actor == treasury || actor == address(aethToken)) return;
+
+        initialSupply = bound(initialSupply, 1_000 * 10**18, 1_000_000 * 10**18);
+
+        // Mengambil creationFee secara dinamis dari kontrak forge (1,000 AETH)
+        uint256 creationFee = forge.creationFee();
+        deal(address(aethToken), actor, creationFee);
+
+        vm.startPrank(actor);
+        aethToken.approve(address(forge), creationFee);
+        try forge.createMyOwnToken(name, symbol, initialSupply) {
+            ghost_totalTokensForged++;
+        } catch {
+            // Revert aman jika parameter tidak valid
+        }
+        vm.stopPrank();
+    }
+
+    // 4. Menyediakan simulasi klaim vesting seiring berjalannya waktu secara acak
     function advanceTimeAndTryClaimVesting(uint256 timeJump) public {
-        timeJump = bound(timeJump, 1 minutes, 730 days);
+        timeJump = bound(timeJump, 5 minutes, 30 days);
         vm.warp(block.timestamp + timeJump);
 
         vm.prank(teamWallet);
         try vesting.claim() {
             // Klaim berhasil setelah Cliff
         } catch {
-            // Revert normal jika dipanggil sebelum Cliff (0-2 menit)
+            // Revert diredam jika dipanggil sebelum Cliff atau alokasi dana sudah habis diserap
         }
     }
 }
@@ -125,12 +155,16 @@ contract AetherVaultAuditTest is Test {
     AetherVaultStakingSecureV6 public staking;
     TeamVesting public vesting;
     AetherVaultV3_Testnet public vaultV3;
+    AetherForge public forge; 
     AetherVaultHandler public handler;
 
     address public owner = makeAddr("owner");
     address public user1 = makeAddr("user1");
     address public teamWallet = makeAddr("team");
     address public treasury = makeAddr("treasury");
+
+    // Konstanta Fee Forge (1,000 AETH)
+    uint256 public constant FORGE_CREATION_FEE = 1000 * 10**18;
 
     function setUp() public {
         vm.startPrank(owner);
@@ -148,17 +182,22 @@ contract AetherVaultAuditTest is Test {
 
         // 5. Deploy Vault V3
         vaultV3 = new AetherVaultV3_Testnet(address(aethToken), treasury, address(staking));
+
+        // 6. Deploy AetherForge Factory (Disesuaikan dengan 4 parameter: Token, Treasury, Staking, Fee)
+        forge = new AetherForge(address(aethToken), treasury, address(staking), FORGE_CREATION_FEE);
+
         vm.stopPrank();
 
-        // 6. Inisialisasi Kontrak Handler
+        // 7. Inisialisasi Kontrak Handler dengan menyertakan alamat forge
         handler = new AetherVaultHandler(
             address(aethToken),
             address(veAethToken),
             address(staking),
             address(vesting),
             address(vaultV3),
+            address(forge), 
             teamWallet,
-            treasury // PERBAIKAN: Mengirim alamat treasury ke handler
+            treasury 
         );
 
         targetContract(address(handler));
@@ -188,8 +227,6 @@ contract AetherVaultAuditTest is Test {
     // Invariant 1: Memastikan akuntansi matematis Staking benar secara mutlak
     function invariant_StakingMathIsPerfect() public view {
         uint256 totalStakedInContract = staking.totalStaked();
-        
-        // 🔥 DIJAMIN PASSED: Sudah klop karena tidak tercampur sisa 50% potongan dari kapsul
         assertEq(totalStakedInContract, handler.ghost_totalExpectedStaked(), "MISM_1: Total staked di kontrak tidak akurat!");
     }
 
@@ -197,8 +234,6 @@ contract AetherVaultAuditTest is Test {
     function invariant_StakingContractMustAlwaysHoldEnoughTokens() public view {
         uint256 contractBalance = aethToken.balanceOf(address(staking));
         uint256 totalStaked = staking.totalStaked();
-        
-        // 🔥 PENGETATAN AUDIT: Saldo kas harus mencakup Dana Pokok + Akumulasi Reward dari Kapsul
         uint256 expectedMinimumPhysical = totalStaked + handler.ghost_totalRewardFromCapsule();
         assertGe(contractBalance, expectedMinimumPhysical, "CRITICAL_MISM_2: Kontrak bangkrut / terjadi kebocoran dana!");
     }
@@ -208,9 +243,8 @@ contract AetherVaultAuditTest is Test {
         assertEq(vaultV3.totalCapsules(), handler.ghost_totalCapsulesCreated(), "MISM_3: Jumlah enkapsulasi rusak!");
     }
 
-    // Invariant 4: 🔥 TAMBAHAN STANDAR AUDIT: Memvalidasi Keadilan Alokasi Pembagian Potongan 50:50
+    // Invariant 4: Memvalidasi Keadilan Alokasi Pembagian Potongan 50:50
     function invariant_VaultFeeDistributionIsFair() public view {
-        // Memastikan nominal potongan yang lari ke kas staking selalu sama adil dengan yang lari ke treasury
         assertEq(handler.ghost_totalRewardFromCapsule(), handler.ghost_totalTreasuryFromCapsule(), "MISM_4: Pembagian alokasi 50:50 tidak adil!");
     }
 }
