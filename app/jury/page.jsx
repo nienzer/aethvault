@@ -4,7 +4,7 @@ import { useWeb3Modal, useWeb3ModalAccount } from '@web3modal/ethers/react';
 import { Droplet, Wallet, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
 // 🔥 PASTI KAN MENGISI ALAMAT TOKEN AETH BOS DI SINI
-const AETH_TOKEN_ADDRESS = "0x9831c33aA4493268b2e5e50C90Cfec7C3dF84a73"; 
+const AETH_TOKEN_ADDRESS = "0xac884F2670cF85dCAF34e750e52B846D8DE3Cf55"; 
 
 export default function JuryFaucetPage() {
   const { open } = useWeb3Modal();
