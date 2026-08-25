@@ -3,7 +3,6 @@ import { ethers } from "ethers";
 import { useLanguage } from '@/context/LanguageContext';
 import { CheckCircle, Copy, Check, PlusCircle } from 'lucide-react';
 
-// 🌟 PERBAIKAN: Nama fungsi disesuaikan persis dengan Smart Contract: createMyOwnToken
 const FORGE_FACTORY_ABI = [
   "function createMyOwnToken(string name, string symbol, uint256 initialSupply) returns (address)"
 ];
@@ -53,11 +52,11 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
 
       const forgeContract = new ethers.Contract(forgeFactoryAddress, FORGE_FACTORY_ABI, signer);
       
-      // 🌟 PERBAIKAN: Panggil fungsi createMyOwnToken, BUKAN createToken
+      // 🌟 PERBAIKAN: Kirim angka mentah (BigInt), tidak pakai parseEther lagi karena kontrak sudah mengalikannya dengan desimal
       const createTx = await forgeContract.createMyOwnToken(
         tokenName,
         tokenSymbol,
-        ethers.parseEther(tokenSupply || "0")
+        BigInt(tokenSupply || "0")
       );
       
       const receipt = await createTx.wait();
