@@ -3,7 +3,9 @@ import { ethers } from "ethers";
 import AetherForgeFactoryABI from "../contracts/AetherForgeFactoryABI.json";
 import { useLanguage } from '@/context/LanguageContext';
 
-// 🌟 KITA GUNAKAN ERC20 ABI STANDAR UNTUK TOKEN AETH
+// 🌟 EKSTRAK ABI DENGAN AMAN: Mencegah error "e is not iterable"
+const RESOLVED_FORGE_ABI = AetherForgeFactoryABI.abi || AetherForgeFactoryABI.default?.abi || AetherForgeFactoryABI;
+
 const ERC20_ABI = [
   "function allowance(address owner, address spender) view returns (uint256)",
   "function approve(address spender, uint256 amount) returns (bool)"
@@ -45,7 +47,8 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       setStatusMsg(t.forgeMsgApproveSuccess || "Approve sukses! Mencetak token kustom baru...");
 
       // 2. Eksekusi Create Token 
-      const forgeContract = new ethers.Contract(forgeFactoryAddress, AetherForgeFactoryABI, signer);
+      // 🌟 PERBAIKAN: Gunakan RESOLVED_FORGE_ABI yang sudah diekstrak
+      const forgeContract = new ethers.Contract(forgeFactoryAddress, RESOLVED_FORGE_ABI, signer);
       const createTx = await forgeContract.createToken(
         tokenName,
         tokenSymbol,
