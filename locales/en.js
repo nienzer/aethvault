@@ -910,7 +910,26 @@ export const en = {
     daoTxVoting: "Casting vote",
     daoTxVoteSuccess: "Vote Successfully Recorded!",
     daoTxVoteFail: "Voting failed: ",
-    daoErrThreshold: "Insufficient Voting Power! Minimum {threshold} Votes required to propose."
+    daoErrThreshold: "Insufficient Voting Power! Minimum {threshold} Votes required to propose.",
+    menuForge: "AetherForge (Creator)",
+    forgeTitle: "AetherForge Token Creator",
+    forgeSubtitle: "Decentralized Anti-Spam Custom Token Factory",
+    forgeDesc: "Mint your custom BEP-20 token instantly. Equipped with automated mechanisms (Burn, Staking Reward, & DAO Treasury).",
+    forgeTokenNameLabel: "Token Name",
+    forgeTokenNamePlaceholder: "E.g., Aether Meme",
+    forgeTokenSymbolLabel: "Token Symbol",
+    forgeTokenSymbolPlaceholder: "E.g., AMEME",
+    forgeSupplyLabel: "Initial Total Supply",
+    forgeSupplyPlaceholder: "E.g., 1000000",
+    forgeFeeInfoTitle: "Fee Information:",
+    forgeFeeInfoDesc: "Minting a token requires a fee of {fee} AETH, with automatic allocation to maintain protocol economic health.",
+    forgeBtnProcessing: "Processing Network...",
+    forgeBtnMint: "🚀 Mint Token Now",
+    forgeMsgApprove: "Requesting approval (Approve) for {fee} AETH...",
+    forgeMsgApproveSuccess: "Approve success! Minting custom token...",
+    forgeMsgMintSuccess: "🎉 Success! Custom token successfully minted & distributed to the system.",
+    forgeMsgMintFail: "❌ Failed to mint token or transaction canceled by user.",
+    forgeAlertConnect: "Connect wallet first!"
   },
   verifyProof: {
     title: "Digital Forensics",
@@ -998,25 +1017,5 @@ export const en = {
   againstBtn: "Against",
   forBtn: "For",
   abstainBtn: "Abstain"
- },
-  forge: {
-    title: "AetherForge Token Creator",
-    subtitle: "Decentralized Anti-Spam Custom Token Factory",
-    desc: "Mint your custom BEP-20 token instantly. Equipped with automated mechanisms (Burn, Staking Reward, & DAO Treasury).",
-    tokenNameLabel: "Token Name",
-    tokenNamePlaceholder: "E.g., Aether Meme",
-    tokenSymbolLabel: "Token Symbol",
-    tokenSymbolPlaceholder: "E.g., AMEME",
-    supplyLabel: "Initial Total Supply",
-    supplyPlaceholder: "E.g., 1000000",
-    feeInfoTitle: "Fee Information:",
-    feeInfoDesc: "Minting a token requires a fee of {fee} AETH, with automatic allocation to maintain protocol economic health.",
-    btnProcessing: "Processing Network...",
-    btnMint: "🚀 Mint Token Now",
-    msgApprove: "Requesting approval (Approve) for {fee} AETH...",
-    msgApproveSuccess: "Approve success! Minting custom token...",
-    msgMintSuccess: "🎉 Success! Custom token successfully minted & distributed to the system.",
-    msgMintFail: "❌ Failed to mint token or transaction canceled by user.",
-    alertConnect: "Connect wallet first!"
   }
 };

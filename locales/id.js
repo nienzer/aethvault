@@ -910,7 +910,26 @@ export const id = {
     daoTxVoting: "Memberikan suara",
     daoTxVoteSuccess: "Suara Voting Berhasil Dicatat!",
     daoTxVoteFail: "Gagal Voting: ",
-    daoErrThreshold: "Voting Power kurang! Minimal {threshold} Votes untuk membuat proposal."
+    daoErrThreshold: "Voting Power kurang! Minimal {threshold} Votes untuk membuat proposal.",
+    menuForge: "AetherForge (Pencetak)",
+    forgeTitle: "AetherForge Token Creator",
+    forgeSubtitle: "Pabrik Token Kustom Anti-Spam Terdesentralisasi",
+    forgeDesc: "Cetak token BEP-20 kustom Anda secara instan. Dilengkapi dengan mekanisme pembagian otomatis (Burn, Staking Reward, & Treasury DAO).",
+    forgeTokenNameLabel: "Nama Token",
+    forgeTokenNamePlaceholder: "Contoh: Aether Meme",
+    forgeTokenSymbolLabel: "Simbol Token",
+    forgeTokenSymbolPlaceholder: "Contoh: AMEME",
+    forgeSupplyLabel: "Total Suplai Awal",
+    forgeSupplyPlaceholder: "Contoh: 1000000",
+    forgeFeeInfoTitle: "Informasi Biaya:",
+    forgeFeeInfoDesc: "Pembuatan token akan memotong biaya sebesar {fee} AETH, dengan alokasi otomatis untuk menjaga kesehatan ekonomi protokol.",
+    forgeBtnProcessing: "Sedang Memproses Jaringan...",
+    forgeBtnMint: "🚀 Cetak Token Sekarang",
+    forgeMsgApprove: "Meminta persetujuan (Approve) {fee} AETH...",
+    forgeMsgApproveSuccess: "Approve sukses! Mencetak token kustom baru...",
+    forgeMsgMintSuccess: "🎉 Sukses! Token kustom berhasil dicetak & terdistribusi ke sistem.",
+    forgeMsgMintFail: "❌ Gagal mencetak token atau transaksi dibatalkan oleh pengguna.",
+    forgeAlertConnect: "Koneksikan wallet terlebih dahulu!"
   },
   verifyProof: {
     title: "Digital Forensics",
@@ -998,25 +1017,5 @@ export const id = {
   againstBtn: "Against",
   forBtn: "For",
   abstainBtn: "Abstain"
- },
-  forge: {
-    title: "AetherForge Token Creator",
-    subtitle: "Pabrik Token Kustom Anti-Spam Terdesentralisasi",
-    desc: "Cetak token BEP-20 kustom Anda secara instan. Dilengkapi dengan mekanisme pembagian otomatis (Burn, Staking Reward, & Treasury DAO).",
-    tokenNameLabel: "Nama Token",
-    tokenNamePlaceholder: "Contoh: Aether Meme",
-    tokenSymbolLabel: "Simbol Token",
-    tokenSymbolPlaceholder: "Contoh: AMEME",
-    supplyLabel: "Total Suplai Awal",
-    supplyPlaceholder: "Contoh: 1000000",
-    feeInfoTitle: "Informasi Biaya:",
-    feeInfoDesc: "Pembuatan token akan memotong biaya sebesar {fee} AETH, dengan alokasi otomatis untuk menjaga kesehatan ekonomi protokol.",
-    btnProcessing: "Sedang Memproses Jaringan...",
-    btnMint: "🚀 Cetak Token Sekarang",
-    msgApprove: "Meminta persetujuan (Approve) {fee} AETH...",
-    msgApproveSuccess: "Approve sukses! Mencetak token kustom baru...",
-    msgMintSuccess: "🎉 Sukses! Token kustom berhasil dicetak & terdistribusi ke sistem.",
-    msgMintFail: "❌ Gagal mencetak token atau transaksi dibatalkan oleh pengguna.",
-    alertConnect: "Koneksikan wallet terlebih dahulu!"
   }
 };

@@ -12,15 +12,13 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
 
-  const forgeT = t?.forge || {}; // Mengambil objek translate Forge
-
   async function handleCreateToken(e) {
     e.preventDefault();
-    if (!account) return showToast ? showToast(forgeT.alertConnect || "Koneksikan wallet terlebih dahulu!", "error") : alert(forgeT.alertConnect || "Koneksikan wallet terlebih dahulu!");
+    if (!account) return showToast ? showToast(t.forgeAlertConnect || "Connect wallet first!", "error") : alert(t.forgeAlertConnect || "Connect wallet first!");
 
     try {
       setLoading(true);
-      setStatusMsg((forgeT.msgApprove || "Meminta persetujuan (Approve) {fee} AETH...").replace("{fee}", CREATION_FEE_AMOUNT));
+      setStatusMsg((t.forgeMsgApprove || "Requesting approval (Approve) for {fee} AETH...").replace("{fee}", CREATION_FEE_AMOUNT));
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -31,7 +29,7 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       const approveTx = await aethContract.approve(forgeFactoryAddress, feeAmount);
       await approveTx.wait();
 
-      setStatusMsg(forgeT.msgApproveSuccess || "Approve sukses! Mencetak token kustom baru...");
+      setStatusMsg(t.forgeMsgApproveSuccess || "Approve success! Minting custom token...");
 
       // 2. Eksekusi Create Token 
       const forgeContract = new ethers.Contract(forgeFactoryAddress, AetherForgeFactoryABI, signer);
@@ -43,7 +41,7 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       await createTx.wait();
 
       setLoading(false);
-      const successMsg = forgeT.msgMintSuccess || "🎉 Sukses! Token kustom berhasil dicetak.";
+      const successMsg = t.forgeMsgMintSuccess || "🎉 Success! Custom token successfully minted & distributed to the system.";
       setStatusMsg(successMsg);
       if(showToast) showToast(successMsg, "success");
       
@@ -53,7 +51,7 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
     } catch (err) {
       console.error(err);
       setLoading(false);
-      const failMsg = forgeT.msgMintFail || "❌ Gagal mencetak token.";
+      const failMsg = t.forgeMsgMintFail || "❌ Failed to mint token.";
       setStatusMsg(failMsg);
       if(showToast) showToast(failMsg, "error");
     }
@@ -64,21 +62,21 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       <div className="flex items-center space-x-3 mb-3">
         <span className="p-3 bg-sky-500/10 text-sky-400 rounded-xl text-xl font-bold">⚡</span>
         <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">{forgeT.title || "AetherForge Token Creator"}</h2>
-          <p className="text-xs text-neutral-400 font-mono">{forgeT.subtitle || "Decentralized Anti-Spam Custom Token Factory"}</p>
+          <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">{t.forgeTitle || "AetherForge Token Creator"}</h2>
+          <p className="text-xs text-neutral-400 font-mono">{t.forgeSubtitle || "Decentralized Anti-Spam Custom Token Factory"}</p>
         </div>
       </div>
       
       <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
-        {forgeT.desc || "Cetak token BEP-20 kustom Anda secara instan. Dilengkapi dengan mekanisme pembagian otomatis (Burn, Staking Reward, & Treasury DAO)."}
+        {t.forgeDesc || "Mint your custom BEP-20 token instantly. Equipped with automated mechanisms (Burn, Staking Reward, & DAO Treasury)."}
       </p>
 
       <form onSubmit={handleCreateToken} className="space-y-5">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">{forgeT.tokenNameLabel || "Nama Token"}</label>
+          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">{t.forgeTokenNameLabel || "Token Name"}</label>
           <input 
             type="text" 
-            placeholder={forgeT.tokenNamePlaceholder || "Contoh: Aether Meme"} 
+            placeholder={t.forgeTokenNamePlaceholder || "E.g., Aether Meme"} 
             value={tokenName} 
             onChange={(e) => setTokenName(e.target.value)} 
             required
@@ -87,10 +85,10 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">{forgeT.tokenSymbolLabel || "Simbol Token"}</label>
+          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">{t.forgeTokenSymbolLabel || "Token Symbol"}</label>
           <input 
             type="text" 
-            placeholder={forgeT.tokenSymbolPlaceholder || "Contoh: AMEME"} 
+            placeholder={t.forgeTokenSymbolPlaceholder || "E.g., AMEME"} 
             value={tokenSymbol} 
             onChange={(e) => setTokenSymbol(e.target.value)} 
             required
@@ -99,10 +97,10 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">{forgeT.supplyLabel || "Total Suplai Awal"}</label>
+          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">{t.forgeSupplyLabel || "Initial Total Supply"}</label>
           <input 
             type="number" 
-            placeholder={forgeT.supplyPlaceholder || "Contoh: 1000000"} 
+            placeholder={t.forgeSupplyPlaceholder || "E.g., 1000000"} 
             value={tokenSupply} 
             onChange={(e) => setTokenSupply(e.target.value)} 
             required
@@ -113,7 +111,7 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
         <div className="p-4 bg-cyan-950/20 border border-cyan-900/40 rounded-xl text-xs text-cyan-300 flex items-start space-x-2">
           <span className="text-base">ℹ️</span>
           <div>
-            <span className="font-bold">{forgeT.feeInfoTitle || "Informasi Biaya:"}</span> {(forgeT.feeInfoDesc || "Pembuatan token akan memotong biaya sebesar {fee} AETH, dengan alokasi otomatis untuk menjaga kesehatan ekonomi protokol.").replace("{fee}", CREATION_FEE_AMOUNT)}
+            <span className="font-bold">{t.forgeFeeInfoTitle || "Fee Information:"}</span> {(t.forgeFeeInfoDesc || "Minting a token requires a fee of {fee} AETH, with automatic allocation to maintain protocol economic health.").replace("{fee}", CREATION_FEE_AMOUNT)}
           </div>
         </div>
 
@@ -126,7 +124,7 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
               : "bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-white shadow-[0_0_20px_-5px_rgba(6,182,212,0.5)]"
           }`}
         >
-          {loading ? (forgeT.btnProcessing || "Sedang Memproses Jaringan...") : (forgeT.btnMint || "🚀 Cetak Token Sekarang")}
+          {loading ? (t.forgeBtnProcessing || "Processing Network...") : (t.forgeBtnMint || "🚀 Mint Token Now")}
         </button>
       </form>
 

@@ -1217,9 +1217,9 @@ export default function DashboardPage() {
     <nav className="space-y-1.5">
       {[
         { id: 'create', icon: Lock, label: t.menuCreate || 'Create' },
-        { id: 'forge', icon: Zap, label: 'AetherForge (Token Creator)' }, // 🌟 MENU BARU UNTUK FORGE
         { id: 'proof', icon: Award, label: t.menuProof || 'Aether Proof' },
         { id: 'hall', icon: Globe, label: t.menuHall || 'Hall of Proof' },
+        { id: 'forge', icon: Zap, label: t.menuForge || 'AetherForge' }, // 🌟 MENU BARU UNTUK FORGE
         { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
         { id: 'vaults', icon: Layers, label: t.menuVaults || 'My Vaults', count: myCapsules.length > 0 ? myCapsules.length : undefined },
         { id: 'governance', icon: Scale, label: 'DAO / Governance' },
