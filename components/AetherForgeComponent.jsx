@@ -3,10 +3,9 @@ import { ethers } from "ethers";
 import { useLanguage } from '@/context/LanguageContext';
 import { CheckCircle, Copy, Check, PlusCircle } from 'lucide-react';
 
-// 🌟 JURUS PAMUNGKAS: HUMAN-READABLE ABI
-// Kita tidak pakai file JSON lagi, langsung tulis fungsinya di sini biar Ethers.js tidak bingung!
+// 🌟 PERBAIKAN: Nama fungsi disesuaikan persis dengan Smart Contract: createMyOwnToken
 const FORGE_FACTORY_ABI = [
-  "function createToken(string name, string symbol, uint256 initialSupply) returns (address)"
+  "function createMyOwnToken(string name, string symbol, uint256 initialSupply) returns (address)"
 ];
 
 const ERC20_ABI = [
@@ -52,9 +51,10 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
 
       setStatusMsg(t.forgeMsgApproveSuccess || "Approve sukses! Mencetak token kustom baru...");
 
-      // 🌟 PERBAIKAN: Gunakan FORGE_FACTORY_ABI yang ditulis manual di atas
       const forgeContract = new ethers.Contract(forgeFactoryAddress, FORGE_FACTORY_ABI, signer);
-      const createTx = await forgeContract.createToken(
+      
+      // 🌟 PERBAIKAN: Panggil fungsi createMyOwnToken, BUKAN createToken
+      const createTx = await forgeContract.createMyOwnToken(
         tokenName,
         tokenSymbol,
         ethers.parseEther(tokenSupply || "0")
