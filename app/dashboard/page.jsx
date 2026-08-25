@@ -1219,10 +1219,10 @@ export default function DashboardPage() {
         { id: 'create', icon: Lock, label: t.menuCreate || 'Create' },
         { id: 'proof', icon: Award, label: t.menuProof || 'Aether Proof' },
         { id: 'hall', icon: Globe, label: t.menuHall || 'Hall of Proof' },
-        { id: 'forge', icon: Zap, label: t.menuForge || 'AetherForge' }, // 🌟 MENU BARU UNTUK FORGE
-        { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
         { id: 'vaults', icon: Layers, label: t.menuVaults || 'My Vaults', count: myCapsules.length > 0 ? myCapsules.length : undefined },
         { id: 'governance', icon: Scale, label: 'DAO / Governance' },
+        { id: 'forge', icon: Zap, label: t.menuForge || 'AetherForge' },
+        { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
         { id: 'history', icon: History, label: t.menuHistory || 'History' },
         { id: 'stats', icon: Flame, label: t.menuStats || 'Global Stats' },
         { id: 'staking', icon: Coins, label: t.menuStaking || 'Staking V6' },
