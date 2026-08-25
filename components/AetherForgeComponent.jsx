@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import AetherForgeFactoryABI from "../contracts/AetherForgeFactoryABI.json";
 import { useLanguage } from '@/context/LanguageContext';
 import { CheckCircle, Copy, Check, PlusCircle } from 'lucide-react';
 
-const RESOLVED_FORGE_ABI = AetherForgeFactoryABI.abi || AetherForgeFactoryABI.default?.abi || AetherForgeFactoryABI;
+// 🌟 JURUS PAMUNGKAS: HUMAN-READABLE ABI
+// Kita tidak pakai file JSON lagi, langsung tulis fungsinya di sini biar Ethers.js tidak bingung!
+const FORGE_FACTORY_ABI = [
+  "function createToken(string name, string symbol, uint256 initialSupply) returns (address)"
+];
 
 const ERC20_ABI = [
   "function allowance(address owner, address spender) view returns (uint256)",
@@ -49,7 +52,8 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
 
       setStatusMsg(t.forgeMsgApproveSuccess || "Approve sukses! Mencetak token kustom baru...");
 
-      const forgeContract = new ethers.Contract(forgeFactoryAddress, RESOLVED_FORGE_ABI, signer);
+      // 🌟 PERBAIKAN: Gunakan FORGE_FACTORY_ABI yang ditulis manual di atas
+      const forgeContract = new ethers.Contract(forgeFactoryAddress, FORGE_FACTORY_ABI, signer);
       const createTx = await forgeContract.createToken(
         tokenName,
         tokenSymbol,
@@ -76,7 +80,6 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       setNewTokenDetails({
         name: tokenName,
         symbol: tokenSymbol,
-        // 🌟 Teks error diganti agar bisa di-translate
         address: deployedAddress || (t.forgeSuccessNoAddress || "Alamat tidak ditemukan (Cek BscScan)")
       });
 
@@ -143,18 +146,15 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
         <div className="mb-6 p-5 bg-gradient-to-br from-green-950/40 to-cyan-950/40 border border-green-500/40 rounded-2xl animate-in fade-in zoom-in duration-300 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
           <div className="flex items-center gap-3 mb-4">
             <CheckCircle className="w-6 h-6 text-green-400" />
-            {/* 🌟 Translate Judul Kartu */}
             <h3 className="text-lg font-bold text-green-300">{t.forgeSuccessCardTitle || "Token Berhasil Tercipta!"}</h3>
           </div>
           
           <div className="space-y-3 bg-black/40 p-4 rounded-xl border border-green-500/20">
             <div>
-              {/* 🌟 Translate Label Nama Token */}
               <p className="text-[10px] text-green-400/70 font-mono uppercase">{t.forgeSuccessTokenName || "Nama Token"}</p>
               <p className="font-bold text-white text-sm">{newTokenDetails.name} ({newTokenDetails.symbol})</p>
             </div>
             <div>
-              {/* 🌟 Translate Label Address Baru */}
               <p className="text-[10px] text-green-400/70 font-mono uppercase mb-1">{t.forgeSuccessContractAddr || "Contract Address Baru"}</p>
               <div className="flex items-center justify-between bg-[#0B0817] p-2.5 rounded-lg border border-neutral-800">
                 <span className="text-xs text-cyan-300 font-mono truncate mr-3">{newTokenDetails.address}</span>
@@ -173,7 +173,6 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
             onClick={addTokenToMetaMask}
             className="w-full mt-4 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all"
           >
-            {/* 🌟 Translate Tombol MetaMask */}
             <PlusCircle className="w-4 h-4" /> {t.forgeAddMetaMaskBtn || "Tambahkan ke MetaMask"} 🦊
           </button>
         </div>
