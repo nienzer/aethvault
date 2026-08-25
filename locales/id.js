@@ -929,7 +929,12 @@ export const id = {
     forgeMsgApproveSuccess: "Approve sukses! Mencetak token kustom baru...",
     forgeMsgMintSuccess: "🎉 Sukses! Token kustom berhasil dicetak & terdistribusi ke sistem.",
     forgeMsgMintFail: "❌ Gagal mencetak token atau transaksi dibatalkan oleh pengguna.",
-    forgeAlertConnect: "Koneksikan wallet terlebih dahulu!"
+    forgeAlertConnect: "Koneksikan wallet terlebih dahulu!",
+    forgeSuccessCardTitle: "Token Berhasil Tercipta!",
+    forgeSuccessTokenName: "Nama Token",
+    forgeSuccessContractAddr: "Contract Address Baru",
+    forgeSuccessNoAddress: "Alamat tidak ditemukan (Cek BscScan)",
+    forgeAddMetaMaskBtn: "Tambahkan ke MetaMask"
   },
   verifyProof: {
     title: "Digital Forensics",

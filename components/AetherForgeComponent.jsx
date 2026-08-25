@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { ethers } from "ethers";
 import AetherForgeFactoryABI from "../contracts/AetherForgeFactoryABI.json";
 import { useLanguage } from '@/context/LanguageContext';
+import { CheckCircle, Copy, Check, PlusCircle } from 'lucide-react';
 
-// 🌟 EKSTRAK ABI DENGAN AMAN: Mencegah error "e is not iterable"
 const RESOLVED_FORGE_ABI = AetherForgeFactoryABI.abi || AetherForgeFactoryABI.default?.abi || AetherForgeFactoryABI;
 
 const ERC20_ABI = [
@@ -11,7 +11,7 @@ const ERC20_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)"
 ];
 
-const CREATION_FEE_AMOUNT = "1000"; // Sesuai dengan deploy sampeyan (1000 AETH)
+const CREATION_FEE_AMOUNT = "1000";
 
 export default function AetherForgeComponent({ account, forgeFactoryAddress, aethTokenAddress, showToast }) {
   const { t: globalT } = useLanguage();
@@ -22,6 +22,9 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
   const [tokenSupply, setTokenSupply] = useState("");
   const [loading, setLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState("");
+  
+  const [newTokenDetails, setNewTokenDetails] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   async function handleCreateToken(e) {
     e.preventDefault();
@@ -29,12 +32,12 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
 
     try {
       setLoading(true);
+      setNewTokenDetails(null);
       setStatusMsg((t.forgeMsgApprove || "Meminta persetujuan (Approve) {fee} AETH...").replace("{fee}", CREATION_FEE_AMOUNT));
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
 
-      // 1. Approve Fee menggunakan ERC20_ABI
       const aethContract = new ethers.Contract(aethTokenAddress, ERC20_ABI, signer);
       const feeAmount = ethers.parseEther(CREATION_FEE_AMOUNT);
       
@@ -46,21 +49,37 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
 
       setStatusMsg(t.forgeMsgApproveSuccess || "Approve sukses! Mencetak token kustom baru...");
 
-      // 2. Eksekusi Create Token 
-      // 🌟 PERBAIKAN: Gunakan RESOLVED_FORGE_ABI yang sudah diekstrak
       const forgeContract = new ethers.Contract(forgeFactoryAddress, RESOLVED_FORGE_ABI, signer);
       const createTx = await forgeContract.createToken(
         tokenName,
         tokenSymbol,
         ethers.parseEther(tokenSupply || "0")
       );
-      await createTx.wait();
+      
+      const receipt = await createTx.wait();
+
+      const transferSignature = ethers.id("Transfer(address,address,uint256)");
+      let deployedAddress = "";
+      
+      for (const log of receipt.logs) {
+        if (log.topics[0] === transferSignature) {
+          deployedAddress = log.address;
+          break;
+        }
+      }
 
       setLoading(false);
       const successMsg = t.forgeMsgMintSuccess || "🎉 Sukses! Token kustom berhasil dicetak.";
       setStatusMsg(successMsg);
       if(showToast) showToast(successMsg, "success");
       
+      setNewTokenDetails({
+        name: tokenName,
+        symbol: tokenSymbol,
+        // 🌟 Teks error diganti agar bisa di-translate
+        address: deployedAddress || (t.forgeSuccessNoAddress || "Alamat tidak ditemukan (Cek BscScan)")
+      });
+
       setTokenName("");
       setTokenSymbol("");
       setTokenSupply("");
@@ -79,6 +98,33 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
     }
   }
 
+  const addTokenToMetaMask = async () => {
+    if (!newTokenDetails || !newTokenDetails.address || !window.ethereum) return;
+    try {
+      await window.ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: newTokenDetails.address,
+            symbol: newTokenDetails.symbol,
+            decimals: 18, 
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Gagal menambahkan ke MetaMask", error);
+    }
+  };
+
+  const copyToClipboard = () => {
+    if(newTokenDetails?.address) {
+      navigator.clipboard.writeText(newTokenDetails.address);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="p-8 bg-[#0B0817] rounded-3xl border border-neutral-900 text-white max-w-xl mx-auto shadow-xl">
       <div className="flex items-center space-x-3 mb-3">
@@ -92,6 +138,46 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       <p className="text-neutral-300 text-sm mb-6 leading-relaxed">
         {t.forgeDesc || "Cetak token BEP-20 kustom Anda secara instan. Dilengkapi dengan mekanisme pembagian otomatis (Burn, Staking Reward, & Treasury DAO)."}
       </p>
+
+      {newTokenDetails && (
+        <div className="mb-6 p-5 bg-gradient-to-br from-green-950/40 to-cyan-950/40 border border-green-500/40 rounded-2xl animate-in fade-in zoom-in duration-300 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+          <div className="flex items-center gap-3 mb-4">
+            <CheckCircle className="w-6 h-6 text-green-400" />
+            {/* 🌟 Translate Judul Kartu */}
+            <h3 className="text-lg font-bold text-green-300">{t.forgeSuccessCardTitle || "Token Berhasil Tercipta!"}</h3>
+          </div>
+          
+          <div className="space-y-3 bg-black/40 p-4 rounded-xl border border-green-500/20">
+            <div>
+              {/* 🌟 Translate Label Nama Token */}
+              <p className="text-[10px] text-green-400/70 font-mono uppercase">{t.forgeSuccessTokenName || "Nama Token"}</p>
+              <p className="font-bold text-white text-sm">{newTokenDetails.name} ({newTokenDetails.symbol})</p>
+            </div>
+            <div>
+              {/* 🌟 Translate Label Address Baru */}
+              <p className="text-[10px] text-green-400/70 font-mono uppercase mb-1">{t.forgeSuccessContractAddr || "Contract Address Baru"}</p>
+              <div className="flex items-center justify-between bg-[#0B0817] p-2.5 rounded-lg border border-neutral-800">
+                <span className="text-xs text-cyan-300 font-mono truncate mr-3">{newTokenDetails.address}</span>
+                <button 
+                  onClick={copyToClipboard}
+                  className="p-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-md text-neutral-400 hover:text-white transition-colors"
+                  title="Copy Address"
+                >
+                  {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button 
+            onClick={addTokenToMetaMask}
+            className="w-full mt-4 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all"
+          >
+            {/* 🌟 Translate Tombol MetaMask */}
+            <PlusCircle className="w-4 h-4" /> {t.forgeAddMetaMaskBtn || "Tambahkan ke MetaMask"} 🦊
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleCreateToken} className="space-y-5">
         <div>

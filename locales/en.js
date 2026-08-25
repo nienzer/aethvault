@@ -929,7 +929,12 @@ export const en = {
     forgeMsgApproveSuccess: "Approve success! Minting custom token...",
     forgeMsgMintSuccess: "🎉 Success! Custom token successfully minted & distributed to the system.",
     forgeMsgMintFail: "❌ Failed to mint token or transaction canceled by user.",
-    forgeAlertConnect: "Connect wallet first!"
+    forgeAlertConnect: "Connect wallet first!",
+    forgeSuccessCardTitle: "Token Successfully Created!",
+    forgeSuccessTokenName: "Token Name",
+    forgeSuccessContractAddr: "New Contract Address",
+    forgeSuccessNoAddress: "Address not found (Check BscScan)",
+    forgeAddMetaMaskBtn: "Add to MetaMask"
   },
   verifyProof: {
     title: "Digital Forensics",
