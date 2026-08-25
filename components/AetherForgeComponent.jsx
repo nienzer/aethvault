@@ -52,7 +52,6 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
 
       const forgeContract = new ethers.Contract(forgeFactoryAddress, FORGE_FACTORY_ABI, signer);
       
-      // 🌟 PERBAIKAN: Kirim angka mentah (BigInt), tidak pakai parseEther lagi karena kontrak sudah mengalikannya dengan desimal
       const createTx = await forgeContract.createMyOwnToken(
         tokenName,
         tokenSymbol,
@@ -61,13 +60,18 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       
       const receipt = await createTx.wait();
 
+      // 🌟 PERBAIKAN RADAR: Baca log dari bawah ke atas dan abaikan AETH
       const transferSignature = ethers.id("Transfer(address,address,uint256)");
       let deployedAddress = "";
       
-      for (const log of receipt.logs) {
+      for (let i = receipt.logs.length - 1; i >= 0; i--) {
+        const log = receipt.logs[i];
         if (log.topics[0] === transferSignature) {
-          deployedAddress = log.address;
-          break;
+          // Abaikan jika alamat yang mentransfer adalah alamat AETH
+          if (log.address.toLowerCase() !== aethTokenAddress.toLowerCase()) {
+            deployedAddress = log.address;
+            break;
+          }
         }
       }
 
