@@ -1423,14 +1423,15 @@ export default function DashboardPage() {
               )}
 
               {/* 🌟 RENDER KOMPONEN AETHERFORGE KETIKA MENU FORGE DIPILIH */}
-              {activeTab === 'forge' && (
-                <AetherForgeComponent 
-                  account={address} 
-                  forgeFactoryAddress={FORGE_FACTORY_ADDRESS}
-                  aethTokenAddress={AETH_TOKEN_ADDRESS}
-                  showToast={showToast}
-                />
-              )}
+{activeTab === 'forge' && (
+  <AetherForgeComponent 
+    account={address} 
+    forgeFactoryAddress={FORGE_FACTORY_ADDRESS}
+    aethTokenAddress={AETH_TOKEN_ADDRESS}
+    showToast={showToast}
+    t={tRef.current}  // <-- Tambahkan ini bos
+  />
+)}
 
               {activeTab === 'proof' && (
                 <AetherProofHub

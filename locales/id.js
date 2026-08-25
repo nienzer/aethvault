@@ -998,5 +998,25 @@ export const id = {
   againstBtn: "Against",
   forBtn: "For",
   abstainBtn: "Abstain"
-}
+ },
+  forge: {
+    title: "AetherForge Token Creator",
+    subtitle: "Pabrik Token Kustom Anti-Spam Terdesentralisasi",
+    desc: "Cetak token BEP-20 kustom Anda secara instan. Dilengkapi dengan mekanisme pembagian otomatis (Burn, Staking Reward, & Treasury DAO).",
+    tokenNameLabel: "Nama Token",
+    tokenNamePlaceholder: "Contoh: Aether Meme",
+    tokenSymbolLabel: "Simbol Token",
+    tokenSymbolPlaceholder: "Contoh: AMEME",
+    supplyLabel: "Total Suplai Awal",
+    supplyPlaceholder: "Contoh: 1000000",
+    feeInfoTitle: "Informasi Biaya:",
+    feeInfoDesc: "Pembuatan token akan memotong biaya sebesar {fee} AETH, dengan alokasi otomatis untuk menjaga kesehatan ekonomi protokol.",
+    btnProcessing: "Sedang Memproses Jaringan...",
+    btnMint: "🚀 Cetak Token Sekarang",
+    msgApprove: "Meminta persetujuan (Approve) {fee} AETH...",
+    msgApproveSuccess: "Approve sukses! Mencetak token kustom baru...",
+    msgMintSuccess: "🎉 Sukses! Token kustom berhasil dicetak & terdistribusi ke sistem.",
+    msgMintFail: "❌ Gagal mencetak token atau transaksi dibatalkan oleh pengguna.",
+    alertConnect: "Koneksikan wallet terlebih dahulu!"
+  }
 };
