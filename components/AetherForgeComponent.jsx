@@ -1,19 +1,3 @@
-import AetherVaultABI from "../contracts/AetherVaultABI.json";
-// ...
-const aethContract = new ethers.Contract(aethTokenAddress, AetherVaultABI, signer);
-const approveTx = await aethContract.approve(forgeFactoryAddress, feeAmount);
-```[cite: 12]
-
-Padahal, `AetherVaultABI` itu milik brankas (Vault), dan di dalamnya **TIDAK ADA** fungsi `approve`! Akibatnya, saat React mencoba mengeksekusi `aethContract.approve()`, sistem langsung menembakkan pesan *error* "Function not found", yang langsung ditangkap oleh blok `catch` dan memunculkan *toast* merah tersebut[cite: 12].
-
----
-
-### 🛠️ Solusi Final (Copy-Paste Langsung Jalan)
-Kita harus memanggil Token AETH menggunakan **ABI khusus ERC20** standar[cite: 8]. Sekalian, saya tambahkan fitur **Cek Allowance**, jadi kalau bos sudah pernah *Approve* 1000 AETH sebelumnya, MetaMask tidak akan minta *Approve* berulang-ulang (hemat gas!).
-
-Silakan **TIMPA / GANTI SEMUA** isi file **`AetherForgeComponent.jsx`** bos dengan kode mutakhir ini:
-
-```jsx
 import React, { useState } from "react";
 import { ethers } from "ethers";
 import AetherForgeFactoryABI from "../contracts/AetherForgeFactoryABI.json";
@@ -48,11 +32,10 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
 
-      // 1. Approve Fee menggunakan ERC20_ABI (Bukan AetherVaultABI)
+      // 1. Approve Fee menggunakan ERC20_ABI
       const aethContract = new ethers.Contract(aethTokenAddress, ERC20_ABI, signer);
       const feeAmount = ethers.parseEther(CREATION_FEE_AMOUNT);
       
-      // 🌟 PERBAIKAN: Cek allowance dulu biar hemat gas dan tidak muncul popup MetaMask kalau sudah approve!
       const currentAllowance = await aethContract.allowance(account, forgeFactoryAddress);
       if (currentAllowance < feeAmount) {
           const approveTx = await aethContract.approve(forgeFactoryAddress, feeAmount);
@@ -82,7 +65,6 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       console.error("DETAIL ERROR MINTING:", err);
       setLoading(false);
       
-      // 🌟 PERBAIKAN: Ekstrak pesan error asli biar ketahuan kalau ada salah dari smart contract
       let realError = err?.reason || err?.data?.message || err?.message || "Unknown error";
       if (realError.toLowerCase().includes("user rejected")) {
           realError = "Dibatalkan oleh pengguna.";
