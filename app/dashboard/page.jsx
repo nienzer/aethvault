@@ -131,6 +131,12 @@ export default function DashboardPage() {
   const [nativeBalance, setNativeBalance] = useState('0.0000');
   const [aethBalance, setAethBalance] = useState(0);
   const [activeTab, setActiveTab] = useState('create');
+  const [explorerQuery, setExplorerQuery] = useState('');
+
+  const jumpToExplorer = (query) => {
+    setExplorerQuery(query);
+    setActiveTab('explorer');
+  };
   const [isOwner, setIsOwner] = useState(false);
 
   const [veAethBalance, setVeAethBalance] = useState(0);
@@ -1447,6 +1453,7 @@ export default function DashboardPage() {
               {activeTab === 'hall' && (
                 <HallOfProof 
                   TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
+                  jumpToExplorer={jumpToExplorer}
                 />
               )}
  
@@ -1532,7 +1539,10 @@ export default function DashboardPage() {
 
               {activeTab === 'explorer' && (
                 <div className="bg-[#0B0817] border border-neutral-900 rounded-3xl p-2 sm:p-4 shadow-xl">
-                    <AetherExplorer />
+                    <AetherExplorer 
+                        handleViewCertificate={handleViewCertificate} 
+                        externalQuery={explorerQuery} 
+                    />
                 </div>
               )}
 

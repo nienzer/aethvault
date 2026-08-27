@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
-import { Search, ShieldCheck, Clock, User, Fingerprint, Activity, AlertCircle, Loader2, Wallet, ArrowRightLeft, CheckCircle, XCircle, FileText, Zap, Coins } from 'lucide-react';
+import { Search, ShieldCheck, Clock, User, Fingerprint, Activity, AlertCircle, Loader2, Wallet, ArrowRightLeft, CheckCircle, XCircle, FileText, Zap, Coins, Award } from 'lucide-react';
 import { ethers } from 'ethers';
 
-export default function AetherExplorer() {
+// 🌟 TERIMA PROP handleViewCertificate DARI PAGE.JSX
+export default function AetherExplorer({ handleViewCertificate, externalQuery }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [resultType, setResultType] = useState(null); // 'address', 'tx', 'file'
+  const [resultType, setResultType] = useState(null); 
   const [searchResult, setSearchResult] = useState(null);
   const [error, setError] = useState('');
 
   const RPC_URL = "https://bsc-testnet-rpc.publicnode.com";
   const VAULT_CONTRACT = "0x4D9Ed118fbCc24dB118fD5B33609a51F50C4B135";
   const AETH_TOKEN = "0xac884F2670cF85dCAF34e750e52B846D8DE3Cf55";
-  const FORGE_FACTORY_ADDRESS = "0x452ceE9B5f3CBF8E9ac7C9fcEc7AC4101349f09E"; // 🌟 Kontrak Pabrik Forge Bos
+  const FORGE_FACTORY_ADDRESS = "0x452ceE9B5f3CBF8E9ac7C9fcEc7AC4101349f09E"; 
+
+  // 👇 Tambahan fitur auto-search dari luar
+  React.useEffect(() => {
+    if (externalQuery && externalQuery !== '') {
+      setSearchQuery(externalQuery);
+      // Tunggu React mengatur state, lalu gas klik tombol submit secara gaib!
+      setTimeout(() => {
+        const fakeEvent = { preventDefault: () => {} };
+        handleSearch(fakeEvent);
+      }, 100);
+    }
+  }, [externalQuery]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -28,14 +41,10 @@ export default function AetherExplorer() {
       let query = searchQuery.trim();
       if (!query.startsWith("0x")) query = "0x" + query;
 
-      // ==========================================
-      // 1. DETEKSI ALAMAT DOMPET / KONTRAK
-      // ==========================================
       if (ethers.isAddress(query)) {
         const balanceWei = await provider.getBalance(query);
         const bnbBalance = ethers.formatEther(balanceWei);
 
-        // Cek Saldo AETH
         const erc20Abi = [
           "function balanceOf(address) view returns (uint256)",
           "function name() view returns (string)",
@@ -52,17 +61,14 @@ export default function AetherExplorer() {
 
         const code = await provider.getCode(query);
         const isContract = code !== "0x";
-
         let forgeData = null;
 
-        // 🌟 JIKA INI KONTRAK, CEK APAKAH INI TOKEN DARI AETHER FORGE
         if (isContract) {
           try {
             const factoryContract = new ethers.Contract(FORGE_FACTORY_ADDRESS, ["function isVerifiedForgeToken(address) view returns (bool)"], provider);
             const isVerifiedForge = await factoryContract.isVerifiedForgeToken(query);
 
             if (isVerifiedForge) {
-              // Jika Verified, Tarik Identitas Tokennya!
               const childToken = new ethers.Contract(query, erc20Abi, provider);
               const tName = await childToken.name();
               const tSymbol = await childToken.symbol();
@@ -91,11 +97,7 @@ export default function AetherExplorer() {
         return;
       }
 
-      // ==========================================
-      // 2. DETEKSI TX HASH / FILE HASH
-      // ==========================================
       if (query.length === 66) {
-        // A. Coba cari sebagai Transaksi Jaringan (Tx Hash)
         try {
           const tx = await provider.getTransaction(query);
           const receipt = await provider.getTransactionReceipt(query);
@@ -118,7 +120,6 @@ export default function AetherExplorer() {
           console.warn("Bukan Transaksi BSC. Mencari di Database AetherVault...");
         }
 
-        // B. Jika bukan Transaksi, coba cari sebagai File Hash AetherVault
         const minimalABI = [
           "function usedHashes(bytes32) view returns (bool)",
           "event ProofMinted(uint256 indexed tokenId, address indexed creator, string category, bool isPublic, bytes32 fileHash, string tokenURI, uint256 blockNumber)"
@@ -172,8 +173,6 @@ export default function AetherExplorer() {
     });
   };
 
-  const formatAddress = (addr) => addr ? `${addr.substring(0, 8)}...${addr.substring(addr.length - 6)}` : '';
-
   return (
     <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 font-sans text-white animate-in fade-in duration-300">
       
@@ -226,7 +225,6 @@ export default function AetherExplorer() {
               <h3 className="text-lg font-bold text-white uppercase tracking-wider">{searchResult.type}</h3>
             </div>
             
-            {/* 🌟 TAMPILAN BADGE JIKA INI ADALAH TOKEN AETHERFORGE */}
             {searchResult.forgeData && (
               <div className="px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[10px] sm:text-xs font-black tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
                 <CheckCircle className="w-4 h-4 text-purple-400" /> VERIFIED BY AETHERFORGE
@@ -240,7 +238,6 @@ export default function AetherExplorer() {
               <p className="text-sm sm:text-base font-mono text-cyan-300 break-all">{searchResult.address}</p>
             </div>
 
-            {/* 🌟 TAMPILAN METRIK TOKEN FORGE */}
             {searchResult.forgeData ? (
               <>
                 <div className="bg-[#05030F] p-4 rounded-xl border border-purple-900/30">
@@ -257,7 +254,6 @@ export default function AetherExplorer() {
                 </div>
               </>
             ) : (
-              // TAMPILAN SALDO DOMPET BIASA
               <>
                 <div className="bg-[#05030F] p-4 rounded-xl border border-neutral-900">
                   <p className="text-[10px] text-neutral-500 tracking-widest mb-1 uppercase">BNB Balance</p>
@@ -314,9 +310,22 @@ export default function AetherExplorer() {
       {/* RESULT: FILE HASH (AETHERVAULT) */}
       {resultType === 'file' && searchResult && (
         <div className="p-6 rounded-2xl bg-gradient-to-br from-[#0c0f1d] to-[#0B0817] border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)] animate-in slide-in-from-bottom-4">
-          <div className="flex items-center gap-3 mb-6 border-b border-cyan-900/50 pb-4">
-            <ShieldCheck className="w-6 h-6 text-cyan-400" />
-            <h3 className="text-lg font-bold text-cyan-400 uppercase tracking-wider">AetherVault Certificate</h3>
+          
+          {/* 🌟 HEADER DENGAN TOMBOL VIEW CERTIFICATE 🌟 */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-cyan-900/50 pb-4">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-6 h-6 text-cyan-400" />
+              <h3 className="text-lg font-bold text-cyan-400 uppercase tracking-wider">AetherVault Certificate</h3>
+            </div>
+            
+            {handleViewCertificate && searchResult.tokenId !== "Valid" && (
+              <button 
+                onClick={() => handleViewCertificate(searchResult.tokenId)}
+                className="px-4 py-2 sm:py-2.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 rounded-xl text-cyan-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] cursor-pointer"
+              >
+                <Award className="w-4 h-4" /> View On-Chain Certificate
+              </button>
+            )}
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

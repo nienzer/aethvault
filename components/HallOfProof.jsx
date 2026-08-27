@@ -61,7 +61,6 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, tHop 
       <div className="absolute bottom-[20px] left-[20px] w-8 h-8 border-b border-l border-white/20 rounded-bl-lg" />
       <div className="absolute bottom-[20px] right-[20px] w-8 h-8 border-b border-r border-white/20 rounded-br-lg" />
 
-      {/* HEADER SECTION */}
       <div className="absolute top-[45px] left-[64px] right-[64px] flex items-center justify-between z-20">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/[0.1] flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.15)]">
@@ -83,7 +82,6 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, tHop 
         </div>
       </div>
 
-      {/* TITLE SECTION */}
       <div className="absolute top-[125px] left-[64px] z-20">
         <div className="flex items-center gap-3 mb-2">
           <span className="w-16 h-px bg-gradient-to-r from-transparent to-white/30" />
@@ -95,7 +93,6 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, tHop 
         <p className="text-[10px] text-white/40 tracking-[0.25em] mt-0.5 font-mono uppercase font-bold">{tHop.certProtocol || "AETHER PROOF COPYRIGHT REGISTRATION PROTOCOL"}</p>
       </div>
 
-      {/* LEFT CONTENT PANEL */}
       <div className="absolute left-[64px] top-[225px] w-[560px] h-[385px] z-20 rounded-[28px] border border-white/[0.06] bg-[#0c101d]/60 p-6 shadow-[0_30px_60px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.05)]">
         <div className="flex justify-between items-start pb-4 border-b border-white/[0.08]">
           <div className="min-w-0 pr-6">
@@ -131,7 +128,6 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, tHop 
         </div>
       </div>
       
-      {/* RIGHT DISPLAY PANEL */}
       <div className="absolute right-[64px] top-[225px] w-[460px] h-[385px] z-20 flex items-center justify-center">
         <div className="absolute inset-0 rounded-[28px] border border-white/[0.06] bg-[#0c101d]/60 shadow-[0_30px_60px_rgba(0,0,0,0.3)] overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -177,7 +173,6 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, tHop 
             <circle cx="200" cy="200" r="58" fill="#111526" stroke="url(#av-glass-frost)" strokeWidth="1" />
           </svg>
 
-          {/* LOGO AETHER ASLI */}
           <div className="absolute inset-0 flex items-center justify-center z-10">
              <div className="w-[86px] h-[86px] bg-[#111526] rounded-full border border-white/20 flex items-center justify-center shadow-[inset_0_0_20px_rgba(6,182,212,0.3),0_0_20px_rgba(6,182,212,0.6)] av-shield-glow">
                 <img src="/logo.png" alt="Logo" className="w-[52px] h-[52px] object-contain opacity-90 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]" />
@@ -200,7 +195,6 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, tHop 
         </div>
       </div>
 
-      {/* FOOTER BAR BANNER */}
       <div className="absolute left-[64px] right-[64px] bottom-[60px] z-20 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex gap-2">
@@ -243,7 +237,7 @@ const CertificateTemplate = React.forwardRef(({ proofData, categoryConfig, tHop 
 CertificateTemplate.displayName = "CertificateTemplate";
 
 // =========================================================
-export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
+export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet", jumpToExplorer }) {
   const { t: globalT } = useLanguage();
   const tHop = globalT.hallOfProof || {};
 
@@ -278,7 +272,6 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
       const DEPLOY_BLOCK = 125804762;
       const currentBlock = await provider.getBlockNumber();
       
-      // LOGIKA AMAN: Hanya ambil 49.000 blok terakhir agar server RPC tidak memblokir koneksi
       let allEvents = [];
       let fromBlock = Math.max(DEPLOY_BLOCK, currentBlock - 49000);
       const maxBlockRange = 4900; 
@@ -311,7 +304,6 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
         let extractedCreator = "";
 
         try {
-          // JURUS MUTLAK: Langsung minta metadata ke Smart Contract
           let tokenUriRaw = "";
           try { 
             tokenUriRaw = await contract.tokenURI(tokenId); 
@@ -484,23 +476,32 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
                       <span className="text-neutral-500">{tHop.ownerWallet || "Owner Wallet"}</span>
                       <span className="text-cyan-400">{formatAddressFunc(proof.wallet)}</span>
                     </div>
-                    <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-neutral-500">{tHop.tokenIdLabel || "Token ID"}</span>
-                      <span className="text-amber-300">#{proof.tokenId}</span>
-                    </div>
                   </div>
                 </div>
 
-                <div className="relative z-10 pt-4 border-t border-neutral-800 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 font-mono">
-                    <Calendar className="w-3.5 h-3.5" /> {proof.date}
+                <div className="relative z-10 pt-4 border-t border-neutral-800 flex flex-col gap-3">
+                  <div className="flex items-center justify-between text-[10px] font-mono bg-cyan-950/20 px-2.5 py-1.5 rounded-lg border border-cyan-900/30">
+                    <span className="text-neutral-500">File Hash:</span>
+                    <button 
+                      onClick={() => jumpToExplorer && jumpToExplorer(proof.fileHash)}
+                      className="text-cyan-400 hover:text-cyan-300 hover:underline font-bold cursor-pointer"
+                      title="Search in AetherScan"
+                    >
+                      {formatAddressFunc(proof.fileHash)}
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => setSelectedProof(proof)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all cursor-pointer"
-                  >
-                    <Eye className="w-3.5 h-3.5" /> {tHop.viewBtn || "View"}
-                  </button>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-[10px] text-neutral-500 font-mono">
+                      <Calendar className="w-3.5 h-3.5" /> {proof.date}
+                    </div>
+                    <button 
+                      onClick={() => setSelectedProof(proof)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> {tHop.viewBtn || "View"}
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -508,7 +509,6 @@ export default function HallOfProof({ TARGET_CHAIN_NAME = "BSC Testnet" }) {
         </div>
       )}
 
-      {/* MODAL POPUP */}
       {selectedProof && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
           <div className="relative flex flex-col bg-[#05030F] border border-cyan-500/30 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden">
