@@ -115,6 +115,7 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
 
         const minimalABI = [
           "function usedHashes(bytes32) view returns (bool)",
+          "function tokenURI(uint256) view returns (string)", // 🌟 TAMBAHAN: FUNGSI TOKEN URI
           "event ProofMinted(uint256 indexed tokenId, address indexed creator, string category, bool isPublic, bytes32 fileHash, string tokenURI, uint256 blockNumber)"
         ];
         const vaultContract = new ethers.Contract(VAULT_CONTRACT, minimalABI, provider);
@@ -140,7 +141,7 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
               const blockData = await provider.getBlock(matchedEvent.blockNumber);
               timestamp = blockData.timestamp;
 
-              // 🌟 BONGKAR METADATA UNTUK USERNAME DI AETHERSCAN 🌟
+              // 🌟 LOGIKA BONGKAR METADATA IDENTIK DENGAN HALL OF PROOF 🌟
               try {
                 const tokenUriRaw = await vaultContract.tokenURI(tokenId);
                 if (tokenUriRaw && typeof tokenUriRaw === 'string' && tokenUriRaw.includes('base64,')) {
@@ -151,6 +152,7 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
                   } catch (e1) {
                     jsonString = window.atob(base64Payload);
                   }
+                  
                   const metadata = JSON.parse(jsonString);
                   if (metadata.attributes) {
                     const creatorAttr = metadata.attributes.find(a => a.trait_type === "Creator");
@@ -159,14 +161,16 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
                     }
                   }
                 }
-              } catch (err) {}
+              } catch (err) {
+                console.warn("Gagal parse tokenURI:", err);
+              }
             }
           } catch (e) {}
 
           setSearchResult({
             hash: query,
             owner: ownerWallet,
-            creator: creatorName || "Verified Creator", // 🌟 MENGGUNAKAN FALLBACK RAPI
+            creator: creatorName || "Verified Creator", 
             timestamp: timestamp,
             category: category,
             tokenId: tokenId
@@ -322,7 +326,6 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
         </div>
       )}
 
-      {/* 🌟 RESULT: FILE HASH DENGAN 3 KOLOM DETAIL (USERNAME, WALLET, TGL) 🌟 */}
       {resultType === 'file' && searchResult && (
         <div className="p-6 rounded-2xl bg-gradient-to-br from-[#0c0f1d] to-[#0B0817] border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)] animate-in slide-in-from-bottom-4">
           
@@ -342,7 +345,6 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
             )}
           </div>
           
-          {/* 🌟 GRID 3 KOLOM SEPERTI VERIFY PROOF 🌟 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             
             <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30 shadow-inner">

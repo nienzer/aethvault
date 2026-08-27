@@ -101,6 +101,7 @@ export default function VerifyProof() {
       
       const minimalABI = [
         "function usedHashes(bytes32) view returns (bool)",
+        "function tokenURI(uint256) view returns (string)", // 🌟 TAMBAHAN: FUNGSI TOKEN URI
         "event ProofMinted(uint256 indexed tokenId, address indexed creator, string category, bool isPublic, bytes32 fileHash, string tokenURI, uint256 blockNumber)"
       ];
       const contract = new ethers.Contract(CONTRACT_ADDRESS, minimalABI, provider);
@@ -125,7 +126,7 @@ export default function VerifyProof() {
             const blockData = await provider.getBlock(matchedEvent.blockNumber);
             timestamp = blockData.timestamp;
 
-            // 🌟 PEMBONGKAR METADATA SUPER TANGGUH 🌟
+            // 🌟 LOGIKA BONGKAR METADATA IDENTIK DENGAN HALL OF PROOF 🌟
             try {
               const tokenId = matchedEvent.args[0];
               const tokenUriRaw = await contract.tokenURI(tokenId);
@@ -149,7 +150,7 @@ export default function VerifyProof() {
                 }
               }
             } catch (err) {
-              console.warn("Gagal membongkar token URI di VerifyProof:", err);
+              console.warn("Gagal parse token URI di VerifyProof:", err);
             }
           }
         } catch (e) {
@@ -158,8 +159,7 @@ export default function VerifyProof() {
 
         setVerifyDetails({
           wallet: ownerWallet,
-          // 🌟 FALLBACK RAPI: Kalau creator name kosong, tulis "Verified Creator" 🌟
-          creator: creatorName || "Verified Creator", 
+          creator: creatorName || "Verified Creator", // 🌟 MENGGUNAKAN FALLBACK RAPI
           timestamp: timestamp,
           category: category
         });

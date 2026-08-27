@@ -911,7 +911,7 @@ export const id = {
     daoTxVoteSuccess: "Suara Voting Berhasil Dicatat!",
     daoTxVoteFail: "Gagal Voting: ",
     daoErrThreshold: "Voting Power kurang! Minimal {threshold} Votes untuk membuat proposal.",
-    menuForge: "AetherForge (Pencetak)",
+    menuForge: "AetherForge",
     forgeTitle: "AetherForge Token Creator",
     forgeSubtitle: "Pabrik Token Kustom Anti-Spam Terdesentralisasi",
     forgeDesc: "Cetak token BEP-20 kustom Anda secara instan. Dilengkapi dengan mekanisme pembagian otomatis (Burn, Staking Reward, & Treasury DAO).",

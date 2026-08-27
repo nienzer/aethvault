@@ -911,7 +911,7 @@ export const en = {
     daoTxVoteSuccess: "Vote Successfully Recorded!",
     daoTxVoteFail: "Voting failed: ",
     daoErrThreshold: "Insufficient Voting Power! Minimum {threshold} Votes required to propose.",
-    menuForge: "AetherForge (Creator)",
+    menuForge: "AetherForge",
     forgeTitle: "AetherForge Token Creator",
     forgeSubtitle: "Decentralized Anti-Spam Custom Token Factory",
     forgeDesc: "Mint your custom BEP-20 token instantly. Equipped with automated mechanisms (Burn, Staking Reward, & DAO Treasury).",
