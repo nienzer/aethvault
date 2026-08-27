@@ -9,7 +9,7 @@ const CONTRACT_ADDRESS = "0x4D9Ed118fbCc24dB118fD5B33609a51F50C4B135";
 const formatAddressFunc = (addr, fallback) => addr ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}` : fallback;
 
 // =========================================================
-// RENDER PEMBARUAN: FIXED TINTED GLASSMORPHIC NFT - VAULT
+// RENDER PEMBARUAN: FIXED TINTED GLASSMORPHIC NFT - VAULT.
 // =========================================================
 const CertificateTemplate = React.forwardRef(({ data, networkName, tCert }, ref) => {
   const certificateId = data?.capsuleId || tCert.pending || "PENDING";
