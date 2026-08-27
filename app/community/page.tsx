@@ -5,8 +5,8 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export default function CommunityPage() {
   // Panggil data bahasa dari Context
-  const { t: globalT } = useLanguage();
-  const t = (globalT as any)?.communityPage || {};
+  const { t: globalT, lang } = useLanguage();
+  const t = globalT.communityPage;
 
   return (
     <div className="min-h-screen bg-[#030508] text-gray-200 font-sans overflow-x-hidden relative flex flex-col items-center">
