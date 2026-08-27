@@ -36,31 +36,7 @@ Ran 35 tests for test/AetherVault.t.sol:AetherVaultEcosystemTest
 [PASS] test_Vesting_TotalAllocatedIsFixed() (gas: 5535)
 [PASS] test_veAETH_BindToAethToken() (gas: 7871)
 [PASS] test_veAETH_DepositAndMintSoulbound() (gas: 219680)
-Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 27.03ms (15.90ms CPU time)
-
-Ran 2 tests for test/AetherVaultAudit.t.sol:AetherVaultAuditTest
-[PASS]
-AetherVaultAuditTest invariants:
-[PASS] invariant_StakingContractMustAlwaysHoldEnoughTokens
-[PASS] invariant_StakingMathIsPerfect
-[PASS] invariant_VaultCapsuleCountIsAccurate
-[PASS] invariant_VaultFeeDistributionIsFair
- AetherVaultAuditTest invariants (runs: 256, calls: 128000, reverts: 0)
-
-╭--------------------+-------------------------------+-------+---------+----------╮
-| Contract           | Selector                      | Calls | Reverts | Discards |
-+=================================================================================+
-| AetherVaultHandler | advanceTimeAndTryClaimVesting | 31955 | 0       | 0        |
-|--------------------+-------------------------------+-------+---------+----------|
-| AetherVaultHandler | forgeTokenRandom              | 32217 | 0       | 0        |
-|--------------------+-------------------------------+-------+---------+----------|
-| AetherVaultHandler | sealCapsuleRandomTime         | 31910 | 0       | 0        |
-|--------------------+-------------------------------+-------+---------+----------|
-| AetherVaultHandler | stakeRandom                   | 31918 | 0       | 0        |
-╰--------------------+-------------------------------+-------+---------+----------╯
-
-[PASS] testFuzz_veAETH_IsSoulboundAndCannotBeTransferred(uint256,address) (runs: 256, μ: 457275, ~: 457623)
-Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 249.38s (249.91s CPU time)
+Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 23.68ms (13.40ms CPU time)
 
 ╭------------------------------------------------+-----------------+------+--------+------+---------╮
 | src/AetherGovernor.sol:AetherGovernor Contract |                 |      |        |      |         |
@@ -91,9 +67,9 @@ Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 249.38s (249.91s CP
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | allowance                                |            2760 |  2760 |   2760 |  2760 |       4 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| approve                                  |           26484 | 43716 |  46396 | 46432 |   83798 |
+| approve                                  |           46384 | 46392 |  46396 | 46396 |      15 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| balanceOf                                |             642 |  2557 |   2642 |  2642 |  566656 |
+| balanceOf                                |             642 |  2615 |   2642 |  2642 |     375 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | totalBurnedAeth                          |            2406 |  2406 |   2406 |  2406 |       2 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
@@ -117,9 +93,9 @@ Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 249.38s (249.91s CP
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
 | aethToken                                                              |             325 |    325 |    325 |    325 |       1 |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
-| stake                                                                  |           28957 | 230887 | 268598 | 317110 |   27750 |
+| stake                                                                  |           28957 | 251862 | 301962 | 301962 |       7 |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
-| totalStaked                                                            |            2361 |   2361 |   2361 |   2361 |       3 |
+| totalStaked                                                            |            2361 |   2361 |   2361 |   2361 |       2 |
 ╰------------------------------------------------------------------------+-----------------+--------+--------+--------+---------╯
 
 ╭------------------------------------------+-----------------+-------+--------+-------+---------╮
@@ -135,7 +111,7 @@ Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 249.38s (249.91s CP
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | beneficiary                              |            2359 |  2359 |   2359 |  2359 |       1 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| claim                                    |           28574 | 36489 |  36490 | 36725 |   32093 |
+| claim                                    |           28574 | 29727 |  29727 | 30880 |       2 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | claimableAmount                          |            2508 |  2556 |   2556 |  2604 |       2 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
@@ -143,4 +119,30 @@ Suite result: ok. 2 passed; 0 failed; 0 skipped; finished in 249.38s (249.91s CP
 ╰------------------------------------------+-----------------+-------+--------+-------+---------╯
 
 
-Ran 2 test suites in 258.59s (249.40s CPU time): 37 tests passed, 0 failed, 0 skipped (37 total tests)
+Ran 1 test suite in 392.89ms (23.68ms CPU time): 35 tests passed, 0 failed, 0 skipped (35 total tests)
+No files changed, compilation skipped
+
+Ran 1 test for test/AetherVaultAudit.t.sol:AetherVaultAuditTest
+[PASS]
+AetherVaultAuditTest invariants:
+[PASS] invariant_AETH_Supply_Must_Never_Inflate
+[PASS] invariant_ContractBalance_Healthy
+[PASS] invariant_TotalBurned_Must_Match
+[PASS] invariant_Treasury_Must_Match_Ghost
+ AetherVaultAuditTest invariants (runs: 256, calls: 128000, reverts: 0)
+
+╭--------------------------+-------------------------+-------+---------+----------╮
+| Contract                 | Selector                | Calls | Reverts | Discards |
++=================================================================================+
+| AetherVaultBrutalHandler | attack_DonateDust       | 32017 | 0       | 0        |
+|--------------------------+-------------------------+-------+---------+----------|
+| AetherVaultBrutalHandler | attack_SpamTokenMinting | 31813 | 0       | 0        |
+|--------------------------+-------------------------+-------+---------+----------|
+| AetherVaultBrutalHandler | chaos_TimeWarp          | 31921 | 0       | 0        |
+|--------------------------+-------------------------+-------+---------+----------|
+| AetherVaultBrutalHandler | user_StakeTokens        | 32249 | 0       | 0        |
+╰--------------------------+-------------------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 94.09s (94.08s CPU time)
+
+Ran 1 test suite in 94.23s (94.09s CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)

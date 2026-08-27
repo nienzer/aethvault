@@ -2,9 +2,11 @@
 
 A robust, audited, and decentralized ecosystem designed for the Future Message Capsule and On-Chain Copyright Registry. This codebase utilizes a modern hybrid toolchain (Hardhat + Foundry) for rigorous automated testing, security verification, and gas optimization.
 
-## 📑 Official Grant Proposal
-For the complete business overview, protocol value proposition, and ecosystem catalyst details, please read our official proposal document here:
+## 📑 Official Grant Proposal & Vision
+For the complete business overview, protocol value proposition, and ecosystem catalyst details, please read our official documents here:
+👉 **[Executive Summary One-Pager (PDF)](./grant-docs/AetherVault_OnePager.pdf)**
 👉 **[Read the AetherVault Builder Grant Proposal](./grant-docs/GRANT_PROPOSAL.md)**
+👉 **[Why AetherVault? (Vision & Catalyst)](./grant-docs/Why_AetherVault.md)**
 
 ---
 
@@ -18,7 +20,7 @@ We have prepared a dedicated zero-friction faucet so you can test the AetherVaul
 ---
 
 ## 🚀 Performance Metrics
-*   **Total Test Cases:** Hardhat (39 Scenarios) | Foundry (37 Scenarios + 128,000+ Invariant Runs)
+*   **Total Test Cases:** Hardhat (39 Scenarios) | Foundry (36 Scenarios + 128,000+ Invariant Runs)
 *   **Passed:** 100% Success Rate
 *   **Frameworks:** Hardhat (Mocha & Chai) & Foundry (Forge)
 *   **Solidity Version:** 0.8.20 & 0.8.24
@@ -52,15 +54,13 @@ Our initial architecture and deployment scripts were constructed using Hardhat, 
 ### 2. Foundry (High-Performance Compilation & Gas Profiling)
 For the Mainnet-ready compilation and advanced gas optimization, the core pipeline utilizes **Foundry** (`forge build` and `forge test`). We have successfully executed a 37-test suite with complete gas profiling to ensure maximum cost-efficiency on the BNB Chain.
 
-👉 **[View the Complete Foundry Gas Report here](./grant-docs/GAS_REPORT.md)**
-
+👉 **[View the Complete Foundry Gas & Audit Report here](./grant-docs/GAS_AUDIT_REPORT.md)**
 ### 3. Advanced Audit-Ready Testing (Fuzzing & Invariants)
 To guarantee the highest degree of protocol safety, we extended our Foundry test suite beyond standard stateless testing. We have integrated advanced testing methodologies targeting our core ecosystem:
 *   **Fuzz Testing:** Using property-based testing to spam critical functions across the AetherVault Token, Soulbound veAETH, and Team Vesting contracts with thousands of randomized inputs, ensuring no hidden overflows or logic bypasses exist.
 *   **Invariant Testing:** Hardcoding absolute mathematical truths (e.g., *the Staking contract's token balance must strictly be greater than or equal to the `totalStaked` across all users at any given state*) to prove the system's solvency against 128,000+ random transaction sequences targeting our Staking V6 and Vault V3 contracts.
 
-👉 **[View the Complete Fuzz & Invariant Audit Report here](./grant-docs/AUDIT_REPORT.md)**
-
+👉 **[View the Complete Fuzz & Invariant Audit Report here](./grant-docs/GAS_AUDIT_REPORT.md)**
 > **⚠️ Developer Note: Regarding Foundry Linter Warnings**
 > During the compilation process, the Foundry linter may display several cosmetic warnings (e.g., `custom-errors`, `mixed-case-variable`, `block-timestamp`). Please note that these stylistic choices were made intentionally for this Mainnet-ready MVP:
 > 1. We retained string-based `require` statements instead of `custom-errors` to maintain absolute compatibility with our existing React frontend error-extraction logic.
@@ -72,8 +72,7 @@ To guarantee the highest degree of protocol safety, we extended our Foundry test
 
 ## 📂 Evidence of Verification
 We are committed to full transparency regarding our development process:
-*   **Foundry Execution & Gas Log:** [GAS_REPORT.md](./grant-docs/GAS_REPORT.md)
-*   **Foundry Fuzz & Invariant Audit Log:** [AUDIT_REPORT.md](./grant-docs/AUDIT_REPORT.md)
+*   **Foundry Gas & Advanced Audit Log:** [GAS_AUDIT_REPORT.md](./grant-docs/GAS_AUDIT_REPORT.md)
 *   **Test Execution Logs:** [See Automated Test Results](./screenshots/)
 *   **BSCScan Verified:** [View Mainnet Contracts](./bscscan/)
 

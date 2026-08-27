@@ -19,6 +19,7 @@ We integrate four core products into one seamless ecosystem:
 *   **Fragility of Digital Inheritance:** Billions of dollars in crypto assets are lost because owners pass away without bequeathing private keys. AetherVault automates inheritance without third-party lawyers or centralized custodians.
 *   **Lack of Universal Proof of Ownership:** Creators struggle to prove the absolute authenticity of their digital works. We solve this by issuing permanent on-chain ownership certificates based on Keccak256 hashes.
 *   **Compromised Privacy:** Web2 cloud services hold the decryption keys to user data. AetherVault uses client-side encryption before distributing ciphertext to permanent storage (Arweave), ensuring zero-knowledge privacy.
+*   **Spam & Scam Token Proliferation:** Creating tokens is too easy and often used for spam or rug-pulls. AetherForge solves this by introducing a mandatory creation fee (Anti-Spam Barrier) that automatically routes funds to burn mechanisms, staking rewards, and the DAO treasury, ensuring only serious projects are minted.
 
 ---
 
@@ -29,6 +30,7 @@ We integrate four core products into one seamless ecosystem:
 | **Data Security** | Centralized servers, vulnerable to hacks. | 100% Zero-Knowledge, client-side ECIES encryption. |
 | **IP Integrity** | Relies on third-party authorities. | Absolute on-chain validation (Aether Proof™). |
 | **Asset Inheritance** | Manual legal processes, slow & expensive. | Smart Contract automation (Dead-Man's Switch). |
+| **Token Generation** | N/A (Requires custom coding or expensive audits). | AetherForge (1-click minting with built-in deflationary tokenomics). |
 | **Economic Model** | Value extraction to corporate entities. | Automated deflation ($AETH burn) & DAO revenue sharing. |
 
 ---
@@ -49,7 +51,7 @@ The AetherVault ecosystem has been built with a "Security-First" paradigm, ensur
 *   **Automated Static Analysis (Slither):** Meticulous static scanning via the Slither analyzer was performed during early compilation phases. High-level security alarms flagged during the automated scan have been thoroughly verified by our engineering team as architectural false-positives. These are native design constraints required for delta-balance tracking and have been formally acknowledged, mitigated, and documented within the source repository via explicit inline suppression tags.
 
 Our complete verification reports can be inspected directly in the repository:
-👉 **[View the Complete Foundry Gas & Audit Report](./GAS&AUDIT_REPORT.md)**
+👉 **[View the Complete Foundry Gas & Audit Report](./GAS_AUDIT_REPORT.md)**
 
 ---
 
@@ -62,7 +64,20 @@ AetherVault is natively optimized to thrive within the BNB Chain Ecosystem, heav
 
 ---
 
-## 7. Dedicated Testing Infrastructure for Judges
+---
+
+## 7. Grant Request & Use of Funds ($30,000 Phase 1 Catalyst)
+We operate under a lean, high-efficiency development model, having independently engineered 90% of the core AetherVault architecture. We are requesting a **$30,000 Builder Grant** strictly allocated to ensure institutional-grade security and facilitate a robust Mainnet ecosystem launch.
+
+**Budget Allocation:**
+*   **40% ($12,000) - Security & Smart Contract Audit:** Independent third-party security audits (e.g., CertiK, Hacken) to guarantee zero-compromise contract integrity prior to public launch.
+*   **30% ($9,000) - Infrastructure & DevOps:** Dedicated premium RPC nodes, permanent Arweave storage integration overhead, and operational deployment costs.
+*   **20% ($6,000) - Marketing & Bug Bounty:** Early adopter acquisition campaigns and white-hat penetration testing incentives.
+*   **10% ($3,000) - Initial Liquidity Provision:** Initial protocol-owned liquidity pairing ($AETH) on decentralized exchanges to kickstart network utility.
+
+---
+
+## 8. Dedicated Testing Infrastructure for Judges
 To ensure a seamless evaluation process, AetherVault provides a dedicated VIP Testnet Faucet exclusively for hackathon judges and reviewers. Reviewers can instantly mint AETH test tokens without the hassle of bridging assets or paying external gas fees, streamlining the entire testing experience and showcasing our commitment to superior Web3 user experience (UX).
 
 ---

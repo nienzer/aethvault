@@ -23,6 +23,7 @@ We have prepared a dedicated zero-friction faucet so you can test the AetherVaul
 *   **Aether Capsule:** Military-grade ECIES-encrypted time-capsule storage.
 *   **Legacy Vault:** Autonomous "Dead-man's Switch" for secure digital inheritance.
 *   **Aether Proof™:** On-chain NFT registry for IP ownership and verification.
+*   **AetherForge:** Anti-spam custom token factory with automated deflationary fee routing.
 *   **DAO Governance:** Decentralized voting powered by `veAETH` escrowed tickets.
 *   **Perpetual Data:** Powered by **Irys & Arweave** for permanent file persistence.
 
@@ -38,9 +39,10 @@ We have prepared a dedicated zero-friction faucet so you can test the AetherVaul
 ## 🛠️ Official Resources
 | Resource | Description |
 | :--- | :--- |
-| **[Grant Proposal](smart-contracts-with-test-suite/grant-docs/GRANT_PROPOSAL.md)** | Official project proposal for BNB Chain Builder Grant. |
-| **[Gas Report Log](smart-contracts-with-test-suite/grant-docs/GAS_REPORT.txt)** | Complete Foundry gas profiling and execution metrics. |
-| **[Fuzz & Invariant Audit Log](smart-contracts-with-test-suite/grant-docs/AUDIT_REPORT.txt)** | Advanced security stress-test report (128,000+ runs). |
+| **[Executive Summary One-Pager (PDF)](smart-contracts-with-test-suite/grant-docs/AetherVault_OnePager.pdf)** | 1-Page high-level business and vision summary. |
+| **[Grant Proposal](smart-contracts-with-test-suite/grant-docs/GRANT_PROPOSAL.md)** | Official project proposal and use of funds ($30,000 Phase 1). |
+| **[Why AetherVault?](smart-contracts-with-test-suite/grant-docs/Why_AetherVault.md)** | Deep dive into our vision and ecosystem catalyst. |
+| **[Gas & Advanced Audit Report](smart-contracts-with-test-suite/grant-docs/GAS_AUDIT_REPORT.md)** | Complete Foundry gas profiling and 128,000+ Fuzz/Invariant test runs. |
 | **[Technical Suite](smart-contracts-with-test-suite/)** | Production-ready contracts, test logs, and security audit. |
 | **[Video Demo](https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK_HERE)** | Walkthrough of the protocol features & UI. |
 

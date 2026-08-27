@@ -3,7 +3,8 @@ import { useWeb3Modal, useWeb3ModalAccount, useWeb3ModalProvider, useDisconnect 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Buffer } from 'buffer';
 import { uploadEncryptedFileService } from '@/lib/storageService';
-import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock, Scale, Zap } from 'lucide-react';
+// 👇 FIX: Menambahkan Search di impor lucide-react
+import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock, Scale, Zap, Search } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
@@ -30,7 +31,8 @@ import HallOfProof from '@/components/HallOfProof';
 import VerifyProof from '@/components/VerifyProof';
 import GovernancePanel from '@/components/GovernancePanel';
 import AdminPanel from '@/components/AdminPanel';
-import AetherForgeComponent from '@/components/AetherForgeComponent'; // 🌟 IMPOR KOMPONEN FORGE BARU
+import AetherForgeComponent from '@/components/AetherForgeComponent';
+import AetherExplorer from '@/components/AetherExplorer';
 
 import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import StakingArtifact from '@/contracts/StakingABI.json';
@@ -1223,6 +1225,7 @@ export default function DashboardPage() {
         { id: 'governance', icon: Scale, label: 'DAO / Governance' },
         { id: 'forge', icon: Zap, label: t.menuForge || 'AetherForge' },
         { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
+        { id: 'explorer', icon: Search, label: t.menuExplorer || 'AetherScan Explorer' },
         { id: 'history', icon: History, label: t.menuHistory || 'History' },
         { id: 'stats', icon: Flame, label: t.menuStats || 'Global Stats' },
         { id: 'staking', icon: Coins, label: t.menuStaking || 'Staking V6' },
@@ -1422,16 +1425,15 @@ export default function DashboardPage() {
                 />
               )}
 
-              {/* 🌟 RENDER KOMPONEN AETHERFORGE KETIKA MENU FORGE DIPILIH */}
-{activeTab === 'forge' && (
-  <AetherForgeComponent 
-    account={address} 
-    forgeFactoryAddress={FORGE_FACTORY_ADDRESS}
-    aethTokenAddress={AETH_TOKEN_ADDRESS}
-    showToast={showToast}
-    t={tRef.current}  // <-- Tambahkan ini bos
-  />
-)}
+              {activeTab === 'forge' && (
+                <AetherForgeComponent 
+                  account={address} 
+                  forgeFactoryAddress={FORGE_FACTORY_ADDRESS}
+                  aethTokenAddress={AETH_TOKEN_ADDRESS}
+                  showToast={showToast}
+                  t={tRef.current}
+                />
+              )}
 
               {activeTab === 'proof' && (
                 <AetherProofHub
@@ -1525,6 +1527,12 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {activeTab === 'explorer' && (
+                <div className="bg-[#0B0817] border border-neutral-900 rounded-3xl p-2 sm:p-4 shadow-xl">
+                    <AetherExplorer />
                 </div>
               )}
 

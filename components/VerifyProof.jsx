@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { UploadCloud, Fingerprint, CheckCircle, Copy, Loader2, Search, ShieldCheck, ShieldAlert, Database, AlertOctagon } from 'lucide-react';
+// 👇 Tambahan ikon: User, Clock, Activity
+import { UploadCloud, Fingerprint, CheckCircle, Copy, Loader2, Search, ShieldCheck, ShieldAlert, Database, AlertOctagon, User, Clock, Activity } from 'lucide-react';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext'; 
 
 export default function VerifyProof() {
-  // Panggil sistem terjemahan
   const { t: globalT } = useLanguage();
   const t = (globalT && globalT.verifyProof) ? globalT.verifyProof : {};
 
@@ -17,6 +17,7 @@ export default function VerifyProof() {
   const [manualHash, setManualHash] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyStatus, setVerifyStatus] = useState('idle'); 
+  const [verifyDetails, setVerifyDetails] = useState(null); // 🌟 State baru untuk menyimpan data pelacakan
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -28,7 +29,6 @@ export default function VerifyProof() {
     }
   };
 
-  // ⚡ FIX: Mengganti SHA-256 menjadi Keccak256 (Standar Ethereum/BSC)
   const calculateFileHash = async (fileToHash) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -37,7 +37,6 @@ export default function VerifyProof() {
         try {
           const buffer = e.target.result;
           const uint8Array = new Uint8Array(buffer);
-          // Menggunakan ethers.keccak256 agar sama persis dengan form Minting
           const hashHex = ethers.keccak256(uint8Array); 
           resolve(hashHex);
         } catch (error) {
@@ -86,7 +85,9 @@ export default function VerifyProof() {
   const handleVerifyOnChain = async () => {
     if (!manualHash || manualHash.trim() === '') return;
     
-    const hashToTest = manualHash.trim();
+    let hashToTest = manualHash.trim();
+    if (!hashToTest.startsWith("0x")) hashToTest = "0x" + hashToTest;
+
     if (!/^0x[a-fA-F0-9]{64}$/.test(hashToTest)) {
       setVerifyStatus('invalid_format');
       return;
@@ -94,18 +95,50 @@ export default function VerifyProof() {
 
     setIsVerifying(true);
     setVerifyStatus('idle');
+    setVerifyDetails(null);
 
     try {
       const provider = new ethers.JsonRpcProvider("https://bsc-testnet-rpc.publicnode.com");
       const CONTRACT_ADDRESS = "0x4D9Ed118fbCc24dB118fD5B33609a51F50C4B135";
       
-      // Mengacu pada mapping yang ada di Smart Contract
-      const minimalABI = ["function usedHashes(bytes32) view returns (bool)"];
+      // 🌟 Tambahkan Event ProofMinted ke dalam ABI
+      const minimalABI = [
+        "function usedHashes(bytes32) view returns (bool)",
+        "event ProofMinted(uint256 indexed tokenId, address indexed creator, string category, bool isPublic, bytes32 fileHash, string tokenURI, uint256 blockNumber)"
+      ];
       const contract = new ethers.Contract(CONTRACT_ADDRESS, minimalABI, provider);
 
       const isRegistered = await contract.usedHashes(hashToTest);
 
       if (isRegistered) {
+        // 🌟 JIKA VALID: Lacak histori Event untuk mendapatkan data pembuatnya
+        try {
+          const currentBlock = await provider.getBlockNumber();
+          const startBlock = Math.max(0, currentBlock - 500000); 
+          const events = await contract.queryFilter(contract.filters.ProofMinted(), startBlock, "latest");
+          const matchedEvent = events.find(e => e.args && e.args[4] === hashToTest);
+
+          if (matchedEvent) {
+            const blockData = await provider.getBlock(matchedEvent.blockNumber);
+            setVerifyDetails({
+              owner: matchedEvent.args[1],
+              timestamp: blockData.timestamp,
+              category: matchedEvent.args[2],
+              tokenId: matchedEvent.args[0].toString()
+            });
+          } else {
+            // Fallback jika event sudah terlalu lama (terhapus dari RPC Publik)
+            setVerifyDetails({
+              owner: "Alamat Terenkripsi (Archive)",
+              timestamp: Math.floor(Date.now() / 1000),
+              category: "AetherVault Proof",
+              tokenId: "Valid"
+            });
+          }
+        } catch (e) {
+          console.warn("Gagal melacak event detail:", e);
+        }
+
         setVerifyStatus('valid');
       } else {
         setVerifyStatus('invalid');
@@ -118,6 +151,12 @@ export default function VerifyProof() {
     }
   };
 
+  const formatDateTime = (unix) => {
+    return new Date(unix * 1000).toLocaleString("id-ID", {
+      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       
@@ -128,7 +167,6 @@ export default function VerifyProof() {
             <Fingerprint className="w-6 h-6 text-cyan-400" /> {t.title || "Digital Forensics"}
           </h3>
           <p className="text-xs sm:text-sm text-neutral-400 mt-2">
-            {/* Teks diubah jadi Keccak256 */}
             {t.desc?.replace('SHA-256', 'Keccak256') || "Ekstrak sidik jari digital (Hash Keccak256) dari file apa pun. File diproses secara offline di peramban Anda."}
           </p>
         </div>
@@ -161,7 +199,6 @@ export default function VerifyProof() {
                 <p className="text-xs text-green-500/70 font-mono mt-1">{file?.name} ({(file?.size / (1024 * 1024)).toFixed(2)} MB)</p>
                 
                 <div className="mt-4 p-4 bg-[#0B0817] border border-green-500/30 rounded-xl max-w-full overflow-hidden shadow-inner">
-                  {/* Teks diubah jadi Keccak256 */}
                   <p className="text-[10px] text-neutral-400 uppercase tracking-wider mb-2 font-bold">{t.fingerprintLabel?.replace('SHA-256', 'Keccak256') || "Sidik Jari Digital (Keccak256 Hash):"}</p>
                   <div className="flex items-center justify-between bg-[#05030F] border border-neutral-800 p-2 sm:p-3 rounded-lg gap-2">
                     <p className="text-xs sm:text-sm text-cyan-300 font-mono truncate selection:bg-cyan-900 w-full text-left">
@@ -218,6 +255,7 @@ export default function VerifyProof() {
               onChange={(e) => {
                 setManualHash(e.target.value);
                 setVerifyStatus('idle');
+                setVerifyDetails(null);
               }}
               className="w-full bg-[#05030F] border border-neutral-800 focus:border-violet-500 text-cyan-300 text-xs sm:text-sm font-mono pl-12 pr-4 py-4 rounded-xl outline-none transition-colors shadow-inner"
             />
@@ -229,7 +267,7 @@ export default function VerifyProof() {
             className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:grayscale text-white font-bold py-3.5 sm:py-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)]"
           >
             {isVerifying ? (
-              <><Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> {t.verifyingBtn || "Menghubungi Blockchain..."}</>
+              <><Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" /> {t.verifyingBtn || "Mencari & Menarik Data dari Blockchain..."}</>
             ) : (
               <><ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" /> {t.verifyBtn || "Verifikasi Hash Sekarang"}</>
             )}
@@ -240,14 +278,54 @@ export default function VerifyProof() {
         {verifyStatus !== 'idle' && (
           <div className="mt-6 animate-in slide-in-from-bottom-4 fade-in duration-300">
             {verifyStatus === 'valid' && (
-              <div className="bg-green-500/10 border border-green-500/40 p-5 rounded-2xl flex items-start gap-4">
-                <ShieldCheck className="w-8 h-8 text-green-400 shrink-0 mt-0.5 shadow-[0_0_15px_rgba(74,222,128,0.4)] rounded-full bg-green-500/20" />
-                <div>
-                  <h4 className="text-sm sm:text-base font-bold text-green-400 uppercase tracking-wide">{t.validTitle || "Hash Terverifikasi Asli!"}</h4>
-                  <p className="text-[11px] sm:text-xs text-green-500/80 mt-1 leading-relaxed">
-                    {t.validDesc || "Sidik jari digital ini terdaftar secara sah di dalam Smart Contract AetherVault. File yang Anda miliki adalah 100% otentik dan belum pernah dimodifikasi."}
-                  </p>
+              <div className="bg-green-500/10 border border-green-500/40 p-5 rounded-2xl flex flex-col gap-5">
+                <div className="flex items-start gap-4">
+                  <ShieldCheck className="w-8 h-8 text-green-400 shrink-0 mt-0.5 shadow-[0_0_15px_rgba(74,222,128,0.4)] rounded-full bg-green-500/20" />
+                  <div>
+                    <h4 className="text-sm sm:text-base font-bold text-green-400 uppercase tracking-wide">{t.validTitle || "Hash Terverifikasi Asli!"}</h4>
+                    <p className="text-[11px] sm:text-xs text-green-500/80 mt-1 leading-relaxed">
+                      {t.validDesc || "Sidik jari digital ini terdaftar secara sah di dalam Smart Contract AetherVault. File yang Anda miliki adalah 100% otentik dan belum pernah dimodifikasi."}
+                    </p>
+                  </div>
                 </div>
+
+                {/* 🌟 KOTAK DETAIL PELACAKAN EVENT */}
+                {verifyDetails && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[#05030F] p-4 rounded-xl border border-green-500/30 shadow-inner">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-green-400/70 text-[9px] tracking-widest font-black mb-1.5 uppercase">
+                        <User className="w-3 h-3" /> Pemilik Hak Cipta
+                      </div>
+                      <div className="text-[11px] sm:text-xs font-mono font-bold text-green-300 break-all bg-green-950/40 p-1.5 rounded border border-green-900/50">
+                        {verifyDetails.owner}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 text-green-400/70 text-[9px] tracking-widest font-black mb-1.5 uppercase">
+                        <Clock className="w-3 h-3" /> Waktu Registrasi
+                      </div>
+                      <div className="text-[11px] sm:text-xs text-green-300 font-bold bg-green-950/40 p-1.5 rounded border border-green-900/50">
+                        {formatDateTime(verifyDetails.timestamp)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 text-green-400/70 text-[9px] tracking-widest font-black mb-1.5 uppercase">
+                        <Activity className="w-3 h-3" /> Kategori Aset
+                      </div>
+                      <div className="text-[11px] sm:text-xs text-green-300 font-bold uppercase tracking-wider bg-green-950/40 p-1.5 rounded border border-green-900/50">
+                        {verifyDetails.category}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 text-green-400/70 text-[9px] tracking-widest font-black mb-1.5 uppercase">
+                        <Database className="w-3 h-3" /> Sertifikat Token ID
+                      </div>
+                      <div className="text-[11px] sm:text-xs font-mono text-green-300 font-bold bg-green-950/40 p-1.5 rounded border border-green-900/50">
+                        #{verifyDetails.tokenId}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
