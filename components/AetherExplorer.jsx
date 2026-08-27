@@ -78,9 +78,7 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
                 supply: parseFloat(ethers.formatUnits(tSupplyWei, tDecimals)).toLocaleString()
               };
             }
-          } catch (e) {
-            console.warn("Gagal mengecek status Forge Token", e);
-          }
+          } catch (e) {}
         }
 
         setSearchResult({
@@ -113,24 +111,42 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
             setResultType('tx');
             return;
           }
-        } catch (e) {
-          console.warn("Bukan Transaksi BSC. Mencari di Database AetherVault...");
-        }
+        } catch (e) {}
 
-        // 🌟 PERBAIKAN UTAMA: Cek Hash langsung via mapping tanpa queryFilter yang batasi blok 🌟
         const minimalABI = [
-          "function usedHashes(bytes32) view returns (bool)"
+          "function usedHashes(bytes32) view returns (bool)",
+          "event ProofMinted(uint256 indexed tokenId, address indexed creator, string category, bool isPublic, bytes32 fileHash, string tokenURI, uint256 blockNumber)"
         ];
         const vaultContract = new ethers.Contract(VAULT_CONTRACT, minimalABI, provider);
         const isRegistered = await vaultContract.usedHashes(query);
 
         if (isRegistered) {
+          let ownerWallet = "0x... (On-Chain Secured)";
+          let timestamp = Math.floor(Date.now() / 1000);
+          let category = "Aether Proof Copyright";
+          let tokenId = "1";
+
+          try {
+            const currentBlock = await provider.getBlockNumber();
+            const startBlock = Math.max(0, currentBlock - 49000); 
+            const events = await vaultContract.queryFilter(vaultContract.filters.ProofMinted(), startBlock, "latest");
+            const matchedEvent = events.find(e => e.args && e.args[4] === query);
+
+            if (matchedEvent) {
+              tokenId = matchedEvent.args[0].toString();
+              ownerWallet = matchedEvent.args[1];
+              category = matchedEvent.args[2] || "Aether Proof";
+              const blockData = await provider.getBlock(matchedEvent.blockNumber);
+              timestamp = blockData.timestamp;
+            }
+          } catch (e) {}
+
           setSearchResult({
             hash: query,
-            owner: "Verified On-Chain Holder",
-            timestamp: Math.floor(Date.now() / 1000),
-            category: "Aether Proof Copyright",
-            tokenId: "1" // Default aman
+            owner: ownerWallet,
+            timestamp: timestamp,
+            category: category,
+            tokenId: tokenId
           });
           setResultType('file');
           return;
@@ -157,7 +173,6 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
   return (
     <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 font-sans text-white animate-in fade-in duration-300">
       
-      {/* HEADER */}
       <div className="text-center mb-8">
         <h2 className="text-3xl sm:text-4xl font-black tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 mb-2 flex items-center justify-center gap-3">
           <Activity className="w-8 h-8 text-cyan-400" /> AETHER<span className="text-white">SCAN</span>
@@ -165,7 +180,6 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
         <p className="text-neutral-400 font-mono text-xs sm:text-sm tracking-widest uppercase">The Universal Ecosystem Explorer</p>
       </div>
 
-      {/* SEARCH BAR */}
       <form onSubmit={handleSearch} className="relative group mb-8">
         <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
         <div className="relative flex flex-col sm:flex-row items-center bg-[#05030F] border border-cyan-900/50 rounded-2xl overflow-hidden shadow-2xl">
@@ -189,7 +203,6 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
         </div>
       </form>
 
-      {/* ERROR */}
       {error && (
         <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6 shadow-inner">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -197,7 +210,6 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
         </div>
       )}
 
-      {/* RESULT: ADDRESS / TOKEN */}
       {resultType === 'address' && searchResult && (
         <div className={`p-6 rounded-2xl border shadow-xl animate-in slide-in-from-bottom-4 ${searchResult.forgeData ? 'bg-gradient-to-br from-[#0c0f1d] to-[#120a26] border-purple-500/40 shadow-[0_0_30px_rgba(168,85,247,0.15)]' : 'bg-[#0B0817] border-neutral-800'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-neutral-900/50 pb-4">
@@ -250,7 +262,6 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
         </div>
       )}
 
-      {/* RESULT: TRANSACTION HASH */}
       {resultType === 'tx' && searchResult && (
         <div className="p-6 rounded-2xl bg-[#0B0817] border border-neutral-800 shadow-xl animate-in slide-in-from-bottom-4">
           <div className="flex items-center justify-between mb-6 border-b border-neutral-900 pb-4">
@@ -288,7 +299,7 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
         </div>
       )}
 
-      {/* RESULT: FILE HASH (AETHERVAULT) */}
+      {/* 🌟 RESULT: FILE HASH (AETHERVAULT) DENGAN DETAIL LENGKAP 🌟 */}
       {resultType === 'file' && searchResult && (
         <div className="p-6 rounded-2xl bg-gradient-to-br from-[#0c0f1d] to-[#0B0817] border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)] animate-in slide-in-from-bottom-4">
           
@@ -310,15 +321,36 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30">
-              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><User className="w-3 h-3"/> Status</p>
-              <p className="text-sm font-mono text-green-400 font-bold">100% Verified On-Chain</p>
+              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><User className="w-3 h-3"/> Owner Wallet</p>
+              <div className="flex items-center justify-between text-xs font-mono text-cyan-300 gap-1 mt-1">
+                <span className="truncate">{searchResult.owner}</span>
+                <button 
+                  onClick={() => navigator.clipboard.writeText(searchResult.owner)}
+                  className="p-1 hover:bg-cyan-950 rounded text-cyan-300 cursor-pointer shrink-0"
+                  title="Copy Wallet"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
+
             <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30">
-              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><Clock className="w-3 h-3"/> Verification Method</p>
-              <p className="text-sm font-bold text-white">Direct Contract Mapping</p>
+              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><Clock className="w-3 h-3"/> Registration Date</p>
+              <p className="text-sm font-bold text-white mt-1">{formatDate(searchResult.timestamp)}</p>
             </div>
+
+            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30">
+              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><Activity className="w-3 h-3"/> Asset Category</p>
+              <p className="text-sm font-bold text-purple-400 uppercase mt-1">{searchResult.category}</p>
+            </div>
+
+            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30">
+              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><FileText className="w-3 h-3"/> Token ID</p>
+              <p className="text-sm font-mono font-bold text-amber-300 mt-1">#{searchResult.tokenId}</p>
+            </div>
+
             <div className="bg-[#05030F] sm:col-span-2 p-4 rounded-xl border border-cyan-900/30">
-              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><FileText className="w-3 h-3"/> Cryptographic File Hash</p>
+              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> Cryptographic File Hash</p>
               <p className="text-xs font-mono text-cyan-300 break-all mt-1">{searchResult.hash}</p>
             </div>
           </div>

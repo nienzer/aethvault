@@ -1228,13 +1228,13 @@ export default function DashboardPage() {
         { id: 'proof', icon: Award, label: t.menuProof || 'Aether Proof' },
         { id: 'hall', icon: Globe, label: t.menuHall || 'Hall of Proof' },
         { id: 'vaults', icon: Layers, label: t.menuVaults || 'My Vaults', count: myCapsules.length > 0 ? myCapsules.length : undefined },
-        { id: 'governance', icon: Scale, label: 'DAO / Governance' },
+        { id: 'staking', icon: Coins, label: t.menuStaking || 'Staking V6' },
         { id: 'forge', icon: Zap, label: t.menuForge || 'AetherForge' },
         { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
-        { id: 'explorer', icon: Search, label: t.menuExplorer || 'AetherScan Explorer' },
+        { id: 'explorer', icon: Search, label: t.menuExplorer || 'AetherScan' },
+        { id: 'governance', icon: Scale, label: 'DAO' },
         { id: 'history', icon: History, label: t.menuHistory || 'History' },
         { id: 'stats', icon: Flame, label: t.menuStats || 'Global Stats' },
-        { id: 'staking', icon: Coins, label: t.menuStaking || 'Staking V6' },
         { id: 'security', icon: Shield, label: t.menuSecurity || 'Security' },
         { id: 'settings', icon: Settings, label: t.menuSettings || 'Settings' }
       ].map((menu) => (

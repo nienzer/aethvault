@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UploadCloud, Fingerprint, CheckCircle, Copy, Loader2, Search, ShieldCheck, ShieldAlert, Database, AlertOctagon, User, Clock, Activity, Award } from 'lucide-react';
+import { UploadCloud, Fingerprint, CheckCircle, Copy, Loader2, Search, ShieldCheck, ShieldAlert, Database, AlertOctagon, User, Clock, Activity } from 'lucide-react';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext'; 
 
@@ -16,7 +16,7 @@ export default function VerifyProof() {
   const [manualHash, setManualHash] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyStatus, setVerifyStatus] = useState('idle'); 
-  const [verifyDetails, setVerifyDetails] = useState(null); // 🌟 State untuk menyimpan data detail (Wallet, Tanggal, Creator)
+  const [verifyDetails, setVerifyDetails] = useState(null); 
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -60,7 +60,6 @@ export default function VerifyProof() {
         setIsScanning(false);
       }, 800);
     } catch (error) {
-      console.error("Gagal menghitung hash:", error);
       setIsScanning(false);
     }
   };
@@ -81,7 +80,6 @@ export default function VerifyProof() {
     }
   };
 
-  // 🌟 FUNGSI VERIFIKASI PINTAR: AMAN DARI BATAS BLOK & TARIK DATA ON-CHAIN 🌟
   const handleVerifyOnChain = async () => {
     if (!manualHash || manualHash.trim() === '') return;
     
@@ -113,9 +111,8 @@ export default function VerifyProof() {
         let ownerWallet = "0x... (On-Chain Secured)";
         let timestamp = Math.floor(Date.now() / 1000);
         let category = "Aether Proof Copyright";
-        let creatorName = "Verified Creator";
+        let creatorName = "";
 
-        // Coba cari data detail lewat event dengan rentang blok yang sangat aman (5000 blok terakhir)
         try {
           const currentBlock = await provider.getBlockNumber();
           const startBlock = Math.max(0, currentBlock - 49000); 
@@ -128,7 +125,6 @@ export default function VerifyProof() {
             const blockData = await provider.getBlock(matchedEvent.blockNumber);
             timestamp = blockData.timestamp;
 
-            // Coba tarik Metadata Base64 dari Token URI jika ada
             try {
               const tokenId = matchedEvent.args[0];
               const tokenUriRaw = await contract.tokenURI(tokenId);
@@ -143,13 +139,11 @@ export default function VerifyProof() {
               }
             } catch (err) {}
           }
-        } catch (e) {
-          console.warn("Event query dilewati, menggunakan data dasar aman:", e);
-        }
+        } catch (e) {}
 
         setVerifyDetails({
           wallet: ownerWallet,
-          creator: creatorName,
+          creator: creatorName || ownerWallet, // Jika kosong, tampilkan alamat wallet
           timestamp: timestamp,
           category: category
         });
@@ -159,7 +153,6 @@ export default function VerifyProof() {
         setVerifyStatus('invalid');
       }
     } catch (error) {
-      console.error("Error verifikasi on-chain:", error);
       setVerifyStatus('error');
     } finally {
       setIsVerifying(false);
@@ -175,7 +168,6 @@ export default function VerifyProof() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       
-      {/* --- BOX 1: HASH EXTRACTOR --- */}
       <div className="bg-[#0B0817] border border-neutral-900 rounded-3xl p-6 sm:p-8 shadow-xl">
         <div className="border-b border-neutral-900 pb-4 mb-6">
           <h3 className="font-display text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
@@ -248,7 +240,6 @@ export default function VerifyProof() {
         </div>
       </div>
 
-      {/* --- BOX 2: ON-CHAIN VALIDATOR --- */}
       <div className="bg-[#0B0817] border border-neutral-900 rounded-3xl p-6 sm:p-8 shadow-xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 flex items-center justify-center border border-violet-500/30">
@@ -289,7 +280,6 @@ export default function VerifyProof() {
           </button>
         </div>
 
-        {/* HASIL VALIDASI DENGAN DETAIL LENGKAP */}
         {verifyStatus !== 'idle' && (
           <div className="mt-6 animate-in slide-in-from-bottom-4 fade-in duration-300">
             {verifyStatus === 'valid' && (
@@ -304,7 +294,6 @@ export default function VerifyProof() {
                   </div>
                 </div>
 
-                {/* 🌟 KOTAK INFORMASI DETAIL PEMBUAT (WALLET, TANGGAL, CREATOR) 🌟 */}
                 {verifyDetails && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#05030F] p-4 rounded-xl border border-green-500/30 shadow-inner">
                     <div>
@@ -315,14 +304,24 @@ export default function VerifyProof() {
                         {verifyDetails.creator}
                       </div>
                     </div>
+
+                    {/* 🌟 WALLET DITAMBAHKAN TOMBOL COPY BIAR BISA DICOPY 🌟 */}
                     <div>
                       <div className="flex items-center gap-1.5 text-green-400/70 text-[9px] tracking-widest font-black mb-1 uppercase">
                         <Database className="w-3 h-3" /> Owner Wallet
                       </div>
-                      <div className="text-xs font-mono font-bold text-green-300 truncate bg-green-950/40 p-2 rounded border border-green-900/50">
-                        {verifyDetails.wallet}
+                      <div className="flex items-center justify-between text-xs font-mono font-bold text-green-300 bg-green-950/40 px-2 py-1.5 rounded border border-green-900/50 gap-1">
+                        <span className="truncate">{verifyDetails.wallet}</span>
+                        <button 
+                          onClick={() => navigator.clipboard.writeText(verifyDetails.wallet)}
+                          className="p-1 hover:bg-green-800/50 rounded text-green-300 transition-colors cursor-pointer shrink-0"
+                          title="Copy Wallet"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
+
                     <div>
                       <div className="flex items-center gap-1.5 text-green-400/70 text-[9px] tracking-widest font-black mb-1 uppercase">
                         <Clock className="w-3 h-3" /> Tanggal Pembuatan
