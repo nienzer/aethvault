@@ -125,25 +125,41 @@ export default function VerifyProof() {
             const blockData = await provider.getBlock(matchedEvent.blockNumber);
             timestamp = blockData.timestamp;
 
+            // 🌟 PEMBONGKAR METADATA SUPER TANGGUH 🌟
             try {
               const tokenId = matchedEvent.args[0];
               const tokenUriRaw = await contract.tokenURI(tokenId);
-              if (tokenUriRaw && tokenUriRaw.includes('base64,')) {
+              
+              if (tokenUriRaw && typeof tokenUriRaw === 'string' && tokenUriRaw.includes('base64,')) {
                 const base64Payload = tokenUriRaw.split('base64,')[1];
-                const jsonString = decodeURIComponent(escape(window.atob(base64Payload)));
+                let jsonString = "";
+                
+                try {
+                  jsonString = decodeURIComponent(escape(window.atob(base64Payload)));
+                } catch (e1) {
+                  jsonString = window.atob(base64Payload);
+                }
+                
                 const metadata = JSON.parse(jsonString);
                 if (metadata.attributes) {
                   const creatorAttr = metadata.attributes.find(a => a.trait_type === "Creator");
-                  if (creatorAttr && creatorAttr.value) creatorName = creatorAttr.value;
+                  if (creatorAttr && creatorAttr.value && creatorAttr.value.trim() !== "") {
+                    creatorName = creatorAttr.value;
+                  }
                 }
               }
-            } catch (err) {}
+            } catch (err) {
+              console.warn("Gagal membongkar token URI di VerifyProof:", err);
+            }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn("Pencarian event gagal:", e);
+        }
 
         setVerifyDetails({
           wallet: ownerWallet,
-          creator: creatorName || ownerWallet, // Jika kosong, tampilkan alamat wallet
+          // 🌟 FALLBACK RAPI: Kalau creator name kosong, tulis "Verified Creator" 🌟
+          creator: creatorName || "Verified Creator", 
           timestamp: timestamp,
           category: category
         });
@@ -300,12 +316,11 @@ export default function VerifyProof() {
                       <div className="flex items-center gap-1.5 text-green-400/70 text-[9px] tracking-widest font-black mb-1 uppercase">
                         <User className="w-3 h-3" /> Creator / Username
                       </div>
-                      <div className="text-xs font-bold text-green-300 truncate bg-green-950/40 p-2 rounded border border-green-900/50">
+                      <div className="text-xs font-bold text-green-300 truncate bg-green-950/40 p-2 rounded border border-green-900/50" title={verifyDetails.creator}>
                         {verifyDetails.creator}
                       </div>
                     </div>
 
-                    {/* 🌟 WALLET DITAMBAHKAN TOMBOL COPY BIAR BISA DICOPY 🌟 */}
                     <div>
                       <div className="flex items-center gap-1.5 text-green-400/70 text-[9px] tracking-widest font-black mb-1 uppercase">
                         <Database className="w-3 h-3" /> Owner Wallet

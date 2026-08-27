@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ShieldCheck, Clock, User, Fingerprint, Activity, AlertCircle, Loader2, Wallet, ArrowRightLeft, CheckCircle, XCircle, FileText, Zap, Coins, Award } from 'lucide-react';
+import { Search, ShieldCheck, Clock, User, Fingerprint, Activity, AlertCircle, Loader2, Wallet, ArrowRightLeft, CheckCircle, XCircle, FileText, Zap, Coins, Award, Copy } from 'lucide-react';
 import { ethers } from 'ethers';
 
 export default function AetherExplorer({ handleViewCertificate, externalQuery }) {
@@ -125,6 +125,7 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
           let timestamp = Math.floor(Date.now() / 1000);
           let category = "Aether Proof Copyright";
           let tokenId = "1";
+          let creatorName = "";
 
           try {
             const currentBlock = await provider.getBlockNumber();
@@ -138,12 +139,34 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
               category = matchedEvent.args[2] || "Aether Proof";
               const blockData = await provider.getBlock(matchedEvent.blockNumber);
               timestamp = blockData.timestamp;
+
+              // 🌟 BONGKAR METADATA UNTUK USERNAME DI AETHERSCAN 🌟
+              try {
+                const tokenUriRaw = await vaultContract.tokenURI(tokenId);
+                if (tokenUriRaw && typeof tokenUriRaw === 'string' && tokenUriRaw.includes('base64,')) {
+                  const base64Payload = tokenUriRaw.split('base64,')[1];
+                  let jsonString = "";
+                  try {
+                    jsonString = decodeURIComponent(escape(window.atob(base64Payload)));
+                  } catch (e1) {
+                    jsonString = window.atob(base64Payload);
+                  }
+                  const metadata = JSON.parse(jsonString);
+                  if (metadata.attributes) {
+                    const creatorAttr = metadata.attributes.find(a => a.trait_type === "Creator");
+                    if (creatorAttr && creatorAttr.value && creatorAttr.value.trim() !== "") {
+                      creatorName = creatorAttr.value;
+                    }
+                  }
+                }
+              } catch (err) {}
             }
           } catch (e) {}
 
           setSearchResult({
             hash: query,
             owner: ownerWallet,
+            creator: creatorName || "Verified Creator", // 🌟 MENGGUNAKAN FALLBACK RAPI
             timestamp: timestamp,
             category: category,
             tokenId: tokenId
@@ -299,7 +322,7 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
         </div>
       )}
 
-      {/* 🌟 RESULT: FILE HASH (AETHERVAULT) DENGAN DETAIL LENGKAP 🌟 */}
+      {/* 🌟 RESULT: FILE HASH DENGAN 3 KOLOM DETAIL (USERNAME, WALLET, TGL) 🌟 */}
       {resultType === 'file' && searchResult && (
         <div className="p-6 rounded-2xl bg-gradient-to-br from-[#0c0f1d] to-[#0B0817] border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.15)] animate-in slide-in-from-bottom-4">
           
@@ -319,9 +342,16 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
             )}
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30">
-              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><User className="w-3 h-3"/> Owner Wallet</p>
+          {/* 🌟 GRID 3 KOLOM SEPERTI VERIFY PROOF 🌟 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            
+            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30 shadow-inner">
+              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><User className="w-3 h-3"/> Creator / Username</p>
+              <p className="text-sm font-bold text-white mt-1 truncate" title={searchResult.creator}>{searchResult.creator}</p>
+            </div>
+
+            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30 shadow-inner">
+              <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><Wallet className="w-3 h-3"/> Owner Wallet</p>
               <div className="flex items-center justify-between text-xs font-mono text-cyan-300 gap-1 mt-1">
                 <span className="truncate">{searchResult.owner}</span>
                 <button 
@@ -334,22 +364,22 @@ export default function AetherExplorer({ handleViewCertificate, externalQuery })
               </div>
             </div>
 
-            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30">
+            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30 shadow-inner">
               <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><Clock className="w-3 h-3"/> Registration Date</p>
               <p className="text-sm font-bold text-white mt-1">{formatDate(searchResult.timestamp)}</p>
             </div>
 
-            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30">
+            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30 shadow-inner">
               <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><Activity className="w-3 h-3"/> Asset Category</p>
               <p className="text-sm font-bold text-purple-400 uppercase mt-1">{searchResult.category}</p>
             </div>
 
-            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30">
+            <div className="bg-[#05030F] p-4 rounded-xl border border-cyan-900/30 shadow-inner">
               <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><FileText className="w-3 h-3"/> Token ID</p>
               <p className="text-sm font-mono font-bold text-amber-300 mt-1">#{searchResult.tokenId}</p>
             </div>
 
-            <div className="bg-[#05030F] sm:col-span-2 p-4 rounded-xl border border-cyan-900/30">
+            <div className="bg-[#05030F] sm:col-span-2 lg:col-span-3 p-4 rounded-xl border border-cyan-900/30 shadow-inner">
               <p className="text-[10px] text-cyan-500/70 tracking-widest mb-1 uppercase flex items-center gap-1.5"><Fingerprint className="w-3 h-3"/> Cryptographic File Hash</p>
               <p className="text-xs font-mono text-cyan-300 break-all mt-1">{searchResult.hash}</p>
             </div>
