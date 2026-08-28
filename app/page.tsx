@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Shield, Lock, Clock, ArrowRight, Server, Cpu, Globe, CheckCircle2, Send, Layers, FileText, Users, Mail, Award, ShieldCheck, Fingerprint, Box, Hexagon } from "lucide-react";
+// 👇 Tambahkan import Zap, Scale, Droplet
+import { Shield, Lock, Clock, ArrowRight, Server, Cpu, Globe, CheckCircle2, Send, Layers, FileText, Users, Mail, Award, ShieldCheck, Fingerprint, Box, Hexagon, Zap, Scale, Droplet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
@@ -19,6 +20,7 @@ const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, STAKING_AB
 export default function LandingPage() {
   const router = useRouter();
   const { t: globalT } = useLanguage();
+  const ecoT = globalT?.expandedEco || {};
   
   const heroT = globalT?.hero || {};
   const infraT = globalT?.infrastructure || {};
@@ -30,6 +32,11 @@ export default function LandingPage() {
   const landT = globalT?.landing || {};
   const hopT = globalT?.hallOfProof || {};
   const stakeT = globalT?.stakingUi || {};
+  
+  // 👇 Tambahkan pemanggilan bahasa untuk fitur-fitur baru
+  const forgeT = globalT?.dashboard || {};
+  const daoT = globalT?.dao || {};
+  const verifyT = globalT?.verifyProof || {};
 
   const [toast, setToast] = useState(null);
   const [liveStats, setLiveStats] = useState({ block: 0, proofs: 0, tvl: 0, stakers: 0 });
@@ -190,7 +197,7 @@ export default function LandingPage() {
       </div>
 
       {/* ⭐ PILAR UTAMA */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-20 relative z-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
            <div className="bg-[#0B0817] border border-neutral-800/80 p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-xl hover:border-cyan-500/30 transition-all group">
               <div className="w-8 h-8 sm:w-12 sm:h-12 bg-[#05030F] border border-neutral-800 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform shadow-inner">
@@ -213,6 +220,69 @@ export default function LandingPage() {
               <h3 className="text-sm sm:text-2xl font-black text-white font-display mb-1.5 sm:mb-2">{landT?.pillars?.capsuleTitle || "Time Capsules"}</h3>
               <p className="text-neutral-400 text-[10px] sm:text-sm leading-relaxed">{landT?.pillars?.capsuleDesc || "Time-locked cryptographic storage"}</p>
            </div>
+        </div>
+      </section>
+
+      {/* ⭐ NEW SECTION: EXPANDED ECOSYSTEM (Web3 Terminal Features) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-12 sm:pb-20 relative z-10">
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="w-fit mx-auto px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest font-mono mb-4 shadow-[0_0_15px_rgba(217,70,239,0.15)]">
+            {ecoT.badge || "EXPANDED ECOSYSTEM"}
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-black text-white font-display drop-shadow-lg mb-4">{ecoT.title || "Complete Web3 Terminal"}</h2>
+          <p className="text-neutral-400 text-xs sm:text-sm max-w-2xl mx-auto drop-shadow-md">
+            {ecoT.desc || "A seamless Web3 terminal designed for both everyday users and advanced crypto natives."}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* 1. AetherForge */}
+          <div className="bg-[#0B0817] border border-neutral-800 p-6 rounded-3xl shadow-xl hover:border-fuchsia-500/40 transition-all group relative overflow-hidden">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-fuchsia-500/10 blur-2xl rounded-full pointer-events-none"></div>
+            <div className="w-10 h-10 bg-[#05030F] border border-fuchsia-500/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Zap className="w-5 h-5 text-fuchsia-400" />
+            </div>
+            <h4 className="text-base sm:text-lg font-bold text-white mb-2">{ecoT.forgeTitle || "AetherForge"}</h4>
+            <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
+              {ecoT.forgeDesc || "Decentralized Anti-Spam Custom Token Factory."}
+            </p>
+          </div>
+
+          {/* 2. On-Chain DAO */}
+          <div className="bg-[#0B0817] border border-neutral-800 p-6 rounded-3xl shadow-xl hover:border-blue-500/40 transition-all group relative overflow-hidden">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 blur-2xl rounded-full pointer-events-none"></div>
+            <div className="w-10 h-10 bg-[#05030F] border border-blue-500/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Scale className="w-5 h-5 text-blue-400" />
+            </div>
+            <h4 className="text-base sm:text-lg font-bold text-white mb-2">{ecoT.daoTitle || "On-Chain DAO"}</h4>
+            <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
+              {ecoT.daoDesc || "Manage veAETH voting tickets and shape the protocol's future."}
+            </p>
+          </div>
+
+          {/* 3. Digital Forensics */}
+          <div className="bg-[#0B0817] border border-neutral-800 p-6 rounded-3xl shadow-xl hover:border-green-500/40 transition-all group relative overflow-hidden">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-green-500/10 blur-2xl rounded-full pointer-events-none"></div>
+            <div className="w-10 h-10 bg-[#05030F] border border-green-500/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Fingerprint className="w-5 h-5 text-green-400" />
+            </div>
+            <h4 className="text-base sm:text-lg font-bold text-white mb-2">{ecoT.verifyTitle || "Digital Forensics"}</h4>
+            <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
+              {ecoT.verifyDesc || "Extract and verify digital fingerprints (SHA-256) offline in your browser."}
+            </p>
+          </div>
+
+          {/* 4. VIP Faucet V3 */}
+          <div className="bg-[#0B0817] border border-neutral-800 p-6 rounded-3xl shadow-xl hover:border-cyan-500/40 transition-all group relative overflow-hidden">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/10 blur-2xl rounded-full pointer-events-none"></div>
+            <div className="w-10 h-10 bg-[#05030F] border border-cyan-500/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Droplet className="w-5 h-5 text-cyan-400" />
+            </div>
+            <h4 className="text-base sm:text-lg font-bold text-white mb-2">{ecoT.faucetTitle || "VIP Faucet V3"}</h4>
+            <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
+              {ecoT.faucetDesc || "Claim free test tokens with advanced anti-Sybil cooldowns."}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -420,7 +490,6 @@ export default function LandingPage() {
                     <div className="text-sm sm:text-lg font-black text-white font-mono">10%</div>
                   </div>
                   
-                  {/* ⚡ PERBAIKAN: Fungsi Bahasa di TEAM & DEV yang sempat tertinggal */}
                   <div className="bg-[#0B0817] border border-neutral-800 p-4 rounded-xl shadow-xl text-left col-span-2 sm:col-span-1">
                     <div className="flex items-center gap-2 mb-1.5">
                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_6px_#22c55e]"></div>
@@ -508,15 +577,15 @@ export default function LandingPage() {
               </a>
               
               <button 
-  onClick={() => router.push('/dashboard')}
-  className="bg-[#05030F] border border-cyan-500/20 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group w-full cursor-pointer"
->
-  <Hexagon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
-  <div className="text-center">
-    <h3 className="text-white font-bold text-xs sm:text-sm">On-Chain DAO</h3>
-    <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">veAETH & Governor</p>
-  </div>
-</button>
+                onClick={() => router.push('/dashboard')}
+                className="bg-[#05030F] border border-cyan-500/20 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group w-full cursor-pointer"
+              >
+                <Hexagon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+                <div className="text-center">
+                  <h3 className="text-white font-bold text-xs sm:text-sm">On-Chain DAO</h3>
+                  <p className="text-[8px] sm:text-[9px] text-neutral-500 mt-0.5 font-mono">veAETH & Governor</p>
+                </div>
+              </button>
             </div>
 
             <a href="mailto:admin@aethvault.xyz" className="bg-[#0B0817] border border-cyan-500/20 hover:border-cyan-400/50 p-4 sm:p-5 rounded-2xl flex flex-row items-center justify-center gap-4 transition-all group shadow-xl w-full">
@@ -608,7 +677,6 @@ export default function LandingPage() {
 
         </div>
         
-        {/* ⚡ PERBAIKAN: Hak Cipta Dilindungi yang sempat tertinggal kini resmi lenyap & otomatis! */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 border-t border-neutral-900 pt-6 flex flex-col sm:flex-row items-center justify-between text-[10px] sm:text-xs text-neutral-600 font-mono gap-3">
           <p>{footerT.copyright ? footerT.copyright.replace('{year}', new Date().getFullYear().toString()) : `© ${new Date().getFullYear()} Nienzer. All rights reserved. Email: admin@aethvault.xyz.`}</p>
           <div className="flex items-center gap-2">

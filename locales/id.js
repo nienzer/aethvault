@@ -1058,5 +1058,32 @@ export const id = {
   againstBtn: "Against",
   forBtn: "For",
   abstainBtn: "Abstain"
+  },
+  teamPortal: {
+    errConnect: "Hubungkan dompet tim terlebih dahulu.",
+    errNetwork: "Harap pindah ke BSC Testnet.",
+    confirmClaim: "Yakin ingin mencairkan token Vesting developer sekarang?",
+    msgProcessing: "Memproses pencairan token developer...",
+    msgSuccess: "Sukses! Dana developer telah ditransfer ke dompet Anda!",
+    msgFail: "Gagal claim vesting: ",
+    title: "PORTAL VESTING TIM",
+    subtitle: "Akses Terbatas — Khusus Tim Resmi",
+    btnConnect: "Hubungkan Dompet Tim",
+    connectedWallet: "Dompet Terhubung",
+    btnClaim: "Klaim Gaji (Team Vesting)",
+    backHome: "← Kembali ke Beranda Utama"
+  },
+  expandedEco: {
+    badge: "EKOSISTEM LENGKAP",
+    title: "Terminal Web3 Komprehensif",
+    desc: "Terminal Web3 mulus yang dirancang untuk pengguna harian maupun native crypto tingkat lanjut. Jelajahi suite terdesentralisasi terbaru kami.",
+    forgeTitle: "AetherForge",
+    forgeDesc: "Pabrik Token Kustom Anti-Spam Terdesentralisasi.",
+    daoTitle: "On-Chain DAO",
+    daoDesc: "Kelola tiket suara veAETH dan tentukan masa depan protokol.",
+    verifyTitle: "Digital Forensics",
+    verifyDesc: "Ekstrak dan verifikasi sidik jari digital (SHA-256) secara offline di browser Anda.",
+    faucetTitle: "VIP Faucet V3",
+    faucetDesc: "Klaim token uji coba gratis dengan sistem cooldown anti-Sybil tingkat lanjut."
   }
 };

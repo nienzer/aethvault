@@ -1058,5 +1058,32 @@ export const en = {
   againstBtn: "Against",
   forBtn: "For",
   abstainBtn: "Abstain"
+  },
+  teamPortal: {
+    errConnect: "Please connect the team wallet first.",
+    errNetwork: "Please switch to the BSC Testnet.",
+    confirmClaim: "Are you sure you want to claim the developer Vesting tokens now?",
+    msgProcessing: "Processing developer token release...",
+    msgSuccess: "Success! Developer funds have been transferred to your wallet!",
+    msgFail: "Failed to claim vesting: ",
+    title: "TEAM VESTING PORTAL",
+    subtitle: "Restricted Access — Authorized Team Only",
+    btnConnect: "Connect Team Wallet",
+    connectedWallet: "Connected Wallet",
+    btnClaim: "Claim Salary (Team Vesting)",
+    backHome: "← Back to Main Home"
+  },
+  expandedEco: {
+    badge: "EXPANDED ECOSYSTEM",
+    title: "Complete Web3 Terminal",
+    desc: "A seamless Web3 terminal designed for both everyday users and advanced crypto natives. Explore our latest decentralized suites.",
+    forgeTitle: "AetherForge",
+    forgeDesc: "Decentralized Anti-Spam Custom Token Factory.",
+    daoTitle: "On-Chain DAO",
+    daoDesc: "Manage veAETH voting tickets and shape the protocol's future.",
+    verifyTitle: "Digital Forensics",
+    verifyDesc: "Extract and verify digital fingerprints (SHA-256) offline in your browser.",
+    faucetTitle: "VIP Faucet V3",
+    faucetDesc: "Claim free test tokens with advanced anti-Sybil cooldowns."
   }
 };
