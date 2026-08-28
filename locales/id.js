@@ -1084,6 +1084,21 @@ export const id = {
     verifyTitle: "Digital Forensics",
     verifyDesc: "Ekstrak dan verifikasi sidik jari digital (SHA-256) secara offline di browser Anda.",
     faucetTitle: "VIP Faucet V3",
-    faucetDesc: "Klaim token uji coba gratis dengan sistem cooldown anti-Sybil tingkat lanjut."
+    faucetDesc: "Klaim token uji coba gratis dengan sistem cooldown anti-Sybil tingkat lanjut.",
+expandedEco: {
+    badge: "EKOSISTEM LENGKAP",
+    title: "Terminal Web3 Komprehensif",
+    desc: "Terminal Web3 mulus yang dirancang untuk pengguna harian maupun native crypto tingkat lanjut. Jelajahi suite terdesentralisasi terbaru kami.",
+    forgeTitle: "AetherForge",
+    forgeDesc: "Pabrik Token Kustom Anti-Spam Terdesentralisasi.",
+    daoTitle: "On-Chain DAO",
+    daoDesc: "Kelola tiket suara veAETH dan tentukan masa depan protokol.",
+    verifyTitle: "Digital Forensics",
+    verifyDesc: "Ekstrak dan verifikasi sidik jari digital (SHA-256) secara offline di browser Anda.",
+    faucetTitle: "VIP Faucet V3",
+    faucetDesc: "Klaim token uji coba gratis dengan sistem cooldown anti-Sybil tingkat lanjut.",
+    // 👇 Tambahan baru untuk AetherScan
+    scannerTitle: "AetherScan Explorer",
+    scannerDesc: "Explorer blockchain mandiri untuk melacak bukti, kapsul, dan transaksi secara transparan."
   }
 };

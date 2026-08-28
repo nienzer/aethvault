@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 // 👇 Tambahkan import Zap, Scale, Droplet
-import { Shield, Lock, Clock, ArrowRight, Server, Cpu, Globe, CheckCircle2, Send, Layers, FileText, Users, Mail, Award, ShieldCheck, Fingerprint, Box, Hexagon, Zap, Scale, Droplet } from "lucide-react";
+import { Shield, Lock, Clock, ArrowRight, Server, Cpu, Globe, CheckCircle2, Send, Layers, FileText, Users, Mail, Award, ShieldCheck, Fingerprint, Box, Hexagon, Zap, Scale, Droplet, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from '@/context/LanguageContext';
 import { ethers } from 'ethers';
@@ -235,7 +235,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
           {/* 1. AetherForge */}
           <div className="bg-[#0B0817] border border-neutral-800 p-6 rounded-3xl shadow-xl hover:border-fuchsia-500/40 transition-all group relative overflow-hidden">
             <div className="absolute -right-6 -top-6 w-24 h-24 bg-fuchsia-500/10 blur-2xl rounded-full pointer-events-none"></div>
@@ -281,6 +281,18 @@ export default function LandingPage() {
             <h4 className="text-base sm:text-lg font-bold text-white mb-2">{ecoT.faucetTitle || "VIP Faucet V3"}</h4>
             <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
               {ecoT.faucetDesc || "Claim free test tokens with advanced anti-Sybil cooldowns."}
+            </p>
+          </div>
+
+          {/* 5. AetherScan Explorer (BARU) */}
+          <div className="bg-[#0B0817] border border-neutral-800 p-6 rounded-3xl shadow-xl hover:border-indigo-500/40 transition-all group relative overflow-hidden sm:col-span-2 lg:col-span-1">
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-500/10 blur-2xl rounded-full pointer-events-none"></div>
+            <div className="w-10 h-10 bg-[#05030F] border border-indigo-500/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Search className="w-5 h-5 text-indigo-400" />
+            </div>
+            <h4 className="text-base sm:text-lg font-bold text-white mb-2">{ecoT.scannerTitle || "AetherScan Explorer"}</h4>
+            <p className="text-[10px] sm:text-xs text-neutral-400 leading-relaxed">
+              {ecoT.scannerDesc || "Native blockchain explorer to track proofs, capsules, and transactions transparently."}
             </p>
           </div>
         </div>
