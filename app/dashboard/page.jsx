@@ -1462,15 +1462,16 @@ export default function DashboardPage() {
                 />
               )}
 
-{activeTab === 'faucet' && (
+              {activeTab === 'faucet' && (
   <AethVaultFaucet
     account={address}
     walletProvider={walletProvider}
     faucetAddress={FAUCET_ADDRESS}
     showToast={showToast}
     TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
+    t={t}
   />
-)}
+)} 
 
               {activeTab === 'verify' && (
                 <VerifyProof />

@@ -40,7 +40,7 @@ export default function AdminPanel({
   CONTRACT_ADDRESS,
   STAKING_CONTRACT_ADDRESS,
   VESTING_CONTRACT_ADDRESS,
-  FAUCET_ADDRESS, // 👈 Props baru Faucet Address
+  FAUCET_ADDRESS, 
   t 
 }) {
   const [isAdminLoading, setIsAdminLoading] = useState(false);
@@ -95,14 +95,17 @@ export default function AdminPanel({
       
       const amountInWei = ethers.parseUnits(newClaimAmount.toString(), 18);
       const tx = await faucetContract.setClaimAmount(amountInWei);
-      showToast("Mengubah jumlah klaim Faucet...", "info");
+      // 👇 Pakai translasi
+      showToast(t?.adminMsgUpdatingFaucet || "Updating Faucet claim amount...", "info");
       await tx.wait();
       
-      showToast("Jumlah klaim Faucet berhasil diubah!", "success");
+      // 👇 Pakai translasi
+      showToast(t?.adminMsgUpdateFaucetSuccess || "Faucet claim amount updated successfully!", "success");
       setNewClaimAmount('');
       await fetchFaucetStatus();
     } catch (error) {
-      showToast("Gagal ubah Faucet: " + extractErrorMessage(error), "error");
+      // 👇 Pakai translasi
+      showToast((t?.adminMsgUpdateFaucetFail || "Failed to update Faucet: ") + extractErrorMessage(error), "error");
     } finally {
       setIsFaucetLoading(false);
     }
@@ -115,10 +118,12 @@ export default function AdminPanel({
       const faucetContract = new ethers.Contract(FAUCET_ADDRESS, FAUCET_ADMIN_ABI, signer);
       
       const tx = isFaucetPaused ? await faucetContract.unpause() : await faucetContract.pause();
-      showToast(isFaucetPaused ? "Mengaktifkan Faucet..." : "Menghentikan Faucet...", "info");
+      // 👇 Pakai translasi
+      showToast(isFaucetPaused ? (t?.adminMsgUnpausingFaucet || "Activating Faucet...") : (t?.adminMsgPausingFaucet || "Pausing Faucet..."), "info");
       await tx.wait();
       
-      showToast(isFaucetPaused ? "Faucet kembali AKTIF!" : "Faucet berhasil di-PAUSE!", "success");
+      // 👇 Pakai translasi
+      showToast(isFaucetPaused ? (t?.adminMsgUnpauseFaucetSuccess || "Faucet is now ACTIVE!") : (t?.adminMsgPauseFaucetSuccess || "Faucet successfully PAUSED!"), "success");
       await fetchFaucetStatus();
     } catch (error) {
       showToast("Gagal: " + extractErrorMessage(error), "error");
@@ -307,24 +312,28 @@ export default function AdminPanel({
             </div>
           </div>
 
-          {/* CARD 4: FAUCET CONTROL (BARU) */}
+          {/* CARD 4: FAUCET CONTROL (BILINGUAL) */}
           <div className="bg-[#05030F] border border-blue-500/30 p-5 sm:p-6 rounded-2xl flex flex-col justify-between space-y-5 shadow-[0_0_15px_rgba(59,130,246,0.1)] relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-blue-600/20 text-[8px] sm:text-[10px] font-bold px-3 py-1 rounded-bl-xl text-blue-400 uppercase tracking-widest border-b border-l border-blue-500/30">
-              VIP Faucet
+              {/* 👇 Pakai Translasi */}
+              {t?.adminFaucetBadge || "VIP Faucet"}
             </div>
             <div>
               <h4 className="text-xs sm:text-sm font-bold text-blue-400 uppercase font-mono mb-4 flex items-center gap-2">
-                <Droplet className="w-4 h-4" /> 4. FAUCET V3 CONTROL
+                {/* 👇 Pakai Translasi */}
+                <Droplet className="w-4 h-4" /> {t?.adminFaucetTitle || "4. FAUCET V3 CONTROL"}
               </h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
+                  {/* 👇 Pakai Translasi */}
                   <label className="text-[10px] text-neutral-500">{t?.adminChangeClaim || "Change Claim Amount"}</label>
-                  <span className="text-[10px] font-mono text-blue-300">Current: {currentClaimAmount} AETH</span>
+                  <span className="text-[10px] font-mono text-blue-300">{t?.adminFaucetCurrent || "Current:"} {currentClaimAmount} AETH</span>
                 </div>
                 <div className="flex gap-2">
                   <input 
                     type="number" 
-                    placeholder="E.g. 5000"
+                    // 👇 Pakai Translasi
+                    placeholder={t?.adminFaucetPlaceholder || "E.g. 5000"}
                     value={newClaimAmount}
                     onChange={(e) => setNewClaimAmount(e.target.value)}
                     className="flex-1 bg-[#0B0817] border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-blue-500 font-mono"
@@ -343,9 +352,11 @@ export default function AdminPanel({
             
             <div className="flex flex-col pt-2 border-t border-neutral-900/50 mt-2 gap-2">
               <div className="flex justify-between items-center px-1">
-                <span className="text-[10px] text-neutral-400">Status Distribusi:</span>
+                {/* 👇 Pakai Translasi */}
+                <span className="text-[10px] text-neutral-400">{t?.adminFaucetDistStatus || "Distribution Status:"}</span>
                 <span className={`text-[10px] font-bold font-mono ${isFaucetPaused ? 'text-red-400' : 'text-green-400'}`}>
-                  {isFaucetPaused ? 'PAUSED 🔴' : 'ACTIVE 🟢'}
+                  {/* 👇 Pakai Translasi */}
+                  {isFaucetPaused ? (t?.adminFaucetPaused || 'PAUSED 🔴') : (t?.adminFaucetActive || 'ACTIVE 🟢')}
                 </span>
               </div>
               <button 
@@ -358,6 +369,7 @@ export default function AdminPanel({
                 }`}
               >
                 {isFaucetLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : isFaucetPaused ? <PlayCircle className="w-3.5 h-3.5" /> : <PauseCircle className="w-3.5 h-3.5" />}
+                {/* 👇 Pakai Translasi */}
                 {isFaucetPaused ? (t?.adminUnpauseFaucet || "Activate Faucet") : (t?.adminPauseFaucet || "Pause Faucet")}
               </button>
             </div>
