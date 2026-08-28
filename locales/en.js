@@ -1085,7 +1085,6 @@ export const en = {
     verifyDesc: "Extract and verify digital fingerprints (SHA-256) offline in your browser.",
     faucetTitle: "VIP Faucet V3",
     faucetDesc: "Claim free test tokens with advanced anti-Sybil cooldowns.",
-    expandedEco: {
     badge: "EXPANDED ECOSYSTEM",
     title: "Complete Web3 Terminal",
     desc: "A seamless Web3 terminal designed for both everyday users and advanced crypto natives. Explore our latest decentralized suites.",
@@ -1097,7 +1096,6 @@ export const en = {
     verifyDesc: "Extract and verify digital fingerprints (SHA-256) offline in your browser.",
     faucetTitle: "VIP Faucet V3",
     faucetDesc: "Claim free test tokens with advanced anti-Sybil cooldowns.",
-    // 👇 Tambahan baru untuk AetherScan
     scannerTitle: "AetherScan Explorer",
     scannerDesc: "Native blockchain explorer to track proofs, capsules, and transactions transparently."
   }
