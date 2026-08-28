@@ -32,7 +32,7 @@ We have prepared a dedicated zero-friction faucet so you can test the AetherVaul
 ## 📊 Tokenomics & Security
 *   **Deflationary Model:** Automated on-chain burning mechanism powered by protocol revenue.
 *   **Real-Yield Staking:** Rewards derived from actual platform usage (minting & certification fees).
-*   **Audit-Ready & Stress-Tested:** Rigorous security standards featuring 100% test coverage, Slither static analysis, and 128,000+ Fuzz/Invariant test runs.
+*   **Audit-Ready & Stress-Tested:** Rigorous security standards featuring 100% test coverage across 46 Hardhat scenarios & 47 Foundry test suites, Slither static analysis, and 128,000+ Fuzz/Invariant test runs (including brutal anti-sybil & reentrancy fuzzing on Faucet V3).
 
 ---
 

@@ -36,7 +36,44 @@ Ran 35 tests for test/AetherVault.t.sol:AetherVaultEcosystemTest
 [PASS] test_Vesting_TotalAllocatedIsFixed() (gas: 5535)
 [PASS] test_veAETH_BindToAethToken() (gas: 7871)
 [PASS] test_veAETH_DepositAndMintSoulbound() (gas: 219680)
-Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 23.68ms (13.40ms CPU time)
+Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 594.18ms (89.00ms CPU time)
+
+Ran 11 tests for test/AethVaultFaucetV3.t.sol:AethVaultFaucetV3Test
+[PASS] testFuzz_AdminOnly_Revert_NotOwner(address) (runs: 256, μ: 60561, ~: 60561)
+[PASS] testFuzz_CanClaim_Logic(address) (runs: 256, μ: 181844, ~: 181844)
+[PASS] testFuzz_Claim_Revert_Cooldown(address,uint256) (runs: 256, μ: 125674, ~: 125674)
+[PASS] testFuzz_Claim_Revert_NoBalance() (gas: 99876)
+[PASS] testFuzz_Claim_Revert_WhenPaused(address) (runs: 256, μ: 66170, ~: 66170)
+[PASS] testFuzz_Reentrancy_Attack_Brutal() (gas: 859150)
+[PASS] testFuzz_SetClaimAmount_FatFinger_Revert(uint256) (runs: 256, μ: 32617, ~: 32617)
+[PASS] testFuzz_SetClaimAmount_Valid(uint256) (runs: 256, μ: 40903, ~: 40888)
+[PASS] testFuzz_Sybil_Attack_Spam(address[]) (runs: 256, μ: 16761732, ~: 16818145)
+[PASS] testFuzz_Withdraw_And_Refill(uint256) (runs: 256, μ: 125432, ~: 125413)
+[PASS] test_GasGriefing_MassClaim() (gas: 8505553)
+Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 20.03s (20.03s CPU time)
+
+Ran 1 test for test/AetherVaultAudit.t.sol:AetherVaultAuditTest
+[PASS]
+AetherVaultAuditTest invariants:
+[PASS] invariant_AETH_Supply_Must_Never_Inflate
+[PASS] invariant_ContractBalance_Healthy
+[PASS] invariant_TotalBurned_Must_Match
+[PASS] invariant_Treasury_Must_Match_Ghost
+ AetherVaultAuditTest invariants (runs: 256, calls: 128000, reverts: 0)
+
+╭--------------------------+-------------------------+-------+---------+----------╮
+| Contract                 | Selector                | Calls | Reverts | Discards |
++=================================================================================+
+| AetherVaultBrutalHandler | attack_DonateDust       | 31956 | 0       | 0        |
+|--------------------------+-------------------------+-------+---------+----------|
+| AetherVaultBrutalHandler | attack_SpamTokenMinting | 32248 | 0       | 0        |
+|--------------------------+-------------------------+-------+---------+----------|
+| AetherVaultBrutalHandler | chaos_TimeWarp          | 31885 | 0       | 0        |
+|--------------------------+-------------------------+-------+---------+----------|
+| AetherVaultBrutalHandler | user_StakeTokens        | 31911 | 0       | 0        |
+╰--------------------------+-------------------------+-------+---------+----------╯
+
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 174.48s (174.47s CPU time)
 
 ╭------------------------------------------------+-----------------+------+--------+------+---------╮
 | src/AetherGovernor.sol:AetherGovernor Contract |                 |      |        |      |         |
@@ -67,15 +104,15 @@ Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 23.68ms (13.40ms C
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | allowance                                |            2760 |  2760 |   2760 |  2760 |       4 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| approve                                  |           46384 | 46392 |  46396 | 46396 |      15 |
+| approve                                  |           46384 | 46397 |  46396 | 46432 |   35389 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| balanceOf                                |             642 |  2615 |   2642 |  2642 |     375 |
+| balanceOf                                |             642 |  2583 |   2642 |  2642 |  102874 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | totalBurnedAeth                          |            2406 |  2406 |   2406 |  2406 |       2 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| totalSupply                              |            2370 |  2370 |   2370 |  2370 |       1 |
+| totalSupply                              |            2370 |  2370 |   2370 |  2370 |       2 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
-| transfer                                 |           26747 | 48191 |  49129 | 49129 |      37 |
+| transfer                                 |           26747 | 36815 |  36757 | 53857 |   32107 |
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | transferFrom                             |           38122 | 38122 |  38122 | 38122 |       1 |
 ╰------------------------------------------+-----------------+-------+--------+-------+---------╯
@@ -91,11 +128,15 @@ Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 23.68ms (13.40ms C
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
 | Function Name                                                          | Min             | Avg    | Median | Max    | # Calls |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
+| MAX_STAKE_PER_WALLET                                                   |             261 |    261 |    261 |    261 |   32057 |
+|------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
 | aethToken                                                              |             325 |    325 |    325 |    325 |       1 |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
-| stake                                                                  |           28957 | 251862 | 301962 | 301962 |       7 |
+| stake                                                                  |           28957 | 250183 | 252653 | 417040 |    3008 |
 |------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
 | totalStaked                                                            |            2361 |   2361 |   2361 |   2361 |       2 |
+|------------------------------------------------------------------------+-----------------+--------+--------+--------+---------|
+| userTotalStaked                                                        |            2584 |   2584 |   2584 |   2584 |   32057 |
 ╰------------------------------------------------------------------------+-----------------+--------+--------+--------+---------╯
 
 ╭------------------------------------------+-----------------+-------+--------+-------+---------╮
@@ -119,30 +160,4 @@ Suite result: ok. 35 passed; 0 failed; 0 skipped; finished in 23.68ms (13.40ms C
 ╰------------------------------------------+-----------------+-------+--------+-------+---------╯
 
 
-Ran 1 test suite in 392.89ms (23.68ms CPU time): 35 tests passed, 0 failed, 0 skipped (35 total tests)
-No files changed, compilation skipped
-
-Ran 1 test for test/AetherVaultAudit.t.sol:AetherVaultAuditTest
-[PASS]
-AetherVaultAuditTest invariants:
-[PASS] invariant_AETH_Supply_Must_Never_Inflate
-[PASS] invariant_ContractBalance_Healthy
-[PASS] invariant_TotalBurned_Must_Match
-[PASS] invariant_Treasury_Must_Match_Ghost
- AetherVaultAuditTest invariants (runs: 256, calls: 128000, reverts: 0)
-
-╭--------------------------+-------------------------+-------+---------+----------╮
-| Contract                 | Selector                | Calls | Reverts | Discards |
-+=================================================================================+
-| AetherVaultBrutalHandler | attack_DonateDust       | 32017 | 0       | 0        |
-|--------------------------+-------------------------+-------+---------+----------|
-| AetherVaultBrutalHandler | attack_SpamTokenMinting | 31813 | 0       | 0        |
-|--------------------------+-------------------------+-------+---------+----------|
-| AetherVaultBrutalHandler | chaos_TimeWarp          | 31921 | 0       | 0        |
-|--------------------------+-------------------------+-------+---------+----------|
-| AetherVaultBrutalHandler | user_StakeTokens        | 32249 | 0       | 0        |
-╰--------------------------+-------------------------+-------+---------+----------╯
-
-Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 94.09s (94.08s CPU time)
-
-Ran 1 test suite in 94.23s (94.09s CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)
+Ran 3 test suites in 181.47s (195.10s CPU time): 47 tests passed, 0 failed, 0 skipped (47 total tests)

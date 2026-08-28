@@ -33,6 +33,7 @@ import GovernancePanel from '@/components/GovernancePanel';
 import AdminPanel from '@/components/AdminPanel';
 import AetherForgeComponent from '@/components/AetherForgeComponent';
 import AetherExplorer from '@/components/AetherExplorer';
+import AethVaultFaucet from '@/components/AethVaultFaucet';
 
 import AetherVaultV3Artifact from '@/contracts/AetherVaultV3ABI.json';
 import StakingArtifact from '@/contracts/StakingABI.json';
@@ -89,6 +90,7 @@ const VESTING_CONTRACT_ADDRESS = "0x129FB084868DabACbdecd2712fB00D6C948a11F6";
 const VE_AETH_ADDRESS = "0x8FE8F5b272F661A65d1882036e2099dB890f5DC6";
 const GOVERNOR_ADDRESS = "0x49fa997B6933E7112933e951E71e4936B5CE5eDA";
 const FORGE_FACTORY_ADDRESS = "0x452ceE9B5f3CBF8E9ac7C9fcEc7AC4101349f09E";
+const FAUCET_ADDRESS = "0x3F3A707713D2f53942628D68b644043634214851";
 
 const PLACEHOLDER_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 const IS_CONTRACT_ADDRESS_CONFIGURED = CONTRACT_ADDRESS.toLowerCase() !== PLACEHOLDER_ADDRESS.toLowerCase();
@@ -153,6 +155,9 @@ export default function DashboardPage() {
   useEffect(() => {
     if (pathname && pathname.includes('/admin')) {
       setActiveTab('admin');
+    }
+  else if (pathname && pathname.includes('/jury')) {
+      setActiveTab('faucet');
     }
   }, [pathname]);
 
@@ -1456,7 +1461,17 @@ export default function DashboardPage() {
                   jumpToExplorer={jumpToExplorer}
                 />
               )}
- 
+
+{activeTab === 'faucet' && (
+  <AethVaultFaucet
+    account={address}
+    walletProvider={walletProvider}
+    faucetAddress={FAUCET_ADDRESS}
+    showToast={showToast}
+    TARGET_CHAIN_NAME={TARGET_CHAIN_NAME}
+  />
+)}
+
               {activeTab === 'verify' && (
                 <VerifyProof />
               )}

@@ -20,8 +20,8 @@ We have prepared a dedicated zero-friction faucet so you can test the AetherVaul
 ---
 
 ## 🚀 Performance Metrics
-*   **Total Test Cases:** Hardhat (39 Scenarios) | Foundry (36 Scenarios + 128,000+ Invariant Runs)
-*   **Passed:** 100% Success Rate
+*   **Total Test Cases:** Hardhat (46 Scenarios) | Foundry (47 Scenarios + 128,000+ Invariant Runs)
+*   **Passed:** 100% Success Rate (~16s Hardhat Execution)
 *   **Frameworks:** Hardhat (Mocha & Chai) & Foundry (Forge)
 *   **Solidity Version:** 0.8.20 & 0.8.24
 
@@ -37,6 +37,7 @@ We have prepared a dedicated zero-friction faucet so you can test the AetherVaul
 | **Team Vesting** | Linear Release & Cliff Security | 7 | ✅ |
 | **DAO Governance** | veAETH Voting & Proposal Lifecycle | 5 | ✅ |
 | **AetherForge Factory** | Custom Token Creation & Fee Logic | 5 | ✅ |
+| **AethVaultFaucetV3** | Faucet Cooldowns & Anti-Sybil Logic | 11 | ✅ |
 | **Security Audit Suite**| Fuzzing & Invariant Validations | 2 | ✅ |
 
 ---
@@ -97,6 +98,9 @@ forge test --gas-report
 
 # Run Foundry Advanced Audit (Fuzz & Invariant Testing)
 forge test --match-contract AetherVaultAuditTest
+
+# Run Foundry Fuzz Testing on Faucet V3
+forge test --match-contract AethVaultFaucetV3Test
 
 # Run Slither static analysis security audit
 slither . --exclude-dependencies
