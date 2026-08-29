@@ -235,7 +235,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
           {/* 1. AetherForge */}
           <div className="bg-[#0B0817] border border-neutral-800 p-6 rounded-3xl shadow-xl hover:border-fuchsia-500/40 transition-all group relative overflow-hidden">
             <div className="absolute -right-6 -top-6 w-24 h-24 bg-fuchsia-500/10 blur-2xl rounded-full pointer-events-none"></div>
@@ -285,7 +285,7 @@ export default function LandingPage() {
           </div>
 
           {/* 5. AetherScan Explorer (BARU) */}
-          <div className="bg-[#0B0817] border border-neutral-800 p-6 rounded-3xl shadow-xl hover:border-indigo-500/40 transition-all group relative overflow-hidden sm:col-span-2 lg:col-span-1">
+          <div className="bg-[#0B0817] border border-neutral-800 p-6 rounded-3xl shadow-xl hover:border-indigo-500/40 transition-all group relative overflow-hidden col-span-2 lg:col-span-1">
             <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-500/10 blur-2xl rounded-full pointer-events-none"></div>
             <div className="w-10 h-10 bg-[#05030F] border border-indigo-500/30 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Search className="w-5 h-5 text-indigo-400" />

@@ -156,7 +156,7 @@ export default function DashboardPage() {
     if (pathname && pathname.includes('/admin')) {
       setActiveTab('admin');
     }
-  else if (pathname && pathname.includes('/jury')) {
+  else if (pathname && pathname.includes('/faucet')) {
       setActiveTab('faucet');
     }
   }, [pathname]);

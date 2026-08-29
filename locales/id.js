@@ -936,7 +936,7 @@ export const id = {
     forgeSuccessNoAddress: "Alamat tidak ditemukan (Cek BscScan)",
     forgeAddMetaMaskBtn: "Tambahkan ke MetaMask",
     // ... (kode dashboard lainnya)
-    faucetTitle: "Jury & Reviewer Faucet",
+    faucetTitle: "AethVault Faucet",
     faucetDesc: "Klaim token uji coba (AETH) secara gratis untuk menguji fitur pintar AetherVault di ekosistem {chain}. Dilengkapi dengan sistem anti-Sybil.",
     faucetAllocation: "Alokasi per Dompet",
     faucetSecurity: "Status Keamanan",

@@ -103,7 +103,7 @@ export default function AethVaultFaucet({ account, walletProvider, faucetAddress
             <div className="p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
               <Droplet className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
             </div>
-            {t?.faucetTitle || "Jury & Reviewer Faucet"}
+            {t?.faucetTitle || "AethVault Faucet"}
           </h3>
           <p className="text-xs sm:text-sm text-neutral-400 mt-2 max-w-lg">
             {t?.faucetDesc ? t.faucetDesc.replace('{chain}', TARGET_CHAIN_NAME) : `Klaim token uji coba (AETH) secara gratis untuk menguji fitur pintar AetherVault di ekosistem ${TARGET_CHAIN_NAME}. Dilengkapi dengan sistem anti-Sybil.`}

@@ -936,7 +936,7 @@ export const en = {
     forgeSuccessNoAddress: "Address not found (Check BscScan)",
     forgeAddMetaMaskBtn: "Add to MetaMask",
     // ... (kode dashboard lainnya)
-    faucetTitle: "Jury & Reviewer Faucet",
+    faucetTitle: "AethVault Faucet",
     faucetDesc: "Claim free test tokens (AETH) to test AetherVault smart features on the {chain} ecosystem. Equipped with anti-Sybil mechanisms.",
     faucetAllocation: "Wallet Allocation",
     faucetSecurity: "Security Status",
