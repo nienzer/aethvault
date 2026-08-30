@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Buffer } from 'buffer';
 import { uploadEncryptedFileService } from '@/lib/storageService';
 // 👇 FIX: Menambahkan Search di impor lucide-react
-import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock, Scale, Zap, Search } from 'lucide-react';
+import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock, Scale, Zap, Search, Droplet } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
@@ -1238,6 +1238,7 @@ export default function DashboardPage() {
         { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
         { id: 'explorer', icon: Search, label: t.menuExplorer || 'AetherScan' },
         { id: 'governance', icon: Scale, label: 'DAO' },
+        { id: 'faucet', icon: Droplet, label: t.menuFaucet || 'Faucet' },
         { id: 'history', icon: History, label: t.menuHistory || 'History' },
         { id: 'stats', icon: Flame, label: t.menuStats || 'Global Stats' },
         { id: 'security', icon: Shield, label: t.menuSecurity || 'Security' },
