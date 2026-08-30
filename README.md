@@ -11,11 +11,12 @@ Access the AetherVault dApp here: [https://aethvault.xyz](https://aethvault.xyz)
 ---
 
 ## 🧪 Special VIP Access for Judges & Reviewers
-We have prepared a dedicated zero-friction faucet so you can test the AetherVault dApp immediately without needing external testnet tokens:
-1. Visit our reviewer portal: [https://aethvault.xyz/jury](https://aethvault.xyz/jury)
+We have prepared a dedicated zero-friction faucet integrated directly into our dashboard, allowing you to test the AetherVault dApp immediately without needing external testnet tokens:
+1. Visit our App Dashboard: [https://aethvault.xyz/dashboard](https://aethvault.xyz/dashboard)
 2. Connect your MetaMask wallet (BNB Smart Chain Testnet).
-3. Click **Mint 1,000 AETH**.
-4. You are now fully funded and ready to test all smart contract features on our platform!
+3. Navigate to the **Faucet** section.
+4. Click **Mint 5,000 AETH**.
+5. You are now fully funded and ready to test all smart contract features on our platform!
 
 ---
 
@@ -32,17 +33,18 @@ We have prepared a dedicated zero-friction faucet so you can test the AetherVaul
 ## 📊 Tokenomics & Security
 *   **Deflationary Model:** Automated on-chain burning mechanism powered by protocol revenue.
 *   **Real-Yield Staking:** Rewards derived from actual platform usage (minting & certification fees).
-*   **Audit-Ready & Stress-Tested:** Rigorous security standards featuring 100% test coverage across 46 Hardhat scenarios & 47 Foundry test suites, Slither static analysis, and 128,000+ Fuzz/Invariant test runs (including brutal anti-sybil & reentrancy fuzzing on Faucet V3).
+*   **Audit-Ready & Stress-Tested:** Rigorous security standards featuring 100% test coverage across 46 Hardhat scenarios & 48 Foundry test suites, Slither static analysis, 128,000+ Foundry Invariant runs, and **300,000+ Echidna Fuzzing executions** (including brutal anti-sybil & reentrancy fuzzing on Faucet V3).
 
 ---
 
 ## 🛠️ Official Resources
 | Resource | Description |
 | :--- | :--- |
-| **[Executive Summary One-Pager (PDF)](smart-contracts-with-test-suite/grant-docs/AetherVault_OnePager.pdf)** | 1-Page high-level business and vision summary. |
+| **[Comprehensive Security Audit Report (PDF)](smart-contracts-with-test-suite/grant-docs/AetherVault_Final_Audit_Report.pdf)** | Official Multi-Framework Audit (Hardhat, Foundry, Echidna). |
+| **[Executive Summary One-Pager (PDF)](smart-contracts-with-test-suite/grant-docs/AetherVault_OnePager_Final.pdf)** | 1-Page high-level business and vision summary. |
 | **[Grant Proposal](smart-contracts-with-test-suite/grant-docs/GRANT_PROPOSAL.md)** | Official project proposal and use of funds ($30,000 Phase 1). |
 | **[Why AetherVault?](smart-contracts-with-test-suite/grant-docs/Why_AetherVault.md)** | Deep dive into our vision and ecosystem catalyst. |
-| **[Gas & Advanced Audit Report](smart-contracts-with-test-suite/grant-docs/GAS_AUDIT_REPORT.md)** | Complete Foundry gas profiling and 128,000+ Fuzz/Invariant test runs. |
+| **[Gas & Advanced Audit Report](smart-contracts-with-test-suite/grant-docs/GAS_AUDIT_REPORT.md)** | Complete Foundry gas profiling and test logs. |
 | **[Technical Suite](smart-contracts-with-test-suite/)** | Production-ready contracts, test logs, and security audit. |
 | **[Video Demo](https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK_HERE)** | Walkthrough of the protocol features & UI. |
 

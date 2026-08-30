@@ -79,8 +79,13 @@ We operate under a lean, high-efficiency development model, having independently
 
 ---
 
-## 8. Dedicated Testing Infrastructure for Judges
-To ensure a seamless evaluation process, AetherVault provides a dedicated VIP Testnet Faucet exclusively for hackathon judges and reviewers. Reviewers can instantly mint AETH test tokens without the hassle of bridging assets or paying external gas fees, streamlining the entire testing experience and showcasing our commitment to superior Web3 user experience (UX).
+## 🧪 Special VIP Access for Judges & Reviewers
+We have prepared a dedicated zero-friction faucet integrated directly into our dashboard, allowing you to test the AetherVault dApp immediately without needing external testnet tokens:
+1. Visit our App Dashboard: `https://aethvault.xyz/dashboard`
+2. Connect your MetaMask wallet (BNB Smart Chain Testnet).
+3. Navigate to the **Faucet** section.
+4. Click **Mint 5,000 AETH**.
+5. You are now fully funded and ready to test all smart contract features on our platform!
 
 ---
 *AetherVault Protocol © 2026 | Secured, Verified, On-Chain*
