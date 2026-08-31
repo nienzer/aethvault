@@ -11,7 +11,7 @@ AetherVault's innovation directly addresses four critical issues within the Web3
 * **Lack of Universal Proof of Ownership:** Creators and innovators struggle to prove the absolute authenticity of their digital works. **Aether Proof™** solves this by issuing on-chain ownership certificates based on Keccak256 hashes, permanently recorded in the **Hall of Proof** public registry.
 * **Fragility of Digital Inheritance:** Billions of dollars in crypto assets are lost every year because owners pass away without bequeathing their private keys. The **Legacy Vault** feature utilizes a *Dead-Man's Switch* mechanism governed by smart contracts to detect user inactivity and automatically decrypt access specifically for the heir's wallet.
 * **Compromised Privacy:** Conventional cloud services hold the decryption keys to user data. AetherVault utilizes a 100% *Client-Side* architecture powered by **ECIES (secp256k1)** encryption. The resulting ciphertext is distributed directly to permanent storage networks (Arweave), ensuring that not even the developers have access to the original user data.
-* **Spam & Scam Token Proliferation:** Frictionless token creation is frequently exploited for low-effort spam and rug-pull operations. **AetherForge** solves this by acting as a decentralized token factory that enforces mandatory creation fees, automatically routing funds to burn mechanisms, staking rewards, and the DAO treasury to filter out malicious actors.
+* **Spam & Scam Token Proliferation:** Frictionless token creation is frequently exploited for low-effort spam and rug-pull operations. **AetherForge** solves this by acting as a decentralized token factory that enforces mandatory creation fees, automatically routing funds to burn mechanisms, network security vaults, and the DAO treasury to filter out malicious actors.
 
 ## Competitive Advantage (Value Proposition)
 
@@ -24,7 +24,7 @@ For the grant committee, AetherVault offers an ecosystem of products with tangib
 | **Storage Model** | Subscription-based (SaaS), data can be deleted. | *Pay-once*, permanent storage via Arweave & BSC. |
 | **Asset Inheritance** | Manual legal processes, slow & expensive. | Smart Contract automation (Dead-Man's Switch). |
 | **Token Generation** | N/A (Requires custom coding or expensive audits). | AetherForge (1-click minting with built-in deflationary tokenomics). |
-| **Economic Model** | Value extraction to corporate entities. | Automated deflation ($AETH burn) & DAO revenue sharing (veAETH). |
+| **Economic Model** | Value extraction to corporate entities. | Automated deflation ($AETH burn) & DAO protocol allocations (veAETH). |
 
 ## Ecosystem Catalyst & Funding Impact ($30,000 Phase 1 Catalyst)
 

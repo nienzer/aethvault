@@ -188,7 +188,7 @@ export default function LandingPage() {
              {landT.liveData?.proofsLabel || "Proofs:"} <span className="text-purple-400 font-bold">{liveStats.proofs.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-1.5 text-neutral-400">
-             {landT.liveData?.stakersLabel || "Stakers:"} <span className="text-amber-400 font-bold">{liveStats.stakers.toLocaleString()}</span>
+             {landT.liveData?.stakersLabel || "Guardians:"} <span className="text-amber-400 font-bold">{liveStats.stakers.toLocaleString()}</span>
           </div>
           <div className="flex items-center gap-1.5 text-neutral-400">
              TVL: <span className="text-blue-400 font-bold">{liveStats.tvl.toLocaleString()} AETH</span>
@@ -335,7 +335,7 @@ export default function LandingPage() {
                    <p className="text-cyan-400 text-sm sm:text-base font-black">{liveStats.proofs.toLocaleString()} Rec</p>
                  </div>
                  <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-1.5 shadow-inner">
-                   <p className="text-neutral-500 uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">{stakeT.tvl || "Staking Pool TVL"}</p>
+                   <p className="text-neutral-500 uppercase tracking-widest text-[7px] sm:text-[8px] font-bold">{stakeT.tvl || "Vault Reserve TVL"}</p>
                    <p className="text-purple-400 text-sm sm:text-base font-black">{liveStats.tvl.toLocaleString()} AETH</p>
                  </div>
                  <div className="bg-[#05030F] border border-neutral-800 p-4 rounded-2xl space-y-1.5 col-span-2 sm:col-span-1 shadow-inner">
@@ -483,7 +483,7 @@ export default function LandingPage() {
                   <div className="bg-[#0B0817] border border-neutral-800 p-4 rounded-xl shadow-xl text-left">
                     <div className="flex items-center gap-2 mb-1.5">
                        <div className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_6px_#a855f7]"></div>
-                       <span className="text-[7px] sm:text-[8px] font-mono text-purple-400 font-bold uppercase">{tokenT.staking || "STAKING REWARDS"}</span>
+                       <span className="text-[7px] sm:text-[8px] font-mono text-purple-400 font-bold uppercase">{tokenT.staking || "VAULT ALLOCATIONS"}</span>
                     </div>
                     <div className="text-sm sm:text-lg font-black text-white font-mono">25%</div>
                   </div>

@@ -1,6 +1,7 @@
 # 🏛️ AetherVault: Builder Grant Proposal
 
 **Building the Permanent Memory Layer and Digital Legacy Protocol on Web3**
+▶️ **[Watch the Full Protocol Demo (YouTube)](https://youtu.be/hehSQdJamVE)**
 
 ---
 

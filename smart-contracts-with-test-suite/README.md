@@ -62,7 +62,7 @@ For the Mainnet-ready compilation and advanced gas optimization, the core pipeli
 ### 3. Advanced Audit-Ready Testing (Foundry Fuzzing & Invariants)
 To guarantee the highest degree of protocol safety, we extended our Foundry test suite beyond standard stateless testing. 
 *   **Fuzz Testing:** Spamming critical functions across the AetherVault Token, Soulbound veAETH, and Team Vesting contracts with thousands of randomized inputs, ensuring no hidden overflows.
-*   **Invariant Testing:** Hardcoding absolute mathematical truths to prove the system's solvency against 128,000+ random transaction sequences targeting our Staking V6 and Vault V3 contracts.
+*   **Invariant Testing:** Hardcoding absolute mathematical truths to prove the system's solvency against 128,000+ random transaction sequences targeting our Security Vault V6 and Vault V3 contracts.
 
 ### 4. Extreme Property-Based Testing (Echidna)
 To achieve a "Double-Audit" standard, we subjected the entire ecosystem to **Echidna**, a Haskell-based mathematical fuzzer by Trail of Bits. We successfully executed over 300,000 brutal randomized calls against our invariant contracts to ensure:

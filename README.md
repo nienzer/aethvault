@@ -31,8 +31,8 @@ We have prepared a dedicated zero-friction faucet integrated directly into our d
 ---
 
 ## 📊 Tokenomics & Security
-*   **Deflationary Model:** Automated on-chain burning mechanism powered by protocol revenue.
-*   **Real-Yield Staking:** Rewards derived from actual platform usage (minting & certification fees).
+*   **Deflationary Model:** Automated on-chain burning mechanism powered by network operations.
+*   **Security Vault:** Network allocations derived from actual platform usage (minting & certification fees).
 *   **Audit-Ready & Stress-Tested:** Rigorous security standards featuring 100% test coverage across 46 Hardhat scenarios & 48 Foundry test suites, Slither static analysis, 128,000+ Foundry Invariant runs, and **300,000+ Echidna Fuzzing executions** (including brutal anti-sybil & reentrancy fuzzing on Faucet V3).
 
 ---
@@ -46,7 +46,7 @@ We have prepared a dedicated zero-friction faucet integrated directly into our d
 | **[Why AetherVault?](smart-contracts-with-test-suite/grant-docs/Why_AetherVault.md)** | Deep dive into our vision and ecosystem catalyst. |
 | **[Gas & Advanced Audit Report](smart-contracts-with-test-suite/grant-docs/GAS_AUDIT_REPORT.md)** | Complete Foundry gas profiling and test logs. |
 | **[Technical Suite](smart-contracts-with-test-suite/)** | Production-ready contracts, test logs, and security audit. |
-| **[Video Demo](https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK_HERE)** | Walkthrough of the protocol features & UI. |
+| **[Video Demo](https://youtu.be/hehSQdJamVE)** | Walkthrough of the protocol features & UI. |
 
 ---
 
@@ -59,7 +59,7 @@ All time-lock variables, vesting schedules, and governance thresholds are hard-c
 
 **Current Testnet Configurations:**
 1.  **Aether Capsule & Legacy Vault:** Minute-based inactivity triggers for rapid state-change verification.
-2.  **AetherVaultStaking:** Accelerated governance timelock to verify voting flow.
+2.  **AetherVaultSecurity:** Accelerated governance timelock to verify voting flow.
 3.  **TeamVesting:** Compressed vesting cycles for full lifecycle validation.
 4.  **AetherGovernor:** Optimized voting periods for rapid community feedback.
 
