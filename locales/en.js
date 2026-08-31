@@ -979,7 +979,9 @@ export const en = {
     adminMsgUnpausingFaucet: "Activating Faucet...",
     adminMsgPausingFaucet: "Pausing Faucet...",
     adminMsgUnpauseFaucetSuccess: "Faucet is now ACTIVE!",
-    adminMsgPauseFaucetSuccess: "Faucet successfully PAUSED!"
+    adminMsgPauseFaucetSuccess: "Faucet successfully PAUSED!",
+    forgeLegalDisclaimerTitle: "Legal Disclaimer:",
+forgeLegalDisclaimerDesc: "AetherVault is a decentralized infrastructure. Developers are not affiliated with, do not control, and bear no liability for the purpose of user-minted tokens, including financial loss or fraud. Do Your Own Research (DYOR)."
   },
   verifyProof: {
     title: "Digital Forensics",

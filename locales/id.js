@@ -979,7 +979,9 @@ export const id = {
     adminMsgUnpausingFaucet: "Mengaktifkan Faucet...",
     adminMsgPausingFaucet: "Menghentikan Faucet...",
     adminMsgUnpauseFaucetSuccess: "Faucet kembali AKTIF!",
-    adminMsgPauseFaucetSuccess: "Faucet berhasil di-PAUSE!"
+    adminMsgPauseFaucetSuccess: "Faucet berhasil di-PAUSE!",
+    forgeLegalDisclaimerTitle: "Disclaimer Hukum:",
+forgeLegalDisclaimerDesc: "AetherVault adalah infrastruktur terdesentralisasi. Pengembang tidak berafiliasi, tidak mengontrol, dan tidak bertanggung jawab atas tujuan token yang dicetak oleh pengguna, termasuk kerugian finansial atau penipuan. Do Your Own Research (DYOR)."
   },
   verifyProof: {
     title: "Digital Forensics",

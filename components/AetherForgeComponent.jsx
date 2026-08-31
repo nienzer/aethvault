@@ -227,7 +227,7 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
         <div className="p-4 bg-red-950/20 border border-red-900/40 rounded-xl text-[10px] sm:text-xs text-red-400/80 flex items-start space-x-2">
           <span className="text-base">⚠️</span>
           <div>
-            <span className="font-bold">{t.forgeLegalDisclaimerTitle || "Disclaimer Hukum:"}</span> {t.forgeLegalDisclaimerDesc || "AetherVault adalah infrastruktur terdesentralisasi. Pengembang tidak berafiliasi, tidak mengontrol, dan tidak bertanggung jawab atas tujuan token yang dicetak oleh pengguna, termasuk kerugian finansial atau penipuan. Do Your Own Research (DYOR)."}
+            <span className="font-bold">{t.forgeLegalDisclaimerTitle || "Legal Disclaimer:"}</span> {t.forgeLegalDisclaimerDesc || "AetherVault is a decentralized infrastructure. Developers are not affiliated with, do not control, and bear no liability for the purpose of user-minted tokens, including financial loss or fraud. Do Your Own Research (DYOR)."}
           </div>
         </div>
         {/* ----------------------------------------- */}
