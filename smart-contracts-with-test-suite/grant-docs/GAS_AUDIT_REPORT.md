@@ -1,3 +1,6 @@
+# 📊 Foundry Gas Profiling & Test Execution Report
+
+```text
 No files changed, compilation skipped
 
 Ran 10 tests for test/AethVaultFaucetV3.t.sol:AethVaultFaucetV3Test
@@ -175,6 +178,5 @@ Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 194.94s (194.94s CP
 |------------------------------------------+-----------------+-------+--------+-------+---------|
 | totalAllocated                           |             250 |   250 |    250 |   250 |       1 |
 ╰------------------------------------------+-----------------+-------+--------+-------+---------╯
-
 
 Ran 4 test suites in 201.30s (223.59s CPU time): 48 tests passed, 0 failed, 0 skipped (48 total tests)
