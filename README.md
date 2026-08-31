@@ -42,9 +42,9 @@ We have prepared a dedicated zero-friction faucet integrated directly into our d
 | :--- | :--- |
 | **[Comprehensive Security Audit Report (PDF)](smart-contracts-with-test-suite/grant-docs/AetherVault_Final_Audit_Report.pdf)** | Official Multi-Framework Audit (Hardhat, Foundry, Echidna). |
 | **[Executive Summary One-Pager (PDF)](smart-contracts-with-test-suite/grant-docs/AetherVault_OnePager.pdf)** | 1-Page high-level business and vision summary. |
-| **[Grant Proposal](smart-contracts-with-test-suite/grant-docs/AetherVault_Final_Audit_Report)** | Official project proposal and use of funds ($30,000 Phase 1). |
+| **[Grant Proposal](smart-contracts-with-test-suite/grant-docs/GRANT_PROPOSAL.md)** | Official project proposal and use of funds ($30,000 Phase 1). |
 | **[Why AetherVault?](smart-contracts-with-test-suite/grant-docs/Why_AetherVault.md)** | Deep dive into our vision and ecosystem catalyst. |
-| **[Gas & Advanced Audit Report](smart-contracts-with-test-suite/grant-docs/AetherVault_Final_Audit_Report)** | Complete Foundry gas profiling and test logs. |
+| **[Gas & Advanced Audit Report](smart-contracts-with-test-suite/grant-docs/GAS_AUDIT_REPORT.md)** | Complete Foundry gas profiling and test logs. |
 | **[Technical Suite](smart-contracts-with-test-suite/)** | Production-ready contracts, test logs, and security audit. |
 | **[Video Demo](https://youtu.be/hehSQdJamVE)** | Walkthrough of the protocol features & UI. |
 
