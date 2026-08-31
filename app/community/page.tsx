@@ -50,7 +50,7 @@ export default function CommunityPage() {
           </a>
           
          {/* 4. KARTU WEB3 DAO FORUM */}
-          <a href="/dashboard?tab=dao" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-5 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center gap-3 sm:gap-4 transition-all group">
+          <a href="/dashboard" className="bg-[#080808] border border-neutral-800 hover:border-cyan-500/40 p-5 sm:p-8 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center gap-3 sm:gap-4 transition-all group">
             <Globe className="w-7 h-7 sm:w-10 sm:h-10 text-purple-400 group-hover:scale-110 transition-transform" />
             <div className="text-center">
               <h3 className="text-white font-bold text-sm sm:text-lg">{t.forumTitle}</h3>
