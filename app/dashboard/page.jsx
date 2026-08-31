@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Buffer } from 'buffer';
 import { uploadEncryptedFileService } from '@/lib/storageService';
 // 👇 FIX: Menambahkan Search di impor lucide-react
-import { Lock, Clock, Shield, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock, Scale, Zap, Search, Droplet } from 'lucide-react';
+import { Lock, Clock, Shield, ShieldCheck, Wallet, LogOut, Layers, Eye, Sparkles, Flame, Check, Bell, Activity, History, Cpu, Coins, Settings, AlertTriangle, FileImage, X, ArrowUpRight, Menu, KeyRound, Loader2, Download, Award, Fingerprint, Globe, ShieldAlert, Unlock, Scale, Zap, Search, Droplet } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { ethers } from 'ethers';
 import { useLanguage } from '@/context/LanguageContext';
@@ -1230,7 +1230,7 @@ export default function DashboardPage() {
         { id: 'proof', icon: Award, label: t.menuProof || 'Aether Proof' },
         { id: 'hall', icon: Globe, label: t.menuHall || 'Hall of Proof' },
         { id: 'vaults', icon: Layers, label: t.menuVaults || 'My Vaults', count: myCapsules.length > 0 ? myCapsules.length : undefined },
-        { id: 'staking', icon: Coins, label: t.menuStaking || 'Staking V6' },
+        { id: 'staking', icon: ShieldCheck, label: t.menuStaking || 'Security Vault' },
         { id: 'forge', icon: Zap, label: t.menuForge || 'AetherForge' },
         { id: 'verify', icon: Fingerprint, label: t.menuVerify || 'Verify Proof' },
         { id: 'explorer', icon: Search, label: t.menuExplorer || 'AetherScan' },

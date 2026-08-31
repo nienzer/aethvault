@@ -71,15 +71,15 @@ export default function StakingPanel({
 
         <div className="relative z-10 space-y-3">
           <h2 className="text-sm font-bold text-neutral-400 uppercase tracking-[0.25em] flex items-center justify-center gap-2">
-            <Coins className="w-4 h-4 text-violet-400" /> {tStake.title || "STAKING DASHBOARD"}
+            <ShieldCheck className="w-4 h-4 text-violet-400" /> {tStake.title || "SECURITY VAULT"}
           </h2>
           <h3 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-fuchsia-400 font-display">
-            {tStake.subtitle || "Earn Yield on Your AETH"}
+            {tStake.subtitle || "Secure the Network & Earn Allocations"}
           </h3>
 
           <div className="pt-6 grid grid-cols-2 gap-3 sm:gap-6 max-w-2xl mx-auto">
             <div className="bg-[#05030F]/80 backdrop-blur-md border border-neutral-800 rounded-2xl px-4 py-4 flex flex-col items-center justify-center text-center shadow-lg group hover:-translate-y-1 hover:shadow-violet-500/20 transition-all">
-              <span className="text-[9px] sm:text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.maxApy || "MAX APY"}</span>
+              <span className="text-[9px] sm:text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-1">{tStake.maxApy || "MAX RATE"}</span>
               <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
                 <span className="text-xl sm:text-2xl font-black text-white font-mono">20%</span>
                 <span className="text-[8px] sm:text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded border border-green-500/20">{tStake.tierGold || "Tier Gold"}</span>
@@ -103,7 +103,7 @@ export default function StakingPanel({
         <div className="lg:col-span-7 bg-[#0B0817] border border-neutral-900 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col justify-between group hover:border-violet-500/30 transition-colors">
           <div className="space-y-6">
             <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2 border-b border-neutral-800 pb-3">
-              <Database className="w-4 h-4 text-violet-400" /> {tStake.stakeNew || "STAKE NEW AETH"}
+              <Database className="w-4 h-4 text-violet-400" /> {tStake.stakeNew || "LOCK NEW AETH"}
             </h4>
 
             {/* PEMILIHAN TIER */}
@@ -124,7 +124,7 @@ export default function StakingPanel({
             <div className="space-y-4">
               <div className="bg-[#05030F] border border-neutral-800 rounded-2xl p-5 shadow-inner">
                 <div className="flex justify-between items-center text-[10px] sm:text-xs text-neutral-500 mb-2">
-                  <span className="uppercase tracking-widest font-bold">{tStake.amountToStake || "AMOUNT TO STAKE"}</span>
+                  <span className="uppercase tracking-widest font-bold">{tStake.amountToStake || "AMOUNT TO LOCK"}</span>
                   <span className="flex items-center gap-1.5"><Wallet className="w-3 h-3"/> {tStake.available || "Available"} <span className="font-bold text-white">{aethBalance?.toLocaleString() || "0"} AETH</span></span>
                 </div>
                 <div className="flex items-center gap-3 mt-3">
@@ -145,7 +145,7 @@ export default function StakingPanel({
               {/* ESTIMASI HADIAH DINAMIS */}
               <div className="bg-gradient-to-r from-[#05030F] to-violet-950/10 border border-violet-500/20 rounded-2xl p-5 space-y-3">
                 <div className="flex items-center gap-2 text-[10px] font-bold text-violet-400 uppercase tracking-widest mb-1">
-                  <Sparkles className="w-3 h-3" /> {tStake.estRewards || `ESTIMATED REWARDS`} ({activeApy}% APY)
+                  <Sparkles className="w-3 h-3" /> {tStake.estRewards || `ESTIMATED ALLOCATIONS`} ({activeApy}% RATE)
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                   <div>
@@ -169,7 +169,7 @@ export default function StakingPanel({
           {(parsedStakeInput + parseFloat(totalUserStaked || 0) > 50000) && (
             <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-xl mt-4 flex items-center gap-2 text-red-400 text-[11px] font-mono">
               <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span>{tStake.maxLimitReached || "Maximum staking limit per wallet is 50,000 AETH."}</span>
+              <span>{tStake.maxLimitReached || "Maximum locking limit per wallet is 50,000 AETH."}</span>
             </div>
           )}
 
@@ -179,7 +179,7 @@ export default function StakingPanel({
             className="w-full py-4 mt-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:grayscale rounded-2xl font-bold text-sm text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] cursor-pointer flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
           >
             {isStaking ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-            {isStaking ? (tStake.btnLocking || "Locking...") : !isConnected ? (tStake.connectWallet || "Connect Wallet") : (tStake.btnConfirm || "Confirm Stake")}
+            {isStaking ? (tStake.btnLocking || "Locking...") : !isConnected ? (tStake.connectWallet || "Connect Wallet") : (tStake.btnConfirm || "Confirm Lock")}
           </button>
         </div>
 
@@ -194,12 +194,12 @@ export default function StakingPanel({
           {(!userDeposits || userDeposits.length === 0) && pendingReward === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 py-10 opacity-70">
                <div className="w-16 h-16 bg-neutral-900 border border-neutral-800 rounded-full flex items-center justify-center shadow-inner">
-                  <Coins className="w-8 h-8 text-neutral-500" />
+                  <ShieldCheck className="w-8 h-8 text-neutral-500" />
                </div>
                <div>
-                  <h4 className="text-sm font-bold text-white font-display mb-1">{tStake.emptyTitle || "No Active Stake"}</h4>
+                  <h4 className="text-sm font-bold text-white font-display mb-1">{tStake.emptyTitle || "No Active Vault"}</h4>
                   <p className="text-[11px] text-neutral-400 leading-relaxed max-w-[200px] mx-auto">
-                    {tStake.emptyDesc || "You haven't staked any AETH yet. Start staking to earn daily rewards."}
+                    {tStake.emptyDesc || "You haven't locked any AETH yet. Start locking to secure the network and earn daily allocations."}
                   </p>
                </div>
             </div>
@@ -209,11 +209,11 @@ export default function StakingPanel({
               {/* RINGKASAN TOTAL STAKE & PENDING REWARD */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-[#05030F] border border-neutral-800 rounded-2xl p-4 shadow-inner">
-                  <p className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.totalStaked || "TOTAL STAKED"}</p>
+                  <p className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.totalStaked || "TOTAL LOCKED"}</p>
                   <p className="text-lg font-black text-white font-mono truncate">{Number(totalUserStaked || 0).toLocaleString()} AETH</p>
                 </div>
                 <div className="bg-[#05030F] border border-neutral-800 rounded-2xl p-4 shadow-inner">
-                  <p className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.pendingRewards || "READY TO CLAIM"}</p>
+                  <p className="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.pendingRewards || "PENDING ALLOCATION"}</p>
                   <p className="text-lg font-black text-green-400 font-mono truncate">+{pendingReward?.toFixed(4) || "0.00"} AETH</p>
                 </div>
               </div>
@@ -231,7 +231,7 @@ export default function StakingPanel({
               <div className="border-t border-neutral-800 my-2"></div>
 
               {/* DAFTAR DEPOSIT AKTIF (MULTI-DEPOSIT) */}
-              <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.activeDeposits || "ACTIVE DEPOSITS"}</p>
+              <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold mb-1">{tStake.activeDeposits || "ACTIVE LOCKS"}</p>
 
               <div className="flex-1 overflow-y-auto max-h-[300px] space-y-3 pr-1 custom-scrollbar">
                 {userDeposits?.map((dep, index) => {
@@ -253,7 +253,7 @@ export default function StakingPanel({
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-bold text-white bg-neutral-800 px-2 py-0.5 rounded">{tierName}</span>
-                          <span className="text-[10px] text-cyan-400 font-mono">{displayApy}% APY</span>
+                          <span className="text-[10px] text-cyan-400 font-mono">{displayApy}% RATE</span>
                         </div>
                         <span className="text-xs font-black text-white font-mono">{formattedAmount} AETH</span>
                       </div>

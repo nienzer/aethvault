@@ -19,7 +19,7 @@ We integrate four core products into one seamless ecosystem:
 *   **Fragility of Digital Inheritance:** Billions of dollars in crypto assets are lost because owners pass away without bequeathing private keys. AetherVault automates inheritance without third-party lawyers or centralized custodians.
 *   **Lack of Universal Proof of Ownership:** Creators struggle to prove the absolute authenticity of their digital works. We solve this by issuing permanent on-chain ownership certificates based on Keccak256 hashes.
 *   **Compromised Privacy:** Web2 cloud services hold the decryption keys to user data. AetherVault uses client-side encryption before distributing ciphertext to permanent storage (Arweave), ensuring zero-knowledge privacy.
-*   **Spam & Scam Token Proliferation:** Creating tokens is too easy and often used for spam or rug-pulls. AetherForge solves this by introducing a mandatory creation fee (Anti-Spam Barrier) that automatically routes funds to burn mechanisms, staking rewards, and the DAO treasury, ensuring only serious projects are minted.
+*   **Spam & Scam Token Proliferation:** Creating tokens is too easy and often used for spam or rug-pulls. AetherForge solves this by introducing a mandatory creation fee (Anti-Spam Barrier) that automatically routes funds to burn mechanisms, network security vaults, and the DAO treasury, ensuring only serious projects are minted.
 
 ---
 
@@ -30,14 +30,14 @@ We integrate four core products into one seamless ecosystem:
 | **Data Security** | Centralized servers, vulnerable to hacks. | 100% Zero-Knowledge, client-side ECIES encryption. |
 | **IP Integrity** | Relies on third-party authorities. | Absolute on-chain validation (Aether Proof™). |
 | **Asset Inheritance** | Manual legal processes, slow & expensive. | Smart Contract automation (Dead-Man's Switch). |
-| **Token Generation** | N/A (Requires custom coding or expensive audits). | AetherForge (1-click minting with built-in deflationary tokenomics). |
-| **Economic Model** | Value extraction to corporate entities. | Automated deflation ($AETH burn) & DAO revenue sharing. |
+| **Token Generation** | N/A (Requires custom coding or expensive audits). | AetherForge (1-click minting with automated fee routing). |
+| **Economic Model** | Value extraction to corporate entities. | Automated deflation ($AETH burn) & DAO resource sharing. |
 
 ---
 
 ## 4. Governance & DAO
 AetherVault is designed to be a community-owned protocol:
-*   **veAETH Voting:** Users escrow `$AETH` tokens to receive `veAETH`, granting governance rights based on stake duration.
+*   **veAETH Voting:** Users escrow `$AETH` utility tokens to receive `veAETH`, granting governance rights based on vault-lock duration.
 *   **AetherGovernor:** A transparent, on-chain proposal and execution framework where the community votes on protocol updates and treasury allocations.
 
 ---
@@ -62,9 +62,9 @@ Our complete audit verification documents can be inspected directly in the repos
 ## 6. BNB Chain Strategic Realignment & Infrastructure Synergy
 AetherVault is natively optimized to thrive within the BNB Chain Ecosystem, heavily capitalizing on the network’s high-throughput architecture and minimal fee structure.
 
-*   **High-Frequency 'Proof of Life' Mechanics:** The protocol's complex inheritance and time-locked encapsulation features require multiple state updates and recurrent verification steps. Deploying this logic on legacy networks would create prohibitive gas barriers for everyday users. By utilizing the sub-cent transaction costs of BNB Chain (and opBNB), AetherVault makes digital legacy and asset staking affordable for the next billion Web3 users.
+*   **High-Frequency 'Proof of Life' Mechanics:** The protocol's complex inheritance and time-locked encapsulation features require multiple state updates and recurrent verification steps. Deploying this logic on legacy networks would create prohibitive gas barriers for everyday users. By utilizing the sub-cent transaction costs of BNB Chain (and opBNB), AetherVault makes digital legacy and secure vault locking affordable for the next billion Web3 users.
 *   **Ecosystem Gas Efficiency & Scalability:** Every state-mutating function has been micro-profiled using Foundry Gas Snapshots. The highly localized storage design ensures that the protocol minimizes state bloat and limits gas expenditure per transaction. This architectural efficiency directly aligns with BNB Chain's 2026 H2 Tech Roadmap Focus on Ultra-Low Latency and High Execution Performance.
-*   **Value Accrual and Ecosystem DAU Injection:** By merging decentralized staking with active vault locking mechanisms, AetherVault functions as a powerful liquidity-retention engine. The high interaction frequency of our users directly injects persistent, incremental Daily Active Users (DAU) and sustained Gas Fees into the network, perfectly qualifying the dApp for subsequent BNB Chain Gas Grants and Incentive Accelerators.
+*   **Value Accrual and Ecosystem DAU Injection:** By merging protocol governance with active network locking mechanisms, AetherVault functions as a powerful liquidity-retention engine. The high interaction frequency of our users directly injects persistent, incremental Daily Active Users (DAU) and sustained Gas Fees into the network, perfectly qualifying the dApp for subsequent BNB Chain Gas Grants and Incentive Accelerators.
 
 ---
 
@@ -75,7 +75,7 @@ We operate under a lean, high-efficiency development model, having independently
 *   **40% ($12,000) - Institutional Security Audits:** Finalizing external third-party enterprise security oversight (e.g., CertiK, Hacken) to guarantee zero-compromise contract integrity prior to public launch.
 *   **30% ($9,000) - Infrastructure & DevOps:** Dedicated premium RPC nodes, permanent Arweave storage integration overhead, and operational deployment costs.
 *   **20% ($6,000) - Marketing & Bug Bounty:** Early adopter acquisition campaigns and white-hat penetration testing incentives.
-*   **10% ($3,000) - Initial Liquidity Provision:** Initial protocol-owned liquidity pairing ($AETH) on decentralized exchanges to kickstart network utility.
+*   **10% ($3,000) - Network Utility Provision:** Initial protocol-owned liquidity pairing ($AETH) on decentralized exchanges to kickstart utility access.
 
 ---
 

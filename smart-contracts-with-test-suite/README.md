@@ -35,7 +35,7 @@ We have prepared a dedicated zero-friction faucet integrated directly into our m
 | :--- | :--- | :---: | :---: |
 | **AetherVault Token** | BEP-20 Deflationary Supply | 5 | ✅ |
 | **AetherVaultV3** | Proof Registry & Capsule Factory | 6 | ✅ |
-| **Staking V6** | Tiered Yield & Anti-Whale Logic | 7 | ✅ |
+| **Security Vault V6** | Tiered Protocol Rewards & Anti-Whale Logic | 7 | ✅
 | **Team Vesting** | Linear Release & Cliff Security | 7 | ✅ |
 | **DAO Governance** | veAETH Voting & Proposal Lifecycle | 5 | ✅ |
 | **AetherForge Factory** | Custom Token Creation & Fee Logic | 5 | ✅ |
@@ -51,7 +51,7 @@ We prioritize transparency and industrial-grade security by employing a **Hybrid
 ### 1. Hardhat & Slither (Static Analysis)
 Our initial architecture and deployment scripts were constructed using Hardhat, allowing us to seamlessly integrate **Slither** for rigorous vulnerability scanning.
 *   **Reentrancy Protection:** All external-facing functions are protected by OpenZeppelin's `nonReentrant` modifier.
-*   **Intentional Balance Logic:** `reentrancy-balance` warnings in our Staking contract are **False Positives**. They stem from our deliberate use of balance verification to handle fee-on-transfer tokens securely.
+*   **Intentional Balance Logic:** reentrancy-balance warnings in our Security Vault contract are **False Positives**.
 *   **Dependency Audit:** Warnings found in `node_modules` belong to OpenZeppelin's standard audited libraries.
 
 ### 2. Foundry (High-Performance Compilation & Gas Profiling)
@@ -67,7 +67,7 @@ To guarantee the highest degree of protocol safety, we extended our Foundry test
 ### 4. Extreme Property-Based Testing (Echidna)
 To achieve a "Double-Audit" standard, we subjected the entire ecosystem to **Echidna**, a Haskell-based mathematical fuzzer by Trail of Bits. We successfully executed over 300,000 brutal randomized calls against our invariant contracts to ensure:
 *   Core token burn mathematics are completely overflow-proof.
-*   Staking APY and withdrawal mechanisms never break solvency limits.
+*   Vault resource allocations and withdrawal mechanisms never break protocol solvency limits.
 *   DAO governance time-locks and vesting cliff periods cannot be bypassed under any manipulated network conditions.
 
 👉 **[Comprehensive Security Audit Report (PDF)](./grant-docs/AetherVault_Final_Audit_Report.pdf)**
@@ -118,7 +118,7 @@ slither . --exclude-dependencies
 
 # Run Echidna Extreme Fuzzing (Requires Echidna CLI)
 # ==========================================
-# Part 1: Test Core Token, Staking V6, and Forge Factory
+# Part 1: Test Core Token, Security Vault V6, and Forge Factory
 echidna . --contract EchidnaBrutalTest --config echidna.yaml
 
 # Part 2: Test Digital Vault V3 (Capsule) and Team Vesting
