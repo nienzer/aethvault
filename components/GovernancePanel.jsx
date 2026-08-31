@@ -212,11 +212,11 @@ export default function GovernancePanel({
         </button>
       </div>
 
-      {/* GRID: BUAT PROPOSAL & FEED OTOMATIS */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+      {/* LAYOUT VERTIKAL: BUAT PROPOSAL & VOTING PANEL */}
+      <div className="flex flex-col gap-6 sm:gap-8">
         
-        {/* KOLOM KIRI: FORM BUAT PROPOSAL */}
-        <div className="lg:col-span-1 bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl h-fit space-y-4">
+        {/* ATAS: FORM BUAT PROPOSAL */}
+        <div className="w-full bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl space-y-4">
           <h4 className="text-xs sm:text-sm font-bold text-white uppercase font-mono flex items-center gap-2">
             <PlusCircle className="w-4 h-4 text-fuchsia-400" /> {t.proposeTitle || "Create Parliament Proposal"}
           </h4>
@@ -254,8 +254,8 @@ export default function GovernancePanel({
           </form>
         </div>
 
-        {/* KOLOM KANAN: DAFTAR PROPOSAL */}
-        <div className="lg:col-span-2 bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl space-y-4">
+        {/* BAWAH: DAFTAR PROPOSAL / VOTING PANEL */}
+        <div className="w-full bg-[#0B0817] border border-neutral-900 p-5 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl space-y-4">
           <div className="flex items-center justify-between border-b border-neutral-900 pb-3">
             <h4 className="text-xs sm:text-sm font-bold text-white uppercase font-mono flex items-center gap-2">
               <Scale className="w-4 h-4 text-cyan-400" /> {t.votingPanelTitle || "Voting Panel"}

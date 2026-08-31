@@ -588,8 +588,8 @@ export default function LandingPage() {
                 </div>
               </a>
               
-              <button 
-                onClick={() => router.push('/dashboard')}
+             <button 
+                onClick={() => router.push('/dashboard?tab=dao')}
                 className="bg-[#05030F] border border-cyan-500/20 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all shadow-inner group w-full cursor-pointer"
               >
                 <Hexagon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />

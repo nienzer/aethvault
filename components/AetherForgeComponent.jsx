@@ -60,14 +60,12 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
       
       const receipt = await createTx.wait();
 
-      // 🌟 PERBAIKAN RADAR: Baca log dari bawah ke atas dan abaikan AETH
       const transferSignature = ethers.id("Transfer(address,address,uint256)");
       let deployedAddress = "";
       
       for (let i = receipt.logs.length - 1; i >= 0; i--) {
         const log = receipt.logs[i];
         if (log.topics[0] === transferSignature) {
-          // Abaikan jika alamat yang mentransfer adalah alamat AETH
           if (log.address.toLowerCase() !== aethTokenAddress.toLowerCase()) {
             deployedAddress = log.address;
             break;
@@ -224,6 +222,15 @@ export default function AetherForgeComponent({ account, forgeFactoryAddress, aet
             <span className="font-bold">{t.forgeFeeInfoTitle || "Informasi Biaya:"}</span> {(t.forgeFeeInfoDesc || "Pembuatan token akan memotong biaya sebesar {fee} AETH...").replace("{fee}", CREATION_FEE_AMOUNT)}
           </div>
         </div>
+
+        {/* --- TAMBAHAN KOTAK DISCLAIMER HUKUM --- */}
+        <div className="p-4 bg-red-950/20 border border-red-900/40 rounded-xl text-[10px] sm:text-xs text-red-400/80 flex items-start space-x-2">
+          <span className="text-base">⚠️</span>
+          <div>
+            <span className="font-bold">{t.forgeLegalDisclaimerTitle || "Disclaimer Hukum:"}</span> {t.forgeLegalDisclaimerDesc || "AetherVault adalah infrastruktur terdesentralisasi. Pengembang tidak berafiliasi, tidak mengontrol, dan tidak bertanggung jawab atas tujuan token yang dicetak oleh pengguna, termasuk kerugian finansial atau penipuan. Do Your Own Research (DYOR)."}
+          </div>
+        </div>
+        {/* ----------------------------------------- */}
 
         <button 
           type="submit" 

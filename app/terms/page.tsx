@@ -219,7 +219,7 @@ export default function TermsOfServicePage() {
                   </a>
                   <a href="#" className="col-span-1 sm:col-span-2 flex items-center gap-3 bg-[#030208] border border-neutral-800 p-4 rounded-xl hover:border-cyan-500 transition-colors">
                     <Code className="w-5 h-5 text-neutral-400"/>
-                    <div><p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">{t.contactGithub}</p><p className="text-white">github.com/AetherVault</p></div>
+                    <div><p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">{t.contactGithub}</p><p className="text-white">github.com/nienzer</p></div>
                   </a>
                 </div>
               </section>
