@@ -392,10 +392,11 @@ export const id = {
     sec12Title: "12. Roadmap",
     sec12Text: "• Fase 1: Protokol Inti, Integrasi Dompet Web3, Kapsul Waktu, Enkripsi ECIES.\n• Fase 2: Implementasi Aether Proof™, Pembuatan Sertifikat, Hall of Proof, Blockchain Explorer.\n• Fase 3: Transisi DAO, API Publik, SDK Pengembang, Portal Pengembang.\n• Fase 4: Aplikasi Seluler, Integrasi Lintas-Rantai, Solusi Perusahaan, Kemitraan Institusional.",
     sec13Title: "13. Ekosistem Masa Depan",
+    sec13Text: "Ekosistem AetherVault melampaui sekadar penyimpanan aman dengan menyediakan terminal Web3 yang komprehensif.\n\n**1. AetherForge (Pabrik Token)**\nInfrastruktur pembuat token khusus anti-spam yang terdesentralisasi. Untuk menjaga kesehatan ekonomi jaringan, AetherForge mengintegrasikan mekanisme pembakaran (burn) biaya AETH wajib untuk setiap token yang dicetak, secara efektif mencegah spam jaringan dan serangan Sybil.\n\n**2. Tata Kelola DAO On-Chain (veAETH)**\nProtokol tata kelola terdesentralisasi yang kuat. Dengan melakukan staking AETH, pengguna menerima veAETH yang memberi mereka hak suara. Parlemen DAO memungkinkan komunitas untuk mengusulkan dan memberikan suara pada peningkatan protokol, struktur biaya, dan alokasi kas perbendaharaan.",
     sec14Title: "14. Kesimpulan",
-    sec14Text: "AetherVault sedang membangun lapisan memori permanen dari internet terdesentralisasi. Dengan menggabungkan keamanan kriptografi tingkat militer, penyimpanan terdesentralisasi, dan model ekonomi deflasi yang sehat, AetherVault menetapkan standar baru tentang bagaimana umat manusia membuktikan kepemilikan dan mewariskan rahasia kepada generasi mendatang.",
+    sec14Text: "AetherVault sedang membangun lapisan memori permanen dari internet yang terdesentralisasi. Dengan menggabungkan keamanan kriptografi tingkat militer, penyimpanan terdesentralisasi, dan model ekonomi deflasi yang sehat, AetherVault menetapkan standar baru tentang bagaimana umat manusia membuktikan kepemilikan dan mewariskan rahasia kepada generasi mendatang.",
     disclaimerTitle: "Penafian & Lisensi Hukum",
-    disclaimerText: "Whitepaper ini hanya untuk tujuan informasi dan bukan merupakan nasihat keuangan atau investasi. Protokol AetherVault disediakan 'apa adanya' tanpa jaminan dalam bentuk apa pun."
+    disclaimerText: "Buku putih (whitepaper) ini hanya untuk tujuan informasi dan bukan merupakan nasihat keuangan atau investasi. Protokol AetherVault disediakan 'sebagaimana adanya' tanpa jaminan dalam bentuk apa pun."
   },
   terms: {
     legalDoc: "Dokumen Hukum Resmi",
