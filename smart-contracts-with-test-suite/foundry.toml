@@ -1,0 +1,25 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+solc_version = "0.8.20"
+evm_version = "shanghai"
+
+# 🚀 MENGAKTIFKAN OPTIMIZER: Mengkompres kode agar gas fee jauh lebih murah (Sangat disukai juri)
+optimizer = true
+optimizer_runs = 200
+
+# 🧹 LINTER CLEANUP: Menyaring warning kuning dari library OpenZeppelin
+ignored_warnings_from = ["node_modules", "lib"]
+
+# 📊 GAS REPORT: Menampilkan tabel estimasi gas fee saat menjalankan forge test
+gas_reports = ["AetherVault", "AetherVaultV3", "AetherVaultStakingSecureV6", "TeamVesting", "AetherGovernor", "AetherForge"]
+
+[fuzz]
+# 🔥 FUZZ TESTING: Standar keamanan Foundry untuk mengetes logika kontrak dengan data acak 
+runs = 256 
+
+[rpc_endpoints]
+# 🌐 JARINGAN: Mempermudah deployment dan forking langsung ke BSC Testnet
+bsc_testnet = "https://data-seed-prebsc-1-s1.binance.org:8545"

@@ -1,0 +1,22 @@
+# SIKSA KONTRAK AETHERVAULT - MODE PARANOID
+# 100.000 transaksi acak bertubi-tubi
+
+testLimit: 100000
+
+# Panjang sequence. 200 transaksi berurutan biar bisa ngetes combo attack
+seqLen: 200 
+
+# 3 WALLET UNTUK NGEFUZZ. Simulasi user A, user B, Hacker
+sender: 
+    - "0x00a329c0648769A73afAc7F9381E08FB43dBEa72"  
+    - "0x1"  
+    - "0x2"
+
+# Liat berapa % kode yg ke fuzz. Target >90%
+coverage: true
+
+# Pake 4 core CPU biar cepet. Sesuaikan sama PC lu
+workers: 4
+
+# Prefix fungsi echidna yg mau dites
+prefix: "echidna_"
